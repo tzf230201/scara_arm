@@ -1,0 +1,13 @@
+float64 x
+float64 y
+float64 z
+float64 c
+float64 motor1
+float64 motor2
+float64 motor3
+float64 motor4
+float64 duration_time
+float64 max_speed
+float64 kpP
+float64 kdP
+float64 kfP

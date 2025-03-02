@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot name="ppr_urdf">
+    <link name="Fixed_Vertical_Rail">
+        <inertial>
+            <origin xyz="-0.0653652039224434 0.0346487927069754 1.58293633496328" rpy="0 0 0" />
+            <mass value="1.36134490661131" />
+            <inertia ixx="1.23113349395946" ixy="-3.02582471930478E-05" ixz="-1.60411948067779E-06" iyy="1.2311924579006" iyz="-2.04129879693702E-05" izz="0.00039546600300364" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://ppr_urdf/meshes/Fixed_Vertical_Rail.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://ppr_urdf/meshes/Fixed_Vertical_Rail.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="Arm_Base">
+        <inertial>
+            <origin xyz="-0.0723232974183641 -0.108852791163646 0.110380253511977" rpy="0 0 0" />
+            <mass value="2.55348579407201" />
+            <inertia ixx="0.00340893503817532" ixy="0.000118939658549301" ixz="-9.91618542470022E-06" iyy="0.00456708278833863" iyz="-1.31342859741288E-05" izz="0.00190057696475435" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://ppr_urdf/meshes/Arm_Base.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://ppr_urdf/meshes/Arm_Base.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="Motor_1" type="prismatic">
+        <origin xyz="-0.00599999999999973 0.103500000000001 0" rpy="0 0 0" />
+        <parent link="Fixed_Vertical_Rail" />
+        <child link="Arm_Base" />
+        <axis xyz="0 0 1" />
+        <limit lower="0" upper="3251" effort="0" velocity="0" />
+    </joint>
+    <link name="First_Link">
+        <inertial>
+            <origin xyz="-0.00830989255160941 -0.0612529073186812 0.0412894159868319" rpy="0 0 0" />
+            <mass value="0.39754180447117" />
+            <inertia ixx="0.0010676169811411" ixy="-0.000125735491727204" ixz="5.13685153266351E-06" iyy="0.000182921549481065" iyz="6.27301860431454E-05" izz="0.00113842663671868" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://ppr_urdf/meshes/First_Link.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://ppr_urdf/meshes/First_Link.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="Motor_2" type="revolute">
+        <origin xyz="0.00599999999999971 -0.103500000000001 0.0590000000000115" rpy="0 0 0" />
+        <parent link="Arm_Base" />
+        <child link="First_Link" />
+        <axis xyz="0 0 1" />
+        <limit lower="0" upper="3.0986" effort="0" velocity="0" />
+    </joint>
+    <link name="Second_Link">
+        <inertial>
+            <origin xyz="0.036113 0.027642 0.027283" rpy="0 0 0" />
+            <mass value="0.60727" />
+            <inertia ixx="0.00034204" ixy="-0.00026976" ixz="1.8061E-05" iyy="0.00046144" iyz="1.1693E-05" izz="0.000744" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://ppr_urdf/meshes/Second_Link.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.75294 0.75294 0.75294 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://ppr_urdf/meshes/Second_Link.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="Motor_3" type="revolute">
+        <origin xyz="-0.015509 -0.13612 0" rpy="0 0 0" />
+        <parent link="First_Link" />
+        <child link="Second_Link" />
+        <axis xyz="0 0 1" />
+        <limit lower="2.3562" upper="0" effort="0" velocity="0" />
+    </joint>
+    <link name="Gripper">
+        <inertial>
+            <origin xyz="0.014864 -0.019392 0.051985" rpy="0 0 0" />
+            <mass value="0.072883" />
+            <inertia ixx="5.611E-05" ixy="1.8401E-05" ixz="6.0106E-06" iyy="4.6306E-05" iyz="-7.8438E-06" izz="6.9227E-05" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://ppr_urdf/meshes/Gripper.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.75294 0.75294 0.75294 1" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://ppr_urdf/meshes/Gripper.STL" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="Motor_4" type="revolute">
+        <origin xyz="0.095996 0.07366 0" rpy="0 0 0" />
+        <parent link="Second_Link" />
+        <child link="Gripper" />
+        <axis xyz="0 0 1" />
+        <limit lower="0" upper="3.4207" effort="0" velocity="0" />
+    </joint>
+    <transmission name="trans_Motor_1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="Motor_1">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="Motor_1_motor">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_Motor_2">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="Motor_2">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="Motor_2_motor">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_Motor_3">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="Motor_3">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="Motor_3_motor">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_Motor_4">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="Motor_4">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="Motor_4_motor">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <gazebo>
+        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+            <robotNamespace>/</robotNamespace>
+        </plugin>
+    </gazebo>
+</robot>
+

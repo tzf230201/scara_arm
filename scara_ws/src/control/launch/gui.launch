@@ -1,0 +1,4 @@
+<launch>
+  <!-- Launch the Python GUI script -->
+  <node pkg="control" type="gui.py" name="motor_control_gui" output="screen" />
+</launch>
