@@ -1,21 +1,63 @@
-# scara_arm
+# Pusirobot Stepper Motor
 
-A 4-DoF SCARA robot arm on a vertical rail, equipped with Integrated Closed-Loop (ICL) stepper motors and a 400-watt industrial servo motor, all controlled via CAN bus communication.
+The PMC007CxSxPx controller uses the reverse EMF of a two-phase winding to realize sensorless blocking detection. Its accuracy is influenced by various factors such as current, subdivision, voltage, motor parameters, and especially motor speed and phase inductance.  
+The blocking threshold range is usually set between -10 and 10 (stall length).
 
-![Scara Arm](picture/picture_1.png)
+---
 
-The software currently runs on ROS1-Noetic, utilizing a URDF model and MoveIt, with an option to use a custom Tkinter GUI. We are also developing our own [motion designer software](https://github.com/tzf230201/Dancemotion-Designer), which is an ongoing project.
+## Boot/Firmware Configuration (`config.txt`)
 
-![MoveIt](picture/picture_5.png)
+```bash
+# Enable audio, I2C, and SPI
+dtparam=audio=on
+dtparam=i2c_arm=on
+dtparam=spi=on
 
-Movelt actually difficult to manage our arm robot, because each link is connected individually to its motor which is located on the main base instead of the normal, on its parent link - Each link will point to the same global direction regardless of the other link's movement.
+# Enable MCP2515 CAN interface
+dtoverlay=mcp2515-can1,oscillator=16000000,interrupt=25
+dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=23
+dtoverlay=spi-bcm2835-overlay
+```
 
-![Mechanical Design](picture/picture_2.png)
+---
 
-Each actuator features a built-in smart MCU, allowing users to configure parameters such as starting speed, acceleration and deceleration times, maximum speed, and total pulse count. These settings enable smooth S-curve acceleration and deceleration.
+## How to Change the Node ID and Baudrate
 
-![Diagram](picture/picture_3.png)
+**Example: Default Node ID is "3" using channel `can0`**  
+*Note: Changes won't apply until the communication is reset.*
 
-Commands are sent through the CAN bus using the CANopen protocol.
+| Action                                      | CAN Command                        |
+|--------------------------------------------|-----------------------------------|
+| Change Node ID from "3" to "2"              | `603#2F02200002000000`             |
+| Set Baudrate to 500kbps                     | `603#2F03200006000000`             |
+| Save all settings to non-volatile memory    | `603#2F07200002000000`             |
+| Reset communication                         | `000#8203`                         |
 
-Even though it's still an ongoing project, **See it in action:** [Video Demo](https://drive.google.com/file/d/1y8DbG6vgjGmnc4_ooR9SQvQAt7R12CfX/view?usp=sharing)
+---
+
+## PP Mode Tutorial
+
+| Command Description               | CAN Command                        |
+|----------------------------------|-----------------------------------|
+| Set current to 1200mA             | `603#2b0b6000B0040000`             |
+| Set subdivision to 32             | `603#2b0a600010000000`             |
+| Set working mode to PP mode       | `603#2f05600004000000`             |
+| Set PP mode acceleration to 32000 pps | `603#232d6001007d0000`         |
+| Set PP mode deceleration to 32000 pps | `603#232d6002007d0000`         |
+| Set PP mode speed to 10000 pps    | `603#232e600310270000`             |
+| Set target position to 32000 pulses| `603#232e6004007d0000`             |
+| Set control word                  | `603#2b2e600110000000`             |
+
+---
+
+## SP Mode Tutorial
+
+| Command Description               | CAN Command                        |
+|----------------------------------|-----------------------------------|
+| Set Motion Mode                   | `603#2f05600000000000`             |
+| Set Acceleration Coefficient      | `603#2f08600008000000`             |
+| Set Deceleration Coefficient      | `603#2f09600008000000`             |
+| Set Synchronized Positioning Speed| `603#231d6001007d0000`             |
+| Set Synchronized Positioning Position | `603#231d6002007d0000`         |
+| Set Group ID                      | `603#2f06200001000000`             |
+| Start Synchronized Motion         | `000#0A01`                         |
