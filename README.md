@@ -4,7 +4,7 @@ A 4-DoF SCARA robot arm on a vertical rail, equipped with Integrated Closed-Loop
 
 ![Scara Arm](picture/picture_1.png)
 
-The software currently runs on ROS1-Noetic, utilizing a URDF model and MoveIt, with an option to use a custom Tkinter GUI. We are also developing our own [motion designer software](https://github.com/tzf230201/Dancemotion-Designer), which is an ongoing project.
+The software currently runs on ROS1-Noetic, utilizing a URDF model and MoveIt, with an option to use a custom Tkinter GUI. We are also developing our own motion designer software called [DanceMotion Designer](https://github.com/tzf230201/Dancemotion-Designer), which is also an ongoing project.
 
 ![MoveIt](picture/picture_5.png)
 
@@ -18,18 +18,18 @@ Each actuator features a built-in smart MCU, allowing users to configure paramet
 
 Commands are sent through the CAN bus using the CANopen protocol.
 
-there are several type of motion:
--Linear motion
--P to P fastest motion
--Circular motion
--Horizontal curved Motion
--Vertical curved motion
--Interpolated motion
+**There are several type of motion**:
+- Linear motion<br>
+- P to P fastest motion<br>
+- Circular motion<br>
+- Horizontal curved Motion<br>
+- Vertical curved motion<br>
+- Interpolated motion<br>
 
-profile types:
--triangle profile
--trapezoidal profile
--sine profile
--s-shape profile
+**Profile types:**<br>
+- triangle profile<br>
+- trapezoidal profile<br>
+- sine profile<br>
+- s-shape profile<br><br>
 
-Even though it's still an ongoing project, **See it in action:** [Video Demo](https://drive.google.com/file/d/1y8DbG6vgjGmnc4_ooR9SQvQAt7R12CfX/view?usp=sharing)
+Even though it's still an ongoing project,  [**See it in action**](https://drive.google.com/file/d/1y8DbG6vgjGmnc4_ooR9SQvQAt7R12CfX/view?usp=sharing)
