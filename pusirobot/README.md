@@ -3,7 +3,6 @@
 The PMC007CxSxPx controller uses the reverse EMF of a two-phase winding to realize sensorless blocking detection. Its accuracy is influenced by various factors such as current, subdivision, voltage, motor parameters, and especially motor speed and phase inductance.  
 The blocking threshold range is usually set between -10 and 10 (stall length).
 
----
 
 ## Boot/Firmware Configuration (`config.txt`)
 
@@ -19,7 +18,7 @@ dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=23
 dtoverlay=spi-bcm2835-overlay
 ```
 
----
+
 
 ## How to Change the Node ID and Baudrate
 
@@ -32,8 +31,6 @@ dtoverlay=spi-bcm2835-overlay
 | Set Baudrate to 500kbps                     | `603#2F03200006000000`             |
 | Save all settings to non-volatile memory    | `603#2F07200002000000`             |
 | Reset communication                         | `000#8203`                         |
-
----
 
 ## PP Mode Tutorial
 
@@ -48,16 +45,15 @@ dtoverlay=spi-bcm2835-overlay
 | Set target position to 32000 pulses| `603#232e6004007d0000`             |
 | Set control word                  | `603#2b2e600110000000`             |
 
----
 
 ## SP Mode Tutorial
 
 | Command Description               | CAN Command                        |
 |----------------------------------|-----------------------------------|
-| Set Motion Mode                   | `603#2f05600000000000`             |
+| Set working mode to Position mode | `603#2f05600000000000`             |
 | Set Acceleration Coefficient      | `603#2f08600008000000`             |
 | Set Deceleration Coefficient      | `603#2f09600008000000`             |
-| Set Synchronized Positioning Speed| `603#231d6001007d0000`             |
-| Set Synchronized Positioning Position | `603#231d6002007d0000`         |
-| Set Group ID                      | `603#2f06200001000000`             |
+| Set SP mode Speed| `603#231d6001007d0000`             |
+| Set SP mode Position | `603#231d6002007d0000`         |
+| Set Group ID to "1"                     | `603#2f06200001000000`             |
 | Start Synchronized Motion         | `000#0A01`                         |
