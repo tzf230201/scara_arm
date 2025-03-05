@@ -1,9 +1,6 @@
 # Pusirobot Stepper Motor
 
-The PMC007CxSxPx controller uses the reverse EMF of a two-phase winding to realize sensorless blocking detection. Its accuracy is influenced by various factors such as current, subdivision, voltage, motor parameters, and especially motor speed and phase inductance.  
-The blocking threshold range is usually set between -10 and 10 (stall length).
-
-our model : PMC007C3SEP2M
+Our model : PMC007C3SEP2M
 
 
 ## Boot/Firmware Configuration (`config.txt`)
@@ -60,9 +57,41 @@ dtoverlay=spi-bcm2835-overlay
 | Set Group ID to "1"                     | `603#2f06200001000000`             |
 | Start Synchronized Motion         | `000#0A01`                         |
 
-### Notes about the datasheet
+## PVT Mode Commands
+
+| Command Description                        | CAN Command                        |
+|-------------------------------------------|-----------------------------------|
+| Set Peak Phase Current Threshold           | `603#2b0b600040060000`             |
+| Set Microstep                              | `603#2b0a600020000000`             |
+| Set Node ID (default: 3)                   | `603#2f02200003000000`             |
+| Set Group ID (default: 0) to 1             | `603#2f06200001000000`             |
+| Set Work Mode (default: 0, `2`: PVT mode)  | `603#2f05600002000000`             |
+| Set PVT Mode (range: 0~2)                  | `603#2f10600200000000`             |
+| Set PVT Points                             | `603#2f10600364000000`             |
+| Set PVT Position                           | `603#2310601100000000`             |
+| Set PVT Speed (PPS)                        | `603#2310601200000000`             |
+| Set PVT Time (ms)                          | `603#2310601300000000`             |
+| PVT Control (`0`: Stop, `1`: Start, `2`: Add to Queue, `3`: Clear Queue) | `603#2f10600100000000` |
+
+## Notes
 I found a mistake in the user manual
 
 In the pmc007cxsxp2_user_manual_v0.2.6_en.doc, page 41 states that bit 6 should be 0 for absolute positioning and 1 for relative positioning.
 
 However, after testing, I found this to be reversed: bit 6 is 1 for absolute positioning and 0 for relative positioning.
+
+<br><br>
+The PMC007CxSxPx controller uses the reverse EMF of 2-phase winding to realize 
+sensor less blocking detection.
+
+it's simple and safe, but the main problem is, It's accuracy is affected by many factors, such as it's current, subdivision parameter, voltage, especially the motor speed and phase inductance.
+
+
+The blocking threshold range is usually set between -10 and 10.
+
+<br><br>
+The seller said:
+
+*"The PVT mode is an optional function, you know pmc007 has many models, they got different functions. Almost no one needs this PVT mode, it can be replaced by the pp mode at most situations. So we made the firmware for you to upgrade it, but this will use the PUSICAN, then the PCAN adapter"*
+
+The `PMC007C3EP2_HB_ENC3_V394_G.bit` file is the firmware with PVT mode unlocked.
