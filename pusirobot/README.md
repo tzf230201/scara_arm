@@ -3,6 +3,8 @@
 The PMC007CxSxPx controller uses the reverse EMF of a two-phase winding to realize sensorless blocking detection. Its accuracy is influenced by various factors such as current, subdivision, voltage, motor parameters, and especially motor speed and phase inductance.  
 The blocking threshold range is usually set between -10 and 10 (stall length).
 
+our model : PMC007C3SEP2M
+
 
 ## Boot/Firmware Configuration (`config.txt`)
 
@@ -57,3 +59,10 @@ dtoverlay=spi-bcm2835-overlay
 | Set SP mode Position | `603#231d6002007d0000`         |
 | Set Group ID to "1"                     | `603#2f06200001000000`             |
 | Start Synchronized Motion         | `000#0A01`                         |
+
+### Notes about the datasheet
+I found a mistake in the user manual
+
+In the pmc007cxsxp2_user_manual_v0.2.6_en.doc, page 41 states that bit 6 should be 0 for absolute positioning and 1 for relative positioning.
+
+However, after testing, I found this to be reversed: bit 6 is 1 for absolute positioning and 0 for relative positioning.
