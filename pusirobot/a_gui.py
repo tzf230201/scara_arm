@@ -1,6 +1,6 @@
 import signal
 import tkinter as tk
-from a_can import save_settings, on_closing, wake_up, shutdown, pvt_mode_init, pvt_triangle_trajectory, read_present_position, homing, encoder_position, calib_0
+from a_can import save_settings, on_closing, wake_up, shutdown, pvt_mode_init, pvt_triangle_trajectory,pvt_mode_try_pvt_3,pvt_mode_read_pvt_3_depth,  read_present_position, homing, encoder_position, calib_0
 
 def signal_handler():
     print("SIGINT received, closing application...")
@@ -26,7 +26,8 @@ def pvt_try():
     
     travel_time = travel_time/1000
     
-    pvt_triangle_trajectory(cur_joints, tar_joints, travel_time)
+    # pvt_triangle_trajectory(cur_joints, tar_joints, travel_time)
+    pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
 
     
     
@@ -87,6 +88,8 @@ entry_tar_joint_4.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
 #baris 13
 # pvt_mode_init_button = tk.Button(root, text="PVT Mode Init", command=pvt_mode_init)
 # pvt_mode_init_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+pvt_mode_init_button = tk.Button(root, text="read PVT3 depth", command=pvt_mode_read_pvt_3_depth)
+pvt_mode_init_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 pvt_mode_button = tk.Button(root, text="PVT try", command=pvt_try)
 pvt_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")

@@ -18,18 +18,4 @@ Each actuator features a built-in smart MCU, allowing users to configure paramet
 
 Commands are sent through the CAN bus using the CANopen protocol.
 
-there are several type of motion:
--Linear motion
--P to P fastest motion
--Circular motion
--Horizontal curved Motion
--Vertical curved motion
--Interpolated motion
-
-profile types:
--triangle profile
--trapezoidal profile
--sine profile
--s-shape profile
-
 Even though it's still an ongoing project, **See it in action:** [Video Demo](https://drive.google.com/file/d/1y8DbG6vgjGmnc4_ooR9SQvQAt7R12CfX/view?usp=sharing)

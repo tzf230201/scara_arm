@@ -390,7 +390,7 @@ def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
 
 def generate_pvt_trajectory(cur_pulse, tar_pulse, travel_time):
     # Define the number of intervals (100ms steps)
-    dt = 0.05  # 100ms = 0.1s
+    dt = 0.1  # 100ms = 0.1s
     num_steps = int(travel_time / dt) + 1
     time_points = np.linspace(0, travel_time, num_steps)
 
@@ -405,7 +405,7 @@ def generate_pvt_trajectory(cur_pulse, tar_pulse, travel_time):
 
 def generate_pvt_trajectory_round_trip(cur_pulse, tar_pulse, time_travel):
     # Define the number of intervals (100ms steps) for one direction
-    dt = 0.05  # 100ms = 0.1s
+    dt = 0.1  # 100ms = 0.1s
     num_steps = int(time_travel / dt) + 1
     time_points_one_way = np.linspace(0, time_travel, num_steps)
 
@@ -453,19 +453,19 @@ def pvt_triangle_trajectory(cur_joints, tar_joints, travel_time):
     pt_idx = 0
     for pos, vel in zip(p4, v4):
         # print(f"{pos:.2f}           | {vel:.2f}        | {100}")
-        pvt_mode_write_read(ID4, int(pos), int(vel), 50)
+        pvt_mode_write_read(ID4, int(pos), int(vel), 100)
         pt_idx += 1
         
     pt_idx = 0
     for pos, vel in zip(p3, v3):
         # print(f"{pos:.2f}           | {vel:.2f}        | {100}")
-        pvt_mode_write_read(ID3, int(pos), int(vel), 50)
+        pvt_mode_write_read(ID3, int(pos), int(vel), 100)
         pt_idx += 1
 
     pt_idx = 0
     for pos, vel in zip(p2, v2):
         # print(f"{pos:.2f}           | {vel:.2f}        | {100}")
-        pvt_mode_write_read(ID2, int(pos), int(vel), 50)
+        pvt_mode_write_read(ID2, int(pos), int(vel), 100)
         pt_idx += 1
     
     
@@ -491,6 +491,40 @@ def pvt_mode_set_pvt_3_fifo_threshold_2(th2):
         _, ret = set_req_sdo(node_id, SET_2_BYTE, OD_STEPPER_PVT_MOTION, 0x10, th2)
         print(f"Node {node_id:03X} PVT3 upper limit set to {th2}")
 
+def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
+    global current_time
+    group_id = 0x05
+    tar_pulses = []
+    
+    pvt_type = 3
+    reset_node()
+    time.sleep(2)
+    init_operation_mode(0x02)
+    init_change_group_id(group_id)
+    pvt_mode_set_pvt_max_point(400)
+    pvt_mode_set_pvt_operation_mode(pvt_type-1)
+    pvt_mode_set_pvt_3_fifo_threshold_1(20)
+    pvt_mode_set_pvt_3_fifo_threshold_2(40)
+    
+    print(f"pvt init : operation mode pvt, max point 400, pvt mode {pvt_type}")
+    
+    for tar_joint in tar_joints:
+        tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
+    
+    pvt_mode_reset_queue()
+    p4, v4, t4 = generate_pvt_trajectory_round_trip(0 , tar_pulses[3], travel_time)
+    pt_idx = 0
+    for pos, vel in zip(p4, v4):
+        pvt_mode_write_read(ID4, int(pos), int(vel), 100)
+        pt_idx += 1
+        
+    
+    
+    pvt_mode_read_index()
+    pvt_mode_read_pvt_3_depth()
+    # pvt_mode_start_pvt_step(group_id)
+    pvt_mode_start_pvt_motion(ID4)
+    current_time = time.time()
     
 ##################################################################
 ##################################################################     
@@ -548,7 +582,6 @@ def pvt_mode_init():
     init_change_group_id(0x05)
     pvt_mode_set_pvt_max_point(400)
     pvt_mode_set_pvt_operation_mode(pvt_type-1)
-    wake_up()
     
     print(f"pvt init : operation mode pvt, max point 400, pvt mode {pvt_type}")
 
