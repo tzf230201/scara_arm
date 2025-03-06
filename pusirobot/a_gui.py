@@ -29,6 +29,9 @@ def pvt_try():
     # pvt_triangle_trajectory(cur_joints, tar_joints, travel_time)
     pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
 
+# def pvt_3_try():
+#     pvt_try()
+    
     
     
 # Menangani sinyal SIGINT (Ctrl + C)
@@ -97,6 +100,9 @@ pvt_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew
 #baris 19
 motor_position_button = tk.Button(root, text="motor position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+
+pvt_3_button = tk.Button(root, text="PVT3 try", command=pvt_3_try)
+pvt_3_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 20
 homing_button = tk.Button(root, text="homing", command=homing)

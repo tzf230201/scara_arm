@@ -5,7 +5,7 @@ import math
 import numpy as np
 
 # Mendapatkan waktu saat ini dalam detik sejak epoch
-current_time = time.time()
+last_time = time.time()
 
 bus = can.Bus(channel='can0', interface='socketcan')
 
@@ -125,6 +125,10 @@ response_id_map = {
     ID4: 0x584
 }
 
+NO_ERROR = 0x00
+MSG_ERROR = 0x01
+TIMEOUT_ERROR = 0x02
+
 
 def send_can_command(command):
     print(command)
@@ -139,7 +143,7 @@ def send_can_command(command):
 
 def read_sdo(request_id):
     response_id = response_id_map.get(request_id)
-    error_code = 0
+    error_code = NO_ERROR
     can_id = 0
     value = 0
     
@@ -148,7 +152,7 @@ def read_sdo(request_id):
         if message:
             can_id = message.arbitration_id
         else:
-            error_code = 2
+            error_code = TIMEOUT_ERROR
             return error_code, value
             
    # print(f"Data CAN Diterima: can id { can_id:03X} data-> {message.data.hex()} (Panjang: {len(message.data)} byte)")
@@ -157,14 +161,13 @@ def read_sdo(request_id):
     cs = msg[0]
          
     if(cs == SET_ERROR):
-        error_code = 1
+        error_code = MSG_ERROR
     else:
         index = (msg[2] << 8) | msg[1]
         sub_index = msg[3]
         value = struct.unpack('<i', msg[4:8])[0]
 
     return error_code, value
-
 
 def write_sdo(request_id, cs, index_id, sub_index_id, data):
     # Convert index_id and sub_index_id to bytes
@@ -204,7 +207,7 @@ def req_sdo(request_id, index_id, sub_index_id):
 def set_req_sdo(request_id, cs, index_id, sub_index_id, data):
     error_code = set_sdo(request_id, cs, index_id, sub_index_id, data)
     ret = 0
-    if error_code == 0:
+    if error_code == NO_ERROR:
         ret = req_sdo(request_id, index_id, sub_index_id)
 
     return error_code, ret
@@ -215,7 +218,7 @@ def ensure_set_req_sdo(request_id, cs, index_id, sub_index_id, data):
     global failed_cnt
     
     error_code, ret = set_req_sdo(request_id, cs, index_id, sub_index_id, data)
-    if ( (error_code != 0) or (data != ret) ):
+    if ( (error_code != NO_ERROR) or (data != ret) ):
         failed_cnt += 1
         
         if (failed_cnt > MAX_FAILED_CNT):
@@ -231,7 +234,7 @@ def ensure_set_req_sdo(request_id, cs, index_id, sub_index_id, data):
 
 def safe_set_sdo(request_id, cs, index_id, sub_index_id, data):
     error_code = ensure_set_req_sdo(request_id, cs, index_id, sub_index_id, data)
-    if (error_code != 0):
+    if (error_code != NO_ERROR):
         shutdown()
         print(f"emergency off, something wrong with can bus communication")
     
@@ -382,7 +385,7 @@ def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
     # wr_p = (pvt_wb * (MICROSTEP * 200)) / 4096
     pvt_wb = int((wr_p * (MICROSTEP* 200)) / 4096)
     error_code = pvt_mode_write_pvt(node_id, pvt_wb, wr_v, wr_t)
-    if (error_code == 0):
+    if (error_code == NO_ERROR):
         # print(f"motor{node_id-0x600} pvt wr: {wr_p},{wr_v},{wr_t} and pvt rd: {rd_p},{rd_v},{rd_t} -> OK")
         print(f"motor{node_id-0x600} pvt wr: {pvt_wb},{wr_v},{wr_t} and it will be: {wr_p} -> OK")
     else:
@@ -434,7 +437,7 @@ def generate_pvt_trajectory_round_trip(cur_pulse, tar_pulse, time_travel):
 
 
 def pvt_triangle_trajectory(cur_joints, tar_joints, travel_time):
-    global current_time
+    global last_time
     group_id = 0x05
     tar_pulses = []
     
@@ -474,13 +477,17 @@ def pvt_triangle_trajectory(cur_joints, tar_joints, travel_time):
     pvt_mode_set_pvt_1_end(pt_idx-1)
     pvt_mode_start_pvt_step(group_id)
     # pvt_mode_start_pvt_motion(ID3)
-    current_time = time.time()
+    last_time = time.time()
     
 def pvt_mode_read_pvt_3_depth():
     for node_id in [ID2, ID3, ID4]:
         ret = req_sdo(node_id, OD_STEPPER_PVT_MOTION, 0x0E)
         print(f"Node {node_id:03X} PVT3 depth is {ret}")
-    
+        
+def read_pvt_3_depth(node_id):
+    ret = req_sdo(node_id, OD_STEPPER_PVT_MOTION, 0x0E)
+    return ret
+
 def pvt_mode_set_pvt_3_fifo_threshold_1(th1):
     for node_id in [ID2, ID3, ID4]:
         _, ret = set_req_sdo(node_id, SET_2_BYTE, OD_STEPPER_PVT_MOTION, 0x0F, th1)
@@ -492,9 +499,10 @@ def pvt_mode_set_pvt_3_fifo_threshold_2(th2):
         print(f"Node {node_id:03X} PVT3 upper limit set to {th2}")
 
 def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
-    global current_time
+    global last_time
     group_id = 0x05
     tar_pulses = []
+    node_ids = [ID1, ID2, ID3, ID4]
     
     pvt_type = 3
     reset_node()
@@ -503,29 +511,105 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     init_change_group_id(group_id)
     pvt_mode_set_pvt_max_point(400)
     pvt_mode_set_pvt_operation_mode(pvt_type-1)
-    pvt_mode_set_pvt_3_fifo_threshold_1(20)
-    pvt_mode_set_pvt_3_fifo_threshold_2(40)
+    pvt_mode_set_pvt_3_fifo_threshold_1(40)
+    pvt_mode_set_pvt_3_fifo_threshold_2(80)
     
     print(f"pvt init : operation mode pvt, max point 400, pvt mode {pvt_type}")
     
     for tar_joint in tar_joints:
         tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
     
+    
+    
     pvt_mode_reset_queue()
-    p4, v4, t4 = generate_pvt_trajectory_round_trip(0 , tar_pulses[3], travel_time)
-    pt_idx = 0
-    for pos, vel in zip(p4, v4):
-        pvt_mode_write_read(ID4, int(pos), int(vel), 100)
-        pt_idx += 1
+    
+    # Initialize p, v, and t as empty lists
+    p = [None] * 4
+    v = [None] * 4
+    t = [None] * 4
+    
+    for i in range(1, 4):
+        p[i], v[i], t[i] = generate_pvt_trajectory_round_trip(0 , tar_pulses[i], travel_time)
+    
+    
+    time_1 = time.time()
+    
+    
+    
+    for i in range(0, 2):
+        for i in range(1, 4):
+            cnt = 0
+            for pos, vel in zip(p[i], v[i]):
+                if cnt == 0:
+                    print(f"pos: {pos}, vel: {vel} will not written")
+                else:
+                    pvt_mode_write_read(node_ids[i], int(pos), int(vel), 100)
+                cnt += 1
+            
+    time_2 = time.time()
+    time.sleep(0.01)
+    print(f"write pvt motor 4 time: {(time_2-time_1)*1000:.2f} ms")
         
+    depth = read_pvt_3_depth(ID4)
+    # pvt_mode_read_pvt_3_depth()
+    pvt_mode_start_pvt_step(group_id)
+    # pvt_mode_start_pvt_motion(ID4)
+    last_time = time.time()
+    
+    last_pos = 0
+    last_vel = 0
+    
+    for i in range(0, 2):
+        while(depth > 40):
+            depth = read_pvt_3_depth(ID4)
+            print(f"depth: {depth}")
+            read_present_position()
+            time.sleep(0.1)
+        for i in range(1, 4):
+            cnt = 0
+            for pos, vel in zip(p[i], v[i]):
+                if cnt == 0:
+                    print(f"pos: {pos}, vel: {vel} will not written")
+                else:
+                    pvt_mode_write_read(node_ids[i], int(pos), int(vel), 100)
+                cnt += 1
+                last_pos = pos
+                last_vel = vel
+        depth = read_pvt_3_depth(ID4)
     
     
-    pvt_mode_read_index()
-    pvt_mode_read_pvt_3_depth()
-    # pvt_mode_start_pvt_step(group_id)
-    pvt_mode_start_pvt_motion(ID4)
-    current_time = time.time()
     
+
+
+def read_pdo_1(request_id):
+    response_id = (request_id - 0x600) + 0x180
+    error_code = NO_ERROR
+    can_id = 0
+    error_state = 0
+    controller_status = 0
+    motor_position = 0
+    
+    while(can_id != response_id):
+        message = bus.recv(0.1)  # Wait up to 0.5 seconds for a message
+        if message:
+            can_id = message.arbitration_id
+        else:
+            error_code = TIMEOUT_ERROR
+            return error_code, error_state, controller_status, motor_position
+        
+    msg = message.data 
+    error_state = msg[0]
+    controller_status = msg[1]
+    motor_position = struct.unpack('<i', msg[2:6])[0]
+
+    return error_code, error_state, controller_status, motor_position
+
+def read_pvt_3_threshold(request_id):
+    error_code, error_state, controller_status, motor_position = read_pdo_1(request_id)
+    if (error_code == NO_ERROR):
+        is_lower_limit = ((controller_status >> 6) & 0x01) == 0x01
+        is_upper_limit = ((controller_status >> 7) & 0x01) == 0x01
+
 ##################################################################
 ##################################################################     
 ##################################################################     
@@ -606,7 +690,7 @@ def read_present_position():
     
     # print(f"cur coordinate : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f} degree")
     # print(f"cur joint : m2:{m2_angle:.1f}, m3:{m3_angle:.1f}, m4:{m4_angle:.1f} degree")
-    delta_time = time.time() - current_time
+    delta_time = time.time() - last_time
     formatted_angles = ", ".join([f"{angle:.2f}" for angle in motor_angles])
     print(f"cur joint : {formatted_angles} degree -> time : {delta_time:.2f}")
     return motor_angles
@@ -617,7 +701,7 @@ def homing():
     speed = 1000
     init_operation_mode(0)
     #group id need to be set after changing operation mode
-    init_change_group_id(0x05)
+    init_change_group_id(group_id)
     init_set_accel_coef(1)
     init_set_decel_coef(1)
 
@@ -647,3 +731,5 @@ def calib_0():
         error_code = set_sdo(id, SET_4_BYTE, OD_STEPPER_CALIBRATION_ZERO, 0x00, -enc)
     
     save_settings()
+
+# motor position pada pdo1 sepertinya tidak dibutuhkan, kalo dihapus program kalkulasinya bisa hemat waktu
