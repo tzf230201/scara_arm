@@ -73,8 +73,37 @@ dtoverlay=spi-bcm2835-overlay
 | Set PVT Time (ms)                          | `603#2310601300000000`             |
 | PVT Control (`0`: Stop, `1`: Start, `2`: Add to Queue, `3`: Clear Queue) | `603#2f10600100000000` |
 
+
+## PDO Settings
+
+### Read TPDO1 Mappings
+
+| Command Description                                      | CAN Command                        |
+|----------------------------------------------------------|-----------------------------------|
+| Read the number of mapped application objects in TPDO1    | `603#40001a0000000000`             |
+| Read TPDO1 mapping for the 1st application object         | `603#40001a0100000000`             |
+| Read TPDO1 mapping for the 2nd application object         | `603#40001a0200000000`             |
+| Read TPDO1 mapping for the 3rd application object         | `603#40001a0300000000`             |
+
+### Expected Response
+
+You will receive a response similar to this:
+
+`583#43001A0320000C60`
+
+### Response Interpretation
+
+- **0x583** → COB-ID: SDO response from Node ID 3.  
+- **0x43** → Command Specifier (CS): 4-byte length response.
+- **0x001A** → Little Endian of **0x1A00**: Index for TPDO1 Mapping.  
+- **0x01** → Sub-index 1 of the Mapping Parameter.  
+- **0x20** → Data length 32 bits.  
+- **0x00** → Reserved.  
+- **0x0C60** → Little Endian of **0x600C**: Index representing Motor Position index.
+
+
 ## Notes
-I found a mistake in the user manual
+**I found a mistake in the user manual**
 
 In the pmc007cxsxp2_user_manual_v0.2.6_en.doc, page 41 states that bit 6 should be 0 for absolute positioning and 1 for relative positioning.
 
@@ -89,9 +118,19 @@ it's simple and safe, but the main problem is, It's accuracy is affected by many
 
 The blocking threshold range is usually set between -10 and 10.
 
-<br><br>
-The seller said:
+<br>
+
+**The `PMC007C3EP2_HB_ENC3_V394_G.bit` file is the firmware with PVT mode unlocked.** The seller said:
 
 *"The PVT mode is an optional function, you know pmc007 has many models, they got different functions. Almost no one needs this PVT mode, it can be replaced by the pp mode at most situations. So we made the firmware for you to upgrade it, but this will use the PUSICAN, then the PCAN adapter"*
 
-The `PMC007C3EP2_HB_ENC3_V394_G.bit` file is the firmware with PVT mode unlocked.
+
+<br>
+
+**Group id need to be set after changing operation mode**
+```python
+group_id = 5
+init_operation_mode(0)
+init_change_group_id(group_id)
+```
+
