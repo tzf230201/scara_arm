@@ -14,6 +14,8 @@ MICROSTEP = 16
 MAX_FAILED_CNT = 20
 RECV_WAIT = 0.5
 
+pvt_time_interval = 50
+
 STEPPER_PPR = 4096
 SERVO_PPR = 10000
 STEPPER_RATIO = STEPPER_PPR / 360
@@ -383,17 +385,19 @@ def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
     # pvt_mode_read_index()
     # pvt_wb = (wr_p/(MICROSTEP* 200)) * 4096
     # wr_p = (pvt_wb * (MICROSTEP * 200)) / 4096
-    pvt_wb = int((wr_p * (MICROSTEP* 200)) / 4096)
-    error_code = pvt_mode_write_pvt(node_id, pvt_wb, wr_v, wr_t)
+    wr_p_will_be = int((wr_p * (MICROSTEP* 200)) / 4096)
+    wr_v_will_be = int((wr_v * (MICROSTEP* 200)) / 4096)
+    
+    error_code = pvt_mode_write_pvt(node_id, wr_p_will_be, wr_v, wr_t)
     if (error_code == NO_ERROR):
         # print(f"motor{node_id-0x600} pvt wr: {wr_p},{wr_v},{wr_t} and pvt rd: {rd_p},{rd_v},{rd_t} -> OK")
-        print(f"motor{node_id-0x600} pvt wr: {pvt_wb},{wr_v},{wr_t} and it will be: {wr_p} -> OK")
+        print(f"motor{node_id-0x600} pvt wr: {wr_p_will_be},{wr_v},{wr_t} and it will be: {wr_p} -> OK")
     else:
-        print(f"motor{node_id-0x600} pvt wr: {pvt_wb},{wr_v},{wr_t} -> ERROR")
+        print(f"motor{node_id-0x600} pvt wr: {wr_p_will_be},{wr_v},{wr_t} -> ERROR")
 
 def generate_pvt_trajectory(cur_pulse, tar_pulse, travel_time):
     # Define the number of intervals (100ms steps)
-    dt = 0.1  # 100ms = 0.1s
+    dt = pvt_time_interval / 1000  # 100ms = 0.1s
     num_steps = int(travel_time / dt) + 1
     time_points = np.linspace(0, travel_time, num_steps)
 
@@ -408,7 +412,7 @@ def generate_pvt_trajectory(cur_pulse, tar_pulse, travel_time):
 
 def generate_pvt_trajectory_round_trip(cur_pulse, tar_pulse, time_travel):
     # Define the number of intervals (100ms steps) for one direction
-    dt = 0.1  # 100ms = 0.1s
+    dt = pvt_time_interval / 1000  # 100ms = 0.1s
     num_steps = int(time_travel / dt) + 1
     time_points_one_way = np.linspace(0, time_travel, num_steps)
 
@@ -456,19 +460,19 @@ def pvt_triangle_trajectory(cur_joints, tar_joints, travel_time):
     pt_idx = 0
     for pos, vel in zip(p4, v4):
         # print(f"{pos:.2f}           | {vel:.2f}        | {100}")
-        pvt_mode_write_read(ID4, int(pos), int(vel), 100)
+        pvt_mode_write_read(ID4, int(pos), int(vel), pvt_time_interval)
         pt_idx += 1
         
     pt_idx = 0
     for pos, vel in zip(p3, v3):
         # print(f"{pos:.2f}           | {vel:.2f}        | {100}")
-        pvt_mode_write_read(ID3, int(pos), int(vel), 100)
+        pvt_mode_write_read(ID3, int(pos), int(vel), pvt_time_interval)
         pt_idx += 1
 
     pt_idx = 0
     for pos, vel in zip(p2, v2):
         # print(f"{pos:.2f}           | {vel:.2f}        | {100}")
-        pvt_mode_write_read(ID2, int(pos), int(vel), 100)
+        pvt_mode_write_read(ID2, int(pos), int(vel), pvt_time_interval)
         pt_idx += 1
     
     
@@ -503,6 +507,8 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     group_id = 0x05
     tar_pulses = []
     node_ids = [ID1, ID2, ID3, ID4]
+    pvt_3_lower_limit = 60
+    pvt_3_upper_limit = 80
     
     pvt_type = 3
     reset_node()
@@ -511,8 +517,8 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     init_change_group_id(group_id)
     pvt_mode_set_pvt_max_point(400)
     pvt_mode_set_pvt_operation_mode(pvt_type-1)
-    pvt_mode_set_pvt_3_fifo_threshold_1(40)
-    pvt_mode_set_pvt_3_fifo_threshold_2(80)
+    pvt_mode_set_pvt_3_fifo_threshold_1(pvt_3_lower_limit)
+    pvt_mode_set_pvt_3_fifo_threshold_2(pvt_3_upper_limit)
     
     print(f"pvt init : operation mode pvt, max point 400, pvt mode {pvt_type}")
     
@@ -535,16 +541,20 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     time_1 = time.time()
     
     
-    
-    for i in range(0, 2):
-        for i in range(1, 4):
-            cnt = 0
-            for pos, vel in zip(p[i], v[i]):
-                if cnt == 0:
-                    print(f"pos: {pos}, vel: {vel} will not written")
-                else:
-                    pvt_mode_write_read(node_ids[i], int(pos), int(vel), 100)
-                cnt += 1
+    last_pos = 0
+    last_vel = 0 
+    for i in range(1, 4):
+        cnt = 0
+        for pos, vel in zip(p[i], v[i]):
+            pos_will_be = int((pos * (MICROSTEP* 200)) / 4096)
+            if ((cnt < 10) and (pos_will_be == 0)):# or (pos_will_be == last_pos)):
+                # pvt_mode_write_read(node_ids[i], int(pos), 0, pvt_time_interval)
+                print(f"no write")
+            else:
+                pvt_mode_write_read(node_ids[i], int(pos), int(vel), pvt_time_interval)
+            cnt += 1
+            last_pos = pos_will_be
+            last_vel = vel
             
     time_2 = time.time()
     time.sleep(0.01)
@@ -556,11 +566,12 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     # pvt_mode_start_pvt_motion(ID4)
     last_time = time.time()
     
-    last_pos = 0
-    last_vel = 0
+    
     
     for i in range(0, 2):
-        while(depth > 40):
+        last_pos = 0
+        last_vel = 0 
+        while(depth > pvt_3_lower_limit):
             depth = read_pvt_3_depth(ID4)
             print(f"depth: {depth}")
             read_present_position()
@@ -568,12 +579,14 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
         for i in range(1, 4):
             cnt = 0
             for pos, vel in zip(p[i], v[i]):
-                if cnt == 0:
-                    print(f"pos: {pos}, vel: {vel} will not written")
+                pos_will_be = int((pos * (MICROSTEP* 200)) / 4096)
+                if ((cnt < 10) and (pos_will_be == 0)):# or (pos_will_be == last_pos)):
+                    # pvt_mode_write_read(node_ids[i], int(pos), 0, pvt_time_interval)
+                    print(f"no write")
                 else:
-                    pvt_mode_write_read(node_ids[i], int(pos), int(vel), 100)
+                    pvt_mode_write_read(node_ids[i], int(pos), int(vel), pvt_time_interval)
                 cnt += 1
-                last_pos = pos
+                last_pos = pos_will_be
                 last_vel = vel
         depth = read_pvt_3_depth(ID4)
     
