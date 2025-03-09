@@ -9,7 +9,7 @@ last_time = time.time()
 
 bus = can.Bus(channel='can0', interface='socketcan')
 
-MICROSTEP = 16
+MICROSTEP = 32
 
 MAX_FAILED_CNT = 20
 RECV_WAIT = 0.5
@@ -133,7 +133,7 @@ TIMEOUT_ERROR = 0x02
 
 
 def send_can_command(command):
-    print(command)
+    # print(command)
     can_id, can_data = command.split('#')
     can_id = int(can_id, 16)
     can_data = bytes.fromhex(can_data)
@@ -256,6 +256,7 @@ def init_set_max_current(max_current):
 def init_microstepping(sub_division):
     for id in [ID2, ID3, ID4]:
         ensure_set_req_sdo(id, SET_2_BYTE, OD_STEPPER_MICROSTEPPING, 0x00, sub_division)
+    print(f"microstep set to {sub_division}") 
 
 def init_operation_mode(mode):
     for id in [ID2, ID3, ID4]:
@@ -273,12 +274,12 @@ def init_change_group_id(group_id):
 def init_set_accel_coef(accel_coef_option):
     for id in [ID2, ID3, ID4]:
         _,ret = set_req_sdo(id, SET_1_BYTE, OD_STEPPER_ACCEL_COEF, 0x00, accel_coef_option)
-        print(f"{id:03X} accel coef = {ret}") 
+    print(f"accel coef = {ret}") 
              
 def init_set_decel_coef(decel_coef_option):  
     for id in [ID2, ID3, ID4]:
         _,ret = set_req_sdo(id, SET_1_BYTE, OD_STEPPER_DECEL_COEF, 0x00, decel_coef_option)
-        print(f"{id:03X} decel coef = {ret}")  
+    print(f"decel coef = {ret}")  
  
 def emergency_stop_stepping():
     for id in [ID2, ID3, ID4]:
@@ -296,8 +297,8 @@ def reset_communication():
 def stall_on():
     for id in [ID2, ID3, ID4]:
         set_sdo(id, SET_1_BYTE, OD_STEPPER_STALL_SET, 0x00, 0x01)
-        _, ret = set_req_sdo(id, SET_2_BYTE, OD_STEPPER_STALL_LENGTH, 0x00, 256)
-        print(f"id {id:03X} stall length set to {ret}")
+        _, ret = set_req_sdo(id, SET_2_BYTE, OD_STEPPER_STALL_LENGTH, 0x00, 64)
+    print(f"stall length set to {ret}")
     print(f"stall (open-loop) activated")
     save_settings()
 
@@ -383,23 +384,25 @@ def pvt_mode_read_pvt(node_id):
 
 def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
     # pvt_mode_read_index()
-    # pvt_wb = (wr_p/(MICROSTEP* 200)) * 4096
+    wr_p_will_be = int((wr_p/(MICROSTEP* 200)) * 4096)
     # wr_p = (pvt_wb * (MICROSTEP * 200)) / 4096
-    wr_p_will_be = int((wr_p * (MICROSTEP* 200)) / 4096)
-    wr_v_will_be = int((wr_v * (MICROSTEP* 200)) / 4096)
     
-    error_code = pvt_mode_write_pvt(node_id, wr_p_will_be, wr_v, wr_t)
+
+    # wr_p_will_be = int((wr_p * (MICROSTEP* 200)) / 4096)
+    # wr_v_will_be = int((wr_v * (MICROSTEP* 200)) / 4096)
+    
+    
+    error_code = pvt_mode_write_pvt(node_id, wr_p, wr_v, wr_t)
     if (error_code == NO_ERROR):
-        # print(f"motor{node_id-0x600} pvt wr: {wr_p},{wr_v},{wr_t} and pvt rd: {rd_p},{rd_v},{rd_t} -> OK")
-        print(f"motor{node_id-0x600} pvt wr: {wr_p_will_be},{wr_v},{wr_t} and it will be: {wr_p} -> OK")
+        print(f"motor{node_id-0x600} pvt wr: {wr_p},{wr_v},{wr_t} will be: {wr_p_will_be} -> OK")
     else:
-        print(f"motor{node_id-0x600} pvt wr: {wr_p_will_be},{wr_v},{wr_t} -> ERROR")
+        print(f"motor{node_id-0x600} pvt wr -> ERROR")
 
 def generate_pvt_trajectory(cur_pulse, tar_pulse, travel_time):
     # Define the number of intervals (100ms steps)
     dt = pvt_time_interval / 1000  # 100ms = 0.1s
     num_steps = int(travel_time / dt) + 1
-    time_points = np.linspace(0, travel_time, num_steps)
+    time_points = np.full(num_steps, pvt_time_interval)
 
     # Generate sinusoidal acceleration-based motion profile
     t_norm = np.linspace(0, np.pi, num_steps)  # Normalize to sinusoidal shape
@@ -408,7 +411,33 @@ def generate_pvt_trajectory(cur_pulse, tar_pulse, travel_time):
     # Compute velocity by differentiating position
     velocity_points = np.gradient(position_points, dt)
 
-    return position_points, velocity_points, time_points
+    # Convert to integers
+    position_points = np.round(position_points).astype(int)
+    velocity_points = np.round(velocity_points).astype(int)
+    # time_points = np.round(time_points).astype(int)
+    
+    # return position_points, velocity_points, time_points
+    
+    # Filter out small changes in position
+    filtered_position_points = []
+    filtered_velocity_points = []
+    filtered_time_points = []
+    last_position = cur_pulse
+
+    tt = 0
+    for pos, vel, time in zip(position_points, velocity_points, time_points):
+        if abs(pos - last_position) >= STEPPER_RATIO/ 2:  # Half degree threshold
+            filtered_position_points.append(pos)
+            filtered_velocity_points.append(vel)
+            filtered_time_points.append(time + tt)
+            last_position = pos
+            tt = 0
+        else:
+            tt += time
+
+    return filtered_position_points, filtered_velocity_points, filtered_time_points
+
+
 
 def generate_pvt_trajectory_round_trip(cur_pulse, tar_pulse, time_travel):
     # Define the number of intervals (100ms steps) for one direction
@@ -431,16 +460,123 @@ def generate_pvt_trajectory_round_trip(cur_pulse, tar_pulse, time_travel):
     time_points = np.concatenate([time_points_one_way, time_travel + time_points_one_way[1:]])
     position_points = np.concatenate([position_forward, position_backward[1:]])
     velocity_points = np.concatenate([velocity_forward, velocity_backward[1:]])
+    
+    # Convert to integers
+    position_points = np.round(position_points).astype(int)
+    velocity_points = np.round(velocity_points).astype(int)
+    time_points = np.round(time_points).astype(int)
 
-    # Round values for better readability
-    position_points = np.round(position_points, 2)
-    velocity_points = np.round(velocity_points, 2)
-    time_points = np.round(time_points, 2)
 
     return position_points, velocity_points, time_points
 
+# def generate_pvt_trajectory_triangle(cur_pulse, tar_pulse, travel_time):
+#     # Define the number of intervals (100ms steps)
+#     dt = pvt_time_interval / 1000  # 100ms = 0.1s
+#     num_steps = int(travel_time / dt) + 1
+#     time_points = np.linspace(0, travel_time, num_steps)
 
-def pvt_triangle_trajectory(cur_joints, tar_joints, travel_time):
+#     # Generate triangular acceleration-based motion profile
+#     t_norm = np.linspace(0, 1, num_steps)  # Normalize to triangular shape
+#     position_points = cur_pulse + (tar_pulse - cur_pulse) * t_norm
+
+#     # Compute velocity by differentiating position
+#     velocity_points = np.gradient(position_points, dt)
+
+#     # Convert to integers
+#     position_points = np.round(position_points).astype(int)
+#     velocity_points = np.round(velocity_points).astype(int)
+#     time_points = np.round(time_points).astype(int)
+
+#     return position_points, velocity_points, time_points
+def generate_pvt_trajectory_triangle(cur_pulse, tar_pulse, travel_time):
+    # Menghitung interval waktu dt dalam detik
+    dt = pvt_time_interval / 1000  # 100 ms = 0.1 s
+    num_steps = int(travel_time / dt) + 1
+    
+
+
+    # Hitung total perpindahan dan waktu setengah siklus
+    total_pulse = tar_pulse - cur_pulse
+    half_time = travel_time / 2
+
+    # Hitung percepatan maksimum (a = 2 * s / t^2)
+    max_acc = 2 * total_pulse / (travel_time * half_time)
+
+    # Inisialisasi list untuk menyimpan data
+    position_points = []
+    velocity_points = []
+    time_points = []
+
+    # Inisialisasi variabel
+    time = 0.0
+    position = cur_pulse
+
+    # Fase akselerasi
+    while time < half_time:
+        velocity = max_acc * time
+        position += velocity * dt
+        
+        position_points.append(position)
+        velocity_points.append(velocity)
+        time_points.append(time)
+        
+        time += dt
+
+    # Fase deselerasi
+    while time < travel_time:
+        velocity = max_acc * (travel_time - time)
+        position += velocity * dt
+        
+        position_points.append(position)
+        velocity_points.append(velocity)
+        time_points.append(time)
+        
+        time += dt
+
+    # Pastikan posisi akhir tepat di target
+    position_points.append(tar_pulse)
+    velocity_points.append(0.0)
+    time_points.append(travel_time)
+    
+    
+    position_points = np.round(position_points).astype(int)
+    velocity_points = np.round(velocity_points).astype(int)
+    time_points = np.full(num_steps, pvt_time_interval)
+    
+    # return position_points, velocity_points, time_points
+
+    filtered_position_points = []
+    filtered_velocity_points = []
+    filtered_time_points = []
+    last_position = cur_pulse
+
+    for pos, vel, time in zip(position_points, velocity_points, time_points):
+        if abs(pos - last_position) >= STEPPER_RATIO / 2:  # Half degree threshold
+            filtered_position_points.append(pos)
+            filtered_velocity_points.append(vel)
+            filtered_time_points.append(time)
+            last_position = pos
+
+    return filtered_position_points, filtered_velocity_points, filtered_time_points
+
+
+    # # Filter out small changes in position
+    # filtered_position_points = []
+    # filtered_velocity_points = []
+    # filtered_time_points = []
+    # last_position = cur_pulse
+
+    # for pos, vel in zip(position_points, velocity_points):
+    #     if abs(pos - last_position) >= STEPPER_RATIO / 2:  # Half degree threshold
+    #         filtered_position_points.append(pos)
+    #         filtered_velocity_points.append(vel)
+    #         filtered_time_points.append(pvt_time_interval)
+    #         last_position = pos
+
+    # return filtered_position_points, filtered_velocity_points, filtered_time_points
+
+
+def pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time):
     global last_time
     group_id = 0x05
     tar_pulses = []
@@ -502,6 +638,7 @@ def pvt_mode_set_pvt_3_fifo_threshold_2(th2):
         _, ret = set_req_sdo(node_id, SET_2_BYTE, OD_STEPPER_PVT_MOTION, 0x10, th2)
         print(f"Node {node_id:03X} PVT3 upper limit set to {th2}")
 
+
 def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     global last_time
     group_id = 0x05
@@ -512,7 +649,7 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     
     pvt_type = 3
     reset_node()
-    time.sleep(2)
+    time.sleep(1)
     init_operation_mode(0x02)
     init_change_group_id(group_id)
     pvt_mode_set_pvt_max_point(400)
@@ -526,71 +663,60 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
         tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
     
     
-    
-    pvt_mode_reset_queue()
-    
     # Initialize p, v, and t as empty lists
     p = [None] * 4
     v = [None] * 4
     t = [None] * 4
     
+    #qq
     for i in range(1, 4):
-        p[i], v[i], t[i] = generate_pvt_trajectory_round_trip(0 , tar_pulses[i], travel_time)
+        tar_pulse_have_to_write = int(int((tar_pulses[i] * (MICROSTEP* 200)) / 4096))
+        p[i], v[i], t[i] = generate_pvt_trajectory_triangle(0 ,  tar_pulse_have_to_write, travel_time)
     
-    
-    time_1 = time.time()
-    
-    
-    last_pos = 0
-    last_vel = 0 
     for i in range(1, 4):
-        cnt = 0
-        for pos, vel in zip(p[i], v[i]):
-            pos_will_be = int((pos * (MICROSTEP* 200)) / 4096)
-            if ((cnt < 10) and (pos_will_be == 0)):# or (pos_will_be == last_pos)):
-                # pvt_mode_write_read(node_ids[i], int(pos), 0, pvt_time_interval)
-                print(f"no write")
-            else:
-                pvt_mode_write_read(node_ids[i], int(pos), int(vel), pvt_time_interval)
-            cnt += 1
-            last_pos = pos_will_be
-            last_vel = vel
-            
-    time_2 = time.time()
-    time.sleep(0.01)
-    print(f"write pvt motor 4 time: {(time_2-time_1)*1000:.2f} ms")
-        
-    depth = read_pvt_3_depth(ID4)
-    # pvt_mode_read_pvt_3_depth()
+        for pos, vel, tim in zip(p[i], v[i], t[i]):
+            pvt_mode_write_read(node_ids[i], pos, vel, tim)
+                
+                
+    pvt_mode_read_pvt_3_depth()
     pvt_mode_start_pvt_step(group_id)
-    # pvt_mode_start_pvt_motion(ID4)
     last_time = time.time()
     
     
+            #     last_point = len(p[i])-1
+            # if ((cnt == 0) or (cnt ==  1)):# or (cnt==last_point)):
+            #     print(f"motor {i+1} no write for first and last point")
+            # else:
     
-    for i in range(0, 2):
-        last_pos = 0
-        last_vel = 0 
-        while(depth > pvt_3_lower_limit):
-            depth = read_pvt_3_depth(ID4)
-            print(f"depth: {depth}")
-            read_present_position()
-            time.sleep(0.1)
-        for i in range(1, 4):
-            cnt = 0
-            for pos, vel in zip(p[i], v[i]):
-                pos_will_be = int((pos * (MICROSTEP* 200)) / 4096)
-                if ((cnt < 10) and (pos_will_be == 0)):# or (pos_will_be == last_pos)):
-                    # pvt_mode_write_read(node_ids[i], int(pos), 0, pvt_time_interval)
-                    print(f"no write")
-                else:
-                    pvt_mode_write_read(node_ids[i], int(pos), int(vel), pvt_time_interval)
-                cnt += 1
-                last_pos = pos_will_be
-                last_vel = vel
-        depth = read_pvt_3_depth(ID4)
-    
-    
+    # for i in range(0, 2):
+    #     last_pos = 0
+    #     last_vel = 0 
+    #     while(depth > pvt_3_lower_limit):
+    #         depth = read_pvt_3_depth(ID3)
+    #         print(f"depth: {depth}")
+    #         read_present_position()
+    #         time.sleep(0.1)
+    #     for i in range(2, 3):
+    #         cnt = 0
+    #         for pos, vel in zip(p[i], v[i]):
+    #             pos_will_be = int((pos * (MICROSTEP* 200)) / 4096)
+    #             if ((cnt < 10) and (pos_will_be == 0)):# or (pos_will_be == last_pos)):
+    #                 # pvt_mode_write_read(node_ids[i], int(pos), int(vel), pvt_time_interval)
+    #                 print(f"no write")
+    #             else:
+    #                 pvt_mode_write_read(node_ids[i], int(pos), int(vel), pvt_time_interval)
+    #             cnt += 1
+    #             last_pos = pos_will_be
+    #             last_vel = vel
+    #     depth = read_pvt_3_depth(ID3)
+        
+    # while(depth > 0):
+    #     depth = read_pvt_3_depth(ID3)
+    #     print(f"depth: {depth}")
+    #     read_present_position()
+    #     time.sleep(0.1)
+
+
     
 
 
@@ -674,7 +800,7 @@ def shutdown():
 def pvt_mode_init():
     pvt_type = 1
     reset_node()
-    time.sleep(2)
+    time.sleep(1)
     init_operation_mode(0x02)
     init_change_group_id(0x05)
     pvt_mode_set_pvt_max_point(400)
@@ -695,6 +821,7 @@ def read_present_position():
     
     for stepper_id in stepper_ids:
         stepper_pulse = req_sdo(stepper_id, OD_STEPPER_MOTOR_POSITION, 0x00)
+        # print(f"stepper {stepper_id:03X} pulse is {stepper_pulse}")
         stepper_angles.append(stepper_pulses_to_degrees(stepper_pulse))
     
     motor_angles = [servo_angle, stepper_angles[0], stepper_angles[1], stepper_angles[2]]
@@ -711,7 +838,7 @@ def read_present_position():
 #20
 def homing():
     group_id = 5
-    speed = 1000
+    speed = 2000
     init_operation_mode(0)
     #group id need to be set after changing operation mode
     init_change_group_id(group_id)
