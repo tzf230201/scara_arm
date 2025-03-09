@@ -1,6 +1,6 @@
 import signal
 import tkinter as tk
-from a_can import save_settings, on_closing, wake_up, shutdown, pvt_mode_init, pvt_mode_try_pvt_1, pvt_mode_try_pvt_3,pvt_mode_read_pvt_3_depth,  read_present_position, homing, encoder_position, calib_0
+from a_can import save_settings, on_closing, wake_up, shutdown, pvt_mode_init, pvt_mode_try_pvt_1, pvt_mode_try_pvt_3,pvt_mode_read_pvt_3_depth,  read_present_position, encoder_position, calib_0,sp_mode_linear_motion
 
 def signal_handler():
     print("SIGINT received, closing application...")
@@ -29,9 +29,33 @@ def pvt_try():
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
 
-# def pvt_3_try():
-#     pvt_try()
+def sp_try():
+    cur_joints = read_present_position()
+
+    try:
+        tar_joint_1 = float(entry_tar_joint_1.get())
+        tar_joint_2 = float(entry_tar_joint_2.get())
+        tar_joint_3 = float(entry_tar_joint_3.get())
+        tar_joint_4 = float(entry_tar_joint_4.get())
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for angles.")
     
+    tar_joints = [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
+    
+    travel_time = travel_time/1000
+    
+    sp_mode_linear_motion(tar_joints, travel_time)
+
+def homing():
+    try:
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for angles.")
+    tar_joints = [0, 0, 0, 0]
+    travel_time = travel_time/1000
+    
+    sp_mode_linear_motion(tar_joints, travel_time)
     
     
 # Menangani sinyal SIGINT (Ctrl + C)
@@ -101,8 +125,8 @@ pvt_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew
 motor_position_button = tk.Button(root, text="motor position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-pvt_3_button = tk.Button(root, text="PVT3 try", command=pvt_try)
-pvt_3_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+sp_mode_button = tk.Button(root, text="SP try", command=sp_try)
+sp_mode_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 20
 homing_button = tk.Button(root, text="homing", command=homing)

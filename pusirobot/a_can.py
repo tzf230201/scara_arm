@@ -674,8 +674,11 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
         p[i], v[i], t[i] = generate_pvt_trajectory_triangle(0 ,  tar_pulse_have_to_write, travel_time)
     
     for i in range(1, 4):
+        cnt = 0
         for pos, vel, tim in zip(p[i], v[i], t[i]):
-            pvt_mode_write_read(node_ids[i], pos, vel, tim)
+            if cnt != 0:
+                pvt_mode_write_read(node_ids[i], pos, vel, tim)
+            cnt += 1
                 
                 
     pvt_mode_read_pvt_3_depth()
@@ -836,21 +839,30 @@ def read_present_position():
     return motor_angles
 
 #20
-def homing():
+    
+def sp_mode_linear_motion(tar_joints, travel_time):
     group_id = 5
-    speed = 2000
     init_operation_mode(0)
     #group id need to be set after changing operation mode
     init_change_group_id(group_id)
     init_set_accel_coef(1)
     init_set_decel_coef(1)
+    
+    cur_joints = read_present_position()
+    delta_joints = [tar - cur for tar, cur in zip(tar_joints, cur_joints)]
+    tar_speeds = [stepper_degrees_to_pulses(int(delta / travel_time)) for delta in delta_joints]
+        
+    
+    tar_pulses = []
+    for tar_joint in tar_joints:
+        tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
 
     # Set speed
-    for id, speed in zip([ID2, ID3, ID4], [speed, speed, speed]):
+    for id, speed in zip([ID2, ID3, ID4], [tar_speeds[1], tar_speeds[2], tar_speeds[3]]):
         _,ret = set_req_sdo(id, SET_4_BYTE, OD_STEPPER_SP_MOTION, 0x01, speed)
         print(f"{id:03X} sp speed is {ret}")  
     #set position
-    for id, pulse in zip([ID2, ID3, ID4], [0, 0, 0]):
+    for id, pulse in zip([ID2, ID3, ID4], [tar_pulses[1], tar_pulses[2], tar_pulses[3]]):
         _,ret = set_req_sdo(id, SET_4_BYTE, OD_STEPPER_SP_MOTION, 0x02, pulse)
         print(f"{id:03X} sp position is {ret}")
     
