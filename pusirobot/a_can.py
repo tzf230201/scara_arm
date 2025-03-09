@@ -885,3 +885,4 @@ def calib_0():
     save_settings()
 
 # motor position pada pdo1 sepertinya tidak dibutuhkan, kalo dihapus program kalkulasinya bisa hemat waktu
+# coba rangkap data yang dikitim lewat pvt ke pdo saja bisa hemat waktu
