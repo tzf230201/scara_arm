@@ -640,7 +640,7 @@ def pvt_mode_set_pvt_3_fifo_threshold_2(th2):
 
 
 def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
-    global last_time
+    global last_time, stop_watch, time_out
     group_id = 0x05
     tar_pulses = []
     node_ids = [ID1, ID2, ID3, ID4]
@@ -684,6 +684,8 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     pvt_mode_read_pvt_3_depth()
     pvt_mode_start_pvt_step(group_id)
     last_time = time.time()
+    stop_watch = last_time
+    time_out = travel_time
     
     
             #     last_point = len(p[i])-1
@@ -746,11 +748,48 @@ def read_pdo_1(request_id):
 
     return error_code, error_state, controller_status, motor_position
 
-def read_pvt_3_threshold(request_id):
-    error_code, error_state, controller_status, motor_position = read_pdo_1(request_id)
-    if (error_code == NO_ERROR):
-        is_lower_limit = ((controller_status >> 6) & 0x01) == 0x01
-        is_upper_limit = ((controller_status >> 7) & 0x01) == 0x01
+def extract_controller_status(controller_status):
+    controller_status = controller_status & 0xFF
+    
+    is_stall = ((controller_status >> 2) & 0x01) == 0x01
+    is_busy = ((controller_status >> 3) & 0x01) == 0x01
+    is_pvt_3_fifo_empty = ((controller_status >> 5) & 0x01) == 0x01
+    is_pvt_3_fifo_lower_limit = ((controller_status >> 6) & 0x01) == 0x01
+    is_pvt_3_fifo_upper_limit = ((controller_status >> 7) & 0x01) == 0x01
+    
+    return is_pvt_3_fifo_upper_limit, is_pvt_3_fifo_lower_limit, is_pvt_3_fifo_empty, is_busy, is_stall
+
+stop_watch = 0
+time_out = 0
+is_motor_2_busy = True
+is_motor_3_busy = True
+is_motor_4_busy = True
+is_motor_2_fifo_empty = False
+is_motor_3_fifo_empty = False
+is_motor_4_fifo_empty = False
+
+def read_sp_mode_arrival_status():
+    global is_motor_2_busy, is_motor_3_busy, is_motor_4_busy
+    global stop_watch, time_out
+    
+    is_not_busy = not (is_motor_2_busy or is_motor_3_busy or is_motor_4_busy)
+    is_time_out = (time.time() - stop_watch) > time_out
+    arrival_status = is_not_busy or is_time_out
+    
+    return arrival_status
+
+def read_pvt_mode_arrival_status():
+    global is_motor_2_fifo_empty, is_motor_3_fifo_empty, is_motor_4_fifo_empty
+    global stop_watch, time_out
+    
+    is_empty = is_motor_2_fifo_empty and is_motor_3_fifo_empty and is_motor_4_fifo_empty
+    is_time_out = (time.time() - stop_watch) > time_out
+    
+    arrival_status = is_empty or is_time_out
+    
+    return arrival_status
+
+
 
 ##################################################################
 ##################################################################     
@@ -797,7 +836,7 @@ def shutdown():
     init_set_max_current(0)
     reset_node()
     # motor_1_shutdown()
-    # print(f"motor shutdown")
+    print(f"motor shutdown")
 
 #13
 def pvt_mode_init():
@@ -833,25 +872,29 @@ def read_present_position():
     
     # print(f"cur coordinate : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f} degree")
     # print(f"cur joint : m2:{m2_angle:.1f}, m3:{m3_angle:.1f}, m4:{m4_angle:.1f} degree")
+    is_sp_mode_arrive = read_sp_mode_arrival_status()
     delta_time = time.time() - last_time
     formatted_angles = ", ".join([f"{angle:.2f}" for angle in motor_angles])
-    print(f"cur joint : {formatted_angles} degree -> time : {delta_time:.2f}")
+    print(f"cur joint : {formatted_angles} degree")
+    print(f"time : {delta_time:.2f}, is sp mode arrive : {is_sp_mode_arrive}")
     return motor_angles
 
 #20
     
 def sp_mode_linear_motion(tar_joints, travel_time):
+    global stop_watch, time_out, last_time
     group_id = 5
     init_operation_mode(0)
     #group id need to be set after changing operation mode
     init_change_group_id(group_id)
-    init_set_accel_coef(1)
-    init_set_decel_coef(1)
+    # init_set_accel_coef(1)
+    # init_set_decel_coef(1)
     
     cur_joints = read_present_position()
     delta_joints = [tar - cur for tar, cur in zip(tar_joints, cur_joints)]
     tar_speeds = [stepper_degrees_to_pulses(int(delta / travel_time)) for delta in delta_joints]
         
+    
     
     tar_pulses = []
     for tar_joint in tar_joints:
@@ -859,7 +902,8 @@ def sp_mode_linear_motion(tar_joints, travel_time):
 
     # Set speed
     for id, speed in zip([ID2, ID3, ID4], [tar_speeds[1], tar_speeds[2], tar_speeds[3]]):
-        _,ret = set_req_sdo(id, SET_4_BYTE, OD_STEPPER_SP_MOTION, 0x01, speed)
+        speed_have_to_write = int(int((speed * (MICROSTEP* 200)) / 4096))
+        _,ret = set_req_sdo(id, SET_4_BYTE, OD_STEPPER_SP_MOTION, 0x01, speed_have_to_write)
         print(f"{id:03X} sp speed is {ret}")  
     #set position
     for id, pulse in zip([ID2, ID3, ID4], [tar_pulses[1], tar_pulses[2], tar_pulses[3]]):
@@ -867,6 +911,9 @@ def sp_mode_linear_motion(tar_joints, travel_time):
         print(f"{id:03X} sp position is {ret}")
     
     send_can_command(f"000#0A{group_id:02X}")
+    last_time = time.time()
+    stop_watch = last_time
+    time_out = travel_time
 #21
 
 def encoder_position():
@@ -886,3 +933,7 @@ def calib_0():
 
 # motor position pada pdo1 sepertinya tidak dibutuhkan, kalo dihapus program kalkulasinya bisa hemat waktu
 # coba rangkap data yang dikitim lewat pvt ke pdo saja bisa hemat waktu
+
+#yang harus dilakukan:
+# 1. robot harus bisa menjalankan s-shape motion
+# bagaimana cara ngetes s-shape motion?
