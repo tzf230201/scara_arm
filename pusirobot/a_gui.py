@@ -1,6 +1,8 @@
 import signal
 import tkinter as tk
-from a_can import save_settings, on_closing, wake_up, shutdown, pvt_mode_init, pvt_mode_try_pvt_1, pvt_mode_try_pvt_3,pvt_mode_read_pvt_3_depth,  read_present_position, encoder_position, calib_0,sp_mode_linear_motion
+import time
+from a_can import on_closing, wake_up, shutdown, read_present_position, encoder_position, calib_0
+from a_can import pvt_mode_try_pvt_1, pvt_mode_try_pvt_3, sp_angle, sp_coor
 
 def signal_handler():
     print("SIGINT received, closing application...")
@@ -9,7 +11,7 @@ def signal_handler():
     root.destroy()  # Hancurkan GUI
     exit(0)  # Keluar sepenuhnya dari program
 
-def pvt_try():
+def pvt_joint():
     
     cur_joints = read_present_position()
 
@@ -29,8 +31,7 @@ def pvt_try():
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
 
-def sp_try():
-    cur_joints = read_present_position()
+def sp_joint():
 
     try:
         tar_joint_1 = float(entry_tar_joint_1.get())
@@ -42,11 +43,178 @@ def sp_try():
         print("Please enter valid numbers for angles.")
     
     tar_joints = [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
-    
     travel_time = travel_time/1000
     
-    sp_mode_linear_motion(tar_joints, travel_time)
+    sp_angle(tar_joints, travel_time)
+    
+def sp_move():  
+    try:
+        tar_x = float(entry_tar_x.get())
+        tar_y = float(entry_tar_y.get())
+        tar_z = float(entry_tar_y.get())
+        tar_yaw = float(entry_tar_yaw.get())
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for angles.")
+    
+    tar_coor = [tar_x, tar_y, tar_z, tar_yaw]
+    travel_time = travel_time/1000
+    
+    sp_coor(tar_coor, travel_time)
+    
+def straight_line():
+    try:
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for time")
+    
+    travel_time = travel_time/1000
+    sleep = travel_time + 0.1
+    
+    coor_1 = [258, 0, 0, 0]
+    coor_2 = [150, 0, 0, 0]
+        
+    for i in range(3):
+        sp_coor(coor_1, travel_time)
+        time.sleep(sleep)
+        sp_coor(coor_2, travel_time)
+        time.sleep(sleep)
+    
+def rectangular():
+    try:
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for time")
+    
+    travel_time = travel_time/1000
+    sleep = travel_time + 0.1
+    
+    coor_1 = [210, 40, 0, 0]
+    coor_2 = [210, -40, 0, 0]
+    coor_3 = [130, -40, 0, 0]
+    coor_4 = [130, 40, 0, 0]
+    
+    for i in range(2):
+        sp_coor(coor_1, travel_time)
+        time.sleep(sleep)
+        sp_coor(coor_2, travel_time)
+        time.sleep(sleep)
+        sp_coor(coor_3, travel_time)
+        time.sleep(sleep)
+        sp_coor(coor_4, travel_time)
+        time.sleep(sleep)
+    
+    sp_coor(coor_1, travel_time)
+    time.sleep(sleep)
 
+        
+def home_position():
+    try:
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for time")
+    
+    travel_time = travel_time/1000
+    sleep = travel_time + 0.1
+    
+    home_angles = [0, 0, 0, 0]
+    sp_angle(home_angles, travel_time)
+    time.sleep(sleep)
+
+		
+def shuttle_position():
+    try:
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for time")
+    
+    travel_time = travel_time/1000
+    sleep = travel_time + 0.1
+    
+    shuttle_coor = [166.82, -168, 0, 0]
+    sp_coor(shuttle_coor, travel_time)
+    time.sleep(sleep)
+
+def pre_past_shelf():
+    try:
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for time")
+    
+    travel_time = travel_time/1000
+    sleep = travel_time + 0.1
+    
+    pre_past_shelf_coor = [107, 100, 0, 90]
+    sp_coor(pre_past_shelf_coor, travel_time)
+    time.sleep(sleep)
+
+
+def pickup_from_shelf():
+    try:
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for time")
+    
+    travel_time = travel_time/1000
+    sleep = travel_time + 0.2
+    
+    pickup_from_shelf_coor = [107, 224, 0, 90]
+    sp_coor(pickup_from_shelf_coor, travel_time)
+    time.sleep(sleep)
+
+def place_onto_shelf():
+    try:
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for time")
+    
+    travel_time = travel_time/1000
+    sleep = travel_time + 0.2
+    
+    place_from_shelf_coor = [107, 197, 0, 90]
+    sp_coor(place_from_shelf_coor, travel_time)
+    time.sleep(sleep)
+
+        
+def dancing():
+    try:
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for angles.")
+    #while True:
+    travel_time = travel_time/1000
+    sleep = travel_time + 0.1
+
+    straight_line()
+    sp_coor([140, 0, 0, -20], travel_time)
+    time.sleep(sleep)
+    sp_coor([140, 0, 0, 90], travel_time)
+    time.sleep(sleep)
+    sp_coor([140, -168, 0, 0], travel_time)
+    time.sleep(sleep)
+    home_position()
+    shuttle_position()
+    home_position()
+    shuttle_position()
+    home_position()
+    rectangular()
+    #
+    pre_past_shelf()
+    pickup_from_shelf()
+    pre_past_shelf()
+    pickup_from_shelf()
+    pre_past_shelf()
+    
+    #
+    sp_coor([150, 0, 0, 0], travel_time)
+    time.sleep(sleep)
+    sp_coor([258, 0, 0, 90], travel_time)
+    time.sleep(sleep)
+    sp_coor([258, 0, 0, -90], travel_time)
+    time.sleep(sleep)
+    sp_coor([258, 0, 0, 0], travel_time)
+
+    
 def homing():
     try:
         travel_time = int(entry_time.get())
@@ -55,7 +223,7 @@ def homing():
     tar_joints = [0, 0, 0, 0]
     travel_time = travel_time/1000
     
-    sp_mode_linear_motion(tar_joints, travel_time)
+    sp_angle(tar_joints, travel_time)
     
     
 # Menangani sinyal SIGINT (Ctrl + C)
@@ -81,10 +249,10 @@ root.title("Motor Control Panel")
 
 tk.Label(root, text="Enter time:").grid(row=2, column=0, padx=5, pady=5, sticky="ew")
 entry_time = tk.Entry(root)
-entry_time.insert(0, "4000")
+entry_time.insert(0, "2000")
 entry_time.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
 
-# baris 3
+# baris 3d
 wake_up_button = tk.Button(root, text="Wake Up", command=wake_up)
 wake_up_button.grid(row=3, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
@@ -92,22 +260,22 @@ shutdown_button = tk.Button(root, text="Shutdown", bg="red", fg="white", command
 shutdown_button.grid(row=3, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 # baris 4 sampai 7
-tk.Label(root, text="Motor 1 angle (degree):").grid(row=4, column=0, padx=5, pady=5, sticky="ew")
+tk.Label(root, text="angle 1 (degree):").grid(row=4, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_joint_1 = tk.Entry(root)
 entry_tar_joint_1.insert(0, "360")
 entry_tar_joint_1.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
 
-tk.Label(root, text="Motor 2 angle (degree):").grid(row=5, column=0, padx=5, pady=5, sticky="ew")
+tk.Label(root, text="angle 2 (degree):").grid(row=5, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_joint_2 = tk.Entry(root)
 entry_tar_joint_2.insert(0, "482.5")
 entry_tar_joint_2.grid(row=5, column=1, padx=5, pady=5, sticky="ew")
 
-tk.Label(root, text="Motor 3 angle (degree):").grid(row=6, column=0, padx=5, pady=5, sticky="ew")
+tk.Label(root, text="angle 3 (degree):").grid(row=6, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_joint_3 = tk.Entry(root)
 entry_tar_joint_3.insert(0, "-187.5")
 entry_tar_joint_3.grid(row=6, column=1, padx=5, pady=5, sticky="ew")
 
-tk.Label(root, text="Motor 4 angle (degree):").grid(row=7, column=0, padx=5, pady=5, sticky="ew")
+tk.Label(root, text="angle 4 (degree):").grid(row=7, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_joint_4 = tk.Entry(root)
 entry_tar_joint_4.insert(0, "-262.5")#262.5
 entry_tar_joint_4.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
@@ -115,29 +283,60 @@ entry_tar_joint_4.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
 #baris 13
 # pvt_mode_init_button = tk.Button(root, text="PVT Mode Init", command=pvt_mode_init)
 # pvt_mode_init_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
-pvt_mode_init_button = tk.Button(root, text="read PVT3 depth", command=pvt_mode_read_pvt_3_depth)
-pvt_mode_init_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+# pvt_mode_init_button = tk.Button(root, text="read PVT3 depth", command=pvt_mode_read_pvt_3_depth)
+# pvt_mode_init_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+sp_joint_button = tk.Button(root, text="SP try", command=sp_joint)
+sp_joint_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-pvt_mode_button = tk.Button(root, text="PVT try", command=pvt_try)
+pvt_mode_button = tk.Button(root, text="PVT try", command=pvt_joint)
 pvt_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+
+#baris 14 - 17
+
+tk.Label(root, text="coor x (mm):").grid(row=14, column=0, padx=5, pady=5, sticky="ew")
+entry_tar_x = tk.Entry(root)
+entry_tar_x.insert(0, "258")
+entry_tar_x.grid(row=14, column=1, padx=5, pady=5, sticky="ew")
+
+tk.Label(root, text="coor y (mm):").grid(row=15, column=0, padx=5, pady=5, sticky="ew")
+entry_tar_y = tk.Entry(root)
+entry_tar_y.insert(0, "0")
+entry_tar_y.grid(row=15, column=1, padx=5, pady=5, sticky="ew")
+
+tk.Label(root, text="coor z (mm):").grid(row=16, column=0, padx=5, pady=5, sticky="ew")
+entry_tar_z = tk.Entry(root)
+entry_tar_z.insert(0, "0")
+entry_tar_z.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
+
+tk.Label(root, text="coor yaw (degree):").grid(row=17, column=0, padx=5, pady=5, sticky="ew")
+entry_tar_yaw = tk.Entry(root)
+entry_tar_yaw.insert(0, "0")
+entry_tar_yaw.grid(row=17, column=1, padx=5, pady=5, sticky="ew")
+
+#baris 18
+sp_move_button = tk.Button(root, text="SP move", command=sp_move)
+sp_move_button.grid(row=18, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+
+pvt_move_button = tk.Button(root, text="PVT move", command=pvt_joint)
+pvt_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 19
 motor_position_button = tk.Button(root, text="motor position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-sp_mode_button = tk.Button(root, text="SP try", command=sp_try)
-sp_mode_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+dancing_button = tk.Button(root, text="dancing", command=dancing)
+dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 20
 homing_button = tk.Button(root, text="homing", command=homing)
 homing_button.grid(row=20, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 #baris 21
-encoder_position_button = tk.Button(root, text="encoder position", command=encoder_position)
-encoder_position_button.grid(row=21, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+# encoder_position_button = tk.Button(root, text="encoder position", command=encoder_position)
+# encoder_position_button.grid(row=21, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-calib_0_button = tk.Button(root, text="calib_0", command=calib_0)
-calib_0_button.grid(row=21, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+# calib_0_button = tk.Button(root, text="calib_0", command=calib_0)
+# calib_0_button.grid(row=21, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 # Menangani event saat jendela ditutup
 root.protocol("WM_DELETE_WINDOW", signal_handler)

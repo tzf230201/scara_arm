@@ -469,7 +469,7 @@ def generate_pvt_trajectory_round_trip(cur_pulse, tar_pulse, time_travel):
 
     return position_points, velocity_points, time_points
 
-# def generate_pvt_trajectory_triangle(cur_pulse, tar_pulse, travel_time):
+# def generate_pvt_trajectory_triangle_1(cur_pulse, tar_pulse, travel_time):
 #     # Define the number of intervals (100ms steps)
 #     dt = pvt_time_interval / 1000  # 100ms = 0.1s
 #     num_steps = int(travel_time / dt) + 1
@@ -488,7 +488,8 @@ def generate_pvt_trajectory_round_trip(cur_pulse, tar_pulse, time_travel):
 #     time_points = np.round(time_points).astype(int)
 
 #     return position_points, velocity_points, time_points
-def generate_pvt_trajectory_triangle(cur_pulse, tar_pulse, travel_time):
+
+def generate_pvt_trajectory_triangle_2(cur_pulse, tar_pulse, travel_time):
     # Menghitung interval waktu dt dalam detik
     dt = pvt_time_interval / 1000  # 100 ms = 0.1 s
     num_steps = int(travel_time / dt) + 1
@@ -543,37 +544,81 @@ def generate_pvt_trajectory_triangle(cur_pulse, tar_pulse, travel_time):
     velocity_points = np.round(velocity_points).astype(int)
     time_points = np.full(num_steps, pvt_time_interval)
     
-    # return position_points, velocity_points, time_points
+    return position_points, velocity_points, time_points
 
-    filtered_position_points = []
-    filtered_velocity_points = []
-    filtered_time_points = []
-    last_position = cur_pulse
-
-    for pos, vel, time in zip(position_points, velocity_points, time_points):
-        if abs(pos - last_position) >= STEPPER_RATIO / 2:  # Half degree threshold
-            filtered_position_points.append(pos)
-            filtered_velocity_points.append(vel)
-            filtered_time_points.append(time)
-            last_position = pos
-
-    return filtered_position_points, filtered_velocity_points, filtered_time_points
-
-
-    # # Filter out small changes in position
     # filtered_position_points = []
     # filtered_velocity_points = []
     # filtered_time_points = []
     # last_position = cur_pulse
 
-    # for pos, vel in zip(position_points, velocity_points):
+    # for pos, vel, time in zip(position_points, velocity_points, time_points):
     #     if abs(pos - last_position) >= STEPPER_RATIO / 2:  # Half degree threshold
     #         filtered_position_points.append(pos)
     #         filtered_velocity_points.append(vel)
-    #         filtered_time_points.append(pvt_time_interval)
+    #         filtered_time_points.append(time)
     #         last_position = pos
 
     # return filtered_position_points, filtered_velocity_points, filtered_time_points
+
+
+def generate_pvt_trajectory_triangle_3(cur_pulse, tar_pulse, travel_time):
+    dt = pvt_time_interval / 1000  # Konversi interval waktu ke detik
+    total_pulse = tar_pulse - cur_pulse
+    
+    # Menghitung percepatan maksimum (a = 4 * s / t^2)
+    max_acc = 4 * total_pulse / (travel_time ** 2)
+    print(max_acc)
+    half_time = travel_time / 2  # Waktu mencapai kecepatan maksimum
+
+    # Variabel untuk menyimpan data
+    position_points = []
+    velocity_points = []
+    time_points = []
+
+    # Fase akselerasi
+    for i in range(1, 201):
+        curr_time = (i - 1) * dt
+        curr_position = 0.5 * max_acc * curr_time ** 2
+        curr_velocity = max_acc * curr_time
+        
+        position_wr = math.floor(curr_position + 0.5) + cur_pulse
+        velocity_wr = math.floor(curr_velocity + 0.5)
+        
+        position_points.append(position_wr)
+        velocity_points.append(velocity_wr)
+        time_points.append(curr_time)
+        
+        if curr_time >= half_time:
+            break
+
+    last_position = curr_position
+    last_velocity = curr_velocity
+
+    # Fase deselerasi
+    for i in range(1, 201):
+        curr_time = i * dt
+        curr_velocity = last_velocity - max_acc * curr_time
+        curr_position = last_position + last_velocity * curr_time - 0.5 * max_acc * curr_time ** 2
+        
+        position_wr = math.floor(curr_position + 0.5) + cur_pulse
+        velocity_wr = math.floor(curr_velocity + 0.5)
+        
+        position_points.append(position_wr)
+        velocity_points.append(velocity_wr)
+        time_points.append(time_points[-1] + dt)
+        
+        if abs(curr_velocity) <= 0:
+            break
+        
+    
+    position_points = np.round(position_points).astype(int)
+    velocity_points = np.round(velocity_points).astype(int)
+    position_points_size = len(position_points)
+    print(position_points_size)
+    time_points = np.full(position_points_size, pvt_time_interval)
+
+    return position_points, velocity_points, time_points
+    
 
 
 def pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time):
@@ -639,6 +684,16 @@ def pvt_mode_set_pvt_3_fifo_threshold_2(th2):
         print(f"Node {node_id:03X} PVT3 upper limit set to {th2}")
 
 
+def calculate_position_from_velocity(velocity_points, dt, start_position=0):
+    position_points = [start_position]
+    for vel in velocity_points:
+        new_position = position_points[-1] + vel * dt
+        position_points.append(new_position)
+        
+    position_points = np.round(position_points).astype(int)
+    
+    return position_points
+
 def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     global last_time, stop_watch, time_out
     group_id = 0x05
@@ -671,14 +726,12 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     #qq
     for i in range(1, 4):
         tar_pulse_have_to_write = int(int((tar_pulses[i] * (MICROSTEP* 200)) / 4096))
-        p[i], v[i], t[i] = generate_pvt_trajectory_triangle(0 ,  tar_pulse_have_to_write, travel_time)
+        p[i], v[i], t[i] = generate_pvt_trajectory_triangle_2(0 ,  tar_pulse_have_to_write, travel_time) 
     
     for i in range(1, 4):
-        cnt = 0
         for pos, vel, tim in zip(p[i], v[i], t[i]):
-            if cnt != 0:
-                pvt_mode_write_read(node_ids[i], pos, vel, tim)
-            cnt += 1
+            pvt_mode_write_read(node_ids[i], pos, vel, tim)
+            # print(f"motor {i+1} write {pos}, {vel}, {tim}")
                 
                 
     pvt_mode_read_pvt_3_depth()
@@ -868,9 +921,11 @@ def read_present_position():
     
     motor_angles = [servo_angle, stepper_angles[0], stepper_angles[1], stepper_angles[2]]
     
-    # cur_x, cur_y, cur_z, cur_yaw = forward_kinematics(m1_angle, m2_angle, m3_angle, m4_angle)
+    cur_coor = forward_kinematics(motor_angles)
     
-    # print(f"cur coordinate : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f} degree")
+    cur_x, cur_y, cur_z, cur_yaw = cur_coor
+    
+    print(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f} degree")
     # print(f"cur joint : m2:{m2_angle:.1f}, m3:{m3_angle:.1f}, m4:{m4_angle:.1f} degree")
     is_sp_mode_arrive = read_sp_mode_arrival_status()
     delta_time = time.time() - last_time
@@ -881,7 +936,7 @@ def read_present_position():
 
 #20
     
-def sp_mode_linear_motion(tar_joints, travel_time):
+def sp_angle(tar_joints, travel_time):
     global stop_watch, time_out, last_time
     group_id = 5
     init_operation_mode(0)
@@ -914,6 +969,142 @@ def sp_mode_linear_motion(tar_joints, travel_time):
     last_time = time.time()
     stop_watch = last_time
     time_out = travel_time
+    
+def sp_coor(tar_coor, travel_time):
+    cur_joints = read_present_position()
+    tar_joints = inverse_kinematics(tar_coor)
+    tar_joints = check_limit(tar_joints)
+    print(f"tar joint = {tar_joints} degree")
+    sp_angle(tar_joints, travel_time)
+    
+def check_limit(tar_joints):
+    
+    tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
+    tar_joint_4 *= -1
+    #limit2 = 0 to 178 degree
+    #limit3 = -135 to 0 degree
+    #limit4 = 0 to 196 degree
+    
+    if tar_joint_1 > (13004):
+        tar_joint_1 = 13004
+        print(f"tar_joint_1 greater than {tar_joint_1}")
+    elif tar_joint_1 < 0:
+        tar_joint_1 = 0
+        print(f"tar_joint_1 lower than {tar_joint_1}")
+    
+    if tar_joint_2 > (178 * 5):
+        tar_joint_2 = 178 * 5
+        print(f"tar_joint_2 greater than {tar_joint_2}")
+    elif tar_joint_2 < 0:
+        tar_joint_2 = 0
+        print(f"tar_joint_2 lower than {tar_joint_2}")
+        
+    if tar_joint_3 > (0 + tar_joint_2):
+        tar_joint_3 = (0 + tar_joint_2)
+        print(f"tar_joint_3 greater than {tar_joint_3}")
+    elif tar_joint_3 < ((-135 * 5) + tar_joint_2):
+        tar_joint_3 = (-135 * 5) + tar_joint_2
+        print(f"tar_joint_3 lower than {tar_joint_3}")
+        
+    if tar_joint_4 > ((196 * 5)+tar_joint_3):
+        tar_joint_4 = (196 * 5) + tar_joint_3
+        print(f"tar_joint_4 greater than {tar_joint_4}")
+    elif tar_joint_4 < (0 + tar_joint_3):
+        tar_joint_4 = 0 + tar_joint_3
+        print(f"tar_joint_4 lower than {tar_joint_4}")
+    
+    tar_joint_4 *= -1
+    
+    tar_joints = [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
+    
+    return tar_joints
+
+def inverse_kinematics(tar_coor):
+    x, y, z, yaw = tar_coor
+    # max area
+    L2 = 137.0
+    L3 = 121.0
+    L4 = 56.82
+    OFFSET_2 = -96.5
+    OFFSET_3 = 134
+    OFFSET_4 = -52.5
+    #ration joint = 5:1
+
+    distance = math.sqrt(x**2 + y**2)
+
+    if distance > (L2 + L3):
+        raise ValueError("out of boundary")
+
+    # joint_3
+    cos_theta3 = (x**2 + y**2 - L2**2 - L3**2) / (2 * L2 * L3)
+    theta3 = math.acos(cos_theta3)  #angle in radian
+
+    # joint_2
+    k1 = L2 + L3 * cos_theta3
+    k2 = L3 * math.sin(theta3)
+    theta2 = math.atan2(y, x) - math.atan2(k2, k1)
+
+    # rad to deg
+    theta2 = math.degrees(theta2)
+    theta3 = math.degrees(theta3)
+
+    joint_1 = z * (360/90)
+    joint_2 = (theta2-OFFSET_2)*5
+    joint_3 = (theta3-OFFSET_3)*5 + joint_2
+    joint_4 = (yaw-OFFSET_4)*5# + joint_3;
+    
+    if joint_1 > (13004):
+        joint_1 = 13004
+       # raise ValueError("out of joint_1 max limit")
+    elif joint_1 < 0:
+        joint_1 = 0
+    if joint_2 > (178 * 5):
+        joint_2 = 178 * 5
+       # raise ValueError("out of joint_2 max limit")
+    elif joint_2 < 0:
+        joint_2 = 0
+        #raise ValueError("out of joint_2 min limit")
+    if joint_3 > (0 + joint_2):
+        joint_3 = (0 + joint_2)
+        #raise ValueError("out of joint_3 max limit")
+    elif joint_3 < ((-135 * 5) + joint_2):
+        joint_3 = (-135 * 5) + joint_2
+        #raise ValueError("out of joint_2 min limit")
+    if joint_4 > ((196 * 5) + joint_3):
+        joint_4 = (196 * 5) + joint_3
+        #raise ValueError("out of joint_4 max limit")
+    elif joint_4 < (0 + joint_3):
+        joint_4 = (0 + joint_3)
+        #raise ValueError("out of joint_2 min limit")
+        
+    joint_4 *= -1
+        
+    return [joint_1, joint_2, joint_3, joint_4]
+
+# Forward kinematics function
+def forward_kinematics(cur_joints):
+    
+    cur_deg1, cur_deg2, cur_deg3, cur_deg4 = cur_joints
+    cur_deg4 *= -1.0
+    #x:258, y:0, c:0 = joint2:482.5, joint3:-187.5, joint4:262.5
+    L2 = 137.0
+    L3 = 121.0
+    L4 = 56.82
+    OFFSET_2 = -96.5
+    OFFSET_3 = 134.0
+    OFFSET_4 = -52.5
+    theta2_rad = math.radians((cur_deg2 / 5) + OFFSET_2)
+    theta3_rad = math.radians((cur_deg3 / 5) + OFFSET_3 - (cur_deg2 / 5))
+    x2 = L2 * math.cos(theta2_rad)
+    y2 = L2 * math.sin(theta2_rad)
+    x3 = x2 + L3 * math.cos(theta2_rad + theta3_rad)
+    y3 = y2 + L3 * math.sin(theta2_rad + theta3_rad)
+    z = (cur_deg1/360)*90
+    yaw = (cur_deg4 / 5) + OFFSET_4
+    
+    cur_coor = [x3, y3, z, yaw]  
+    return cur_coor
+    
 #21
 
 def encoder_position():
@@ -931,9 +1122,17 @@ def calib_0():
     
     save_settings()
 
+# suggestion:
 # motor position pada pdo1 sepertinya tidak dibutuhkan, kalo dihapus program kalkulasinya bisa hemat waktu
 # coba rangkap data yang dikitim lewat pvt ke pdo saja bisa hemat waktu
 
-#yang harus dilakukan:
+#note:
+#speed in sp mode is relative to microstep
+#reach position information in sp mode can be read from controller status (busy_state)
+#pvt mode is more like speed based rather thank position based
+
+
+#to do:
 # 1. robot harus bisa menjalankan s-shape motion
 # bagaimana cara ngetes s-shape motion?
+# 2. buat pvt mode relative terhadap current position
