@@ -2,7 +2,7 @@ import signal
 import tkinter as tk
 import time
 from a_can import on_closing, wake_up, shutdown, read_present_position, encoder_position, calib_0
-from a_can import pvt_mode_try_pvt_1, pvt_mode_try_pvt_3, sp_angle, sp_coor
+from a_can import pvt_mode_try_pvt_1, pvt_mode_try_pvt_3, sp_angle, sp_coor, pvt_circular
 
 def signal_handler():
     print("SIGINT received, closing application...")
@@ -31,6 +31,17 @@ def pvt_joint():
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
 
+def pvt_move():
+    cur_joint = read_present_position()
+    # Contoh penggunaan
+    cur_pos = (130, 0)  # (x, y) posisi awal
+    center_pos = (170, 0)  # Pusat lingkaran
+    end_angle = 180  # Gerakan setengah lingkaran
+    travel_time = 4  # dalam detik
+    direction = "CCW"  # Arah rotasi
+    pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction)
+    
+    
 def sp_joint():
 
     try:
@@ -214,7 +225,7 @@ def dancing():
     time.sleep(sleep)
     sp_coor([258, 0, 0, 0], travel_time)
 
-    
+
 def homing():
     try:
         travel_time = int(entry_time.get())
@@ -317,7 +328,7 @@ entry_tar_yaw.grid(row=17, column=1, padx=5, pady=5, sticky="ew")
 sp_move_button = tk.Button(root, text="SP move", command=sp_move)
 sp_move_button.grid(row=18, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-pvt_move_button = tk.Button(root, text="PVT move", command=pvt_joint)
+pvt_move_button = tk.Button(root, text="PVT circular", command=pvt_move)
 pvt_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 19

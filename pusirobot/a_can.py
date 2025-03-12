@@ -709,6 +709,7 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     init_change_group_id(group_id)
     pvt_mode_set_pvt_max_point(400)
     pvt_mode_set_pvt_operation_mode(pvt_type-1)
+    
     pvt_mode_set_pvt_3_fifo_threshold_1(pvt_3_lower_limit)
     pvt_mode_set_pvt_3_fifo_threshold_2(pvt_3_upper_limit)
     
@@ -725,10 +726,10 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     
     #qq
     for i in range(1, 4):
-        tar_pulse_have_to_write = int(int((tar_pulses[i] * (MICROSTEP* 200)) / 4096))
-        p[i], v[i], t[i] = generate_pvt_trajectory_triangle_2(0 ,  tar_pulse_have_to_write, travel_time) 
+        tar_step = pulse_to_step(tar_pulses[i])
+        p[i], v[i], t[i] = generate_pvt_trajectory_triangle_2(0 ,  tar_step, travel_time) 
     
-    for i in range(1, 4):
+    for i in range(3, 4):
         for pos, vel, tim in zip(p[i], v[i], t[i]):
             pvt_mode_write_read(node_ids[i], pos, vel, tim)
             # print(f"motor {i+1} write {pos}, {vel}, {tim}")
@@ -842,8 +843,133 @@ def read_pvt_mode_arrival_status():
     
     return arrival_status
 
+def gen_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
+    dt = pvt_time_interval / 1000  # Konversi ke detik
+    num_steps = int(travel_time / dt) + 1
 
+    start_angle = math.atan2(cur_pos[1] - center_pos[1], cur_pos[0] - center_pos[0])
+    end_angle = start_angle + math.radians(end_angle) if direction.upper() == "CCW" else start_angle - math.radians(end_angle)
 
+    # Radius lingkaran
+    radius = math.sqrt((cur_pos[0] - center_pos[0]) ** 2 + (cur_pos[1] - center_pos[1]) ** 2)
+
+    # Sudut tiap titik
+    theta_points = np.linspace(start_angle, end_angle, num_steps)
+
+    # Hitung posisi x, y berdasarkan sudut
+    x_points = center_pos[0] + radius * np.cos(theta_points)
+    y_points = center_pos[1] + radius * np.sin(theta_points)
+    
+    # Nilai konstan untuk z dan yaw
+    z_points = np.zeros_like(x_points)
+    yaw_points = np.zeros_like(x_points)
+    
+    trajectory_points = [x_points, y_points, z_points, yaw_points]
+    
+    return trajectory_points
+
+def generate_pvt_points(joint_pulses):
+    dt = pvt_time_interval / 1000  # Konversi ke detik
+    
+    # Hitung velocity menggunakan numpy gradient
+    velocity_points = np.gradient(joint_pulses, dt)
+
+    position_points = np.round(joint_pulses).astype(int)
+    velocity_points = np.round(velocity_points).astype(int)
+    position_points_size = len(position_points)
+    print(position_points_size)
+    time_points = np.full(position_points_size, pvt_time_interval)
+    
+    return position_points, velocity_points, time_points
+
+def pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
+    trajectory_points = gen_circular(cur_pos, center_pos, end_angle, travel_time, direction)
+    # x_points, y_points, z_points, yaw_points = trajectory_points
+    
+    joint1_angles, joint2_angles, joint3_angles, joint4_angles = [], [], [], []
+    for tar_coor in zip(*trajectory_points):  # zip untuk mengambil titik per titik (x, y, z, yaw)
+        try:
+            joint1, joint2, joint3, joint4 = inverse_kinematics(tar_coor)
+
+            joint1_angles.append(joint1)
+            joint2_angles.append(joint2)
+            joint3_angles.append(joint3)
+            joint4_angles.append(joint4)
+        except ValueError as e:
+            print(f"Inverse kinematics error at {tar_coor}: {e}")
+            joint1_angles.append(None)
+            joint2_angles.append(None)
+            joint3_angles.append(None)
+            joint4_angles.append(None)
+    
+    # Normalisasi nilai joint agar mulai dari 0
+    joint1_angles = [val - joint1_angles[0] for val in joint1_angles]
+    joint2_angles = [val - joint2_angles[0] for val in joint2_angles]
+    joint3_angles = [val - joint3_angles[0] for val in joint3_angles]
+    joint4_angles = [val - joint4_angles[0] for val in joint4_angles]
+    #convert to pulses
+    joint1_pulses = [stepper_degrees_to_pulses(val) for val in joint1_angles]
+    joint2_pulses = [stepper_degrees_to_pulses(val) for val in joint2_angles]
+    joint3_pulses = [stepper_degrees_to_pulses(val) for val in joint3_angles]
+    joint4_pulses = [stepper_degrees_to_pulses(val) for val in joint4_angles]
+    
+    joint1_steps = [pulse_to_step(val) for val in joint1_pulses]
+    joint2_steps = [pulse_to_step(val) for val in joint2_pulses]
+    joint3_steps = [pulse_to_step(val) for val in joint3_pulses]
+    joint4_steps = [pulse_to_step(val) for val in joint4_pulses]
+    #convert pvt
+    
+    
+    joint1_p, joint1_v, joint1_t = generate_pvt_points(joint1_steps)
+    joint2_p, joint2_v, joint2_t = generate_pvt_points(joint2_steps)
+    joint3_p, joint3_v, joint3_t = generate_pvt_points(joint3_steps)
+    joint4_p, joint4_v, joint4_t = generate_pvt_points(joint4_steps)
+    
+    global last_time, stop_watch, time_out
+    group_id = 0x05
+    tar_pulses = []
+    node_ids = [ID1, ID2, ID3, ID4]
+    pvt_3_lower_limit = 60
+    pvt_3_upper_limit = 80
+    
+    pvt_type = 3
+    reset_node()
+    time.sleep(1)
+    init_operation_mode(0x02)
+    init_change_group_id(group_id)
+    pvt_mode_set_pvt_max_point(400)
+    pvt_mode_set_pvt_operation_mode(pvt_type-1)
+    pvt_mode_set_pvt_3_fifo_threshold_1(pvt_3_lower_limit)
+    pvt_mode_set_pvt_3_fifo_threshold_2(pvt_3_upper_limit)
+    
+    print(f"pvt init : operation mode pvt, max point 400, pvt mode {pvt_type}")
+    
+    #qw
+    # Initialize p, v, and t as empty lists
+    p = [None] * 4
+    v = [None] * 4
+    t = [None] * 4
+    
+    p[0], v[0], t[0] = joint1_p, joint1_v, joint1_t
+    p[1], v[1], t[1] = joint2_p, joint2_v, joint2_t
+    p[2], v[2], t[2] = joint3_p, joint3_v, joint3_t
+    p[3], v[3], t[3] = joint4_p, joint4_v, joint4_t
+    
+    for i in range(1, 4):
+        for pos, vel, tim in zip(p[i], v[i], t[i]):
+            pvt_mode_write_read(node_ids[i], pos, vel, tim)
+            # print(f"motor {i+1} write {pos}, {vel}, {tim}")
+                
+                
+    pvt_mode_read_pvt_3_depth()
+    pvt_mode_start_pvt_step(group_id)
+    last_time = time.time()
+    stop_watch = last_time
+    time_out = travel_time
+
+def pulse_to_step(tar_pulse):
+    step = int(int((tar_pulse * (MICROSTEP* 200)) / 4096))
+    return step
 ##################################################################
 ##################################################################     
 ##################################################################     
@@ -1136,3 +1262,4 @@ def calib_0():
 # 1. robot harus bisa menjalankan s-shape motion
 # bagaimana cara ngetes s-shape motion?
 # 2. buat pvt mode relative terhadap current position
+# 3. pvt mode with sp correction
