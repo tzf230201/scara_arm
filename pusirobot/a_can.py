@@ -729,7 +729,7 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
         tar_step = pulse_to_step(tar_pulses[i])
         p[i], v[i], t[i] = generate_pvt_trajectory_triangle_2(0 ,  tar_step, travel_time) 
     
-    for i in range(3, 4):
+    for i in range(1, 4):
         for pos, vel, tim in zip(p[i], v[i], t[i]):
             pvt_mode_write_read(node_ids[i], pos, vel, tim)
             # print(f"motor {i+1} write {pos}, {vel}, {tim}")
@@ -883,13 +883,32 @@ def generate_pvt_points(joint_pulses):
     return position_points, velocity_points, time_points
 
 def pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
-    trajectory_points = gen_circular(cur_pos, center_pos, end_angle, travel_time, direction)
+    reset_node()
+    time.sleep(2)
+    trajectory_points = gen_circular(cur_pos, center_pos, end_angle, travel_time, "CCW")
+    trajectory_points_2 = gen_circular(cur_pos, center_pos, end_angle, travel_time, "CW")
     # x_points, y_points, z_points, yaw_points = trajectory_points
     
     joint1_angles, joint2_angles, joint3_angles, joint4_angles = [], [], [], []
     for tar_coor in zip(*trajectory_points):  # zip untuk mengambil titik per titik (x, y, z, yaw)
         try:
-            joint1, joint2, joint3, joint4 = inverse_kinematics(tar_coor)
+            tar_joint = inverse_kinematics(tar_coor)
+            joint1, joint2, joint3, joint4 = check_limit(tar_joint)
+
+            joint1_angles.append(joint1)
+            joint2_angles.append(joint2)
+            joint3_angles.append(joint3)
+            joint4_angles.append(joint4)
+        except ValueError as e:
+            print(f"Inverse kinematics error at {tar_coor}: {e}")
+            joint1_angles.append(None)
+            joint2_angles.append(None)
+            joint3_angles.append(None)
+            joint4_angles.append(None)
+    for tar_coor in zip(*trajectory_points_2):  # zip untuk mengambil titik per titik (x, y, z, yaw)
+        try:
+            tar_joint = inverse_kinematics(tar_coor)
+            joint1, joint2, joint3, joint4 = check_limit(tar_joint)
 
             joint1_angles.append(joint1)
             joint2_angles.append(joint2)
@@ -906,7 +925,8 @@ def pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
     joint1_angles = [val - joint1_angles[0] for val in joint1_angles]
     joint2_angles = [val - joint2_angles[0] for val in joint2_angles]
     joint3_angles = [val - joint3_angles[0] for val in joint3_angles]
-    joint4_angles = [val - joint4_angles[0] for val in joint4_angles]
+    joint4_angles = [val - joint4_angles[0] for val in joint4_angles]    
+    
     #convert to pulses
     joint1_pulses = [stepper_degrees_to_pulses(val) for val in joint1_angles]
     joint2_pulses = [stepper_degrees_to_pulses(val) for val in joint2_angles]
@@ -933,8 +953,7 @@ def pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
     pvt_3_upper_limit = 80
     
     pvt_type = 3
-    reset_node()
-    time.sleep(1)
+    
     init_operation_mode(0x02)
     init_change_group_id(group_id)
     pvt_mode_set_pvt_max_point(400)
@@ -955,7 +974,7 @@ def pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
     p[2], v[2], t[2] = joint3_p, joint3_v, joint3_t
     p[3], v[3], t[3] = joint4_p, joint4_v, joint4_t
     
-    for i in range(1, 4):
+    for i in range(1, 3):
         for pos, vel, tim in zip(p[i], v[i], t[i]):
             pvt_mode_write_read(node_ids[i], pos, vel, tim)
             # print(f"motor {i+1} write {pos}, {vel}, {tim}")
@@ -1263,3 +1282,4 @@ def calib_0():
 # bagaimana cara ngetes s-shape motion?
 # 2. buat pvt mode relative terhadap current position
 # 3. pvt mode with sp correction
+# 4. make xyz with time control (4D)

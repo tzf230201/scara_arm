@@ -32,13 +32,23 @@ def pvt_joint():
     pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
 
 def pvt_move():
+    travel_time = 1.0
+    sleep = travel_time + 0.1
+    
+    coor_1 = [130, 0, 0, 0]
+        
+    sp_coor(coor_1, travel_time)
+    time.sleep(sleep)
+    
     cur_joint = read_present_position()
     # Contoh penggunaan
     cur_pos = (130, 0)  # (x, y) posisi awal
     center_pos = (170, 0)  # Pusat lingkaran
-    end_angle = 180  # Gerakan setengah lingkaran
+    end_angle = 360  # Gerakan setengah lingkaran
     travel_time = 4  # dalam detik
     direction = "CCW"  # Arah rotasi
+    
+    
     pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction)
     
     
@@ -140,7 +150,7 @@ def shuttle_position():
         print("Please enter valid numbers for time")
     
     travel_time = travel_time/1000
-    sleep = travel_time + 0.1
+    sleep = travel_time
     
     shuttle_coor = [166.82, -168, 0, 0]
     sp_coor(shuttle_coor, travel_time)
@@ -153,7 +163,7 @@ def pre_past_shelf():
         print("Please enter valid numbers for time")
     
     travel_time = travel_time/1000
-    sleep = travel_time + 0.1
+    sleep = travel_time
     
     pre_past_shelf_coor = [107, 100, 0, 90]
     sp_coor(pre_past_shelf_coor, travel_time)
@@ -167,7 +177,7 @@ def pickup_from_shelf():
         print("Please enter valid numbers for time")
     
     travel_time = travel_time/1000
-    sleep = travel_time + 0.2
+    sleep = travel_time
     
     pickup_from_shelf_coor = [107, 224, 0, 90]
     sp_coor(pickup_from_shelf_coor, travel_time)
@@ -180,7 +190,7 @@ def place_onto_shelf():
         print("Please enter valid numbers for time")
     
     travel_time = travel_time/1000
-    sleep = travel_time + 0.2
+    sleep = travel_time
     
     place_from_shelf_coor = [107, 197, 0, 90]
     sp_coor(place_from_shelf_coor, travel_time)
@@ -209,6 +219,21 @@ def dancing():
     shuttle_position()
     home_position()
     rectangular()
+    sp_coor([130, 40, 0, 0], travel_time)
+    time.sleep(sleep)
+    sp_coor([130, 0, 0, 0], travel_time/2)
+    time.sleep(sleep/2)
+    
+    cur_pos = (130, 0)  # (x, y) posisi awal
+    center_pos = (170, 0)  # Pusat lingkaran
+    end_angle = 360  # Gerakan setengah lingkaran
+    circular_travel_time = 4  # dalam detik
+    circular_sleep = circular_travel_time + 0.1
+    direction = "CCW"  # Arah rotasi
+    
+    pvt_circular(cur_pos, center_pos, end_angle, circular_travel_time, direction)
+    time.sleep(circular_sleep*2)
+    time.sleep(sleep/2)
     #
     pre_past_shelf()
     pickup_from_shelf()
@@ -260,7 +285,7 @@ root.title("Motor Control Panel")
 
 tk.Label(root, text="Enter time:").grid(row=2, column=0, padx=5, pady=5, sticky="ew")
 entry_time = tk.Entry(root)
-entry_time.insert(0, "2000")
+entry_time.insert(0, "1000")
 entry_time.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
 
 # baris 3d
@@ -306,7 +331,7 @@ pvt_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew
 
 tk.Label(root, text="coor x (mm):").grid(row=14, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_x = tk.Entry(root)
-entry_tar_x.insert(0, "258")
+entry_tar_x.insert(0, "130")
 entry_tar_x.grid(row=14, column=1, padx=5, pady=5, sticky="ew")
 
 tk.Label(root, text="coor y (mm):").grid(row=15, column=0, padx=5, pady=5, sticky="ew")
