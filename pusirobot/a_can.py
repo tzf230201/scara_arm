@@ -1283,3 +1283,11 @@ def calib_0():
 # 2. buat pvt mode relative terhadap current position
 # 3. pvt mode with sp correction
 # 4. make xyz with time control (4D)
+
+
+
+#key role:
+# Target : The robot must follow a predefined trajectory to pick up boxes.
+# must to have: - Organic movement (smooth acceleration & deceleration)
+#               - Precision & no incremental drift
+#               - anomaly detection & activate Emergency response
