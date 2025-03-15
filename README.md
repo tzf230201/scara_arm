@@ -24,7 +24,11 @@ Each actuator features a built-in smart MCU, allowing users to configure paramet
 
 ![Diagram](picture/picture_3.png)
 
-Commands are sent through the CAN bus using the CANopen protocol.
+Commands are sent through the CAN bus using the CANopen protocol. 
+
+![MCP2515 module](picture/picture_6.jpg)
+
+[**2-CH CAN HAT Module Datasheet**](https://www.waveshare.com/wiki/2-CH_CAN_HAT)
 
 **There are several type of motion**:
 - Linear motion<br>
