@@ -1298,7 +1298,7 @@ def calib_0():
 #    - found what cause the drift in PVT mode.
 #               
 # 3. anomaly detection & activate Emergency response
-#    - decide the pin for the servo brake
+#    - decide the pin for the servo brake (GPIO2 - Pin3)
 #    - read the position frequently, if the motor out of tolerance, activaate the emergency function
 
 

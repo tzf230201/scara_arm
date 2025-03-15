@@ -28,7 +28,23 @@ Commands are sent through the CAN bus using the CANopen protocol.
 
 ![MCP2515 module](picture/picture_6.jpg)
 
-[**2-CH CAN HAT Module Datasheet**](https://www.waveshare.com/wiki/2-CH_CAN_HAT)
+[2-CH CAN HAT Module Datasheet](https://www.waveshare.com/wiki/2-CH_CAN_HAT)
+
+
+**Used RasPi-4 Pins:**
+
+| Fungsi                   | GPIO (BCM) | Physical Pin (40-pin header) |
+|--------------------------|------------|------------------------------|
+| **SPI MOSI**             | GPIO 10    | Pin 19                       |
+| **SPI MISO**             | GPIO 9     | Pin 21                       |
+| **SPI CLK (SCK)**        | GPIO 11    | Pin 23                       |
+| **CAN0 CS (CE0)**        | GPIO 8     | Pin 24                       |
+| **CAN1 CS (CE1)**        | GPIO 7     | Pin 26                       |
+| **CAN0 Interrupt**       | GPIO 23    | Pin 16                       |
+| **CAN1 Interrupt**       | GPIO 25    | Pin 22                       |
+| **Relay**                | GPIO 2    | Pin 3
+
+
 
 **There are several type of motion**:
 - Linear motion<br>
