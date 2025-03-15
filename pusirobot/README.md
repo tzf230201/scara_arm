@@ -16,6 +16,15 @@ dtoverlay=mcp2515-can1,oscillator=16000000,interrupt=25
 dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=23
 dtoverlay=spi-bcm2835-overlay
 ```
+## Run this before run the main program
+
+```bash
+sudo ip link set can0 down
+sudo ip link set can0 txqueuelen 1000  # if less then no permission error comes
+sudo ip link set can0 type can bitrate 1000000 loopback off
+sudo ip link set can0 up
+```
+
 
 
 
