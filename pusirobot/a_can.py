@@ -1288,6 +1288,17 @@ def calib_0():
 
 #key role:
 # Target : The robot must follow a predefined trajectory to pick up boxes.
-# must to have: - Organic movement (smooth acceleration & deceleration)
-#               - Precision & no incremental drift
-#               - anomaly detection & activate Emergency response
+# must to have: 
+# 1. Organic movement (smooth acceleration & deceleration)
+#    - make a 4D trajectory tester
+#    - try PP mode again with pulse_to_step() function
+#               
+# 2. Precision & no incremental drift
+#    - maybe can be combining with sp mode after
+#    - found what cause the drift in PVT mode.
+#               
+# 3. anomaly detection & activate Emergency response
+#    - decide the pin for the servo brake
+#    - read the position frequently, if the motor out of tolerance, activaate the emergency function
+
+
