@@ -83,13 +83,7 @@ def sp_move():
     
     sp_coor(tar_coor, travel_time)
     
-def straight_line():
-    try:
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for time")
-    
-    travel_time = travel_time/1000
+def straight_line(travel_time):
     sleep = travel_time + 0.1
     
     coor_1 = [258, 0, 0, 0]
@@ -101,13 +95,7 @@ def straight_line():
         sp_coor(coor_2, travel_time)
         time.sleep(sleep)
     
-def rectangular():
-    try:
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for time")
-    
-    travel_time = travel_time/1000
+def rectangular(travel_time):
     sleep = travel_time + 0.1
     
     coor_1 = [210, 40, 0, 0]
@@ -129,13 +117,7 @@ def rectangular():
     time.sleep(sleep)
 
         
-def home_position():
-    try:
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for time")
-    
-    travel_time = travel_time/1000
+def home_position(travel_time):
     sleep = travel_time + 0.1
     
     home_angles = [0, 0, 0, 0]
@@ -143,26 +125,14 @@ def home_position():
     time.sleep(sleep)
 
 		
-def shuttle_position():
-    try:
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for time")
-    
-    travel_time = travel_time/1000
+def shuttle_position(travel_time):
     sleep = travel_time
     
     shuttle_coor = [166.82, -168, 0, 0]
     sp_coor(shuttle_coor, travel_time)
     time.sleep(sleep)
 
-def pre_past_shelf():
-    try:
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for time")
-    
-    travel_time = travel_time/1000
+def pre_past_shelf(travel_time):
     sleep = travel_time
     
     pre_past_shelf_coor = [107, 100, 0, 90]
@@ -170,26 +140,14 @@ def pre_past_shelf():
     time.sleep(sleep)
 
 
-def pickup_from_shelf():
-    try:
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for time")
-    
-    travel_time = travel_time/1000
+def pickup_from_shelf(travel_time):
     sleep = travel_time
     
     pickup_from_shelf_coor = [107, 224, 0, 90]
     sp_coor(pickup_from_shelf_coor, travel_time)
     time.sleep(sleep)
 
-def place_onto_shelf():
-    try:
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for time")
-    
-    travel_time = travel_time/1000
+def place_onto_shelf(travel_time):
     sleep = travel_time
     
     place_from_shelf_coor = [107, 197, 0, 90]
@@ -206,19 +164,19 @@ def dancing():
     travel_time = travel_time/1000
     sleep = travel_time + 0.1
 
-    straight_line()
+    straight_line(travel_time)
     sp_coor([140, 0, 0, -20], travel_time)
     time.sleep(sleep)
     sp_coor([140, 0, 0, 90], travel_time)
     time.sleep(sleep)
     sp_coor([140, -168, 0, 0], travel_time)
     time.sleep(sleep)
-    home_position()
-    shuttle_position()
-    home_position()
-    shuttle_position()
-    home_position()
-    rectangular()
+    home_position(travel_time)
+    shuttle_position(travel_time)
+    home_position(travel_time)
+    shuttle_position(travel_time)
+    home_position(travel_time)
+    rectangular(travel_time)
     sp_coor([130, 40, 0, 0], travel_time)
     time.sleep(sleep)
     sp_coor([130, 0, 0, 0], travel_time/2)
@@ -235,11 +193,11 @@ def dancing():
     time.sleep(circular_sleep*2)
     time.sleep(sleep/2)
     #
-    pre_past_shelf()
-    pickup_from_shelf()
-    pre_past_shelf()
-    pickup_from_shelf()
-    pre_past_shelf()
+    pre_past_shelf(travel_time)
+    pickup_from_shelf(travel_time)
+    pre_past_shelf(travel_time)
+    pickup_from_shelf(travel_time)
+    pre_past_shelf(travel_time)
     
     #
     sp_coor([150, 0, 0, 0], travel_time)

@@ -1283,7 +1283,8 @@ def calib_0():
 # 2. buat pvt mode relative terhadap current position
 # 3. pvt mode with sp correction
 # 4. make xyz with time control (4D)
-
+# 5. try PP mode again with pulse_to_step() function
+# 6. make the third file
 
 
 #key role:
@@ -1302,3 +1303,8 @@ def calib_0():
 #    - read the position frequently, if the motor out of tolerance, activaate the emergency function
 
 
+# walalu dan dan danali wa qablu tob tobali
+# tob tobi tob tob tobi tob tob tobi tob tob tobali
+# wasyaqqu syaq syaq syaqali wara'su qa qabaili
+# syawa syawa wasyaisu 'alal wara'suqarjali
+# wagharradal qimriyasil hulmalalin fi malali
