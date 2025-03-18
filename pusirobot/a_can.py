@@ -1048,8 +1048,6 @@ def pvt_mode_init():
     
     print(f"pvt init : operation mode pvt, max point 400, pvt mode {pvt_type}")
 
-         
-           
 #19
 def read_present_position():
     servo_ids = ID1
@@ -1093,8 +1091,6 @@ def sp_angle(tar_joints, travel_time):
     cur_joints = read_present_position()
     delta_joints = [tar - cur for tar, cur in zip(tar_joints, cur_joints)]
     tar_speeds = [stepper_degrees_to_pulses(int(delta / travel_time)) for delta in delta_joints]
-        
-    
     
     tar_pulses = []
     for tar_joint in tar_joints:
@@ -1301,10 +1297,3 @@ def calib_0():
 # 3. anomaly detection & activate Emergency response
 #    - decide the pin for the servo brake (GPIO2 - Pin3)
 #    - read the position frequently, if the motor out of tolerance, activaate the emergency function
-
-
-# walalu dan dan danali wa qablu tob tobali
-# tob tobi tob tob tobi tob tob tobi tob tob tobali
-# wasyaqqu syaq syaq syaqali wara'su qa qabaili
-# syawa syawa wasyaisu 'alal wara'suqarjali
-# wagharradal qimriyasil hulmalalin fi malali
