@@ -1054,11 +1054,11 @@ def read_present_position():
     
     motor_angles = [servo_angle, stepper_angles[0], stepper_angles[1], stepper_angles[2]]
     
-    cur_coor = forward_kinematics(motor_angles)
+    # cur_coor = forward_kinematics(motor_angles)
     
-    cur_x, cur_y, cur_z, cur_yaw = cur_coor
+    # cur_x, cur_y, cur_z, cur_yaw = cur_coor
     
-    print(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f} degree")
+    # print(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f} degree")
     # print(f"cur joint : m2:{m2_angle:.1f}, m3:{m3_angle:.1f}, m4:{m4_angle:.1f} degree")
     is_sp_mode_arrive = read_sp_mode_arrival_status()
     delta_time = time.time() - last_time
@@ -1066,3 +1066,18 @@ def read_present_position():
     print(f"cur joint : {formatted_angles} degree")
     print(f"time : {delta_time:.2f}, is sp mode arrive : {is_sp_mode_arrive}")
     return motor_angles
+
+def encoder_position():
+    enc2 = req_sdo(ID2, OD_STEPPER_ENCODER_POSITION, 0x00)
+    enc3 = req_sdo(ID3, OD_STEPPER_ENCODER_POSITION, 0x00)
+    enc4 = req_sdo(ID4, OD_STEPPER_ENCODER_POSITION, 0x00)
+    print(f"enc: {enc2}, {enc3}, {enc4}")
+    
+    return enc2, enc3, enc4
+
+def calib_0():
+    enc2, enc3, enc4 = encoder_position()
+    for id, enc in zip([ID2, ID3, ID4], [enc2, enc3, enc4]):
+        error_code = set_sdo(id, SET_4_BYTE, OD_STEPPER_CALIBRATION_ZERO, 0x00, -enc)
+    
+    save_settings()

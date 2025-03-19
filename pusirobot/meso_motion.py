@@ -1,8 +1,238 @@
 import time
 import math
-from micro_can import save_settings, set_req_sdo
+from micro_can import *
+
 
     
+# suggestion:
+# motor position pada pdo1 sepertinya tidak dibutuhkan, kalo dihapus program kalkulasinya bisa hemat waktu
+# coba rangkap data yang dikitim lewat pvt ke pdo saja bisa hemat waktu
+
+#note:
+#speed in sp mode is relative to microstep
+#reach position information in sp mode can be read from controller status (busy_state)
+#pvt mode is more like speed based rather thank position based
+
+
+#to do:
+# 1. robot harus bisa menjalankan s-shape motion
+# bagaimana cara ngetes s-shape motion?
+# 2. buat pvt mode relative terhadap current position
+# 3. pvt mode with sp correction
+# 4. make xyz with time control (4D)
+# 5. try PP mode again with pulse_to_step() function
+# 6. make the third file
+
+
+#key role:
+# Target : The robot must follow a predefined trajectory to pick up boxes.
+# must to have: 
+# 1. Organic movement (smooth acceleration & deceleration)
+#    - make a 4D trajectory tester
+#    - try PP mode again with pulse_to_step() function
+#               
+# 2. Precision & no incremental drift
+#    - maybe can be combining with sp mode after
+#    - found what cause the drift in PVT mode.
+#               
+# 3. anomaly detection & activate Emergency response
+#    - decide the pin for the servo brake (GPIO2 - Pin3)
+#    - read the position frequently, if the motor out of tolerance, activaate the emergency functio
+
+# ######################################### PVT MODE ######################################### #
+def gen_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
+    dt = pvt_time_interval / 1000  # Konversi ke detik
+    num_steps = int(travel_time / dt) + 1
+
+    start_angle = math.atan2(cur_pos[1] - center_pos[1], cur_pos[0] - center_pos[0])
+    end_angle = start_angle + math.radians(end_angle) if direction.upper() == "CCW" else start_angle - math.radians(end_angle)
+
+    # Radius lingkaran
+    radius = math.sqrt((cur_pos[0] - center_pos[0]) ** 2 + (cur_pos[1] - center_pos[1]) ** 2)
+
+    # Sudut tiap titik
+    theta_points = np.linspace(start_angle, end_angle, num_steps)
+
+    # Hitung posisi x, y berdasarkan sudut
+    x_points = center_pos[0] + radius * np.cos(theta_points)
+    y_points = center_pos[1] + radius * np.sin(theta_points)
+    
+    # Nilai konstan untuk z dan yaw
+    z_points = np.zeros_like(x_points)
+    yaw_points = np.zeros_like(x_points)
+    
+    trajectory_points = [x_points, y_points, z_points, yaw_points]
+    
+    return trajectory_points
+
+def generate_pvt_points(joint_pulses):
+    dt = pvt_time_interval / 1000  # Konversi ke detik
+    
+    # Hitung velocity menggunakan numpy gradient
+    velocity_points = np.gradient(joint_pulses, dt)
+
+    position_points = np.round(joint_pulses).astype(int)
+    velocity_points = np.round(velocity_points).astype(int)
+    position_points_size = len(position_points)
+    print(position_points_size)
+    time_points = np.full(position_points_size, pvt_time_interval)
+    
+    return position_points, velocity_points, time_points
+
+def pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
+    reset_node()
+    time.sleep(2)
+    trajectory_points = gen_circular(cur_pos, center_pos, end_angle, travel_time, "CCW")
+    trajectory_points_2 = gen_circular(cur_pos, center_pos, end_angle, travel_time, "CW")
+    # x_points, y_points, z_points, yaw_points = trajectory_points
+    
+    joint1_angles, joint2_angles, joint3_angles, joint4_angles = [], [], [], []
+    for tar_coor in zip(*trajectory_points):  # zip untuk mengambil titik per titik (x, y, z, yaw)
+        try:
+            tar_joint = inverse_kinematics(tar_coor)
+            joint1, joint2, joint3, joint4 = check_limit(tar_joint)
+
+            joint1_angles.append(joint1)
+            joint2_angles.append(joint2)
+            joint3_angles.append(joint3)
+            joint4_angles.append(joint4)
+        except ValueError as e:
+            print(f"Inverse kinematics error at {tar_coor}: {e}")
+            joint1_angles.append(None)
+            joint2_angles.append(None)
+            joint3_angles.append(None)
+            joint4_angles.append(None)
+    for tar_coor in zip(*trajectory_points_2):  # zip untuk mengambil titik per titik (x, y, z, yaw)
+        try:
+            tar_joint = inverse_kinematics(tar_coor)
+            joint1, joint2, joint3, joint4 = check_limit(tar_joint)
+
+            joint1_angles.append(joint1)
+            joint2_angles.append(joint2)
+            joint3_angles.append(joint3)
+            joint4_angles.append(joint4)
+        except ValueError as e:
+            print(f"Inverse kinematics error at {tar_coor}: {e}")
+            joint1_angles.append(None)
+            joint2_angles.append(None)
+            joint3_angles.append(None)
+            joint4_angles.append(None)
+    
+    # Normalisasi nilai joint agar mulai dari 0
+    joint1_angles = [val - joint1_angles[0] for val in joint1_angles]
+    joint2_angles = [val - joint2_angles[0] for val in joint2_angles]
+    joint3_angles = [val - joint3_angles[0] for val in joint3_angles]
+    joint4_angles = [val - joint4_angles[0] for val in joint4_angles]    
+    
+    #convert to pulses
+    joint1_pulses = [stepper_degrees_to_pulses(val) for val in joint1_angles]
+    joint2_pulses = [stepper_degrees_to_pulses(val) for val in joint2_angles]
+    joint3_pulses = [stepper_degrees_to_pulses(val) for val in joint3_angles]
+    joint4_pulses = [stepper_degrees_to_pulses(val) for val in joint4_angles]
+    
+    joint1_steps = [pulse_to_step(val) for val in joint1_pulses]
+    joint2_steps = [pulse_to_step(val) for val in joint2_pulses]
+    joint3_steps = [pulse_to_step(val) for val in joint3_pulses]
+    joint4_steps = [pulse_to_step(val) for val in joint4_pulses]
+    #convert pvt
+    
+    
+    joint1_p, joint1_v, joint1_t = generate_pvt_points(joint1_steps)
+    joint2_p, joint2_v, joint2_t = generate_pvt_points(joint2_steps)
+    joint3_p, joint3_v, joint3_t = generate_pvt_points(joint3_steps)
+    joint4_p, joint4_v, joint4_t = generate_pvt_points(joint4_steps)
+    
+    global last_time, stop_watch, time_out
+    group_id = 0x05
+    tar_pulses = []
+    node_ids = [ID1, ID2, ID3, ID4]
+    pvt_3_lower_limit = 60
+    pvt_3_upper_limit = 80
+    
+    pvt_type = 3
+    
+    init_operation_mode(0x02)
+    init_change_group_id(group_id)
+    pvt_mode_set_pvt_max_point(400)
+    pvt_mode_set_pvt_operation_mode(pvt_type-1)
+    pvt_mode_set_pvt_3_fifo_threshold_1(pvt_3_lower_limit)
+    pvt_mode_set_pvt_3_fifo_threshold_2(pvt_3_upper_limit)
+    
+    print(f"pvt init : operation mode pvt, max point 400, pvt mode {pvt_type}")
+    
+    #qw
+    # Initialize p, v, and t as empty lists
+    p = [None] * 4
+    v = [None] * 4
+    t = [None] * 4
+    
+    p[0], v[0], t[0] = joint1_p, joint1_v, joint1_t
+    p[1], v[1], t[1] = joint2_p, joint2_v, joint2_t
+    p[2], v[2], t[2] = joint3_p, joint3_v, joint3_t
+    p[3], v[3], t[3] = joint4_p, joint4_v, joint4_t
+    
+    for i in range(1, 3):
+        for pos, vel, tim in zip(p[i], v[i], t[i]):
+            pvt_mode_write_read(node_ids[i], pos, vel, tim)
+            # print(f"motor {i+1} write {pos}, {vel}, {tim}")
+                
+                
+    pvt_mode_read_pvt_3_depth()
+    pvt_mode_start_pvt_step(group_id)
+    last_time = time.time()
+    stop_watch = last_time
+    time_out = travel_time
+
+def pulse_to_step(tar_pulse):
+    step = int(int((tar_pulse * (MICROSTEP* 200)) / 4096))
+    return step
+
+
+# ######################################### SP MODE ######################################### #
+
+def sp_angle(tar_joints, travel_time):
+    global stop_watch, time_out, last_time
+    group_id = 5
+    init_operation_mode(0)
+    #group id need to be set after changing operation mode
+    init_change_group_id(group_id)
+    # init_set_accel_coef(1)
+    # init_set_decel_coef(1)
+    
+    cur_joints = read_present_position()
+    delta_joints = [tar - cur for tar, cur in zip(tar_joints, cur_joints)]
+    tar_speeds = [stepper_degrees_to_pulses(int(delta / travel_time)) for delta in delta_joints]
+    
+    tar_pulses = []
+    for tar_joint in tar_joints:
+        tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
+
+    # Set speed
+    for id, speed in zip([ID2, ID3, ID4], [tar_speeds[1], tar_speeds[2], tar_speeds[3]]):
+        speed_have_to_write = int(int((speed * (MICROSTEP* 200)) / 4096))
+        _,ret = set_req_sdo(id, SET_4_BYTE, OD_STEPPER_SP_MOTION, 0x01, speed_have_to_write)
+        print(f"{id:03X} sp speed is {ret}")  
+    #set position
+    for id, pulse in zip([ID2, ID3, ID4], [tar_pulses[1], tar_pulses[2], tar_pulses[3]]):
+        _,ret = set_req_sdo(id, SET_4_BYTE, OD_STEPPER_SP_MOTION, 0x02, pulse)
+        print(f"{id:03X} sp position is {ret}")
+    
+    send_can_command(f"000#0A{group_id:02X}")
+    last_time = time.time()
+    stop_watch = last_time
+    time_out = travel_time
+    
+def sp_coor(tar_coor, travel_time):
+    cur_joints = read_present_position()
+    tar_joints = inverse_kinematics(tar_coor)
+    tar_joints = check_limit(tar_joints)
+    print(f"tar joint = {tar_joints} degree")
+    sp_angle(tar_joints, travel_time)
+    
+    
+    
+# ######################################### KINEMATICS ######################################### #
+
 def check_limit(tar_joints):
     
     tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
@@ -78,34 +308,13 @@ def inverse_kinematics(tar_coor):
     joint_2 = (theta2-OFFSET_2)*5
     joint_3 = (theta3-OFFSET_3)*5 + joint_2
     joint_4 = (yaw-OFFSET_4)*5# + joint_3;
-    
-    if joint_1 > (13004):
-        joint_1 = 13004
-       # raise ValueError("out of joint_1 max limit")
-    elif joint_1 < 0:
-        joint_1 = 0
-    if joint_2 > (178 * 5):
-        joint_2 = 178 * 5
-       # raise ValueError("out of joint_2 max limit")
-    elif joint_2 < 0:
-        joint_2 = 0
-        #raise ValueError("out of joint_2 min limit")
-    if joint_3 > (0 + joint_2):
-        joint_3 = (0 + joint_2)
-        #raise ValueError("out of joint_3 max limit")
-    elif joint_3 < ((-135 * 5) + joint_2):
-        joint_3 = (-135 * 5) + joint_2
-        #raise ValueError("out of joint_2 min limit")
-    if joint_4 > ((196 * 5) + joint_3):
-        joint_4 = (196 * 5) + joint_3
-        #raise ValueError("out of joint_4 max limit")
-    elif joint_4 < (0 + joint_3):
-        joint_4 = (0 + joint_3)
-        #raise ValueError("out of joint_2 min limit")
         
     joint_4 *= -1
-        
-    return [joint_1, joint_2, joint_3, joint_4]
+    
+    joints = [joint_1, joint_2, joint_3, joint_4]
+    joints = check_limit(joints)
+    
+    return joints
 
 # Forward kinematics function
 def forward_kinematics(cur_joints):
@@ -130,97 +339,8 @@ def forward_kinematics(cur_joints):
     
     cur_coor = [x3, y3, z, yaw]  
     return cur_coor
-    
-#21
 
-def encoder_position():
-    enc2 = req_sdo(ID2, OD_STEPPER_ENCODER_POSITION, 0x00)
-    enc3 = req_sdo(ID3, OD_STEPPER_ENCODER_POSITION, 0x00)
-    enc4 = req_sdo(ID4, OD_STEPPER_ENCODER_POSITION, 0x00)
-    print(f"enc: {enc2}, {enc3}, {enc4}")
-    
-    return enc2, enc3, enc4
-
-def calib_0():
-    enc2, enc3, enc4 = encoder_position()
-    for id, enc in zip([ID2, ID3, ID4], [enc2, enc3, enc4]):
-        error_code = set_sdo(id, SET_4_BYTE, OD_STEPPER_CALIBRATION_ZERO, 0x00, -enc)
-    
-    save_settings()
-
-# suggestion:
-# motor position pada pdo1 sepertinya tidak dibutuhkan, kalo dihapus program kalkulasinya bisa hemat waktu
-# coba rangkap data yang dikitim lewat pvt ke pdo saja bisa hemat waktu
-
-#note:
-#speed in sp mode is relative to microstep
-#reach position information in sp mode can be read from controller status (busy_state)
-#pvt mode is more like speed based rather thank position based
-
-
-#to do:
-# 1. robot harus bisa menjalankan s-shape motion
-# bagaimana cara ngetes s-shape motion?
-# 2. buat pvt mode relative terhadap current position
-# 3. pvt mode with sp correction
-# 4. make xyz with time control (4D)
-# 5. try PP mode again with pulse_to_step() function
-# 6. make the third file
-
-
-#key role:
-# Target : The robot must follow a predefined trajectory to pick up boxes.
-# must to have: 
-# 1. Organic movement (smooth acceleration & deceleration)
-#    - make a 4D trajectory tester
-#    - try PP mode again with pulse_to_step() function
-#               
-# 2. Precision & no incremental drift
-#    - maybe can be combining with sp mode after
-#    - found what cause the drift in PVT mode.
-#               
-# 3. anomaly detection & activate Emergency response
-#    - decide the pin for the servo brake (GPIO2 - Pin3)
-#    - read the position frequently, if the motor out of tolerance, activaate the emergency functio
-
-def sp_angle(tar_joints, travel_time):
-    global stop_watch, time_out, last_time
-    group_id = 5
-    init_operation_mode(0)
-    #group id need to be set after changing operation mode
-    init_change_group_id(group_id)
-    # init_set_accel_coef(1)
-    # init_set_decel_coef(1)
-    
-    cur_joints = read_present_position()
-    delta_joints = [tar - cur for tar, cur in zip(tar_joints, cur_joints)]
-    tar_speeds = [stepper_degrees_to_pulses(int(delta / travel_time)) for delta in delta_joints]
-    
-    tar_pulses = []
-    for tar_joint in tar_joints:
-        tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
-
-    # Set speed
-    for id, speed in zip([ID2, ID3, ID4], [tar_speeds[1], tar_speeds[2], tar_speeds[3]]):
-        speed_have_to_write = int(int((speed * (MICROSTEP* 200)) / 4096))
-        _,ret = set_req_sdo(id, SET_4_BYTE, OD_STEPPER_SP_MOTION, 0x01, speed_have_to_write)
-        print(f"{id:03X} sp speed is {ret}")  
-    #set position
-    for id, pulse in zip([ID2, ID3, ID4], [tar_pulses[1], tar_pulses[2], tar_pulses[3]]):
-        _,ret = set_req_sdo(id, SET_4_BYTE, OD_STEPPER_SP_MOTION, 0x02, pulse)
-        print(f"{id:03X} sp position is {ret}")
-    
-    send_can_command(f"000#0A{group_id:02X}")
-    last_time = time.time()
-    stop_watch = last_time
-    time_out = travel_time
-    
-def sp_coor(tar_coor, travel_time):
-    cur_joints = read_present_position()
-    tar_joints = inverse_kinematics(tar_coor)
-    tar_joints = check_limit(tar_joints)
-    print(f"tar joint = {tar_joints} degree")
-    sp_angle(tar_joints, travel_time)
+# ######################################### DANCING ######################################### #
 
 def straight_line(travel_time):
     sleep = travel_time + 0.1
@@ -294,13 +414,7 @@ def place_onto_shelf(travel_time):
     time.sleep(sleep)
 
         
-def dancing():
-    try:
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for angles.")
-    #while True:
-    travel_time = travel_time/1000
+def dancing(travel_time):
     sleep = travel_time + 0.1
 
     straight_line(travel_time)

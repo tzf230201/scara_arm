@@ -1,9 +1,8 @@
 import signal
 import tkinter as tk
 import time
-from micro_can import on_closing, wake_up, shutdown, read_present_position, encoder_position, calib_0
-from micro_can import pvt_mode_try_pvt_1, pvt_mode_try_pvt_3, sp_angle, sp_coor, pvt_circular
-from meso_motion import dancing
+from micro_can import on_closing, wake_up, shutdown, read_present_position, encoder_position, calib_0, pvt_circular
+from meso_motion import dancing, sp_angle, sp_coor
 
 def signal_handler():
     print("SIGINT received, closing application...")
@@ -85,7 +84,15 @@ def sp_move():
     sp_coor(tar_coor, travel_time)
     
 
-
+def start_dancing():
+    try:
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for angles.")
+    #while True:
+    travel_time = travel_time/1000
+    dancing(travel_time)
+    
 def homing():
     try:
         travel_time = int(entry_time.get())
@@ -195,7 +202,7 @@ pvt_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew
 motor_position_button = tk.Button(root, text="motor position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-dancing_button = tk.Button(root, text="dancing", command=dancing)
+dancing_button = tk.Button(root, text="dancing", command=start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 20
