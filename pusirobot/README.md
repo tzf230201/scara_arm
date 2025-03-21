@@ -143,3 +143,9 @@ init_operation_mode(0)
 init_change_group_id(group_id)
 ```
 
+
+**Dependencies**
+```bash
+sudo apt install python3-can
+sudo apt install python3-tk
+```
