@@ -224,5 +224,38 @@ root.protocol("WM_DELETE_WINDOW", signal_handler)
 # Jalankan GUI
 root.mainloop()
 
-# coba test pvt 3
-# coba ganti triangle trajector
+# suggestion:
+# motor position pada pdo1 sepertinya tidak dibutuhkan, kalo dihapus program kalkulasinya bisa hemat waktu
+# coba rangkap data yang dikitim lewat pvt ke pdo saja bisa hemat waktu
+
+#note:
+#speed in sp mode is relative to microstep
+#reach position information in sp mode can be read from controller status (busy_state)
+#pvt mode is more like speed based rather thank position based
+
+
+#to do:
+# 1. robot harus bisa menjalankan s-shape motion
+# bagaimana cara ngetes s-shape motion?
+# 2. buat pvt mode relative terhadap current position
+# 3. pvt mode with sp correction
+# 4. make xyz with time control (4D)
+# 5. try PP mode again with pulse_to_step() function
+# 6. make the third file
+
+
+#key role:
+# Target : The robot must follow a predefined trajectory to pick up boxes.
+# must to have: 
+# 1. Organic movement (smooth acceleration & deceleration)
+#    - make a 4D trajectory tester
+#    - try PP mode again with pulse_to_step() function
+#    - try pvt mode 1 dengan check point
+#               
+# 2. Precision & no incremental drift
+#    - maybe can be combining with sp mode after
+#    - found what cause the drift in PVT mode.
+#               
+# 3. anomaly detection & activate Emergency response
+#    - decide the pin for the servo brake (GPIO2 - Pin3)
+#    - read the position frequently, if the motor out of tolerance, activaate the emergency functio
