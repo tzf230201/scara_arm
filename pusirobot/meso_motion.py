@@ -154,14 +154,12 @@ def pulse_to_step(tar_pulse):
 
 # ######################################### SP MODE ######################################### #
 
+from meso_sp import * 
+
 def sp_angle(tar_joints, travel_time):
     global stop_watch, time_out, last_time
     group_id = 5
-    init_operation_mode(0)
-    #group id need to be set after changing operation mode
-    init_change_group_id(group_id)
-    # init_set_accel_coef(1)
-    # init_set_decel_coef(1)
+    sp_mode_init(group_id)
     
     cur_joints = read_present_position()
     delta_joints = [tar - cur for tar, cur in zip(tar_joints, cur_joints)]
@@ -173,15 +171,16 @@ def sp_angle(tar_joints, travel_time):
 
     # Set speed
     for id, speed in zip([ID2, ID3, ID4], [tar_speeds[1], tar_speeds[2], tar_speeds[3]]):
-        speed_have_to_write = int(int((speed * (MICROSTEP* 200)) / 4096))
-        _,ret = set_req_sdo(id, SET_4_BYTE, OD_STEPPER_SP_MOTION, 0x01, speed_have_to_write)
+        #in sp mode, speed is not pulse per second, but step per second
+        speed_have_to_write = pulse_to_step(speed)
+        _,ret = sp_mode_set_speed(id, speed_have_to_write)
         print(f"{id:03X} sp speed is {ret}")  
     #set position
     for id, pulse in zip([ID2, ID3, ID4], [tar_pulses[1], tar_pulses[2], tar_pulses[3]]):
-        _,ret = set_req_sdo(id, SET_4_BYTE, OD_STEPPER_SP_MOTION, 0x02, pulse)
+        _,ret = sp_mode_set_pulse(id, pulse)
         print(f"{id:03X} sp position is {ret}")
     
-    send_can_command(f"000#0A{group_id:02X}")
+    sp_mode_start_motion(group_id)
     last_time = time.time()
     stop_watch = last_time
     time_out = travel_time
