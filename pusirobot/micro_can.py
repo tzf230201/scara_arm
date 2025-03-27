@@ -39,6 +39,17 @@ def servo_degrees_to_pulses(degrees):
 def servo_pulses_to_degrees(pulses):
     return float(pulses / SERVO_RATIO)
 
+def stepper_pulses_to_steps(pulses):
+    steps = int(int((pulses * (MICROSTEP * 200)) / 4096))
+    return steps
+
+def stepper_steps_to_pulses(steps):
+    pulses = int((steps / (MICROSTEP * 200)) * 4096)
+    return pulses
+
+
+
+
 
 # System Information (RO)
 OD_STEPPER_DEVICE_NAME = 0x1008
@@ -315,91 +326,16 @@ def stall_off():
 
         
 ######################################### PVT #######################################
-def pvt_mode_stop_pvt_motion():
-    for node_id in [ID2, ID3, ID4]:
-        set_sdo(node_id, SET_1_BYTE, OD_STEPPER_PVT_MOTION, 0x01, 0x00)
 
-
-def pvt_mode_start_pvt_motion(node_id):
-    set_sdo(node_id, SET_1_BYTE, OD_STEPPER_PVT_MOTION, 0x01, 0x01)
-
-def pvt_mode_store_queue():
-    for node_id in [ID2, ID3, ID4]:
-        set_sdo(node_id, SET_1_BYTE, OD_STEPPER_PVT_MOTION, 0x01, 0x02)
-                
-def pvt_mode_reset_queue():
-    for node_id in [ID2, ID3, ID4]:
-        set_sdo(node_id, SET_1_BYTE, OD_STEPPER_PVT_MOTION, 0x01, 0x03)
         
 
 
-def pvt_mode_set_pvt_operation_mode(pvt_operation_mode):
-    for node_id in [ID2, ID3, ID4]:
-        _, ret = set_req_sdo(node_id, SET_1_BYTE, OD_STEPPER_PVT_MOTION, 0x02, pvt_operation_mode)
-    #print(f"set in PVT mode -> operation mode is mode {ret + 1}")
-
-
-def pvt_mode_set_pvt_max_point(max_point):
-    for node_id in [ID2, ID3, ID4]:
-        _, ret = set_req_sdo(node_id, SET_2_BYTE, OD_STEPPER_PVT_MOTION, 0x03, max_point)
-    #print(f"set max PVT points set to {ret}")
-
-
-def pvt_mode_set_pvt_1_start(start_idx):
-    for node_id in [ID2, ID3, ID4]:
-        _, ret = set_req_sdo(node_id, SET_2_BYTE, OD_STEPPER_PVT_MOTION, 0x05, start_idx)
-        print(f"Node {node_id:03X} PVT start index set to {ret}")
-
-
-def pvt_mode_set_pvt_1_end(end_idx):
-    for node_id in [ID2, ID3, ID4]:
-        _, ret = set_req_sdo(node_id, SET_2_BYTE, OD_STEPPER_PVT_MOTION, 0x06, end_idx)
-        print(f"Node {node_id:03X} PVT stop index set to {ret}")
-
-
-def pvt_mode_start_pvt_step(group_id):
-    send_can_command(f"000#0B{group_id:02X}")
-    
-def pvt_mode_stop_pvt_step(group_id):
-    send_can_command(f"000#0C{group_id:02X}")
 
 
 
-def pvt_mode_read_index():
-    for node_id in [ID2, ID3, ID4]:
-        ret = req_sdo(node_id, OD_STEPPER_PVT_MOTION, 0x04)
-        print(f"Node {node_id:03X} PVT current index is {ret}")
 
-def pvt_mode_write_pvt(node_id, pos, vel, timess):
 
-    error_code = ensure_set_req_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x11, pos)
-    error_code |= ensure_set_req_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x12, vel)
-    error_code |= ensure_set_req_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x13, timess)
-    error_code |= set_sdo(node_id, SET_1_BYTE, OD_STEPPER_PVT_MOTION, 0x01, 0x02)
-    
-    return error_code
 
-def pvt_mode_read_pvt(node_id):
-    p = req_sdo(node_id, READ_REQ, OD_STEPPER_PVT_MOTION, 0x11, 0x00)
-    v = req_sdo(node_id, READ_REQ, OD_STEPPER_PVT_MOTION, 0x12, 0x00)
-    t = req_sdo(node_id, READ_REQ, OD_STEPPER_PVT_MOTION, 0x13, 0x00)
-    return p,v,t
-
-def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
-    # pvt_mode_read_index()
-    wr_p_will_be = int((wr_p/(MICROSTEP* 200)) * 4096)
-    # wr_p = (pvt_wb * (MICROSTEP * 200)) / 4096
-    
-
-    # wr_p_will_be = int((wr_p * (MICROSTEP* 200)) / 4096)
-    # wr_v_will_be = int((wr_v * (MICROSTEP* 200)) / 4096)
-    
-    
-    error_code = pvt_mode_write_pvt(node_id, wr_p, wr_v, wr_t)
-    if (error_code == NO_ERROR):
-        print(f"motor{node_id-0x600} pvt wr: {wr_p},{wr_v},{wr_t} will be: {wr_p_will_be} -> OK")
-    else:
-        print(f"motor{node_id-0x600} pvt wr -> ERROR")
 
 def generate_pvt_trajectory(cur_pulse, tar_pulse, travel_time):
     # Define the number of intervals (100ms steps)
@@ -667,24 +603,7 @@ def pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time):
     # pvt_mode_start_pvt_motion(ID3)
     last_time = time.time()
     
-def pvt_mode_read_pvt_3_depth():
-    for node_id in [ID2, ID3, ID4]:
-        ret = req_sdo(node_id, OD_STEPPER_PVT_MOTION, 0x0E)
-        print(f"Node {node_id:03X} PVT3 depth is {ret}")
-        
-def read_pvt_3_depth(node_id):
-    ret = req_sdo(node_id, OD_STEPPER_PVT_MOTION, 0x0E)
-    return ret
 
-def pvt_mode_set_pvt_3_fifo_threshold_1(th1):
-    for node_id in [ID2, ID3, ID4]:
-        _, ret = set_req_sdo(node_id, SET_2_BYTE, OD_STEPPER_PVT_MOTION, 0x0F, th1)
-        print(f"Node {node_id:03X} PVT3 lower limit set to {th1}")
-
-def pvt_mode_set_pvt_3_fifo_threshold_2(th2):
-    for node_id in [ID2, ID3, ID4]:
-        _, ret = set_req_sdo(node_id, SET_2_BYTE, OD_STEPPER_PVT_MOTION, 0x10, th2)
-        print(f"Node {node_id:03X} PVT3 upper limit set to {th2}")
 
 
 def calculate_position_from_velocity(velocity_points, dt, start_position=0):
@@ -729,7 +648,7 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     
     #qq
     for i in range(1, 4):
-        tar_step = pulse_to_step(tar_pulses[i])
+        tar_step = stepper_pulses_to_steps(tar_pulses[i])
         p[i], v[i], t[i] = generate_pvt_trajectory_triangle_2(0 ,  tar_step, travel_time) 
     
     for i in range(1, 4):

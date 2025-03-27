@@ -94,10 +94,10 @@ def pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
     joint3_pulses = [stepper_degrees_to_pulses(val) for val in joint3_angles]
     joint4_pulses = [stepper_degrees_to_pulses(val) for val in joint4_angles]
     
-    joint1_steps = [pulse_to_step(val) for val in joint1_pulses]
-    joint2_steps = [pulse_to_step(val) for val in joint2_pulses]
-    joint3_steps = [pulse_to_step(val) for val in joint3_pulses]
-    joint4_steps = [pulse_to_step(val) for val in joint4_pulses]
+    joint1_steps = [stepper_pulses_to_steps(val) for val in joint1_pulses]
+    joint2_steps = [stepper_pulses_to_steps(val) for val in joint2_pulses]
+    joint3_steps = [stepper_pulses_to_steps(val) for val in joint3_pulses]
+    joint4_steps = [stepper_pulses_to_steps(val) for val in joint4_pulses]
     #convert pvt
     
     
@@ -147,9 +147,7 @@ def pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
     stop_watch = last_time
     time_out = travel_time
 
-def pulse_to_step(tar_pulse):
-    step = int(int((tar_pulse * (MICROSTEP* 200)) / 4096))
-    return step
+
 
 
 # ######################################### SP MODE ######################################### #
@@ -172,7 +170,7 @@ def sp_angle(tar_joints, travel_time):
     # Set speed
     for id, speed in zip([ID2, ID3, ID4], [tar_speeds[1], tar_speeds[2], tar_speeds[3]]):
         #in sp mode, speed is not pulse per second, but step per second
-        speed_have_to_write = pulse_to_step(speed)
+        speed_have_to_write = stepper_pulses_to_steps(speed)
         _,ret = sp_mode_set_speed(id, speed_have_to_write)
         print(f"{id:03X} sp speed is {ret}")  
     #set position
