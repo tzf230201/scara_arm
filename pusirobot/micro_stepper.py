@@ -161,23 +161,25 @@ def stall_off():
     print(f"stall (open-loop) deactivated, be carefull")
     save_settings()
     
-def calibration_zero(node_id, encoder):
-    set_sdo(node_id, SET_4_BYTE, OD_STEPPER_CALIBRATION_ZERO, 0x00, -encoder)
-    save_settings()
 
-######################################## STATUS ######################################
 
-def get_controller_status(node_id):
+######################################## STATUS ######################################s
+def stepper_get_controller_status(node_id):
     controller_status = req_sdo(node_id, OD_STEPPER_CONTROLLER_STATUS, 0x00)
     return controller_status
 
-def get_motor_position(node_id):
+def stepper_get_motor_position(node_id):
     motor_position = req_sdo(node_id, OD_STEPPER_MOTOR_POSITION, 0x00)
     return motor_position
 
-def get_encoder_position(node_id):
+def stepper_get_encoder_position(node_id):
     encoder_position = req_sdo(node_id, OD_STEPPER_ENCODER_POSITION, 0x00)
     return encoder_position
+
+def stepper_calibration_zero(node_id):
+    encoder = stepper_get_encoder_position(node_id)
+    set_sdo(node_id, SET_4_BYTE, OD_STEPPER_CALIBRATION_ZERO, 0x00, -encoder)
+    save_settings()
 
 def read_pdo_1(request_id):
     response_id = (request_id - 0x600) + 0x180

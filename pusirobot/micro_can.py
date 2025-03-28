@@ -1,41 +1,19 @@
 import can
-import time
 import struct
-import math
 import numpy as np
 import getpass
 
-# Mendapatkan waktu saat ini dalam detik sejak epoch
-last_time = time.time()
 
 user = getpass.getuser()
 if user == "peter":
     bus = can.Bus(channel='can0', interface='socketcan')
 
 
-
 MAX_FAILED_CNT = 20
 RECV_WAIT = 0.5
 
 
-
-SERVO_PPR = 10000
-SERVO_RATIO = SERVO_PPR / 360
-
-
-
-
-def servo_degrees_to_pulses(degrees):
-    return int(degrees * SERVO_RATIO)
-
-
-def servo_pulses_to_degrees(pulses):
-    return float(pulses / SERVO_RATIO)
-
-
-
-
-# PUSIROBOT LIBRARY
+# CAN-OPEN LIBRARY
 SET_1_BYTE = 0x2F
 SET_2_BYTE = 0x2B
 SET_3_BYTE = 0x27
@@ -172,9 +150,3 @@ def safe_set_sdo(request_id, cs, index_id, sub_index_id, data):
     if (error_code != NO_ERROR):
         # shutdown()
         print(f"emergency off, something wrong with can bus communication")
-    
-
-        
-
-
-
