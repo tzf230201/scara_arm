@@ -4,24 +4,24 @@ from micro_can import *
 
 def pp_mode_set_acceleration(accel_2, accel_3, accel_4):
     for id, accel in zip([ID2, ID3, ID4], [accel_2, accel_3, accel_4]):
-        can_tx_2(id, SET_4_BYTE, OD_STEPPER_PP_MOTION, 0x01, accel)
+        set_sdo(id, SET_4_BYTE, OD_STEPPER_PP_MOTION, 0x01, accel)
         
 def pp_mode_set_deceleration(decel_2, decel_3, decel_4):
     for id, decel in zip([ID2, ID3, ID4], [decel_2, decel_3, decel_4]):
-        can_tx_2(id, SET_4_BYTE, OD_STEPPER_PP_MOTION, 0x02, decel)
+        set_sdo(id, SET_4_BYTE, OD_STEPPER_PP_MOTION, 0x02, decel)
 
 def pp_mode_set_start_speed(start_speed):
     for id in [ID2, ID3, ID4]:
-        can_tx_2(id, SET_4_BYTE, OD_STEPPER_PP_MOTION, 0x03, start_speed)
+        set_sdo(id, SET_4_BYTE, OD_STEPPER_PP_MOTION, 0x03, start_speed)
 
 def pp_mode_set_stop_speed(stop_speed):
     for id in [ID2, ID3, ID4]:
-        can_tx_2(id, SET_4_BYTE, OD_STEPPER_PP_MOTION, 0x04, stop_speed)
+        set_sdo(id, SET_4_BYTE, OD_STEPPER_PP_MOTION, 0x04, stop_speed)
         
 def pp_mode_read_status():
-    status_2 = can_tx_2(ID2, READ_REQ, OD_STEPPER_PP_MOTION_2, 0x02, 0x00)
-    status_3 = can_tx_2(ID3, READ_REQ, OD_STEPPER_PP_MOTION_2, 0x02, 0x00)
-    status_4 = can_tx_2(ID4, READ_REQ, OD_STEPPER_PP_MOTION_2, 0x02, 0x00)
+    status_2 = set_sdo(ID2, READ_REQ, OD_STEPPER_PP_MOTION_2, 0x02, 0x00)
+    status_3 = set_sdo(ID3, READ_REQ, OD_STEPPER_PP_MOTION_2, 0x02, 0x00)
+    status_4 = set_sdo(ID4, READ_REQ, OD_STEPPER_PP_MOTION_2, 0x02, 0x00)
     return status_2, status_3, status_4
 
 def get_bit(value, bit_position):
@@ -37,11 +37,11 @@ def pp_mode_is_reached():
     
 def pp_mode_set_max_speed(max_speed):
     for id in [ID2, ID3, ID4]:
-        can_tx_2(id, SET_4_BYTE, OD_STEPPER_PP_MOTION_2, 0x03, max_speed)
+        set_sdo(id, SET_4_BYTE, OD_STEPPER_PP_MOTION_2, 0x03, max_speed)
         
 def pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4):
     for id, pulse in zip([ID2, ID3, ID4], [tar_pulse_2, tar_pulse_3, -tar_pulse_4]):
-        can_tx_2(id, SET_4_BYTE, OD_STEPPER_PP_MOTION_2, 0x04, pulse)
+        set_sdo(id, SET_4_BYTE, OD_STEPPER_PP_MOTION_2, 0x04, pulse)
         
 def pp_mode_start_absolute_motion():
     for id in [ID2, ID3, ID4]:
@@ -70,7 +70,21 @@ def pp_mode_init():
     
     print(f"the motors is in pp mode")
     
-    def triangle_trajectory(cur_joint_2, cur_joint_3, cur_joint_4, tar_joint_2, tar_joint_3, tar_joint_4, travel_time, max_speed):
+def stepper_accel_decel_calc(d_total, t_travel_ms):
+    t_accel_ms = t_travel_ms / 2  # Accel and decel time (ms)
+    d_accel = d_total / 2  # Distance during accel and decel (pulses)
+
+    # Convert time from ms to seconds for calculations
+    t_accel = t_accel_ms / 1000  # Accel and decel time (s)
+    
+    # Calculate acceleration and max speed
+    accel = (2 * d_accel) / (t_accel ** 2)  # Acceleration (pps^2)
+    # v_max = accel * t_accel  # Maximum speed (pps)
+    int_accel = (int)(abs(accel))
+    # print(int_accel)
+    return int_accel
+    
+def triangle_trajectory(cur_joint_2, cur_joint_3, cur_joint_4, tar_joint_2, tar_joint_3, tar_joint_4, travel_time, max_speed):
     
     tar_pulse_2 = stepper_degrees_to_pulses(tar_joint_2)
     tar_pulse_3 = stepper_degrees_to_pulses(tar_joint_3)
