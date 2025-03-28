@@ -1,6 +1,8 @@
 import time
 import math
-from micro_can import *
+from micro_stepper import *
+
+pvt_time_interval = 50
 
 # Sync PVT commands
 def pvt_mode_start_pvt_step(group_id):

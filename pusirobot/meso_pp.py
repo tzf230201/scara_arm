@@ -1,6 +1,6 @@
 import time
 import math
-from micro_can import *
+from micro_stepper import *
 
 # pp motion1's parameters 
 
