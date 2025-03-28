@@ -82,6 +82,7 @@ sudo ip link set can0 up
 | Set PVT Time (ms)                          | `603#2310601300000000`             |
 | PVT Control (`0`: Stop, `1`: Start, `2`: Add to Queue, `3`: Clear Queue) | `603#2f10600100000000` |
 
+**in PVT mode, origin of absolute position is better to put it to encoder 800000 (middle position) or it will cause a reverse polarity during exceeding the encoder. and put STALL LENGTH around 64**
 
 ## PDO Settings
 
@@ -142,6 +143,7 @@ group_id = 5
 init_operation_mode(0)
 init_change_group_id(group_id)
 ```
+
 
 
 **Dependencies**

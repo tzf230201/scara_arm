@@ -19,3 +19,9 @@ def sp_mode_init(group_id):
     init_change_group_id(group_id)
     init_set_accel_coef(1)
     init_set_decel_coef(1)
+    
+def sp_mode_get_arrival_status(node_id):
+    controller_status = get_controller_status(node_id)
+    _, _, _, is_busy, _ = extract_controller_status(controller_status)
+    is_arrive = not is_busy
+    return (is_arrive)
