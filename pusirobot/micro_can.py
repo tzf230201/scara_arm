@@ -73,7 +73,7 @@ OD_STEPPER_ABSOLUTE_DISPLACEMENT = 0x601C
 OD_STEPPER_STOP_STEPPING = 0x6020
 OD_STEPPER_OPERATION_MODE = 0x6005
 OD_STEPPER_START_SPEED = 0x6006
-INEDX_STOP_SPEED = 0x6007
+OD_STEPPER_STOP_SPEED = 0x6007
 OD_STEPPER_ACCEL_COEF = 0x6008
 OD_STEPPER_DECEL_COEF = 0x6009
 OD_STEPPER_MICROSTEPPING = 0x600A
@@ -306,7 +306,12 @@ def reset_node():
 def reset_communication():
     for id in [0x02, 0x03, 0x04]:
         send_can_command(f"000#82{id:02X}")
-        
+
+
+def save_settings():
+    #save settings
+    for id in [ID2, ID3, ID4]:
+        set_sdo(id, SET_1_BYTE, OD_STEPPER_SYSTEM_CONTROL, 0x00, 2)  
 
 def stall_on():
     for id in [ID2, ID3, ID4]:
@@ -316,14 +321,29 @@ def stall_on():
     print(f"stall (open-loop) activated")
     save_settings()
 
-
 def stall_off():
     for id in [ID2, ID3, ID4]:
         set_sdo(id, SET_1_BYTE, OD_STEPPER_STALL_SET, 0x00, 0x00)
     print(f"stall (open-loop) deactivated, be carefull")
     save_settings()
+    
+def calibration_zero(node_id, encoder):
+    set_sdo(node_id, SET_4_BYTE, OD_STEPPER_CALIBRATION_ZERO, 0x00, -encoder)
+    save_settings()
 
 ######################################## STATUS ######################################
+
+def get_controller_status(node_id):
+    controller_status = req_sdo(node_id, OD_STEPPER_CONTROLLER_STATUS, 0x00)
+    return controller_status
+
+def get_motor_position(node_id):
+    motor_position = req_sdo(node_id, OD_STEPPER_MOTOR_POSITION, 0x00)
+    return motor_position
+
+def get_encoder_position(node_id):
+    encoder_position = req_sdo(node_id, OD_STEPPER_ENCODER_POSITION, 0x00)
+    return encoder_position
 
 def read_pdo_1(request_id):
     response_id = (request_id - 0x600) + 0x180
@@ -348,9 +368,7 @@ def read_pdo_1(request_id):
 
     return error_code, error_state, controller_status, motor_position
 
-def get_controller_status(node_id):
-    controller_status = req_sdo(node_id, OD_STEPPER_CONTROLLER_STATUS, 0x00)
-    return controller_status
+
 
 def extract_controller_status(controller_status):
     controller_status = controller_status & 0xFF
@@ -401,10 +419,7 @@ def read_sp_mode_arrival_status():
 ##################################################################     
 ##################################################################       
 ##################################################################     
-def save_settings():
-    #save settings
-    for id in [ID2, ID3, ID4]:
-        set_sdo(id, SET_1_BYTE, OD_STEPPER_SYSTEM_CONTROL, 0x00, 2)
+
         
 
 #X
@@ -435,45 +450,46 @@ def shutdown():
 
     
 #19
-def read_present_position():
-    servo_ids = ID1
-    servo_pulse = 0#can_tx(ID1, READ_REQ, OD_SERVO_POSITION_ACTUAL_VALUE, 0)
-    servo_angle = stepper_pulses_to_degrees(servo_pulse)
+# def read_present_position():
+#     servo_ids = ID1
+#     servo_pulse = 0#can_tx(ID1, READ_REQ, OD_SERVO_POSITION_ACTUAL_VALUE, 0)
+#     servo_angle = stepper_pulses_to_degrees(servo_pulse)
     
-    stepper_ids = [ID2, ID3, ID4]
-    stepper_angles = []
+#     stepper_ids = [ID2, ID3, ID4]
+#     stepper_angles = []
     
-    for stepper_id in stepper_ids:
-        stepper_pulse = req_sdo(stepper_id, OD_STEPPER_MOTOR_POSITION, 0x00)
-        # print(f"stepper {stepper_id:03X} pulse is {stepper_pulse}")
-        stepper_angles.append(stepper_pulses_to_degrees(stepper_pulse))
+#     for stepper_id in stepper_ids:
+#         stepper_pulse = req_sdo(stepper_id, OD_STEPPER_MOTOR_POSITION, 0x00)
+#         # print(f"stepper {stepper_id:03X} pulse is {stepper_pulse}")
+#         stepper_angles.append(stepper_pulses_to_degrees(stepper_pulse))
     
-    motor_angles = [servo_angle, stepper_angles[0], stepper_angles[1], stepper_angles[2]]
+#     motor_angles = [servo_angle, stepper_angles[0], stepper_angles[1], stepper_angles[2]]
     
-    # cur_coor = forward_kinematics(motor_angles)
+#     # cur_coor = forward_kinematics(motor_angles)
     
-    # cur_x, cur_y, cur_z, cur_yaw = cur_coor
+#     # cur_x, cur_y, cur_z, cur_yaw = cur_coor
     
-    # print(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f} degree")
-    # print(f"cur joint : m2:{m2_angle:.1f}, m3:{m3_angle:.1f}, m4:{m4_angle:.1f} degree")
-    is_sp_mode_arrive = read_sp_mode_arrival_status()
-    delta_time = time.time() - last_time
-    formatted_angles = ", ".join([f"{angle:.2f}" for angle in motor_angles])
-    print(f"cur joint : {formatted_angles} degree")
-    print(f"time : {delta_time:.2f}, is sp mode arrive : {is_sp_mode_arrive}")
-    return motor_angles
+#     # print(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f} degree")
+#     # print(f"cur joint : m2:{m2_angle:.1f}, m3:{m3_angle:.1f}, m4:{m4_angle:.1f} degree")
+#     is_sp_mode_arrive = read_sp_mode_arrival_status()
+#     delta_time = time.time() - last_time
+#     formatted_angles = ", ".join([f"{angle:.2f}" for angle in motor_angles])
+#     print(f"cur joint : {formatted_angles} degree")
+#     print(f"time : {delta_time:.2f}, is sp mode arrive : {is_sp_mode_arrive}")
+#     return motor_angles
 
-def encoder_position():
-    enc2 = req_sdo(ID2, OD_STEPPER_ENCODER_POSITION, 0x00)
-    enc3 = req_sdo(ID3, OD_STEPPER_ENCODER_POSITION, 0x00)
-    enc4 = req_sdo(ID4, OD_STEPPER_ENCODER_POSITION, 0x00)
-    print(f"enc: {enc2}, {enc3}, {enc4}")
+# def encoder_position():
+#     enc2 = req_sdo(ID2, OD_STEPPER_ENCODER_POSITION, 0x00)
+#     enc3 = req_sdo(ID3, OD_STEPPER_ENCODER_POSITION, 0x00)
+#     enc4 = req_sdo(ID4, OD_STEPPER_ENCODER_POSITION, 0x00)
+#     print(f"enc: {enc2}, {enc3}, {enc4}")
     
-    return enc2, enc3, enc4
+#     return enc2, enc3, enc4
 
-def calib_0():
-    enc2, enc3, enc4 = encoder_position()
-    for id, enc in zip([ID2, ID3, ID4], [enc2, enc3, enc4]):
-        error_code = set_sdo(id, SET_4_BYTE, OD_STEPPER_CALIBRATION_ZERO, 0x00, -enc)
+# def calib_0():
+#     enc2, enc3, enc4 = encoder_position()
+#     for id, enc in zip([ID2, ID3, ID4], [enc2, enc3, enc4]):
+#         error_code = set_sdo(id, SET_4_BYTE, OD_STEPPER_CALIBRATION_ZERO, 0x00, -enc)
     
-    save_settings()
+#     save_settings()
+
