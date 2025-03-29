@@ -1,4 +1,4 @@
-from micro_can import *
+from lib_can import *
 
 # System Information (RO)
 OD_SERVO_DEVICE_TYPE = 0x1000
@@ -146,24 +146,23 @@ def motor_1_set_max_speed(max_speed):
 def motor_1_set_tar_pulse(tar_pulse_1):
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_TARGET_POSITION, 0x00,  tar_pulse_1)
 
-def motor_1_position_mode():
-    try:
-        tar_joint_1 = float(entry_tar_joint_1.get())
-        tar_joint_2 = float(entry_tar_joint_2.get())
-        tar_joint_3 = float(entry_tar_joint_3.get())
-        tar_joint_4 = float(entry_tar_joint_4.get())
-        max_speed = int(entry_speed.get())
-        travel_time = int(entry_time.get())
-        
-        cur_joint_1, cur_joint_2, cur_joint_3, cur_joint_4 = read_present_position()
-        tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = check_limit(tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4)
-        tar_pulse_1 = servo_degrees_to_pulses(tar_joint_1)
-    except ValueError:
-        print("Please enter valid numbers for angles.")
+def motor_1_position_mode(tar_joints):
+    
+    cur_joint_1, cur_joint_2, cur_joint_3, cur_joint_4 = read_present_position()
+    
+    tar_joints = check_limit(tar_joints)
+    tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
+    
+    tar_pulse_1 = servo_degrees_to_pulses(tar_joint_1)
+    delta_pulse_1 = servo_degrees_to_pulses(tar_joint_1 - cur_joint_1)
+    accel_decel_1 = servo_accel_decel_calc(delta_pulse_1, travel_time)
     
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
-    motor_1_set_max_speed(10)
-    motor_1_set_acceleration(100)
-    motor_1_set_deceleration(100)
+    motor_1_max_speed_ppr = (int)((max_speed / SERVO_PPR) * 10)
+    motor_1_set_acceleration(accel_decel_1)
+    motor_1_set_deceleration(accel_decel_1)
+    motor_1_set_max_speed(motor_1_max_speed_ppr)
     motor_1_set_tar_pulse(tar_pulse_1)
+
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
+    

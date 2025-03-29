@@ -1,7 +1,7 @@
 import can
 import struct
-import numpy as np
 import getpass
+import time
 
 
 user = getpass.getuser()

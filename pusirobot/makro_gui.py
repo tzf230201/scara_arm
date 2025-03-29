@@ -1,7 +1,7 @@
 import signal
 import tkinter as tk
 import time
-from micro_can import on_closing, wake_up, shutdown, read_present_position, encoder_position, calib_0
+from lib_can import on_closing, wake_up, shutdown, read_present_position, encoder_position, calib_0
 from meso_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3
 
 

@@ -1,6 +1,6 @@
 import time
 import math
-from micro_can import *
+from lib_can import *
 
 
 # ######################################### PVT MODE ######################################### #

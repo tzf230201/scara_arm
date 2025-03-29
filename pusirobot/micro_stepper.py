@@ -1,4 +1,4 @@
-from micro_can import *
+from lib_can import *
 
 # System Information (RO)
 OD_STEPPER_DEVICE_NAME = 0x1008
