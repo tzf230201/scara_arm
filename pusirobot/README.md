@@ -24,7 +24,7 @@ sudo ip link set can0 txqueuelen 1000  # if less then no permission error comes
 sudo ip link set can0 type can bitrate 1000000 loopback off
 sudo ip link set can0 up
 ```
-
+**or run can_begin.sh instead**
 
 
 
