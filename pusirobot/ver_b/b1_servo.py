@@ -1,4 +1,4 @@
-from lib_can import *
+from 0_can import *
 
 # System Information (RO)
 OD_SERVO_DEVICE_TYPE = 0x1000
