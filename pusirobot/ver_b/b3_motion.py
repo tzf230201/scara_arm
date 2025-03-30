@@ -2,7 +2,7 @@ import time
 import math
 from b1_servo import *
 from b1_stepper import *
-
+from b2_pvt import *
 
 def get_cur_joints():
     servo_id = ID1
@@ -21,9 +21,93 @@ def get_cur_joints():
     return cur_joints
 
 
+# ######################################### PVT 3 ######################################### #
 
 
-# ######################################### PVT MODE ######################################### #
+def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
+    global last_time, stop_watch, time_out
+    group_id = 0x05
+    tar_pulses = []
+    node_ids = [ID1, ID2, ID3, ID4]
+    pvt_3_lower_limit = 60
+    pvt_3_upper_limit = 80
+    
+    pvt_type = 3
+    reset_node()
+    time.sleep(1)
+    init_operation_mode(0x02)
+    init_change_group_id(group_id)
+    pvt_mode_set_pvt_max_point(400)
+    pvt_mode_set_pvt_operation_mode(pvt_type-1)
+    
+    pvt_mode_set_pvt_3_fifo_threshold_1(pvt_3_lower_limit)
+    pvt_mode_set_pvt_3_fifo_threshold_2(pvt_3_upper_limit)
+    
+    print(f"pvt init : operation mode pvt, max point 400, pvt mode {pvt_type}")
+    
+    for tar_joint in tar_joints:
+        tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
+    
+    
+    # Initialize p, v, and t as empty lists
+    p = [None] * 4
+    v = [None] * 4
+    t = [None] * 4
+    
+    #qq
+    for i in range(1, 4):
+        tar_step = stepper_pulses_to_steps(tar_pulses[i])
+        p[i], v[i], t[i] = generate_pvt_trajectory_triangle_2(0 ,  tar_step, travel_time) 
+    
+    for i in range(1, 4):
+        for pos, vel, tim in zip(p[i], v[i], t[i]):
+            pvt_mode_write_read(node_ids[i], pos, vel, tim)
+            # print(f"motor {i+1} write {pos}, {vel}, {tim}")
+                
+                
+    pvt_mode_read_pvt_3_depth()
+    pvt_mode_start_pvt_step(group_id)
+    last_time = time.time()
+    stop_watch = last_time
+    time_out = travel_time
+    
+    
+            #     last_point = len(p[i])-1
+            # if ((cnt == 0) or (cnt ==  1)):# or (cnt==last_point)):
+            #     print(f"motor {i+1} no write for first and last point")
+            # else:
+    
+    # for i in range(0, 2):
+    #     last_pos = 0
+    #     last_vel = 0 
+    #     while(depth > pvt_3_lower_limit):
+    #         depth = read_pvt_3_depth(ID3)
+    #         print(f"depth: {depth}")
+    #         read_present_position()
+    #         time.sleep(0.1)
+    #     for i in range(2, 3):
+    #         cnt = 0
+    #         for pos, vel in zip(p[i], v[i]):
+    #             pos_will_be = int((pos * (MICROSTEP* 200)) / 4096)
+    #             if ((cnt < 10) and (pos_will_be == 0)):# or (pos_will_be == last_pos)):
+    #                 # pvt_mode_write_read(node_ids[i], int(pos), int(vel), pvt_time_interval)
+    #                 print(f"no write")
+    #             else:
+    #                 pvt_mode_write_read(node_ids[i], int(pos), int(vel), pvt_time_interval)
+    #             cnt += 1
+    #             last_pos = pos_will_be
+    #             last_vel = vel
+    #     depth = read_pvt_3_depth(ID3)
+        
+    # while(depth > 0):
+    #     depth = read_pvt_3_depth(ID3)
+    #     print(f"depth: {depth}")
+    #     read_present_position()
+    #     time.sleep(0.1)
+
+
+
+# ######################################### PVT CIRCULAR ######################################### #
 def gen_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
     dt = pvt_time_interval / 1000  # Konversi ke detik
     num_steps = int(travel_time / dt) + 1
