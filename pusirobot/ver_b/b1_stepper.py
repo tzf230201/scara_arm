@@ -256,9 +256,6 @@ def read_sp_mode_arrival_status():
 ##################################################################       
 ##################################################################     
 
-        
-
-#X
 
 
 def stepper_init():
@@ -279,50 +276,3 @@ def stepper_shutdown():
     init_set_max_current(0)
     reset_node()
     print(f"stepper shutdown")
-
-
-
-    
-#19
-# def read_present_position():
-#     servo_ids = ID1
-#     servo_pulse = 0#can_tx(ID1, READ_REQ, OD_SERVO_POSITION_ACTUAL_VALUE, 0)
-#     servo_angle = stepper_pulses_to_degrees(servo_pulse)
-    
-#     stepper_ids = [ID2, ID3, ID4]
-#     stepper_angles = []
-    
-#     for stepper_id in stepper_ids:
-#         stepper_pulse = req_sdo(stepper_id, OD_STEPPER_MOTOR_POSITION, 0x00)
-#         # print(f"stepper {stepper_id:03X} pulse is {stepper_pulse}")
-#         stepper_angles.append(stepper_pulses_to_degrees(stepper_pulse))
-    
-#     motor_angles = [servo_angle, stepper_angles[0], stepper_angles[1], stepper_angles[2]]
-    
-#     # cur_coor = forward_kinematics(motor_angles)
-    
-#     # cur_x, cur_y, cur_z, cur_yaw = cur_coor
-    
-#     # print(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f} degree")
-#     # print(f"cur joint : m2:{m2_angle:.1f}, m3:{m3_angle:.1f}, m4:{m4_angle:.1f} degree")
-#     is_sp_mode_arrive = read_sp_mode_arrival_status()
-#     delta_time = time.time() - last_time
-#     formatted_angles = ", ".join([f"{angle:.2f}" for angle in motor_angles])
-#     print(f"cur joint : {formatted_angles} degree")
-#     print(f"time : {delta_time:.2f}, is sp mode arrive : {is_sp_mode_arrive}")
-#     return motor_angles
-
-# def encoder_position():
-#     enc2 = req_sdo(ID2, OD_STEPPER_ENCODER_POSITION, 0x00)
-#     enc3 = req_sdo(ID3, OD_STEPPER_ENCODER_POSITION, 0x00)
-#     enc4 = req_sdo(ID4, OD_STEPPER_ENCODER_POSITION, 0x00)
-#     print(f"enc: {enc2}, {enc3}, {enc4}")
-    
-#     return enc2, enc3, enc4
-
-# def calib_0():
-#     enc2, enc3, enc4 = encoder_position()
-#     for id, enc in zip([ID2, ID3, ID4], [enc2, enc3, enc4]):
-#         error_code = set_sdo(id, SET_4_BYTE, OD_STEPPER_CALIBRATION_ZERO, 0x00, -enc)
-    
-#     save_settings()

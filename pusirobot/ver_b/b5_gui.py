@@ -1,8 +1,8 @@
 import signal
 import tkinter as tk
 import time
-from b4_function import wake_up, shutdown, read_present_position, encoder_position, calib_0
-from meso_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3
+from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin
+from b3_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3
 
 
 
@@ -201,7 +201,7 @@ pvt_move_button = tk.Button(root, text="PVT circular", command=pvt_move)
 pvt_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 19
-motor_position_button = tk.Button(root, text="motor position", bg="orange",fg="black", command=read_present_position)
+motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 dancing_button = tk.Button(root, text="dancing", command=start_dancing)
@@ -212,10 +212,10 @@ homing_button = tk.Button(root, text="homing", command=homing)
 homing_button.grid(row=20, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 #baris 21
-# encoder_position_button = tk.Button(root, text="encoder position", command=encoder_position)
+# encoder_position_button = tk.Button(root, text="read encoder", command=get_encoder_position)
 # encoder_position_button.grid(row=21, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-# calib_0_button = tk.Button(root, text="calib_0", command=calib_0)
+# calib_0_button = tk.Button(root, text="set origin", command=set_origin)
 # calib_0_button.grid(row=21, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 # Menangani event saat jendela ditutup

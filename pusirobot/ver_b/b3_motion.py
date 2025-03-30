@@ -1,6 +1,26 @@
 import time
 import math
-from lib_can import *
+from b1_servo import *
+from b1_stepper import *
+
+
+def get_cur_joints():
+    servo_id = ID1
+    servo_pulse = servo_get_motor_position(servo_id)
+    servo_angle = servo_pulses_to_degrees(servo_pulse)
+    
+    stepper_ids = [ID2, ID3, ID4]
+    stepper_angles = []
+    
+    for stepper_id in stepper_ids:
+        stepper_pulse = stepper_get_motor_position(stepper_id)
+        # print(f"stepper {stepper_id:03X} pulse is {stepper_pulse}")
+        stepper_angles.append(stepper_pulses_to_degrees(stepper_pulse))
+    
+    cur_joints = [servo_angle, stepper_angles[0], stepper_angles[1], stepper_angles[2]]
+    return cur_joints
+
+
 
 
 # ######################################### PVT MODE ######################################### #
@@ -152,14 +172,14 @@ def pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
 
 # ######################################### SP MODE ######################################### #
 
-from meso_sp import * 
+from b2_sp import * 
 
 def sp_angle(tar_joints, travel_time):
     global stop_watch, time_out, last_time
     group_id = 5
     sp_mode_init(group_id)
     
-    cur_joints = read_present_position()
+    cur_joints = get_cur_joints()
     delta_joints = [tar - cur for tar, cur in zip(tar_joints, cur_joints)]
     tar_speeds = [stepper_degrees_to_pulses(int(delta / travel_time)) for delta in delta_joints]
     
@@ -184,7 +204,6 @@ def sp_angle(tar_joints, travel_time):
     time_out = travel_time
     
 def sp_coor(tar_coor, travel_time):
-    cur_joints = read_present_position()
     tar_joints = inverse_kinematics(tar_coor)
     tar_joints = check_limit(tar_joints)
     print(f"tar joint = {tar_joints} degree")
