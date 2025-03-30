@@ -1,6 +1,6 @@
 import time
 import math
-from micro_stepper import *
+from b1_stepper import *
 
 # pp motion1's parameters 
 

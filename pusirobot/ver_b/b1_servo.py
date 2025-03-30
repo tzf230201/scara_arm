@@ -1,4 +1,4 @@
-from 0_can import *
+from b0_can import *
 
 # System Information (RO)
 OD_SERVO_DEVICE_TYPE = 0x1000
@@ -99,7 +99,7 @@ def servo_accel_decel_calc(d_total, t_travel_ms):
 
 
 # Mode of Operation Definition
-MOTOR_1_OPERATION_MODE = {
+SERVO_OPERATION_MODE = {
 	0: "not defined",
 	1: "position mode",
 	2: "pulse direction mode",
@@ -111,42 +111,47 @@ MOTOR_1_OPERATION_MODE = {
 
 def decode_opeation_mode(operation_mode):
     print("Decoded operation mode:")
-    for bit, description in MOTOR_1_OPERATION_MODE.items():
+    for bit, description in SERVO_OPERATION_MODE.items():
         if operation_mode == bit:
             print(f"  - {description}")
 
-def motor_1_read_operation_mode():
+def servo_read_operation_mode():
     operation_mode = set_sdo(ID1, READ_REQ, OD_SERVO_MODE_OF_OPERATION, 0x00,  0x00)
     decode_opeation_mode(operation_mode)
 
-def motor_1_shutdown():
+def servo_shutdown():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x06)
 
-def motor_1_switch_on():
+def servo_switch_on():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x07)
     
-def motor_1_set_operation_mode(operation_mode):
+def servo_set_operation_mode(operation_mode):
     set_sdo(ID1, SET_1_BYTE, OD_SERVO_MODE_OF_OPERATION, 0x00,  operation_mode)
     
-def motor_1_init():
-    motor_1_switch_on()
-    motor_1_set_operation_mode(1)
-    motor_1_read_operation_mode()
+def servo_goto_operational():
+    id = 0x01
+    send_can_command(f"000#81{id:02X}")
     
+def servo_init():
+    servo_goto_operational()
+    servo_switch_on()
+    servo_set_operation_mode(1)
+    servo_read_operation_mode()
+    # print(f"servo wake_up")
 
-def motor_1_set_acceleration(accel_1):
+def servo_set_acceleration(accel_1):
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_ACCELERATION, 0x00,  accel_1)
     
-def motor_1_set_deceleration(decel_1):
+def servo_set_deceleration(decel_1):
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_DECELERATION, 0x00,  decel_1)
     
-def motor_1_set_max_speed(max_speed):
+def servo_set_max_speed(max_speed):
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_TARGET_VELOCITY, 0x00,  max_speed)
     
-def motor_1_set_tar_pulse(tar_pulse_1):
+def servo_set_tar_pulse(tar_pulse_1):
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_TARGET_POSITION, 0x00,  tar_pulse_1)
 
-def motor_1_position_mode(tar_joints):
+def servo_position_mode(tar_joints):
     
     cur_joint_1, cur_joint_2, cur_joint_3, cur_joint_4 = read_present_position()
     
@@ -158,11 +163,11 @@ def motor_1_position_mode(tar_joints):
     accel_decel_1 = servo_accel_decel_calc(delta_pulse_1, travel_time)
     
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
-    motor_1_max_speed_ppr = (int)((max_speed / SERVO_PPR) * 10)
-    motor_1_set_acceleration(accel_decel_1)
-    motor_1_set_deceleration(accel_decel_1)
-    motor_1_set_max_speed(motor_1_max_speed_ppr)
-    motor_1_set_tar_pulse(tar_pulse_1)
+    servo_max_speed_ppr = (int)((max_speed / SERVO_PPR) * 10)
+    servo_set_acceleration(accel_decel_1)
+    servo_set_deceleration(accel_decel_1)
+    servo_set_max_speed(servo_max_speed_ppr)
+    servo_set_tar_pulse(tar_pulse_1)
 
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
     

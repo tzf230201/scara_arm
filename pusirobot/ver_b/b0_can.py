@@ -4,9 +4,25 @@ import getpass
 import time
 
 
-user = getpass.getuser()
-if user == "peter":
-    bus = can.Bus(channel='can0', interface='socketcan')
+
+
+
+bus = None  # Global bus variable
+
+def start_can():
+    global bus  # Menandakan bahwa kita akan menggunakan variabel bus global
+    user = getpass.getuser()
+    if user == "peter":
+        bus = can.Bus(channel='can0', interface='socketcan')
+        print("CAN bus initialized")
+
+def stop_can():
+    global bus  # Menggunakan bus global
+    if bus is not None:
+        bus.shutdown()
+        print("CAN bus shutdown")
+    else:
+        print("CAN bus not initialized")
 
 
 MAX_FAILED_CNT = 20

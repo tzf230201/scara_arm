@@ -1,4 +1,4 @@
-from lib_can import *
+from b0_can import *
 
 # System Information (RO)
 OD_STEPPER_DEVICE_NAME = 0x1008
@@ -259,30 +259,28 @@ def read_sp_mode_arrival_status():
         
 
 #X
-# def on_closing():
-#     print("closing")
-#     shutdown()
-#     bus.shutdown()
 
-# def wake_up():
-#     init_motor_enable(1)
-#     init_torque_ring_enable(1)
-#     init_set_max_current(3000)
-#     init_microstepping(MICROSTEP)
-#     init_set_accel_coef(1)
-#     init_set_decel_coef(1)
-#     stall_on()
-#     print(f"wake_up")
-#     save_settings()
+
+def stepper_init():
+    init_motor_enable(1)
+    init_torque_ring_enable(1)
+    init_set_max_current(3000)
+    init_microstepping(MICROSTEP)
+    init_set_accel_coef(1)
+    init_set_decel_coef(1)
+    stall_on()
+    save_settings()
+    # print(f"stepper_wake_up")
     
-# def shutdown():
-#     emergency_stop_stepping()
-#     init_motor_enable(0)  
-#     init_torque_ring_enable(0)  
-#     init_set_max_current(0)
-#     reset_node()
-#     # motor_1_shutdown()
-#     print(f"motor shutdown")
+def stepper_shutdown():
+    emergency_stop_stepping()
+    init_motor_enable(0)  
+    init_torque_ring_enable(0)  
+    init_set_max_current(0)
+    reset_node()
+    print(f"stepper shutdown")
+
+
 
     
 #19

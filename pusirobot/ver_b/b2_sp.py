@@ -1,6 +1,6 @@
 import time
 import math
-from micro_stepper import *
+from b1_stepper import *
 
 def sp_mode_set_speed(id, speed):
     error_code, ret = set_req_sdo(id, SET_4_BYTE, OD_STEPPER_SP_MOTION, 0x01, speed)
