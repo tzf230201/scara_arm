@@ -64,4 +64,4 @@ Even though it's still an ongoing project,  let [**See it in action**](https://d
 
 
 
-Ask me anything : **Email:** teukuzikrifatahillah@gmail.com
+Ask me anything : teukuzikrifatahillah@gmail.com

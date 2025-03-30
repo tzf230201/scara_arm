@@ -153,4 +153,4 @@ sudo apt install python3-tk
 ```
 
 
-Ask me anything : **Email:** teukuzikrifatahillah@gmail.com
+Ask me anything : teukuzikrifatahillah@gmail.com
