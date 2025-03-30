@@ -61,3 +61,7 @@ Commands are sent through the CAN bus using the CANopen protocol.
 - s-shape profile<br><br>
 
 Even though it's still an ongoing project,  let [**See it in action**](https://drive.google.com/file/d/1y8DbG6vgjGmnc4_ooR9SQvQAt7R12CfX/view?usp=sharing)
+
+
+
+Ask me anything : **Email:** teukuzikrifatahillah@gmail.com

@@ -212,11 +212,11 @@ homing_button = tk.Button(root, text="homing", command=homing)
 homing_button.grid(row=20, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 #baris 21
-# encoder_position_button = tk.Button(root, text="read encoder", command=get_encoder_position)
-# encoder_position_button.grid(row=21, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+encoder_position_button = tk.Button(root, text="read encoder", command=get_encoder_position)
+encoder_position_button.grid(row=21, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-# calib_0_button = tk.Button(root, text="set origin", command=set_origin)
-# calib_0_button.grid(row=21, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+set_origin_button = tk.Button(root, text="set origin", command=set_origin)
+set_origin_button.grid(row=21, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 # Menangani event saat jendela ditutup
 root.protocol("WM_DELETE_WINDOW", signal_handler)
