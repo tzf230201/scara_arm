@@ -4,6 +4,10 @@ from b1_stepper import *
 
 pvt_time_interval = 50
 
+PVT_1 = 0x00
+PVT_2 = 0x01
+PVT_3 = 0x02
+
 # Sync PVT commands
 def pvt_mode_start_pvt_step(group_id):
     send_can_command(f"000#0B{group_id:02X}")
@@ -114,19 +118,21 @@ def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
 
 ############################################ function #############################################################
 
-def pvt_mode_init():
-    pvt_type = 1
+def pvt_mode_init(group_id, pvt_type = PVT_1, pvt_max_point = 400, pvt_3_lower_limit = 40, pvt_3_upper_limit = 80):
     reset_node()
-    time.sleep(1)
-    init_operation_mode(0x02)
-    init_change_group_id(0x05)
-    pvt_mode_set_pvt_max_point(400)
-    pvt_mode_set_pvt_operation_mode(pvt_type-1)
+    time.sleep(2)
+    init_operation_mode(PVT_MODE)
+    init_change_group_id(group_id)
+    pvt_mode_set_pvt_max_point(pvt_max_point)
+    pvt_mode_set_pvt_operation_mode(pvt_type)
+    print(f"pvt init : pvt_mode {pvt_type+1}, max point {pvt_max_point}, pvt mode {pvt_type}")
+    pvt_mode_set_pvt_3_fifo_threshold_1(pvt_3_lower_limit)
+    pvt_mode_set_pvt_3_fifo_threshold_2(pvt_3_upper_limit)
+    print(f"pvt init : lower_limit {pvt_3_lower_limit}, upper_limit {pvt_3_upper_limit}")
     
-    print(f"pvt init : operation mode pvt, max point 400, pvt mode {pvt_type}")
     
 def pvt_mode_get_arrival_status(node_id):
-    controller_status = get_controller_status(node_id)
+    controller_status = stepper_get_controller_status(node_id)
     _, _, is_pvt_3_fifo_empty, _, _ = extract_controller_status(controller_status)
     return (is_pvt_3_fifo_empty)
 

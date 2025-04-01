@@ -88,29 +88,4 @@ def stepper_accel_decel_calc(d_total, t_travel_ms):
     # print(int_accel)
     return int_accel
     
-def pp_angle(tar_joints, travel_time, max_speed):
-    
-    cur_joints = read_present_position()
-    
-    cur_joint_2, cur_joint_3, cur_joint_4 = cur_joints
-    tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
-    
-    tar_pulse_2 = stepper_degrees_to_pulses(tar_joint_2)
-    tar_pulse_3 = stepper_degrees_to_pulses(tar_joint_3)
-    tar_pulse_4 = stepper_degrees_to_pulses(tar_joint_4)
-    
-    delta_pulse_2 = stepper_degrees_to_pulses(tar_joint_2 - cur_joint_2)
-    delta_pulse_3 = stepper_degrees_to_pulses(tar_joint_3 - cur_joint_3)
-    delta_pulse_4 = stepper_degrees_to_pulses(tar_joint_4 - cur_joint_4)
-    
-    accel_decel_2 = stepper_accel_decel_calc(delta_pulse_2, travel_time)
-    accel_decel_3 = stepper_accel_decel_calc(delta_pulse_3, travel_time)
-    accel_decel_4 = stepper_accel_decel_calc(delta_pulse_4, travel_time)
-    
-    pp_mode_set_acceleration(accel_decel_2, accel_decel_3, accel_decel_4)
-    pp_mode_set_deceleration(accel_decel_2, accel_decel_3, accel_decel_4)
-    pp_mode_set_max_speed(max_speed)
-    pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4)
-    pp_mode_start_absolute_motion()
-    
     

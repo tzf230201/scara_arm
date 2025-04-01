@@ -20,6 +20,45 @@ def get_cur_joints():
     cur_joints = [servo_angle, stepper_angles[0], stepper_angles[1], stepper_angles[2]]
     return cur_joints
 
+# ######################################### PVT 3 ######################################### #
+from b2_pp import *
+
+def pp_angle(tar_joints, travel_time, max_speed):
+    
+    cur_joints = get_cur_joints()
+    
+    cur_joint_1, cur_joint_2, cur_joint_3, cur_joint_4 = cur_joints
+    tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
+    
+    tar_pulse_1 = servo_degrees_to_pulses(tar_joint_1)
+    tar_pulse_2 = stepper_degrees_to_pulses(tar_joint_2)
+    tar_pulse_3 = stepper_degrees_to_pulses(tar_joint_3)
+    tar_pulse_4 = stepper_degrees_to_pulses(tar_joint_4)
+    
+    delta_pulse_1 = servo_degrees_to_pulses(tar_joint_1 - cur_joint_1)
+    delta_pulse_2 = stepper_degrees_to_pulses(tar_joint_2 - cur_joint_2)
+    delta_pulse_3 = stepper_degrees_to_pulses(tar_joint_3 - cur_joint_3)
+    delta_pulse_4 = stepper_degrees_to_pulses(tar_joint_4 - cur_joint_4)
+    
+    accel_decel_1 = servo_accel_decel_calc(delta_pulse_1, travel_time)
+    accel_decel_2 = stepper_accel_decel_calc(delta_pulse_2, travel_time)
+    accel_decel_3 = stepper_accel_decel_calc(delta_pulse_3, travel_time)
+    accel_decel_4 = stepper_accel_decel_calc(delta_pulse_4, travel_time)
+    
+    pp_mode_set_acceleration(accel_decel_2, accel_decel_3, accel_decel_4)
+    pp_mode_set_deceleration(accel_decel_2, accel_decel_3, accel_decel_4)
+    pp_mode_set_max_speed(max_speed)
+    pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4)
+    
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
+    servo_max_speed_ppr = (int)((max_speed / SERVO_PPR) * 10)
+    servo_set_acceleration(accel_decel_1)
+    servo_set_deceleration(accel_decel_1)
+    servo_set_max_speed(servo_max_speed_ppr)
+    servo_set_tar_pulse(tar_pulse_1)
+    
+    pp_mode_start_absolute_motion()
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
 
 # ######################################### PVT 3 ######################################### #
 
@@ -31,19 +70,8 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     node_ids = [ID1, ID2, ID3, ID4]
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
-    
-    pvt_type = 3
-    reset_node()
-    time.sleep(1)
-    init_operation_mode(0x02)
-    init_change_group_id(group_id)
-    pvt_mode_set_pvt_max_point(400)
-    pvt_mode_set_pvt_operation_mode(pvt_type-1)
-    
-    pvt_mode_set_pvt_3_fifo_threshold_1(pvt_3_lower_limit)
-    pvt_mode_set_pvt_3_fifo_threshold_2(pvt_3_upper_limit)
-    
-    print(f"pvt init : operation mode pvt, max point 400, pvt mode {pvt_type}")
+
+    pvt_mode_init(group_id, PVT_3, 400, pvt_3_lower_limit, pvt_3_upper_limit)
     
     for tar_joint in tar_joints:
         tar_pulses.append(stepper_degrees_to_pulses(tar_joint))

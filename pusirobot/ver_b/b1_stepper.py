@@ -72,6 +72,10 @@ MICROSTEP = 32
 STEPPER_PPR = 4096
 STEPPER_RATIO = STEPPER_PPR / 360
 
+SP_MODE = 0x00
+PVT_MODE = 0x02
+PP_MODE = 0x04
+
 
 def stepper_degrees_to_pulses(degrees):
     return int(degrees * STEPPER_RATIO)
