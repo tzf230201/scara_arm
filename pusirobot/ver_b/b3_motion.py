@@ -20,6 +20,45 @@ def get_cur_joints():
     cur_joints = [servo_angle, stepper_angles[0], stepper_angles[1], stepper_angles[2]]
     return cur_joints
 
+# ######################################### SP MODE ######################################### #
+
+from b2_sp import * 
+
+def sp_angle(tar_joints, travel_time):
+    global stop_watch, time_out, last_time
+    group_id = 5
+    sp_mode_init(group_id)
+    
+    cur_joints = get_cur_joints()
+    delta_joints = [tar - cur for tar, cur in zip(tar_joints, cur_joints)]
+    tar_speeds = [stepper_degrees_to_pulses(int(delta / travel_time)) for delta in delta_joints]
+    
+    tar_pulses = []
+    for tar_joint in tar_joints:
+        tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
+
+    # Set speed
+    for id, speed in zip([ID2, ID3, ID4], [tar_speeds[1], tar_speeds[2], tar_speeds[3]]):
+        #in sp mode, speed is not pulse per second, but step per second
+        speed_have_to_write = stepper_pulses_to_steps(speed)
+        _,ret = sp_mode_set_speed(id, speed_have_to_write)
+        print(f"{id:03X} sp speed is {ret}")  
+    #set position
+    for id, pulse in zip([ID2, ID3, ID4], [tar_pulses[1], tar_pulses[2], tar_pulses[3]]):
+        _,ret = sp_mode_set_pulse(id, pulse)
+        print(f"{id:03X} sp position is {ret}")
+    
+    sp_mode_start_motion(group_id)
+    last_time = time.time()
+    stop_watch = last_time
+    time_out = travel_time
+    
+def sp_coor(tar_coor, travel_time):
+    tar_joints = inverse_kinematics(tar_coor)
+    tar_joints = check_limit(tar_joints)
+    print(f"tar joint = {tar_joints} degree")
+    sp_angle(tar_joints, travel_time)
+
 # ######################################### PVT 3 ######################################### #
 from b2_pp import *
 
@@ -50,15 +89,26 @@ def pp_angle(tar_joints, travel_time, max_speed):
     pp_mode_set_max_speed(max_speed)
     pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4)
     
+    accel_decel_2 = stepper_pulses_to_steps(accel_decel_2)
+    accel_decel_3 = stepper_pulses_to_steps(accel_decel_3)
+    accel_decel_4 = stepper_pulses_to_steps(accel_decel_4)
+    
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
-    servo_max_speed_ppr = (int)((max_speed / SERVO_PPR) * 10)
+    #max speed is in pps, we need to convert it to ppr, and 1 ppr is 10 in the servo
+    max_speed_rps = servo_pps_to_rps(max_speed)
     servo_set_acceleration(accel_decel_1)
     servo_set_deceleration(accel_decel_1)
-    servo_set_max_speed(servo_max_speed_ppr)
+    servo_set_max_speed(max_speed_rps)
     servo_set_tar_pulse(tar_pulse_1)
     
     pp_mode_start_absolute_motion()
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
+    
+def pp_coor(tar_coor, travel_time, max_speed):
+    tar_joints = inverse_kinematics(tar_coor)
+    tar_joints = check_limit(tar_joints)
+    print(f"tar joint = {tar_joints} degree")
+    pp_angle(tar_joints, travel_time, max_speed)
 
 # ######################################### PVT 3 ######################################### #
 
@@ -282,44 +332,7 @@ def pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
 
 
 
-# ######################################### SP MODE ######################################### #
 
-from b2_sp import * 
-
-def sp_angle(tar_joints, travel_time):
-    global stop_watch, time_out, last_time
-    group_id = 5
-    sp_mode_init(group_id)
-    
-    cur_joints = get_cur_joints()
-    delta_joints = [tar - cur for tar, cur in zip(tar_joints, cur_joints)]
-    tar_speeds = [stepper_degrees_to_pulses(int(delta / travel_time)) for delta in delta_joints]
-    
-    tar_pulses = []
-    for tar_joint in tar_joints:
-        tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
-
-    # Set speed
-    for id, speed in zip([ID2, ID3, ID4], [tar_speeds[1], tar_speeds[2], tar_speeds[3]]):
-        #in sp mode, speed is not pulse per second, but step per second
-        speed_have_to_write = stepper_pulses_to_steps(speed)
-        _,ret = sp_mode_set_speed(id, speed_have_to_write)
-        print(f"{id:03X} sp speed is {ret}")  
-    #set position
-    for id, pulse in zip([ID2, ID3, ID4], [tar_pulses[1], tar_pulses[2], tar_pulses[3]]):
-        _,ret = sp_mode_set_pulse(id, pulse)
-        print(f"{id:03X} sp position is {ret}")
-    
-    sp_mode_start_motion(group_id)
-    last_time = time.time()
-    stop_watch = last_time
-    time_out = travel_time
-    
-def sp_coor(tar_coor, travel_time):
-    tar_joints = inverse_kinematics(tar_coor)
-    tar_joints = check_limit(tar_joints)
-    print(f"tar joint = {tar_joints} degree")
-    sp_angle(tar_joints, travel_time)
     
     
     
