@@ -69,6 +69,9 @@ def servo_pulses_to_degrees(pulses):
 def servo_pps_to_rps(pulse):
     return (int)((pulse / SERVO_PPR) * 10)
 
+def servo_rps_to_pps(rps):
+    return (int)((rps * SERVO_PPR) / 10)
+
 
 
 def servo_get_motor_position(node_id):

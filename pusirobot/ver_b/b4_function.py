@@ -5,7 +5,7 @@ from b3_motion import *
 def wake_up():
     start_can()
     stepper_init()
-    servo_init()
+    # servo_init()git
     
 def shutdown():
     stepper_shutdown()
