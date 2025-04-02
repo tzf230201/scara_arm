@@ -129,7 +129,7 @@ root.title("Motor Control Panel")
 
 tk.Label(root, text="Enter time:").grid(row=2, column=0, padx=5, pady=5, sticky="ew")
 entry_time = tk.Entry(root)
-entry_time.insert(0, "1000")
+entry_time.insert(0, "4000")
 entry_time.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
 
 # baris 3d
