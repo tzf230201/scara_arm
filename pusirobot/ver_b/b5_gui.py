@@ -25,7 +25,7 @@ def get_tar_joints():
     except ValueError:
         print("Please enter valid numbers for angles.")
         
-        tar_joints = [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
+    tar_joints = [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
 
     return tar_joints
 
