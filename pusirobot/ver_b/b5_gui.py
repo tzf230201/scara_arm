@@ -131,9 +131,6 @@ def routine():
         # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
         delta_time = time.time() - last_time
         print(f"time : {delta_time:.2f}")
-    print("hello")
-    wake_up()
-    read_present_position()
     
     root.after(1000, routine)
     
