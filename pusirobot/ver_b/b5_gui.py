@@ -5,7 +5,7 @@ from b4_function import wake_up, shutdown, read_present_position, get_encoder_po
 from b3_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor
 
 last_time = time.time()
-
+routine_period = 100
 
 def signal_handler():
     if is_already_wake_up():
@@ -139,7 +139,7 @@ def routine():
         delta_time = time.time() - last_time
         print(f"time : {delta_time:.2f}")
     
-    root.after(1000, routine)
+    root.after(routine_period, routine)
     
 # Menangani sinyal SIGINT (Ctrl + C)
 signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
@@ -264,7 +264,7 @@ set_origin_button.grid(row=21, column=1, columnspan=1, pady=10, padx=5, sticky="
 root.protocol("WM_DELETE_WINDOW", signal_handler)
 
 # Memulai fungsi print_continuously saat aplikasi dimulai
-root.after(1000, routine)
+root.after(routine_period, routine)
 # Jalankan GUI
 root.mainloop()
 

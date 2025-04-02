@@ -36,10 +36,10 @@ def read_present_position():
     cur_coor = forward_kinematics(cur_joints)
     
     cur_x, cur_y, cur_z, cur_yaw = cur_coor
-    print_yellow(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f}°")
+    print_orange(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f}°")
     
     formatted_angles = "°, ".join([f"{angle:.2f}" for angle in cur_joints])
-    print_orange(f"cur joint : {formatted_angles} °")
+    print_yellow(f"cur joint : {formatted_angles} °")
 
     return cur_joints
 
