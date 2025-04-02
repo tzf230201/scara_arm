@@ -4,6 +4,7 @@ import time
 from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin
 from b3_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor
 
+last_time = time.time()
 
 
 def signal_handler():
@@ -12,26 +13,51 @@ def signal_handler():
     root.quit()  # Hentikan event loop
     root.destroy()  # Hancurkan GUI
     exit(0)  # Keluar sepenuhnya dari program
-
-def pvt_joint():
     
-    cur_joints = read_present_position()
-
-    try:
+def get_tar_joints():
+    try:  
         tar_joint_1 = float(entry_tar_joint_1.get())
         tar_joint_2 = float(entry_tar_joint_2.get())
         tar_joint_3 = float(entry_tar_joint_3.get())
         tar_joint_4 = float(entry_tar_joint_4.get())
+    except ValueError:
+        print("Please enter valid numbers for angles.")
+        
+        tar_joints = [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
+
+    return tar_joints
+
+def get_tar_coor():
+    try:
+        tar_x = float(entry_tar_x.get())
+        tar_y = float(entry_tar_y.get())
+        tar_z = float(entry_tar_z.get())
+        tar_yaw = float(entry_tar_yaw.get())
+    except ValueError:
+        print("Please enter valid numbers for angles.")
+    
+    tar_coor = [tar_x, tar_y, tar_z, tar_yaw]
+
+    return tar_coor
+
+def get_travel_time():
+    try:
         travel_time = int(entry_time.get())
     except ValueError:
         print("Please enter valid numbers for angles.")
     
-    tar_joints = [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
-    
     travel_time = travel_time/1000
+
+    return travel_time
+
+def pvt_joint():
+    cur_joints = read_present_position()
+    tar_joints = get_tar_joints()
+    travel_time =get_travel_time()
     
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
+    last_time = time.time()
 
 def pvt_move():
     travel_time = 1.0
@@ -52,94 +78,57 @@ def pvt_move():
     
     
     pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction)
+    last_time = time.time()
     
     
 def sp_joint():
 
-    try:
-        tar_joint_1 = float(entry_tar_joint_1.get())
-        tar_joint_2 = float(entry_tar_joint_2.get())
-        tar_joint_3 = float(entry_tar_joint_3.get())
-        tar_joint_4 = float(entry_tar_joint_4.get())
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for angles.")
-    
-    tar_joints = [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
-    travel_time = travel_time/1000
+    tar_joints = get_tar_joints()
+    travel_time = get_travel_time()
     
     sp_angle(tar_joints, travel_time)
+    last_time = time.time()
     
 def sp_move():  
-    try:
-        tar_x = float(entry_tar_x.get())
-        tar_y = float(entry_tar_y.get())
-        tar_z = float(entry_tar_y.get())
-        tar_yaw = float(entry_tar_yaw.get())
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for angles.")
-    
-    tar_coor = [tar_x, tar_y, tar_z, tar_yaw]
-    travel_time = travel_time/1000
+    tar_coor = get_tar_coor()
+    travel_time = get_travel_time()
     
     sp_coor(tar_coor, travel_time)
+    last_time = time.time()
     
 def pp_joint():
-
-    try:
-        tar_joint_1 = float(entry_tar_joint_1.get())
-        tar_joint_2 = float(entry_tar_joint_2.get())
-        tar_joint_3 = float(entry_tar_joint_3.get())
-        tar_joint_4 = float(entry_tar_joint_4.get())
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for angles.")
-    
-    tar_joints = [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
-    travel_time = travel_time/1000
+    tar_joints = get_tar_joints()
+    travel_time = get_travel_time()
     
     pp_angle(tar_joints, travel_time, 10000)
+    last_time = time.time()
     
 def pp_move():  
-    try:
-        tar_x = float(entry_tar_x.get())
-        tar_y = float(entry_tar_y.get())
-        tar_z = float(entry_tar_y.get())
-        tar_yaw = float(entry_tar_yaw.get())
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for angles.")
-    
-    tar_coor = [tar_x, tar_y, tar_z, tar_yaw]
-    travel_time = travel_time/1000
+    tar_coor = get_tar_coor()
+    travel_time = get_travel_time()
     
     pp_coor(tar_coor, travel_time, 10000)
+    last_time = time.time()
     
 
 def start_dancing():
-    try:
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for angles.")
-    #while True:
-    travel_time = travel_time/1000
+    travel_time = get_travel_time()
     dancing(travel_time)
+    last_time = time.time()
     
 def homing():
-    try:
-        travel_time = int(entry_time.get())
-    except ValueError:
-        print("Please enter valid numbers for angles.")
     tar_joints = [0, 0, 0, 0]
-    travel_time = travel_time/1000
+    travel_time = get_travel_time()
     
     sp_angle(tar_joints, travel_time)
+    last_time = time.time()
 
-def print_continuously():
-    print("Printing every second...")
+def routine():
+    read_present_position()
     # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
-    root.after(1000, print_continuously)
+    delta_time = time.time() - last_time
+    print(f"time : {delta_time:.2f}")
+    root.after(100, routine)
     
 # Menangani sinyal SIGINT (Ctrl + C)
 signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
@@ -264,7 +253,7 @@ set_origin_button.grid(row=21, column=1, columnspan=1, pady=10, padx=5, sticky="
 root.protocol("WM_DELETE_WINDOW", signal_handler)
 
 # Memulai fungsi print_continuously saat aplikasi dimulai
-root.after(1000, print_continuously)
+root.after(100, routine)
 # Jalankan GUI
 root.mainloop()
 
