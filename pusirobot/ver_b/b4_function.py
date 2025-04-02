@@ -4,12 +4,14 @@ from b3_motion import *
 
 is_wake_up = False
 def wake_up():
+    global is_wake_up
     start_can()
     stepper_init()
     is_wake_up = True
     # servo_init()git
 
 def is_already_wake_up():
+    global is_wake_up
     return is_wake_up
 
 def shutdown():
