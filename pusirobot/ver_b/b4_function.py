@@ -19,11 +19,11 @@ def read_present_position():
     cur_x, cur_y, cur_z, cur_yaw = cur_coor
     print(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f} degree")
     
-    is_sp_mode_arrive = read_sp_mode_arrival_status()
-    delta_time = time.time() - last_time
+    # is_sp_mode_arrive = read_sp_mode_arrival_status()
+    # delta_time = time.time() - last_time
     formatted_angles = ", ".join([f"{angle:.2f}" for angle in cur_joints])
     print(f"cur joint : {formatted_angles} degree")
-    print(f"time : {delta_time:.2f}, is sp mode arrive : {is_sp_mode_arrive}")
+    # print(f"time : {delta_time:.2f}, is sp mode arrive : {is_sp_mode_arrive}")
     return cur_joints
 
 def get_encoder_position():
