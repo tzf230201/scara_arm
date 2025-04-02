@@ -1,0 +1,1 @@
+python3 pusirobot/ver_v/b2_gui.py
