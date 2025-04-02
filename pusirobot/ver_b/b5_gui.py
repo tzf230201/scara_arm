@@ -124,11 +124,12 @@ def homing():
     last_time = time.time()
 
 def routine():
-    if is_already_wake_up():
-        read_present_position()
-        # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
-        delta_time = time.time() - last_time
-        print(f"time : {delta_time:.2f}")
+    # if is_already_wake_up():
+    #     read_present_position()
+    #     # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
+    #     delta_time = time.time() - last_time
+    #     print(f"time : {delta_time:.2f}")
+    print("hello")
     
     root.after(1000, routine)
     
