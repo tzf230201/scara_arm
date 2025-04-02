@@ -140,7 +140,7 @@ def routine():
         delta_time = time.time() - last_time
         print(f"time : {delta_time:.2f}")
     
-    root.after(100, routine)
+    root.after(500, routine)
     
 # Menangani sinyal SIGINT (Ctrl + C)
 signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
@@ -265,7 +265,7 @@ set_origin_button.grid(row=21, column=1, columnspan=1, pady=10, padx=5, sticky="
 root.protocol("WM_DELETE_WINDOW", signal_handler)
 
 # Memulai fungsi print_continuously saat aplikasi dimulai
-root.after(100, routine)
+root.after(500, routine)
 # Jalankan GUI
 root.mainloop()
 
