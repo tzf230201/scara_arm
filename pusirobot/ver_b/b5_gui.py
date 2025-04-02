@@ -135,7 +135,11 @@ def homing():
     travel_time = travel_time/1000
     
     sp_angle(tar_joints, travel_time)
-    
+
+def print_continuously():
+    print("Printing every second...")
+    # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
+    root.after(1000, print_continuously)
     
 # Menangani sinyal SIGINT (Ctrl + C)
 signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
@@ -259,6 +263,8 @@ set_origin_button.grid(row=21, column=1, columnspan=1, pady=10, padx=5, sticky="
 # Menangani event saat jendela ditutup
 root.protocol("WM_DELETE_WINDOW", signal_handler)
 
+# Memulai fungsi print_continuously saat aplikasi dimulai
+root.after(1000, print_continuously)
 # Jalankan GUI
 root.mainloop()
 
