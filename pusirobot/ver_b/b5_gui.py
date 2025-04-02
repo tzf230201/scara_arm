@@ -2,7 +2,7 @@ import signal
 import tkinter as tk
 import time
 from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin
-from b3_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3
+from b3_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor
 
 
 
@@ -84,6 +84,37 @@ def sp_move():
     travel_time = travel_time/1000
     
     sp_coor(tar_coor, travel_time)
+    
+def pp_joint():
+
+    try:
+        tar_joint_1 = float(entry_tar_joint_1.get())
+        tar_joint_2 = float(entry_tar_joint_2.get())
+        tar_joint_3 = float(entry_tar_joint_3.get())
+        tar_joint_4 = float(entry_tar_joint_4.get())
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for angles.")
+    
+    tar_joints = [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
+    travel_time = travel_time/1000
+    
+    pp_angle(tar_joints, travel_time, 10000)
+    
+def pp_move():  
+    try:
+        tar_x = float(entry_tar_x.get())
+        tar_y = float(entry_tar_y.get())
+        tar_z = float(entry_tar_y.get())
+        tar_yaw = float(entry_tar_yaw.get())
+        travel_time = int(entry_time.get())
+    except ValueError:
+        print("Please enter valid numbers for angles.")
+    
+    tar_coor = [tar_x, tar_y, tar_z, tar_yaw]
+    travel_time = travel_time/1000
+    
+    pp_coor(tar_coor, travel_time, 10000)
     
 
 def start_dancing():
@@ -168,8 +199,12 @@ entry_tar_joint_4.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
 sp_joint_button = tk.Button(root, text="SP try", command=sp_joint)
 sp_joint_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-pvt_mode_button = tk.Button(root, text="PVT try", command=pvt_joint)
-pvt_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+pp_mode_button = tk.Button(root, text="PP try", command=pp_joint)
+pp_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+
+# pvt_mode_button = tk.Button(root, text="PVT try", command=pvt_joint)
+# pvt_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+
 
 #baris 14 - 17
 
@@ -197,8 +232,11 @@ entry_tar_yaw.grid(row=17, column=1, padx=5, pady=5, sticky="ew")
 sp_move_button = tk.Button(root, text="SP move", command=sp_move)
 sp_move_button.grid(row=18, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-pvt_move_button = tk.Button(root, text="PVT circular", command=pvt_move)
-pvt_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+pp_move_button = tk.Button(root, text="PP move", command=pp_move)
+pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+
+# pvt_move_button = tk.Button(root, text="PVT circular", command=pvt_move)
+# pvt_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 19
 motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
