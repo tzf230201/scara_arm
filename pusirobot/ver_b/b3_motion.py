@@ -6,7 +6,7 @@ from b2_pvt import *
 
 def get_cur_joints():
     servo_id = ID1
-    servo_pulse = servo_get_motor_position(servo_id)
+    servo_pulse = 0#servo_get_motor_position(servo_id)
     servo_angle = servo_pulses_to_degrees(servo_pulse)
     
     stepper_ids = [ID2, ID3, ID4]
