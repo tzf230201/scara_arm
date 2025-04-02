@@ -105,6 +105,7 @@ def pp_joint():
     global last_time
     tar_joints = get_tar_joints()
     travel_time = get_travel_time()
+    travel_time = travel_time * 1000
     
     pp_angle(tar_joints, travel_time, 10000)
     last_time = time.time()
