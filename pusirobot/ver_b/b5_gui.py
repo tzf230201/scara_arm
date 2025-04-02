@@ -113,7 +113,8 @@ def pp_move():
     global last_time
     tar_coor = get_tar_coor()
     travel_time = get_travel_time()
-    
+    travel_time = travel_time * 1000
+       
     pp_coor(tar_coor, travel_time, 10000)
     last_time = time.time()
     
