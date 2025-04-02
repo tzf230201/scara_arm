@@ -1,5 +1,5 @@
 git status
-git add *
+git add .
 git status
 git commit -m "after testing adjustment" *
-git push
+git push origin main
