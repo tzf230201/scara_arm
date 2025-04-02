@@ -10,7 +10,7 @@ def wake_up():
 def shutdown():
     stepper_shutdown()
     # motor_1_shutdown()
-    stop_can()
+    # stop_can()
 
 def read_present_position():
     cur_joints = get_cur_joints()
