@@ -53,6 +53,7 @@ def get_travel_time():
     return travel_time
 
 def pvt_joint():
+    global last_time
     cur_joints = read_present_position()
     tar_joints = get_tar_joints()
     travel_time =get_travel_time()
@@ -62,6 +63,7 @@ def pvt_joint():
     last_time = time.time()
 
 def pvt_move():
+    global last_time
     travel_time = 1.0
     sleep = travel_time + 0.1
     
@@ -84,7 +86,7 @@ def pvt_move():
     
     
 def sp_joint():
-
+    global last_time
     tar_joints = get_tar_joints()
     travel_time = get_travel_time()
     
@@ -92,6 +94,7 @@ def sp_joint():
     last_time = time.time()
     
 def sp_move():  
+    global last_time
     tar_coor = get_tar_coor()
     travel_time = get_travel_time()
     
@@ -99,6 +102,7 @@ def sp_move():
     last_time = time.time()
     
 def pp_joint():
+    global last_time
     tar_joints = get_tar_joints()
     travel_time = get_travel_time()
     
@@ -106,6 +110,7 @@ def pp_joint():
     last_time = time.time()
     
 def pp_move():  
+    global last_time
     tar_coor = get_tar_coor()
     travel_time = get_travel_time()
     
@@ -114,11 +119,13 @@ def pp_move():
     
 
 def start_dancing():
+    global last_time
     travel_time = get_travel_time()
     dancing(travel_time)
     last_time = time.time()
     
 def homing():
+    global last_time
     tar_joints = [0, 0, 0, 0]
     travel_time = get_travel_time()
     
