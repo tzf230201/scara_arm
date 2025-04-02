@@ -132,6 +132,7 @@ def routine():
         delta_time = time.time() - last_time
         print(f"time : {delta_time:.2f}")
     print("hello")
+    wake_up()
     read_present_position()
     
     root.after(1000, routine)
