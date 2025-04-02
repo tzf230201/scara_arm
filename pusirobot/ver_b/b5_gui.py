@@ -5,7 +5,7 @@ from b4_function import wake_up, shutdown, read_present_position, get_encoder_po
 from b3_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor
 
 last_time = time.time()
-routine_period = 100
+routine_period = 200
 
 def signal_handler():
     if is_already_wake_up():
