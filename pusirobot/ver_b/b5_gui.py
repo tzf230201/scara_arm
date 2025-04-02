@@ -8,8 +8,10 @@ last_time = time.time()
 
 
 def signal_handler():
+    if is_already_wake_up():
+         shutdown()
     print("SIGINT received, closing application...")
-    shutdown()
+   
     root.quit()  # Hentikan event loop
     root.destroy()  # Hancurkan GUI
     exit(0)  # Keluar sepenuhnya dari program
