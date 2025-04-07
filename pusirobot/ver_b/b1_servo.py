@@ -94,9 +94,9 @@ def servo_accel_decel_calc(d_total, t_travel_ms):
     # Convert acceleration to revolutions per second squared (rps²)
     accel_rps_squared = (int)(abs((accel_pps_squared / SERVO_PPR) * 10))
     
-    max_speed_rps = accel_rps_squared * t_accel
+    v_max_rps = (int)(abs(accel_rps_squared * t_accel))
 
-    return accel_rps_squared
+    return accel_rps_squared, v_max_rps
 
 
 

@@ -39,8 +39,8 @@ def pp_mode_get_arrival_status():
         
     return reach_2, reach_3, reach_4
     
-def pp_mode_set_max_speed(max_speed):
-    for id in [ID2, ID3, ID4]:
+def pp_mode_set_max_speed(max_speed_2, max_speed_3, max_speed_4):
+    for id, max_speed in zip([ID2, ID3, ID4], [max_speed_2, max_speed_3, max_speed_4]):
         set_sdo(id, SET_4_BYTE, OD_STEPPER_PP_MOTION_2, 0x03, max_speed)
         
 def pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4):
@@ -83,9 +83,9 @@ def stepper_accel_decel_calc(d_total, t_travel_ms):
     
     # Calculate acceleration and max speed
     accel = (2 * d_accel) / (t_accel ** 2)  # Acceleration (pps^2)
-    # v_max = accel * t_accel  # Maximum speed (pps)
+    v_max =(int)(abs(accel * t_accel))   # Maximum speed (pps)
     int_accel = (int)(abs(accel))
     # print(int_accel)
-    return int_accel
+    return int_accel, v_max
     
     
