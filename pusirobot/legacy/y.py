@@ -1100,7 +1100,7 @@ def shutdown():
     init_torque_ring_enable(0)  
     init_set_max_current(0)
     
-    motor_1_shutdown()
+    # motor_1_shutdown()
     print(f"motor shutdown")
     
 def calib_0():
@@ -1358,7 +1358,7 @@ def triangle_trajectory_with_motor_1(cur_joint_1, cur_joint_2, cur_joint_3, cur_
     motor_1_set_max_speed(motor_1_max_speed_ppr)
     motor_1_set_tar_pulse(tar_pulse_1)
     
-    pp_mode_start_absolute_motion()
+    # pp_mode_start_absolute_motion()
     can_tx_2(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
 
 def all_position_mode_init():
