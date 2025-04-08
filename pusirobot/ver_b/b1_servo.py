@@ -138,7 +138,7 @@ def servo_set_operation_mode(operation_mode):
     
 def servo_goto_operational():
     id = 0x01
-    send_can_command(f"000#81{id:02X}")
+    send_can_command(f"000#01{id:02X}")
     
 def servo_init():
     servo_goto_operational()
