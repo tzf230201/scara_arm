@@ -9,6 +9,7 @@ last_time = time.time()
 def signal_handler():
     if is_already_wake_up():
          shutdown()
+         homing()
     print("SIGINT received, closing application...")
    
     root.quit()  # Hentikan event loop
