@@ -3,6 +3,7 @@ import tkinter as tk
 import time
 from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up
 from b3_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor
+from b1_servo import servo_get_motor_velocity, servo_get_status_word
 
 last_time = time.time()
 
@@ -140,6 +141,8 @@ def homing():
 def routine():
     if is_already_wake_up():
         read_present_position()
+        # servo_get_motor_velocity(0x601)
+        # servo_get_status_word(0x601)
         # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
         delta_time = time.time() - last_time
         print(f"time : {delta_time:.2f}")

@@ -78,6 +78,14 @@ def servo_get_motor_position(node_id):
     servo_position = req_sdo(node_id, OD_SERVO_POSITION_ACTUAL_VALUE, 0x00)
     return servo_position
 
+def servo_get_motor_velocity(node_id):
+    servo_velocity = req_sdo(node_id, OD_SERVO_VELOCITY_ACTUAL_VALUE, 0x00)
+    return servo_velocity
+
+def servo_get_status_word(node_id):
+    status_word = req_sdo(node_id, OD_SERVO_STATUS_WORD, 0x00)
+    return status_word
+
 
 
 
