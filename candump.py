@@ -29,7 +29,7 @@ def read_and_write_candump_streaming(candump_command, output_file):
 if __name__ == "__main__":
     # Specify the candump command and the desired output text file name
     candump_command = ['candump', 'can0']  # replace 'can0' with your CAN interface if necessary
-    output_file = "output.txt"  # replace with your desired output file path
+    output_file = "output_candump.txt"  # replace with your desired output file path
     
     # Call the function to read and write the streaming data
     read_and_write_candump_streaming(candump_command, output_file)
