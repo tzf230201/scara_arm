@@ -152,7 +152,7 @@ def servo_init():
     servo_goto_operational()
     servo_switch_on()
     servo_set_operation_mode(1)
-    servo_read_operation_mode()
+    # servo_read_operation_mode()
     # print(f"servo wake_up")
 
 def servo_set_acceleration(accel_1):

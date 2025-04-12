@@ -36,10 +36,10 @@ def read_present_position():
     cur_coor = forward_kinematics(cur_joints)
     
     formatted_angles = "°, ".join([f"{angle:.2f}" for angle in cur_joints])
-    print_yellow(f"cur joint : {formatted_angles}°")
+    print(f"cur joint : {formatted_angles}°")#yellow
     
     cur_x, cur_y, cur_z, cur_yaw = cur_coor
-    print_orange(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f}°")
+    print(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f}°")#orange
     
     servo_vel = servo_get_motor_velocity(ID1)
     servo_status = servo_get_status_word(ID1)
