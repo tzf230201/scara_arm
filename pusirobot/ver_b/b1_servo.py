@@ -149,7 +149,7 @@ def servo_goto_operational():
     send_can_command(f"000#01{id:02X}")
     
 def servo_init():
-    servo_status = req_nmt(ID1)
+    error_code, servo_status = req_nmt(ID1)
     print(f"servo status (hex): {servo_status:08X}")
     if servo_status == 0x7F:
         servo_goto_operational()
