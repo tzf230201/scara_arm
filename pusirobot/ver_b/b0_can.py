@@ -185,5 +185,7 @@ def req_nmt(request_id):
         else:
             error_code = TIMEOUT_ERROR
             return error_code, value
+    
+    return error_code, value
             
     
