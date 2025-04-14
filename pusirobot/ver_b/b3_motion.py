@@ -64,7 +64,7 @@ from b2_pp import *
 
 def pp_angle(tar_joints, travel_time, max_speed):
     
-    pp_mode_init()
+    # pp_mode_init()
     
     cur_joints = get_cur_joints()
     
@@ -106,7 +106,7 @@ def pp_angle(tar_joints, travel_time, max_speed):
     servo_set_tar_pulse(tar_pulse_1)
     
     
-    pp_mode_start_absolute_motion()
+    # pp_mode_start_absolute_motion()
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
     
 def pp_coor(tar_coor, travel_time, max_speed):
