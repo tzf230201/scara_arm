@@ -132,8 +132,9 @@ def decode_opeation_mode(operation_mode):
             print(f"  - {description}")
 
 def servo_read_operation_mode():
-    operation_mode = set_sdo(ID1, READ_REQ, OD_SERVO_MODE_OF_OPERATION, 0x00,  0x00)
+    _, operation_mode = req_sdo(ID1, OD_SERVO_MODE_OF_OPERATION, 0x00)
     decode_opeation_mode(operation_mode)
+
 
 def servo_shutdown():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x06)
@@ -155,12 +156,13 @@ def servo_init():
         servo_goto_operational()
         
         
-        # servo_read_operation_mode()
+        
         # print(f"servo wake_up")
     else:
         print(f"servo already operational")
     servo_switch_on()
     servo_set_operation_mode(1)
+    servo_read_operation_mode()
 
 def servo_set_acceleration(accel_1):
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_ACCELERATION, 0x00,  accel_1)
