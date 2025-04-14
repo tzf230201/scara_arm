@@ -572,12 +572,12 @@ def dancing(travel_time):
     sp_coor([258, 0, 0, 0], travel_time)
 
 
-def testing(travel_time):
-    sleep = travel_time + 1
-    pp_angle([360, 0, 0, 0], travel_time/2, 100000)
-    time.sleep(sleep/2)
-    while(1):
-        pp_angle([1200, 0, 0, 0], travel_time, 100000)
-        time.sleep(sleep)
-        pp_angle([360, 0, 0, 0], travel_time, 100000)
-        time.sleep(sleep)
+# def testing(travel_time):
+#     sleep = travel_time + 1
+#     pp_angle([360, 0, 0, 0], travel_time/2, 10000)
+#     time.sleep(sleep/2)
+#     while(1):
+#         pp_angle([1200, 0, 0, 0], travel_time, 10000)
+#         time.sleep(sleep)
+#         pp_angle([360, 0, 0, 0], travel_time, 10000)
+#         time.sleep(sleep)
