@@ -165,7 +165,7 @@ def routine():
         # servo_get_status_word(0x601)
         # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
         delta_time = time.time() - last_time
-        print(f"time : {delta_time:.2f}")
+        # print(f"time : {delta_time:.2f}")
     
     root.after(500, routine)
     
