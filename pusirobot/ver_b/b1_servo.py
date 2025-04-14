@@ -150,6 +150,7 @@ def servo_goto_operational():
     
 def servo_init():
     servo_status = req_nmt(ID1)
+    print(f"servo status (hex): {servo_status:08X}")
     if servo_status == 0x7F:
         servo_goto_operational()
         servo_switch_on()
