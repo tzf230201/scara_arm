@@ -133,8 +133,8 @@ def decode_opeation_mode(operation_mode):
 
 def servo_read_operation_mode():
     operation_mode = req_sdo(ID1, OD_SERVO_MODE_OF_OPERATION, 0x00)
-    # decode_opeation_mode(operation_mode)
-    print(f"operation mode: {operation_mode}")
+    decode_opeation_mode(operation_mode)
+    # print(f"operation mode: {operation_mode}")
 
 
 def servo_shutdown():
