@@ -153,12 +153,13 @@ def servo_init():
     print(f"servo status (hex): {servo_status:08X}")
     if servo_status == 0x7F:
         servo_goto_operational()
-        servo_switch_on()
+        
         
         # servo_read_operation_mode()
         # print(f"servo wake_up")
     else:
         print(f"servo already operational")
+    servo_switch_on()
     servo_set_operation_mode(1)
 
 def servo_set_acceleration(accel_1):
