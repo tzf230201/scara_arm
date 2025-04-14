@@ -132,7 +132,7 @@ def decode_opeation_mode(operation_mode):
             print(f"  - {description}")
 
 def servo_read_operation_mode():
-    _, operation_mode = req_sdo(ID1, OD_SERVO_MODE_OF_OPERATION, 0x00)
+    operation_mode = req_sdo(ID1, OD_SERVO_MODE_OF_OPERATION, 0x00)
     # decode_opeation_mode(operation_mode)
     print(f"operation mode: {operation_mode}")
 
