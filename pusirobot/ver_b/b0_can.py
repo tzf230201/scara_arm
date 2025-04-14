@@ -171,7 +171,8 @@ def safe_set_sdo(request_id, cs, index_id, sub_index_id, data):
 
     
 def req_nmt(request_id):
-    response_id = request_id - 0x600 
+    response_id = (request_id - 0x600) & 0xFF
+    print(f"response_id: {response_id:03X}")
     error_code = NO_ERROR
     can_id = 0x00
     value = 0
