@@ -166,3 +166,24 @@ def safe_set_sdo(request_id, cs, index_id, sub_index_id, data):
     if (error_code != NO_ERROR):
         # shutdown()
         print(f"emergency off, something wrong with can bus communication")
+        
+
+
+    
+def req_nmt(request_id):
+    response_id = request_id - 0x600 
+    error_code = NO_ERROR
+    can_id = 0x00
+    value = 0
+    
+    while(can_id != response_id):
+        message = bus.recv(2)  # Wait up to 0.5 seconds for a message
+        if message:
+            msg = message.data 
+            can_id = msg[0]
+            value = msg[1]
+        else:
+            error_code = TIMEOUT_ERROR
+            return error_code, value
+            
+    
