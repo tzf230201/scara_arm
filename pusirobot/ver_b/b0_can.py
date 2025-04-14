@@ -171,7 +171,7 @@ def safe_set_sdo(request_id, cs, index_id, sub_index_id, data):
 
     
 def req_nmt(request_id):
-    response_id = (request_id - 0x600) & 0xFF
+    response_id = (request_id + 0x100)
     print(f"response_id: {response_id:02X}")
     error_code = NO_ERROR
     can_id = 0x00
@@ -181,9 +181,9 @@ def req_nmt(request_id):
         message = bus.recv(0.5)  # Wait up to 0.5 seconds for a message
         if message:
             msg = message.data 
-            can_id = msg[0] & 0x00FF
+            can_id = msg[0] & 0xFF00
             print(f"can_id: {can_id:02X}")
-            value = msg[0] & 0xFF
+            value = msg[0] & 0x00FF
         else:
             error_code = TIMEOUT_ERROR
             return error_code, value
