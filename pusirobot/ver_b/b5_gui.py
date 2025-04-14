@@ -2,7 +2,7 @@ import signal
 import tkinter as tk
 import time
 from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up
-from b3_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor
+from b3_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, testing
 from b1_servo import servo_get_motor_velocity, servo_get_status_word
 # import sys
 
@@ -26,8 +26,9 @@ last_time = time.time()
 
 def signal_handler():
     if is_already_wake_up():
-         shutdown()
-         homing()
+        homing()
+        shutdown()
+         
     print("SIGINT received, closing application...")
    
     root.quit()  # Hentikan event loop
@@ -141,8 +142,10 @@ def pp_move():
 def start_dancing():
     global last_time
     travel_time = get_travel_time()
-    dancing(travel_time)
+    # dancing(travel_time)
+    testing(travel_time)
     last_time = time.time()
+
     
 def homing():
     global last_time
@@ -273,6 +276,7 @@ motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, stic
 
 dancing_button = tk.Button(root, text="dancing", command=start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+
 
 #baris 20
 homing_button = tk.Button(root, text="homing", command=homing)
