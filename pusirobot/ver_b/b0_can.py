@@ -181,7 +181,7 @@ def req_nmt(request_id):
         message = bus.recv(0.5)  # Wait up to 0.5 seconds for a message
         if message:
             msg = message.data 
-            can_id = msg[0] & 0xFF00
+            can_id = msg[0] & 0xFF
             print(f"can_id: {can_id:02X}")
             value = msg[0] & 0x00FF
         else:
