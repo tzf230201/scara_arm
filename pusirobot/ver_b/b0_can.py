@@ -178,12 +178,10 @@ def req_nmt(request_id):
     value = 0
     
     while(can_id != response_id):
-        message = bus.recv(0.5)  # Wait up to 0.5 seconds for a message
+        message = bus.recv(1)  # Wait up to 0.5 seconds for a message
         if message:
             msg = message.data 
-            can_id = message.arbitration_id
-            print(f"can_id: {can_id:02X}")
-            
+            can_id = message.arbitration_id            
         else:
             error_code = TIMEOUT_ERROR
             return error_code, value

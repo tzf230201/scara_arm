@@ -157,6 +157,8 @@ def servo_init():
         # servo_set_operation_mode(1)
         # servo_read_operation_mode()
         # print(f"servo wake_up")
+    else:
+        print(f"servo already operational")
 
 def servo_set_acceleration(accel_1):
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_ACCELERATION, 0x00,  accel_1)
