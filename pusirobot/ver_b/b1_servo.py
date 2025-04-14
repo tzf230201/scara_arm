@@ -154,7 +154,7 @@ def servo_init():
     if servo_status == 0x7F:
         servo_goto_operational()
         servo_switch_on()
-        # servo_set_operation_mode(1)
+        servo_set_operation_mode(1)
         # servo_read_operation_mode()
         # print(f"servo wake_up")
     else:
