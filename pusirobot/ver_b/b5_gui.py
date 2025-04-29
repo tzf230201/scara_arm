@@ -6,21 +6,21 @@ from b3_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt
 from b1_servo import servo_get_motor_velocity, servo_get_status_word
 import sys
 
-class Tee:
-    def __init__(self, file_name):
-        self.console = sys.stdout  # Standard output (console)
-        self.file = open(file_name, 'a')  # File to log the output
+# class Tee:
+#     def __init__(self, file_name):
+#         self.console = sys.stdout  # Standard output (console)
+#         self.file = open(file_name, 'a')  # File to log the output
 
-    def write(self, message):
-        self.console.write(message)  # Print to console
-        self.file.write(message)     # Write to file
+#     def write(self, message):
+#         self.console.write(message)  # Print to console
+#         self.file.write(message)     # Write to file
 
-    def flush(self):
-        self.console.flush()  # Flush the console
-        self.file.flush()     # Flush the file
+#     def flush(self):
+#         self.console.flush()  # Flush the console
+#         self.file.flush()     # Flush the file
 
-# Redirect sys.stdout to Tee class
-sys.stdout = Tee("output_terminal.txt")  # Specify your file name here
+# # Redirect sys.stdout to Tee class
+# sys.stdout = Tee("output_terminal.txt")  # Specify your file name here
 
 last_time = time.time()
 

@@ -6,9 +6,9 @@ is_wake_up = False
 def wake_up():
     global is_wake_up
     start_can()
-    # stepper_init()
+    stepper_init()
     is_wake_up = True
-    servo_init()
+    # servo_init()
 
 def is_already_wake_up():
     global is_wake_up
@@ -36,10 +36,10 @@ def read_present_position():
     cur_coor = forward_kinematics(cur_joints)
     
     formatted_angles = "°, ".join([f"{angle:.2f}" for angle in cur_joints])
-    print(f"cur joint : {formatted_angles}°")#yellow
+    print_yellow(f"cur joint : {formatted_angles}°")#yellow
     
     cur_x, cur_y, cur_z, cur_yaw = cur_coor
-    print(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f}°")#orange
+    print_orange(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f}°")#orange
     
     servo_vel = servo_get_motor_velocity(ID1)
     servo_status = servo_get_status_word(ID1)

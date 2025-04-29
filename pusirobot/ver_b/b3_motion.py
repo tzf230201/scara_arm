@@ -86,10 +86,10 @@ def pp_angle(tar_joints, travel_time, max_speed):
     accel_decel_3, max_speed_3 = stepper_accel_decel_calc(delta_pulse_3, travel_time)
     accel_decel_4, max_speed_4 = stepper_accel_decel_calc(delta_pulse_4, travel_time)
     
-    # pp_mode_set_acceleration(accel_decel_2, accel_decel_3, accel_decel_4)
-    # pp_mode_set_deceleration(accel_decel_2, accel_decel_3, accel_decel_4)
-    # pp_mode_set_max_speed(max_speed_2, max_speed_3, max_speed_4)
-    # pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4)
+    pp_mode_set_acceleration(accel_decel_2, accel_decel_3, accel_decel_4)
+    pp_mode_set_deceleration(accel_decel_2, accel_decel_3, accel_decel_4)
+    pp_mode_set_max_speed(max_speed_2, max_speed_3, max_speed_4)
+    pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4)
     
     accel_decel_2 = stepper_pulses_to_steps(accel_decel_2)
     accel_decel_3 = stepper_pulses_to_steps(accel_decel_3)
@@ -106,7 +106,7 @@ def pp_angle(tar_joints, travel_time, max_speed):
     servo_set_tar_pulse(tar_pulse_1)
     
     
-    # pp_mode_start_absolute_motion()
+    pp_mode_start_absolute_motion()
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
     
 def pp_coor(tar_coor, travel_time, max_speed):
