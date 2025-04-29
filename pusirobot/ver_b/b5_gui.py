@@ -146,7 +146,7 @@ def start_dancing():
     
 def homing():
     global last_time
-    tar_joints = [90, 0, 0, 0]
+    tar_joints = [0, 0, 0, 0]
     travel_time = get_travel_time()
     # sp_angle(tar_joints, travel_time)
     travel_time = travel_time * 1000
