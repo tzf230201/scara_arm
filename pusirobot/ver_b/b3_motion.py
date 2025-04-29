@@ -570,3 +570,12 @@ def dancing(travel_time):
     sp_coor([258, 0, 0, -90], travel_time)
     time.sleep(sleep)
     sp_coor([258, 0, 0, 0], travel_time)
+    
+    
+def dancing2(travel_time):
+    sleep = travel_time + 0.1
+    for i in range(10):
+        pp_angle([0, 0, 0, 0], travel_time, 10000)
+        time.sleep(sleep)
+        pp_angle([360, 482.5, -178.5, -262.5], travel_time, 10000)
+        time.sleep(sleep)
