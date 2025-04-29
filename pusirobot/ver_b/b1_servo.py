@@ -137,6 +137,7 @@ def servo_read_operation_mode():
 
 def servo_shutdown():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x06)
+    
 
 def servo_switch_on():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x07)

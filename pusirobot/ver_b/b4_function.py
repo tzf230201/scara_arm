@@ -17,6 +17,7 @@ def is_already_wake_up():
 def shutdown():
     stepper_shutdown()
     servo_shutdown()
+    print(f"servo shutdown")
     # stop_can()
 
 def print_yellow(text):
