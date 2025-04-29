@@ -57,8 +57,7 @@ def get_encoder_position():
     return enc1, enc2, enc3, enc4
 
 def set_origin():
-    enc1, enc2, enc3, enc4 = get_encoder_position()
-    for node_id, enc in zip([ID2, ID3, ID4], [enc2, enc3, enc4]):
-        stepper_calibration_zero(node_id, -enc)
+    for node_id in [ID2, ID3, ID4]:
+        stepper_calibration_zero(node_id)
     save_settings()
     
