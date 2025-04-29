@@ -155,7 +155,7 @@ def homing():
     
     last_time = time.time()
 
-# def routine():
+def routine():
 #     if is_already_wake_up():
 #         read_present_position()
 #         # servo_get_motor_velocity(0x601)
@@ -164,7 +164,7 @@ def homing():
 #         delta_time = time.time() - last_time
 #         print(f"time : {delta_time:.2f}")
     
-#     root.after(500, routine)
+    root.after(500, routine)
     
 # Menangani sinyal SIGINT (Ctrl + C)
 signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
