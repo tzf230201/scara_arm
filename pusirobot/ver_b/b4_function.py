@@ -59,5 +59,6 @@ def get_encoder_position():
 def set_origin():
     for node_id in [ID2, ID3, ID4]:
         stepper_calibration_zero(node_id)
+        print(f"node {node_id} set to zero")
     save_settings()
     
