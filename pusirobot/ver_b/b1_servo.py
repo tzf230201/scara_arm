@@ -149,6 +149,7 @@ def servo_goto_operational():
     send_can_command(f"000#01{id:02X}")
     
 def servo_init():
+    print(f"servo init")
     servo_goto_operational()
     servo_switch_on()
     servo_set_operation_mode(1)
