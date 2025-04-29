@@ -150,7 +150,7 @@ def servo_goto_operational():
     
 def servo_init():
     print(f"servo init")
-    servo_goto_operational()
+    # servo_goto_operational()
     servo_switch_on()
     servo_set_operation_mode(1)
     # servo_read_operation_mode()
