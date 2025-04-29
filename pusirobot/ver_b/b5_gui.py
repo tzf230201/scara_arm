@@ -141,6 +141,7 @@ def pp_move():
 def start_dancing():
     global last_time
     travel_time = get_travel_time()
+    # dancing(travel_time)
     dancing2(travel_time)
     last_time = time.time()
     
