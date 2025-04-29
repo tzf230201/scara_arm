@@ -16,7 +16,7 @@ def is_already_wake_up():
 
 def shutdown():
     stepper_shutdown()
-    # motor_1_shutdown()
+    motor_1_shutdown()
     # stop_can()
 
 def print_yellow(text):
