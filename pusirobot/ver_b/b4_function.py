@@ -8,7 +8,7 @@ def wake_up():
     start_can()
     stepper_init()
     is_wake_up = True
-    # servo_init()
+    servo_init()
 
 def is_already_wake_up():
     global is_wake_up
