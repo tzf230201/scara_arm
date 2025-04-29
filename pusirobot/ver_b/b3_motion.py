@@ -577,5 +577,5 @@ def dancing2(travel_time):
     for i in range(10):
         pp_angle([0, 0, 0, 0], travel_time, 10000)
         time.sleep(sleep)
-        pp_angle([360, 482.5, -178.5, -262.5], travel_time, 10000)
+        pp_angle([720, 482.5, -178.5, -262.5], travel_time, 10000)
         time.sleep(sleep)
