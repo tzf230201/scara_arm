@@ -64,7 +64,7 @@ from b2_pp import *
 
 def pp_angle(tar_joints, travel_time, max_speed):
     
-    # pp_mode_init()
+    pp_mode_init()
     
     cur_joints = get_cur_joints()
     
