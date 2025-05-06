@@ -187,6 +187,7 @@ def req_nmt(request_id):
     
     return error_code, value
 
-req_nmt(0x601)
+_,val = req_nmt(0x601)
+print(f"val: {val:02X}")
             
     
