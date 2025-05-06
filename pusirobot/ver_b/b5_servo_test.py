@@ -200,7 +200,7 @@ wake_up_button.grid(row=3, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 shutdown_button = tk.Button(root, text="Shutdown", bg="red", fg="white", command=shutdown)
 shutdown_button.grid(row=3, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
-tk.Label(root, text="hold the robot before shutdown, except the robot already in home position").grid(row=4, column=0, padx=5, pady=5, sticky="ew")
+tk.Label(root, text="hold the robot before shutdown, except the robot already in home position").grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
 #baris 14 - 17
 
