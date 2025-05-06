@@ -210,8 +210,8 @@ entry_tar_x.grid(row=14, column=1, padx=5, pady=5, sticky="ew")
 
 
 
-pp_move_button = tk.Button(root, text="PP move", command=pp_move)
-pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+pp_move_button = tk.Button(root, text="go to coordinate", command=pp_move)
+pp_move_button.grid(row=18, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 
 #baris 19
