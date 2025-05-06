@@ -200,41 +200,6 @@ wake_up_button.grid(row=3, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 shutdown_button = tk.Button(root, text="Shutdown", bg="red", fg="white", command=shutdown)
 shutdown_button.grid(row=3, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
-# baris 4 sampai 7
-tk.Label(root, text="angle 1 (degree):").grid(row=4, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_joint_1 = tk.Entry(root)
-entry_tar_joint_1.insert(0, "360")
-entry_tar_joint_1.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
-
-tk.Label(root, text="angle 2 (degree):").grid(row=5, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_joint_2 = tk.Entry(root)
-entry_tar_joint_2.insert(0, "482.5")
-entry_tar_joint_2.grid(row=5, column=1, padx=5, pady=5, sticky="ew")
-
-tk.Label(root, text="angle 3 (degree):").grid(row=6, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_joint_3 = tk.Entry(root)
-entry_tar_joint_3.insert(0, "-187.5")
-entry_tar_joint_3.grid(row=6, column=1, padx=5, pady=5, sticky="ew")
-
-tk.Label(root, text="angle 4 (degree):").grid(row=7, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_joint_4 = tk.Entry(root)
-entry_tar_joint_4.insert(0, "-262.5")#262.5
-entry_tar_joint_4.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
-
-#baris 13
-# pvt_mode_init_button = tk.Button(root, text="PVT Mode Init", command=pvt_mode_init)
-# pvt_mode_init_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
-# pvt_mode_init_button = tk.Button(root, text="read PVT3 depth", command=pvt_mode_read_pvt_3_depth)
-# pvt_mode_init_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
-sp_joint_button = tk.Button(root, text="SP try", command=sp_joint)
-sp_joint_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
-
-pp_mode_button = tk.Button(root, text="PP try", command=pp_joint)
-pp_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
-
-# pvt_mode_button = tk.Button(root, text="PVT try", command=pvt_joint)
-# pvt_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
-
 
 #baris 14 - 17
 
@@ -243,30 +208,11 @@ entry_tar_x = tk.Entry(root)
 entry_tar_x.insert(0, "130")
 entry_tar_x.grid(row=14, column=1, padx=5, pady=5, sticky="ew")
 
-tk.Label(root, text="coor y (mm):").grid(row=15, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_y = tk.Entry(root)
-entry_tar_y.insert(0, "0")
-entry_tar_y.grid(row=15, column=1, padx=5, pady=5, sticky="ew")
 
-tk.Label(root, text="coor z (mm):").grid(row=16, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_z = tk.Entry(root)
-entry_tar_z.insert(0, "0")
-entry_tar_z.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
-
-tk.Label(root, text="coor yaw (degree):").grid(row=17, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_yaw = tk.Entry(root)
-entry_tar_yaw.insert(0, "0")
-entry_tar_yaw.grid(row=17, column=1, padx=5, pady=5, sticky="ew")
-
-#baris 18
-sp_move_button = tk.Button(root, text="SP move", command=sp_move)
-sp_move_button.grid(row=18, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 pp_move_button = tk.Button(root, text="PP move", command=pp_move)
 pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
-# pvt_move_button = tk.Button(root, text="PVT circular", command=pvt_move)
-# pvt_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 19
 motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
