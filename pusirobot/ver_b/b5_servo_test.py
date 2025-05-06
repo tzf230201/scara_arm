@@ -36,10 +36,10 @@ def signal_handler():
     
 def get_tar_joints():
     try:  
-        tar_joint_1 = float(entry_tar_joint_1.get())
-        tar_joint_2 = float(entry_tar_joint_2.get())
-        tar_joint_3 = float(entry_tar_joint_3.get())
-        tar_joint_4 = float(entry_tar_joint_4.get())
+        tar_joint_1 = 0#float(entry_tar_joint_1.get()) #6 may 2025
+        tar_joint_2 = 0#float(entry_tar_joint_2.get()) #6 may 2025
+        tar_joint_3 = 0#float(entry_tar_joint_3.get()) #6 may 2025
+        tar_joint_4 = 0#float(entry_tar_joint_4.get()) #6 may 2025
     except ValueError:
         print("Please enter valid numbers for angles.")
         
@@ -47,12 +47,25 @@ def get_tar_joints():
 
     return tar_joints
 
-def get_tar_coor():
+
+# def get_tar_coor(): #6 may 2025
+#     try:
+#         tar_x = float(entry_tar_x.get())
+#         tar_y = float(entry_tar_y.get())
+#         tar_z = float(entry_tar_z.get())
+#         tar_yaw = float(entry_tar_yaw.get())
+#     except ValueError:
+#         print("Please enter valid numbers for angles.")
+    
+#     tar_coor = [tar_x, tar_y, tar_z, tar_yaw]
+
+#     return tar_coor
+def get_tar_coor(): #6 may 2025
     try:
-        tar_x = float(entry_tar_x.get())
-        tar_y = float(entry_tar_y.get())
+        tar_x = 130
+        tar_y = 0
         tar_z = float(entry_tar_z.get())
-        tar_yaw = float(entry_tar_yaw.get())
+        tar_yaw = 0
     except ValueError:
         print("Please enter valid numbers for angles.")
     
