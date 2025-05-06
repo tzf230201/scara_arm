@@ -151,7 +151,7 @@ def servo_goto_operational():
     
 def servo_init():
     print(f"servo init")
-    _,val = req_nmt(0x601)
+    _,val = req_nmt(ID1)
     print(f"val: {val:02X}")
     if val == 0x7F:
         print(f"servo is not operational, going to operational mode")
