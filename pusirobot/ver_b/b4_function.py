@@ -40,7 +40,7 @@ def read_present_position():
     print_yellow(f"cur joint : {formatted_angles}°")#yellow
     
     cur_x, cur_y, cur_z, cur_yaw = cur_coor
-    print_orange(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f}°")#orange
+    print_orange(f"cur coor : z:{cur_z:.1f} mm")#orange
     
     servo_vel = servo_get_motor_velocity(ID1)
     servo_status = servo_get_status_word(ID1)
