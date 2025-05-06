@@ -351,8 +351,10 @@ def check_limit(tar_joints):
     #limit3 = -135 to 0 degree
     #limit4 = 0 to 196 degree
     
-    if tar_joint_1 > (13004):
-        tar_joint_1 = 13004
+    # if tar_joint_1 > (13004): # 6 may 2025
+    #     tar_joint_1 = 13004 # 6 may 2025
+    if tar_joint_1 > (2000): # 6 may 2025
+        tar_joint_1 = 2000 # 6 may 2025
         print(f"tar_joint_1 greater than {tar_joint_1}")
     elif tar_joint_1 < 0:
         tar_joint_1 = 0
