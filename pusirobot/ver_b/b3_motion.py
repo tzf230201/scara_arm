@@ -8,6 +8,7 @@ def get_cur_joints():
     servo_id = ID1
     servo_pulse = servo_get_motor_position(servo_id)
     servo_angle = servo_pulses_to_degrees(servo_pulse)
+    servo_angle = 1200
     
     stepper_ids = [ID2, ID3, ID4]
     stepper_angles = []
