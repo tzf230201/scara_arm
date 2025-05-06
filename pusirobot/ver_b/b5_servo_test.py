@@ -202,7 +202,7 @@ shutdown_button.grid(row=3, column=1, columnspan=1, pady=10, padx=5, sticky="ew"
 
 tk.Label(
     root,
-    text="hold the robot before shutdown, except the robot is already at home position",
+    text="hold the robot before shutdown or pressing [x] button, except the robot is already at home position",
     fg="red",
     font=("Helvetica", 10, "bold")
 ).grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
