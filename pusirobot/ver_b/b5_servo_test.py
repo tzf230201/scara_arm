@@ -231,7 +231,7 @@ tk.Label(
 
 tk.Label(root, text="coor z (mm):").grid(row=16, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_z = tk.Entry(root)
-entry_tar_z.insert(0, "0")
+entry_tar_z.insert(0, "100")
 entry_tar_z.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
 
 
