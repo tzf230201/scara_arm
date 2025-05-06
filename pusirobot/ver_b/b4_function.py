@@ -6,7 +6,7 @@ is_wake_up = False
 def wake_up():
     global is_wake_up
     start_can()
-    stepper_init()
+    # stepper_init() #6 may 2025
     is_wake_up = True
     servo_init()
 
@@ -15,7 +15,7 @@ def is_already_wake_up():
     return is_wake_up
 
 def shutdown():
-    stepper_shutdown()
+    # stepper_shutdown() #6 may 2025
     servo_shutdown()
     print(f"servo shutdown")
     # stop_can()

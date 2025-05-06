@@ -204,11 +204,10 @@ tk.Label(root, text="hold the robot before shutdown, except the robot already in
 
 #baris 14 - 17
 
-tk.Label(root, text="coor x (mm):").grid(row=14, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_x = tk.Entry(root)
-entry_tar_x.insert(0, "130")
-entry_tar_x.grid(row=14, column=1, padx=5, pady=5, sticky="ew")
-
+tk.Label(root, text="coor z (mm):").grid(row=16, column=0, padx=5, pady=5, sticky="ew")
+entry_tar_z = tk.Entry(root)
+entry_tar_z.insert(0, "0")
+entry_tar_z.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
 
 
 pp_move_button = tk.Button(root, text="go to coordinate", command=pp_move)
