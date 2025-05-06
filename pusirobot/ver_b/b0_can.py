@@ -186,8 +186,5 @@ def req_nmt(request_id):
     value = msg[0] & 0xFF
     
     return error_code, value
-
-_,val = req_nmt(0x601)
-print(f"val: {val:02X}")
             
     
