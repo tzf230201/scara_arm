@@ -24,7 +24,7 @@ def stop_can():
     else:
         print("CAN bus not initialized")
 
-
+start_can()
 MAX_FAILED_CNT = 20
 RECV_WAIT = 0.5
 
