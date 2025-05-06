@@ -212,7 +212,7 @@ tk.Label(
     text="except the robot is already at home position, because it will fall down",
     fg="red",
     font=("Helvetica", 10, "bold")
-).grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+).grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
 #baris 14 - 17
 
