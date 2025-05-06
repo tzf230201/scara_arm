@@ -187,6 +187,6 @@ def req_nmt(request_id):
     
     return error_code, value
 
-req_nmt(0x700)
+req_nmt(0x601)
             
     
