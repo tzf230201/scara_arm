@@ -580,6 +580,7 @@ def dancing2(tar_coor, travel_time):
     sleep = travel_time + 0.1
     pp_travel = sleep * 1000
     for i in range(10):
+        print(f"i = {i}")
         pp_angle(tar_joints, pp_travel, 10000)
         time.sleep(sleep)
         pp_angle([0, 0, 0, 0], pp_travel, 10000)
