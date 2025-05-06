@@ -155,7 +155,7 @@ def servo_init():
     print(f"val: {val:02X}")
     if val == 0x7F:
         print(f"servo is not operational")
-        # servo_goto_operational()
+        servo_goto_operational()
     servo_switch_on()
     servo_set_operation_mode(1)
     # servo_read_operation_mode()
