@@ -95,7 +95,7 @@ def pp_angle(tar_joints, travel_time, max_speed):
     accel_decel_3 = stepper_pulses_to_steps(accel_decel_3)
     accel_decel_4 = stepper_pulses_to_steps(accel_decel_4)
     
-    # set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
     #max speed is in pps, we need to convert it to ppr, and 1 ppr is 10 in the servo
     max_speed_rps = servo_pps_to_rps(max_speed)
     #coba ulang lagi yang stepper agar mengikuti si servo
@@ -107,7 +107,7 @@ def pp_angle(tar_joints, travel_time, max_speed):
     
     
     # pp_mode_start_absolute_motion() #6 may 2025
-    # set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
     
 def pp_coor(tar_coor, travel_time, max_speed):
     tar_joints = inverse_kinematics(tar_coor)
