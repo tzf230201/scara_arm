@@ -585,3 +585,21 @@ def dancing2(tar_coor, travel_time):
         time.sleep(sleep)
         pp_angle([0, 0, 0, 0], pp_travel, 10000)
         time.sleep(sleep)
+        
+def from_jmc_command():
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
+    servo_set_operation_mode(0x01)
+    servo_set_acceleration(0x64)
+    servo_set_deceleration(0x64)
+    servo_set_max_speed(0x0A)
+    servo_set_tar_pulse(0x1388)
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
+    
+def from_jmc_homing():
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
+    servo_set_operation_mode(0x01)
+    servo_set_acceleration(0x64)
+    servo_set_deceleration(0x64)
+    servo_set_max_speed(0x0A)
+    servo_set_tar_pulse(0x00)
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
