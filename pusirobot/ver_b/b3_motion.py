@@ -592,7 +592,7 @@ def from_jmc_command():
     servo_set_acceleration(0x64)
     servo_set_deceleration(0x64)
     servo_set_max_speed(0x0A)
-    servo_set_tar_pulse(0x1388)
+    servo_set_tar_pulse(30000)
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
     
 def from_jmc_homing():
