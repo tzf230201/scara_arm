@@ -271,6 +271,7 @@ def execute_custom_commands():
             data_bytes = ''.join(parts[1:])  # Gabungkan semua byte tanpa spasi
             formatted_command = f"{can_id}#{data_bytes}"
             send_can_command(formatted_command)
+        print(f"Custom commands executed successfully.")
     except Exception as e:
         print(f"Error executing custom commands: {e}")
         
