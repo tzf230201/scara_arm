@@ -203,10 +203,10 @@ root.title("Motor Control Panel")
 # entry_speed.insert(0, "1000")
 # entry_speed.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
 
-tk.Label(root, text="Enter time:").grid(row=12, column=0, padx=5, pady=5, sticky="ew")
-entry_time = tk.Entry(root)
-entry_time.insert(0, "4000")
-entry_time.grid(row=12, column=1, padx=5, pady=5, sticky="ew")
+# tk.Label(root, text="Enter time:").grid(row=12, column=0, padx=5, pady=5, sticky="ew")
+# entry_time = tk.Entry(root)
+# entry_time.insert(0, "4000")
+# entry_time.grid(row=12, column=1, padx=5, pady=5, sticky="ew")
 
 # baris 3d
 wake_up_button = tk.Button(root, text="Wake Up", command=wake_up)
@@ -231,14 +231,14 @@ tk.Label(
 
 #baris 14 - 17
 
-tk.Label(root, text="coor z (mm):").grid(row=16, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_z = tk.Entry(root)
-entry_tar_z.insert(0, "100")
-entry_tar_z.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
+# tk.Label(root, text="coor z (mm):").grid(row=16, column=0, padx=5, pady=5, sticky="ew")
+# entry_tar_z = tk.Entry(root)
+# entry_tar_z.insert(0, "100")
+# entry_tar_z.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
 
 
-pp_move_button = tk.Button(root, text="go to coordinate", command=pp_move)
-pp_move_button.grid(row=18, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+# pp_move_button = tk.Button(root, text="go to coordinate", command=pp_move)
+# pp_move_button.grid(row=18, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 
 #baris 19
@@ -248,9 +248,9 @@ motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, stic
 dancing_button = tk.Button(root, text="10 times", command=start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
-#baris 20
-homing_button = tk.Button(root, text="homing", command=homing)
-homing_button.grid(row=20, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+# #baris 20
+# homing_button = tk.Button(root, text="homing", command=homing)
+# homing_button.grid(row=20, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 jmc_button = tk.Button(root, text="run command from JMC", command=from_jmc_command)
 jmc_button.grid(row=21, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
