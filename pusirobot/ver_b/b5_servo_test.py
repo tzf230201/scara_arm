@@ -1,7 +1,7 @@
 import signal
 import tkinter as tk
 import time
-from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up
+from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up, execute_custom_commands
 from b3_motion import dancing,dancing2, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, from_jmc_command, from_jmc_homing
 from b1_servo import servo_get_motor_velocity, servo_get_status_word
 import sys
@@ -256,6 +256,9 @@ jmc_button.grid(row=21, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 jmc2_button = tk.Button(root, text="JMC method homing", command=from_jmc_homing)
 jmc2_button.grid(row=22, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+
+custom_button = tk.Button(root, text="Execute custom commands", command=execute_custom_commands)
+custom_button.grid(row=24, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 
 
