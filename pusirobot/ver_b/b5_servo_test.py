@@ -257,9 +257,17 @@ jmc_button.grid(row=21, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 jmc2_button = tk.Button(root, text="JMC method homing", command=from_jmc_homing)
 jmc2_button.grid(row=22, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
-entry_custom = tk.Text(root, height=4, width=40)  # Atur sesuai kebutuhan
-entry_custom.insert(tk.END, "601 2B 40 60 00 0F 00 00 00")
+entry_custom = tk.Text(root, height=7, width=50)
+entry_custom.insert(tk.END, """\
+601 2B 40 60 00 0F 00 00 00
+601 2F 60 60 00 01 00 00 00
+601 2B 83 60 00 64 00 00 00
+601 2B 84 60 00 64 00 00 00
+601 23 81 60 00 0A 00 00 00
+601 23 7A 60 00 88 13 00 00
+601 2B 40 60 00 1F 00 00 00""")
 entry_custom.grid(row=23, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+
 
 
 custom_button = tk.Button(root, text="Execute custom commands", command=execute_custom_commands)
