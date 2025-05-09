@@ -67,15 +67,3 @@ def set_origin():
     save_settings()
     
     
-def execute_custom_commands():
-    # Custom command to be executed
-    custom_command = "your_custom_command_here"  # Replace with your actual command
-    print(f"Executing custom command: {custom_command}")
-    
-    # Execute the custom command
-    # You can use subprocess or any other method to execute the command
-    # For example:
-    # subprocess.run(custom_command, shell=True)
-    
-    print("Custom command executed successfully.")
-    

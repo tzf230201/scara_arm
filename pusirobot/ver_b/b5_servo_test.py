@@ -1,9 +1,10 @@
 import signal
 import tkinter as tk
 import time
-from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up, execute_custom_commands
+from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up
 from b3_motion import dancing,dancing2, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, from_jmc_command, from_jmc_homing
 from b1_servo import servo_get_motor_velocity, servo_get_status_word
+from b0_can import send_can_command
 import sys
 #ege
 # class Tee:
@@ -257,7 +258,24 @@ jmc_button.grid(row=21, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 jmc2_button = tk.Button(root, text="JMC method homing", command=from_jmc_homing)
 jmc2_button.grid(row=22, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
-entry_custom = tk.Text(root, height=7, width=50)
+
+def execute_custom_commands():
+    try:
+        commands = entry_custom.get("1.0", tk.END).strip().split('\n')
+        for line in commands:
+            parts = line.strip().split()
+            if len(parts) != 9:
+                print(f"Invalid format (expecting 9 hex values): {line}")
+                continue
+            can_id = parts[0]
+            data_bytes = ''.join(parts[1:])  # Gabungkan semua byte tanpa spasi
+            formatted_command = f"{can_id}#{data_bytes}"
+            send_can_command(formatted_command)
+    except Exception as e:
+        print(f"Error executing custom commands: {e}")
+        
+        
+entry_custom = tk.Text(root, height=15, width=50)
 entry_custom.insert(tk.END, """\
 601 2B 40 60 00 0F 00 00 00
 601 2F 60 60 00 01 00 00 00
