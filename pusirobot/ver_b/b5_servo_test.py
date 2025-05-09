@@ -237,8 +237,8 @@ entry_tar_z.insert(0, "100")
 entry_tar_z.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
 
 
-# pp_move_button = tk.Button(root, text="go to coordinate", command=pp_move)
-# pp_move_button.grid(row=18, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+pp_move_button = tk.Button(root, text="go to coordinate", command=pp_move)
+pp_move_button.grid(row=18, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 
 #baris 19
