@@ -257,6 +257,7 @@ jmc_button.grid(row=21, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 jmc2_button = tk.Button(root, text="JMC method homing", command=from_jmc_homing)
 jmc2_button.grid(row=22, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
+entry_custom = tk.Entry(root)
 entry_custom.insert(0, "601#6040001000000000")
 entry_custom.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
 
