@@ -16,7 +16,7 @@ def is_already_wake_up():
 
 def shutdown():
     stepper_shutdown() #6 may 2025
-    servo_shutdown()
+    # servo_shutdown()
     print(f"servo shutdown")
     # stop_can()
 
