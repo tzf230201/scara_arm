@@ -45,10 +45,10 @@ def read_present_position():
     print_orange(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f}°")#orange #6 may 2025
     # print_orange(f"cur coor z:{cur_z:.1f} mm")#orange #6 may 2025
     
-    servo_vel = servo_get_motor_velocity(ID1)
-    servo_status = servo_get_status_word(ID1)
+    # servo_vel = servo_get_motor_velocity(ID1)
+    # servo_status = servo_get_status_word(ID1)
     
-    print(f"servo status (hex): {servo_status:08X}, servo velocity: {servo_vel}")
+    # print(f"servo status (hex): {servo_status:08X}, servo velocity: {servo_vel}")
 
     return cur_joints
 
