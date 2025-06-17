@@ -177,7 +177,7 @@ root.title("Motor Control Panel")
 # Radio button for motor selection
 motor_type = tk.StringVar(value="all")
 
-radio_frame = tk.LabelFrame(root, text="Motor Selection", padx=5, pady=5)
+radio_frame = tk.LabelFrame(root, text="Motor Selection", padx=10, pady=5)
 radio_frame.grid(row=0, column=0, rowspan=3, padx=10, pady=5, sticky="nsew")
 
 tk.Radiobutton(radio_frame, text="All motors", variable=motor_type, value="all").grid(row=0, column=0, padx=5)
