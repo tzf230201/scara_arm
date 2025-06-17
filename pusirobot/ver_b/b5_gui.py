@@ -174,6 +174,17 @@ signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
 root = tk.Tk()
 root.title("Motor Control Panel")
 
+# Radio button for motor selection
+motor_type = tk.StringVar(value="all")
+
+radio_frame = tk.LabelFrame(root, text="Motor Selection", padx=5, pady=5)
+radio_frame.grid(row=2, column=2, rowspan=6, padx=10, pady=5, sticky="nsew")
+
+tk.Radiobutton(radio_frame, text="All motors", variable=motor_type, value="all").pack(anchor="w")
+tk.Radiobutton(radio_frame, text="Stepper only", variable=motor_type, value="stepper").pack(anchor="w")
+tk.Radiobutton(radio_frame, text="Servo only", variable=motor_type, value="servo").pack(anchor="w")
+
+
 #baris 0
 # error_status_button = tk.Button(root, text="error status", command=error_status)
 # error_status_button.grid(row=0, column=0, columnspan=1, pady=10,sticky="ew", padx=5)
