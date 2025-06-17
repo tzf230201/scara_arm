@@ -53,7 +53,8 @@ def read_present_position():
     return cur_joints
 
 def get_encoder_position():
-    enc1 = servo_get_motor_position(ID1)
+    # enc1 = servo_get_motor_position(ID1)
+    enc1 = 0
     enc2 = stepper_get_encoder_position(ID2)
     enc3 = stepper_get_encoder_position(ID3)
     enc4 = stepper_get_encoder_position(ID4)
