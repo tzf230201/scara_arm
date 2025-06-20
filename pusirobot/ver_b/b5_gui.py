@@ -156,6 +156,8 @@ def homing():
     
     last_time = time.time()
 
+# def 
+
 # def routine():
 # #     if is_already_wake_up():
 # #         read_present_position()

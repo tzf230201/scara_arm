@@ -182,7 +182,7 @@ def stepper_get_encoder_position(node_id):
 
 def stepper_calibration_zero(node_id):
     encoder = stepper_get_encoder_position(node_id)
-    set_sdo(node_id, SET_4_BYTE, OD_STEPPER_CALIBRATION_ZERO, 0x00, -encoder)
+    set_sdo(node_id, SET_4_BYTE, OD_STEPPER_CALIBRATION_ZERO, 0x00, 800000)
     save_settings()
 
 def read_pdo_1(request_id):
