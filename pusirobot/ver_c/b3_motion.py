@@ -98,28 +98,32 @@ def pp_angle(tar_joints, travel_time, max_speed, selection):
     accel_decel_3, max_speed_3 = stepper_accel_decel_calc(delta_pulse_3, travel_time)
     accel_decel_4, max_speed_4 = stepper_accel_decel_calc(delta_pulse_4, travel_time)
     
-    pp_mode_set_acceleration(accel_decel_2, accel_decel_3, accel_decel_4) #6 may 2025
-    pp_mode_set_deceleration(accel_decel_2, accel_decel_3, accel_decel_4) #6 may 2025
-    pp_mode_set_max_speed(max_speed_2, max_speed_3, max_speed_4) #6 may 2025
-    pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4) #6 may 2025
+    if selection != "servo":  
+        pp_mode_set_acceleration(accel_decel_2, accel_decel_3, accel_decel_4) #6 may 2025
+        pp_mode_set_deceleration(accel_decel_2, accel_decel_3, accel_decel_4) #6 may 2025
+        pp_mode_set_max_speed(max_speed_2, max_speed_3, max_speed_4) #6 may 2025
+        pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4) #6 may 2025
     
-    accel_decel_2 = stepper_pulses_to_steps(accel_decel_2)
-    accel_decel_3 = stepper_pulses_to_steps(accel_decel_3)
-    accel_decel_4 = stepper_pulses_to_steps(accel_decel_4)
-    
-    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x00)
+    # accel_decel_2 = stepper_pulses_to_steps(accel_decel_2)
+    # accel_decel_3 = stepper_pulses_to_steps(accel_decel_3)
+    # accel_decel_4 = stepper_pulses_to_steps(accel_decel_4)
+    if selection != "stepper":
+        set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
     #max speed is in pps, we need to convert it to ppr, and 1 ppr is 10 in the servo
     max_speed_rps = servo_pps_to_rps(max_speed)
     #coba ulang lagi yang stepper agar mengikuti si servo
     
-    servo_set_acceleration(accel_decel_1)
-    servo_set_deceleration(accel_decel_1)
-    servo_set_max_speed(max_speed_1)
-    servo_set_tar_pulse(tar_pulse_1)
+    if selection != "stepper":  
+        servo_set_acceleration(accel_decel_1)
+        servo_set_deceleration(accel_decel_1)
+        servo_set_max_speed(max_speed_1)
+        servo_set_tar_pulse(tar_pulse_1)
     
-    
-    pp_mode_start_absolute_motion() #6 may 2025
-    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x30)
+    if selection != "servo":  
+        pp_mode_start_absolute_motion() #6 may 2025
+        
+    if selection != "stepper":  
+        set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x3F)
     
 def pp_coor(tar_coor, travel_time, max_speed, selection):
     tar_joints = inverse_kinematics(tar_coor)

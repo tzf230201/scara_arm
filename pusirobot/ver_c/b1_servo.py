@@ -117,12 +117,16 @@ def servo_accel_decel_calc(d_total, t_travel_ms):
 # Mode of Operation Definition
 SERVO_OPERATION_MODE = {
 	0: "not defined",
-	1: "position mode",
-	2: "pulse direction mode",
-	3: "velocity mode",
-	4: "torque mode (servo)",
+	1: "Profile Position mode",
+	2: "not defined",
+	3: "Profile Velocity mode",
+	4: "Profile Torque mode",
 	5: "not defined",
-    6: "homing mode"
+    6: "homing mode",
+    7: "Interpolated Position mode",
+    8: "Cyclic Synchronous Position mode",
+    9: "Cyclic Synchronous Velocity mode",
+    10: "Cyclic Synchronous Torque mode"
 	}
 
 def decode_opeation_mode(operation_mode):
@@ -160,9 +164,9 @@ def servo_init():
     #     print(f"ok, servo in oeprational mode")
     # elif val == 0x05:
     #     print(f"servo is already in operational mode")
-    # servo_switch_on()
+    servo_switch_on()
     servo_set_operation_mode(1)
-    # servo_read_operation_mode()
+    servo_read_operation_mode()
     # print(f"servo wake_up")
 
 def servo_set_acceleration(accel_1):
