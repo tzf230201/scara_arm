@@ -34,12 +34,12 @@ def get_cur_joints(selection):
 
 from b2_sp import * 
 
-def sp_angle(tar_joints, travel_time):
+def sp_angle(tar_joints, travel_time, selection):
     global stop_watch, time_out, last_time
     group_id = 5
     sp_mode_init(group_id)
     
-    cur_joints = get_cur_joints()
+    cur_joints = get_cur_joints(selection)
     delta_joints = [tar - cur for tar, cur in zip(tar_joints, cur_joints)]
     tar_speeds = [stepper_degrees_to_pulses(int(delta / travel_time)) for delta in delta_joints]
     
@@ -63,7 +63,7 @@ def sp_angle(tar_joints, travel_time):
     stop_watch = last_time
     time_out = travel_time
     
-def sp_coor(tar_coor, travel_time):
+def sp_coor(tar_coor, travel_time, selection):
     tar_joints = inverse_kinematics(tar_coor)
     tar_joints = check_limit(tar_joints)
     print(f"tar joint = {tar_joints} degree")

@@ -106,18 +106,20 @@ def pvt_move():
     
 def sp_joint():
     global last_time
+    selection = get_motor_selection()
     tar_joints = get_tar_joints()
     travel_time = get_travel_time()
     
-    sp_angle(tar_joints, travel_time)
+    sp_angle(tar_joints, travel_time, selection)
     last_time = time.time()
     
 def sp_move():  
     global last_time
+    selection = get_motor_selection()
     tar_coor = get_tar_coor()
     travel_time = get_travel_time()
     
-    sp_coor(tar_coor, travel_time)
+    sp_coor(tar_coor, travel_time, selection)
     last_time = time.time()
     
 def pp_joint():
@@ -150,11 +152,12 @@ def start_dancing():
     
 def homing():
     global last_time
+    selection = get_motor_selection()
     tar_joints = [0, 0, 0, 0]
     travel_time = get_travel_time()
     # sp_angle(tar_joints, travel_time)
     travel_time = travel_time * 1000
-    pp_angle(tar_joints, travel_time, 10000)
+    pp_angle(tar_joints, travel_time, 10000, selection)
     
     
     last_time = time.time()
