@@ -4,17 +4,26 @@ from b1_servo import *
 from b1_stepper import *
 from b2_pvt import *
 
-def get_cur_joints():
+def get_cur_joints(selection):       
+    
     servo_id = ID1
-    # servo_pulse = servo_get_motor_position(servo_id)
-    servo_pulse = 0
+    
+    if selection != "stepper":  
+        servo_pulse = servo_get_motor_position(servo_id)
+    else:
+        servo_pulse = 0
+        
     servo_angle = servo_pulses_to_degrees(servo_pulse)
     
     stepper_ids = [ID2, ID3, ID4]
     stepper_angles = []
     
     for stepper_id in stepper_ids:
-        stepper_pulse = stepper_get_motor_position(stepper_id)
+        if selection != "stepper":  
+            stepper_pulse = stepper_get_motor_position(stepper_id)
+        else:
+            stepper_pulse = 0
+        
         # print(f"stepper {stepper_id:03X} pulse is {stepper_pulse}")
         stepper_angles.append(stepper_pulses_to_degrees(stepper_pulse))
     

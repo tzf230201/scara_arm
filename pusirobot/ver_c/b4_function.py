@@ -19,9 +19,13 @@ def get_motor_selection():
 def wake_up():
     global is_wake_up
     start_can()
-    stepper_init() #6 may 2025
+    selection = get_motor_selection()
+    if selection != "servo":
+        stepper_init()
+    if selection != "stepper":
+        servo_init()
     is_wake_up = True
-    # servo_init()
+    
 
 def is_already_wake_up():
     global is_wake_up
@@ -29,16 +33,13 @@ def is_already_wake_up():
 
 def shutdown():
     selection = get_motor_selection()
-    if selection == "all":
-         stepper_shutdown()
-         servo_shutdown()
-         print(f"stepper and servo shutdown")
-    elif selection == "servo":
-        servo_shutdown()
-        print(f"servo shutdown")
-    elif selection == "stepper":
+    
+    if selection != "servo":
         stepper_shutdown()
         print(f"stepper shutdown")
+    if selection != "stepper":
+        servo_shutdown()
+        print(f"servo shutdown")
     # stop_can()
 
 def print_yellow(text):
@@ -54,7 +55,8 @@ def print_orange(text):
     print(f"{ORANGE}{text}{RESET}")
     
 def read_present_position():
-    cur_joints = get_cur_joints()
+    selection = get_motor_selection()
+    cur_joints = get_cur_joints(selection)
     cur_coor = forward_kinematics(cur_joints)
     
     formatted_angles = "°, ".join([f"{angle:.2f}" for angle in cur_joints]) #6 may 2025
@@ -74,18 +76,31 @@ def read_present_position():
     return cur_joints
 
 def get_encoder_position():
-    # enc1 = servo_get_motor_position(ID1)
-    enc1 = 0
-    enc2 = stepper_get_encoder_position(ID2)
-    enc3 = stepper_get_encoder_position(ID3)
-    enc4 = stepper_get_encoder_position(ID4)
+    selection = get_motor_selection()
+    if selection != "stepper":
+        enc1 = servo_get_motor_position(ID1)
+    else: 
+        enc1 = 0
+        
+    if selection != "servo":
+        enc2 = stepper_get_encoder_position(ID2)
+        enc3 = stepper_get_encoder_position(ID3)
+        enc4 = stepper_get_encoder_position(ID4)
+    else:
+        enc2 = enc3 = enc4 = 0
+    
     print(f"enc: {enc1} {enc2}, {enc3}, {enc4}")
     return enc1, enc2, enc3, enc4
 
 def set_origin():
-    for node_id in [ID2, ID3, ID4]:
-        stepper_calibration_zero(node_id)
-        print(f"node {node_id} set to zero")
-    save_settings()
+    selection = get_motor_selection()
+    if selection != "servo":
+        for node_id in [ID2, ID3, ID4]:
+            stepper_calibration_zero(node_id)
+            print(f"node {node_id} set to zero")
+        save_settings()
+    else:
+        raise ValueError("set origin only for stepper, choose 'all' or 'only stepper'")
+        
     
     
