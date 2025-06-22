@@ -40,6 +40,7 @@ def get_tar_joints():
         tar_joint_2 = float(entry_tar_joint_2.get())
         tar_joint_3 = float(entry_tar_joint_3.get())
         tar_joint_4 = float(entry_tar_joint_4.get())
+        
     except ValueError:
         print("Please enter valid numbers for angles.")
         
@@ -156,7 +157,10 @@ def homing():
     
     last_time = time.time()
 
-# def 
+
+def on_motor_selection_changed():
+    selected = motor_type.get()
+    print(f"Motor selection changed: {selected}")
 
 # def routine():
 # #     if is_already_wake_up():
@@ -182,9 +186,21 @@ motor_type = tk.StringVar(value="all")
 radio_frame = tk.LabelFrame(root, text="Motor Selection", padx=10, pady=5)
 radio_frame.grid(row=0, column=0, rowspan=2, columnspan=2, padx=10, pady=5, sticky="nsew")
 
-tk.Radiobutton(radio_frame, text="All motors", variable=motor_type, value="all").grid(row=0, column=0, padx=5)
-tk.Radiobutton(radio_frame, text="Stepper only", variable=motor_type, value="stepper").grid(row=0, column=1, padx=5)
-tk.Radiobutton(radio_frame, text="Servo only", variable=motor_type, value="servo").grid(row=0, column=2, padx=5)
+
+tk.Radiobutton(
+    radio_frame, text="All motors", variable=motor_type, value="all",
+    command=on_motor_selection_changed
+).grid(row=0, column=0, padx=5)
+
+tk.Radiobutton(
+    radio_frame, text="Stepper only", variable=motor_type, value="stepper",
+    command=on_motor_selection_changed
+).grid(row=0, column=1, padx=5)
+
+tk.Radiobutton(
+    radio_frame, text="Servo only", variable=motor_type, value="servo",
+    command=on_motor_selection_changed
+).grid(row=0, column=2, padx=5)
 
 
 
