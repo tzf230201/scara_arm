@@ -73,8 +73,6 @@ def read_present_position():
     
     # print(f"servo status (hex): {servo_status:08X}, servo velocity: {servo_vel}")
 
-    return cur_joints
-
 def get_encoder_position():
     selection = get_motor_selection()
     if selection != "stepper":
