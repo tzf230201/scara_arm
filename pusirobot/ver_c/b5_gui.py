@@ -207,7 +207,7 @@ tk.Radiobutton(
     command=on_motor_selection_changed
 ).grid(row=0, column=2, padx=5)
 
-
+on_motor_selection_changed()  # Set initial motor selection
 
 #baris 0
 # error_status_button = tk.Button(root, text="error status", command=error_status)
