@@ -19,7 +19,7 @@ def get_cur_joints(selection):
     stepper_angles = []
     
     for stepper_id in stepper_ids:
-        if selection != "stepper":  
+        if selection != "servo":  
             stepper_pulse = stepper_get_motor_position(stepper_id)
         else:
             stepper_pulse = 0
