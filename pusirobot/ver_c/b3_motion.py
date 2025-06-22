@@ -107,7 +107,7 @@ def pp_angle(tar_joints, travel_time, max_speed, selection):
     accel_decel_3 = stepper_pulses_to_steps(accel_decel_3)
     accel_decel_4 = stepper_pulses_to_steps(accel_decel_4)
     
-    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x20)
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x00)
     #max speed is in pps, we need to convert it to ppr, and 1 ppr is 10 in the servo
     max_speed_rps = servo_pps_to_rps(max_speed)
     #coba ulang lagi yang stepper agar mengikuti si servo
