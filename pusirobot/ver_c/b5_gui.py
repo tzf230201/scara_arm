@@ -122,20 +122,22 @@ def sp_move():
     
 def pp_joint():
     global last_time
+    selection = get_motor_selection()
     tar_joints = get_tar_joints()
     travel_time = get_travel_time()
     travel_time = travel_time * 1000
     
-    pp_angle(tar_joints, travel_time, 10000)
+    pp_angle(tar_joints, travel_time, 10000, selection)
     last_time = time.time()
     
 def pp_move():  
     global last_time
+    selection = get_motor_selection()
     tar_coor = get_tar_coor()
     travel_time = get_travel_time()
     travel_time = travel_time * 1000
        
-    pp_coor(tar_coor, travel_time, 10000)
+    pp_coor(tar_coor, travel_time, 10000, selection)
     last_time = time.time()
     
 

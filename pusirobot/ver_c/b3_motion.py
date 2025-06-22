@@ -72,11 +72,11 @@ def sp_coor(tar_coor, travel_time):
 # ######################################### PVT 3 ######################################### #
 from b2_pp import *
 
-def pp_angle(tar_joints, travel_time, max_speed):
+def pp_angle(tar_joints, travel_time, max_speed, selection):
     
     pp_mode_init()
     
-    cur_joints = get_cur_joints()
+    cur_joints = get_cur_joints(selection)
     
     cur_joint_1, cur_joint_2, cur_joint_3, cur_joint_4 = cur_joints
     tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
@@ -119,11 +119,11 @@ def pp_angle(tar_joints, travel_time, max_speed):
     pp_mode_start_absolute_motion() #6 may 2025
     # set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
     
-def pp_coor(tar_coor, travel_time, max_speed):
+def pp_coor(tar_coor, travel_time, max_speed, selection):
     tar_joints = inverse_kinematics(tar_coor)
     tar_joints = check_limit(tar_joints)
     print(f"tar joint = {tar_joints} degree")
-    pp_angle(tar_joints, travel_time, max_speed)
+    pp_angle(tar_joints, travel_time, max_speed, selection)
 
 # ######################################### PVT 3 ######################################### #
 
