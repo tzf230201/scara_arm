@@ -1,7 +1,7 @@
 import signal
 import tkinter as tk
 import time
-from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up
+from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up, set_motor_selection, get_motor_selection
 from b3_motion import dancing,dancing2, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor
 from b1_servo import servo_get_motor_velocity, servo_get_status_word
 import sys
@@ -159,8 +159,13 @@ def homing():
 
 
 def on_motor_selection_changed():
+    # This function, in principle, simply avoids sending commands to non-selected motors.
+    # This means if the user changes the motor selection in the middle of the program,
+    # it doesn't shut down the previously selected motors — their previous commands will still remain active.
     selected = motor_type.get()
-    print(f"Motor selection changed: {selected}")
+    set_motor_selection(selected)
+    selected_motors = get_motor_selection()
+    print(f"Current motor selection: {selected_motors}")
 
 # def routine():
 # #     if is_already_wake_up():
@@ -181,7 +186,7 @@ root = tk.Tk()
 root.title("Motor Control Panel")
 
 # Radio button for motor selection
-motor_type = tk.StringVar(value="all")
+motor_type = tk.StringVar(value="stepper")
 
 radio_frame = tk.LabelFrame(root, text="Motor Selection", padx=10, pady=5)
 radio_frame.grid(row=0, column=0, rowspan=2, columnspan=2, padx=10, pady=5, sticky="nsew")

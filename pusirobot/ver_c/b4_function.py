@@ -3,6 +3,19 @@ from b1_servo import *
 from b3_motion import *
 
 is_wake_up = False
+motor_selection = "stepper" #"all", "stepper", "servo"
+def set_motor_selection(selection):
+    global motor_selection
+    if selection in ["all", "stepper", "servo"]:
+        motor_selection = selection
+    else:
+        raise ValueError("Invalid motor selection. Choose 'all', 'stepper', or 'servo'.")
+
+def get_motor_selection():
+    global motor_selection
+    return motor_selection
+
+
 def wake_up():
     global is_wake_up
     start_can()
@@ -15,9 +28,17 @@ def is_already_wake_up():
     return is_wake_up
 
 def shutdown():
-    stepper_shutdown() #6 may 2025
-    # servo_shutdown()
-    # print(f"servo shutdown")
+    selection = get_motor_selection()
+    if selection == "all":
+         stepper_shutdown()
+         servo_shutdown()
+         print(f"stepper and servo shutdown")
+    elif selection == "servo":
+        servo_shutdown()
+        print(f"servo shutdown")
+    elif selection == "stepper":
+        stepper_shutdown()
+        print(f"stepper shutdown")
     # stop_can()
 
 def print_yellow(text):
