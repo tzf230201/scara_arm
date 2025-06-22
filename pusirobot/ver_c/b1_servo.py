@@ -53,6 +53,7 @@ OD_SERVO_TARGET_VELOCITY = 0X6081
 OD_SERVO_ACCELERATION = 0X6083
 OD_SERVO_DECELERATION = 0X6084
 OD_SERVO_QUICK_STOP_DECELERATION = 0X6085
+OD_SERVO_PROFILE_TYPE = 0X6086
 OD_SERVO_HOMING_METHOD = 0X6098
 OD_SERVO_HOMING_SPEEDS = 0X6099
 OD_SERVO_HOMING_ACCELERATION = 0X609A
@@ -170,6 +171,9 @@ def servo_init():
     servo_read_operation_mode()
     # print(f"servo wake_up")
 
+def servo_set_profile_type(profile_type):
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_PROFILE_TYPE, 0x00,  profile_type)
+
 def servo_set_acceleration(accel_1):
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_ACCELERATION, 0x00,  accel_1)
     
@@ -181,6 +185,7 @@ def servo_set_max_speed(max_speed):
     
 def servo_set_tar_pulse(tar_pulse_1):
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_TARGET_POSITION, 0x00,  tar_pulse_1)
+
 
 def servo_position_mode(tar_joints):
     

@@ -115,6 +115,7 @@ def pp_angle(tar_joints, travel_time, max_speed, selection):
     #coba ulang lagi yang stepper agar mengikuti si servo
     
     if selection != "stepper":  
+        servo_set_profile_type(0x00)
         servo_set_acceleration(accel_decel_1)
         servo_set_deceleration(accel_decel_1)
         servo_set_max_speed(max_speed_1)
