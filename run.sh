@@ -1,1 +1,1 @@
-python3 pusirobot/ver_b/b5_gui.py
+python3 pusirobot/ver_c/b5_gui.py
