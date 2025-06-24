@@ -120,6 +120,7 @@ def servo_accel_decel_calc(d_total, t_travel_ms):
 
     accel_scaled = (int)(abs(accel_pps2 * 10))         # → 0.1 count/s²
     v_max_scaled = (int)(abs(v_max_pps * 10))         # → 0.1 count/s
+    print(f"accel_scaled: {accel_scaled}, v_max_scaled: {v_max_scaled}")
 
     return accel_scaled, v_max_scaled
 
