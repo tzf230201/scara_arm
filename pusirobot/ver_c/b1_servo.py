@@ -91,14 +91,13 @@ def servo_get_status_word(node_id):
 
 
 # 
-def servo_accel_decel_calc(d_total, t_travel_ms, servo_ppr):
+def servo_accel_decel_calc(d_total, t_travel_ms):
     """
     Menghitung akselerasi dan kecepatan maksimum servo (dalam satuan untuk servo CANopen).
     
     Args:
         d_total (int): Jarak total gerakan dalam pulse.
         t_travel_ms (int): Waktu total gerakan dalam milidetik.
-        servo_ppr (int): Pulses per revolution dari encoder servo.
     
     Returns:
         tuple: (acceleration_rps2_scaled, max_velocity_rps_scaled)
@@ -111,10 +110,10 @@ def servo_accel_decel_calc(d_total, t_travel_ms, servo_ppr):
     accel_pps2 = (2 * d_accel) / (t_accel_s ** 2)
 
     # Konversi ke rps² lalu skala sesuai kebutuhan servo (×10)
-    accel_rps2_scaled = int(abs((accel_pps2 / servo_ppr) * 10))
+    accel_rps2_scaled = int(abs((accel_pps2 / SERVO_PPR) * 10))
 
     # Hitung kecepatan maksimum (v = a * t), hasil dalam rps lalu skala ×10
-    v_max_rps_scaled = int(abs((accel_pps2 / servo_ppr) * t_accel_s * 10))
+    v_max_rps_scaled = int(abs((accel_pps2 / SERVO_PPR) * t_accel_s * 10))
 
     return accel_rps2_scaled, v_max_rps_scaled
 
