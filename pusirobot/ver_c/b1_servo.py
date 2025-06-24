@@ -107,20 +107,22 @@ def servo_get_status_word(node_id):
 #     return accel_rps_squared, v_max_rps
 # 
 def servo_accel_decel_calc(d_total, t_travel_ms):
-    print(f"d_total: {d_total} pulses, t_travel_ms: {t_travel_ms} ms")
-    t_accel_ms = t_travel_ms / 2  # Accel and decel time (ms)
-    d_accel = d_total / 2  # Distance during accel and decel (pulses)
-    print(f"t_accel_ms: {t_accel_ms} ms, d_accel: {d_accel} pulses")
-    
-    t_accel = t_accel_ms / 1000  # Accel and decel time (s)
+    """
+    Hitung akselerasi dan kecepatan maksimum:
+    - accel_scaled: untuk register 0x6083 dan 0x6084 (10 count/s²)
+    - v_max_scaled: untuk register 0x60FF (0.1 count/s)
+    """
+    t_accel = (t_travel_ms / 2) / 1000.0  # seconds
+    d_accel = d_total / 2                # counts
 
-    accel_pps2 = (2 * d_accel) / (t_accel ** 2)   # pulse/s²
-    v_max_pps = accel_pps2 * t_accel              # pulse/s
+    accel_pps2 = (2 * d_accel) / (t_accel ** 2)  # counts/s²
+    v_max_pps = accel_pps2 * t_accel             # counts/s
 
-    accel_scaled = (int)(abs(accel_pps2))         # → 0.1 count/s²
-    v_max_scaled = (int)(abs(v_max_pps * 10))         # → 0.1 count/s
-    print(f"accel_scaled: {accel_scaled}, v_max_scaled: {v_max_scaled}")
+    accel_scaled = int(abs(accel_pps2 / 10))     # 10 count/s²
+    v_max_scaled = int(abs(v_max_pps * 10))      # 0.1 count/s
 
+    print(f"accel_scaled (10 count/s²): {accel_scaled}")
+    print(f"v_max_scaled (0.1 count/s): {v_max_scaled}")
     return accel_scaled, v_max_scaled
 
 
