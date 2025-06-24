@@ -107,23 +107,21 @@ def servo_get_status_word(node_id):
 #     return accel_rps_squared, v_max_rps
 # 
 def servo_accel_decel_calc(d_total, t_travel_ms):
+    """
+    Hitung akselerasi dan kecepatan maksimum dalam satuan:
+    - 0.1 count/s² (accel)
+    - 0.1 count/s   (velocity)
+    """
+    t_accel = (t_travel_ms / 2) / 1000.0  # s
+    d_accel = d_total / 2                # pulse
 
-    # Waktu akselerasi dan deselerasi dibagi dua
-    t_accel_s = (t_travel_ms / 2) / 1000.0  # dalam detik
-    d_accel = d_total / 2  # setengah jarak digunakan untuk akselerasi
+    accel_pps2 = (2 * d_accel) / (t_accel ** 2)   # pulse/s²
+    v_max_pps = accel_pps2 * t_accel              # pulse/s
 
-    # Akselerasi dalam pulse/s²
-    accel_pps2 = (2 * d_accel) / (t_accel_s ** 2)
-    
-    print(f"accel_pps2: {accel_pps2}")
+    accel_scaled = round(accel_pps2 * 10)         # → 0.1 count/s²
+    v_max_scaled = round(v_max_pps * 10)          # → 0.1 count/s
 
-    # Konversi ke rps² lalu skala sesuai kebutuhan servo (×10)
-    accel_rps2_scaled = int(abs((accel_pps2 / SERVO_PPR) * 10))
-    print(f"accel_rps2_scaled: {accel_rps2_scaled}")
-    # Hitung kecepatan maksimum (v = a * t), hasil dalam rps lalu skala ×10
-    v_max_rps_scaled = int(abs((accel_pps2 / SERVO_PPR) * t_accel_s * 10))
-    print(f"v_max_rps_scaled: {v_max_rps_scaled}")
-    return accel_rps2_scaled, v_max_rps_scaled
+    return accel_scaled, v_max_scaled
 
 
 
