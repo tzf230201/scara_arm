@@ -118,8 +118,8 @@ def servo_accel_decel_calc(d_total, t_travel_ms):
     accel_pps2 = (2 * d_accel) / (t_accel ** 2)   # pulse/s²
     v_max_pps = accel_pps2 * t_accel              # pulse/s
 
-    accel_scaled = round(accel_pps2 * 10)         # → 0.1 count/s²
-    v_max_scaled = round(v_max_pps * 10)          # → 0.1 count/s
+    accel_scaled = (int)(abs(accel_pps2 * 10))         # → 0.1 count/s²
+    v_max_scaled = (int)(abs(v_max_pps * 10))         # → 0.1 count/s
 
     return accel_scaled, v_max_scaled
 
