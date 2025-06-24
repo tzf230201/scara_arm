@@ -89,25 +89,33 @@ def servo_get_status_word(node_id):
 
 
 
+# def servo_accel_decel_calc(d_total, t_travel_ms):
+#     t_accel_ms = t_travel_ms / 2  # Accel and decel time (ms)
+#     d_accel = d_total / 2  # Distance during accel and decel (pulses)
 
+#     # Convert time from ms to seconds for calculations
+#     t_accel = t_accel_ms / 1000  # Accel and decel time (s)
+    
+#     # Calculate acceleration in pulses per second squared (pps²)
+#     accel_pps_squared = (2 * d_accel) / (t_accel ** 2)
+    
+#     # Convert acceleration to revolutions per second squared (rps²)
+#     accel_rps_squared = (int)(abs((accel_pps_squared / SERVO_PPR) * 10))
+    
+#     v_max_rps = (int)(abs(accel_rps_squared * t_accel))
+
+#     return accel_rps_squared, v_max_rps
 # 
 def servo_accel_decel_calc(d_total, t_travel_ms):
-    """
-    Menghitung akselerasi dan kecepatan maksimum servo (dalam satuan untuk servo CANopen).
-    
-    Args:
-        d_total (int): Jarak total gerakan dalam pulse.
-        t_travel_ms (int): Waktu total gerakan dalam milidetik.
-    
-    Returns:
-        tuple: (acceleration_rps2_scaled, max_velocity_rps_scaled)
-    """
+
     # Waktu akselerasi dan deselerasi dibagi dua
     t_accel_s = (t_travel_ms / 2) / 1000.0  # dalam detik
     d_accel = d_total / 2  # setengah jarak digunakan untuk akselerasi
 
     # Akselerasi dalam pulse/s²
     accel_pps2 = (2 * d_accel) / (t_accel_s ** 2)
+    
+    print(f"accel_pps2: {accel_pps2}")
 
     # Konversi ke rps² lalu skala sesuai kebutuhan servo (×10)
     accel_rps2_scaled = int(abs((accel_pps2 / SERVO_PPR) * 10))
