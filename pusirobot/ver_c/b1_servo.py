@@ -119,10 +119,10 @@ def servo_accel_decel_calc(d_total, t_travel_ms):
 
     # Konversi ke rps² lalu skala sesuai kebutuhan servo (×10)
     accel_rps2_scaled = int(abs((accel_pps2 / SERVO_PPR) * 10))
-
+    print(f"accel_rps2_scaled: {accel_rps2_scaled}")
     # Hitung kecepatan maksimum (v = a * t), hasil dalam rps lalu skala ×10
     v_max_rps_scaled = int(abs((accel_pps2 / SERVO_PPR) * t_accel_s * 10))
-
+    print(f"v_max_rps_scaled: {v_max_rps_scaled}")
     return accel_rps2_scaled, v_max_rps_scaled
 
 
