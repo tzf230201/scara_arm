@@ -107,13 +107,10 @@ def servo_get_status_word(node_id):
 #     return accel_rps_squared, v_max_rps
 # 
 def servo_accel_decel_calc(d_total, t_travel_ms):
-    """
-    Hitung akselerasi dan kecepatan maksimum dalam satuan:
-    - 0.1 count/s² (accel)
-    - 0.1 count/s   (velocity)
-    """
-    t_accel = (t_travel_ms / 2) / 1000.0  # s
-    d_accel = d_total / 2                # pulse
+    t_accel_ms = t_travel_ms / 2  # Accel and decel time (ms)
+    d_accel = d_total / 2  # Distance during accel and decel (pulses)
+    
+    t_accel = t_accel_ms / 1000  # Accel and decel time (s)
 
     accel_pps2 = (2 * d_accel) / (t_accel ** 2)   # pulse/s²
     v_max_pps = accel_pps2 * t_accel              # pulse/s
