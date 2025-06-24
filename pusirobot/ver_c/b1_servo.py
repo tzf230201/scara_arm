@@ -107,8 +107,10 @@ def servo_get_status_word(node_id):
 #     return accel_rps_squared, v_max_rps
 # 
 def servo_accel_decel_calc(d_total, t_travel_ms):
+    print(f"d_total: {d_total} pulses, t_travel_ms: {t_travel_ms} ms")
     t_accel_ms = t_travel_ms / 2  # Accel and decel time (ms)
     d_accel = d_total / 2  # Distance during accel and decel (pulses)
+    print(f"t_accel_ms: {t_accel_ms} ms, d_accel: {d_accel} pulses")
     
     t_accel = t_accel_ms / 1000  # Accel and decel time (s)
 

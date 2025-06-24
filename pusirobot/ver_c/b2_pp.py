@@ -75,10 +75,10 @@ def pp_mode_init():
     print(f"the motors is in pp mode")
     
 def stepper_accel_decel_calc(d_total, t_travel_ms):
-    print(f"d_total: {d_total} pulses, t_travel_ms: {t_travel_ms} ms")
+    # print(f"d_total: {d_total} pulses, t_travel_ms: {t_travel_ms} ms")
     t_accel_ms = t_travel_ms / 2  # Accel and decel time (ms)
     d_accel = d_total / 2  # Distance during accel and decel (pulses)
-    print(f"t_accel_ms: {t_accel_ms} ms, d_accel: {d_accel} pulses")
+    # print(f"t_accel_ms: {t_accel_ms} ms, d_accel: {d_accel} pulses")
 
     # Convert time from ms to seconds for calculations
     t_accel = t_accel_ms / 1000  # Accel and decel time (s)
