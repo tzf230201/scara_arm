@@ -174,6 +174,7 @@ def servo_init():
     #     print(f"ok, servo in oeprational mode")
     # elif val == 0x05:
     #     print(f"servo is already in operational mode")
+    servo_enable_heartbeat()
     servo_switch_on()
     servo_set_operation_mode(1)
     servo_read_operation_mode()
