@@ -63,7 +63,12 @@ OD_SERVO_HOMING_ACCELERATION = 0X609A
 # -2 : PVT (Position, Velocity, Time) interpolation
 OD_SERVO_INTERPOLATION_SUB_MODE = 0x60C0
 #sub_index_1 : position, sub_index_2 : time, sub_index_3 : velocity
-OD_SERVO_INTERPOLATION_DATA = 0x60C1 
+OD_SERVO_INTERPOLATION_DATA_RECORD = 0x60C1 
+OD_SERVO_IP_SEGMENT_MOVE_COMMAND = 0x2010
+OD_SERVO_TRAJECTORY_BUFFER_FREE_COUNT = 0x2011
+OD_SERVO_TRAJECTORY_BUFFER_STATUS = 0x2012
+OD_SERVO_NEXT_TRAJECTORY_SEGMENT_ID = 0x2013
+
 
 SERVO_PPR = 131072
 SERVO_RATIO = SERVO_PPR / 360
@@ -199,6 +204,8 @@ def servo_init(OPERATION_MODE=1):
     if (OPERATION_MODE == 7):
         servo_set_interpolation_sub_mode(-2)
         servo_get_sub_mode()
+        servo_get_buffer_free_count()
+        servo_get_next_trajectory_segment_id()
     # print(f"servo wake_up")
 
 def servo_set_profile_type(profile_type):
@@ -226,4 +233,34 @@ def servo_disable_heartbeat():
     
 def servo_set_interpolation_sub_mode(sub_mode):
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_INTERPOLATION_SUB_MODE, 0x00,  sub_mode)
-    
+
+def servo_set_interpolation_data(position, time, velocity):
+    """
+    Set interpolation data for servo.
+    position: target position in counts
+    time: time in ms
+    velocity: target velocity in counts/s
+    """
+    set_sdo(ID1, SET_4_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x01,  position)  # sub_index 1: position
+    set_sdo(ID1, SET_4_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x02,  time)      # sub_index 2: time
+    set_sdo(ID1, SET_4_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x03,  velocity)  # sub_index 3: velocity
+
+def servo_get_buffer_free_count():
+    """
+    Get the number of free segments in the trajectory buffer.
+    Returns:
+        int: The number of free segments.
+    """
+    free_count = req_sdo(ID1, OD_SERVO_TRAJECTORY_BUFFER_FREE_COUNT, 0x00)
+    print(f"Free trajectory buffer segments: {free_count}")
+    return free_count
+
+def servo_get_next_trajectory_segment_id():
+    """
+    Get the next trajectory segment ID.
+    Returns:
+        int: The next trajectory segment ID.
+    """
+    next_id = req_sdo(ID1, OD_SERVO_NEXT_TRAJECTORY_SEGMENT_ID, 0x00)
+    print(f"Next trajectory segment ID: {next_id}")
+    return next_id
