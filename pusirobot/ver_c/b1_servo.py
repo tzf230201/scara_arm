@@ -58,6 +58,13 @@ OD_SERVO_HOMING_METHOD = 0X6098
 OD_SERVO_HOMING_SPEEDS = 0X6099
 OD_SERVO_HOMING_ACCELERATION = 0X609A
 
+# 0 :Linear interpolation with a constant time.
+# -1 : Linear interpolation with a variable time
+# -2 : PVT (Position, Velocity, Time) interpolation
+OD_SERVO_INTERPOLATION_SUB_MODE = 0x60C0
+#sub_index_1 : position, sub_index_2 : time, sub_index_3 : velocity
+OD_SERVO_INTERPOLATION_DATA = 0x60C1 
+
 SERVO_PPR = 131072
 SERVO_RATIO = SERVO_PPR / 360
 
@@ -88,24 +95,6 @@ def servo_get_status_word(node_id):
     return status_word
 
 
-
-# def servo_accel_decel_calc(d_total, t_travel_ms):
-#     t_accel_ms = t_travel_ms / 2  # Accel and decel time (ms)
-#     d_accel = d_total / 2  # Distance during accel and decel (pulses)
-
-#     # Convert time from ms to seconds for calculations
-#     t_accel = t_accel_ms / 1000  # Accel and decel time (s)
-    
-#     # Calculate acceleration in pulses per second squared (pps²)
-#     accel_pps_squared = (2 * d_accel) / (t_accel ** 2)
-    
-#     # Convert acceleration to revolutions per second squared (rps²)
-#     accel_rps_squared = (int)(abs((accel_pps_squared / SERVO_PPR) * 10))
-    
-#     v_max_rps = (int)(abs(accel_rps_squared * t_accel))
-
-#     return accel_rps_squared, v_max_rps
-# 
 def servo_accel_decel_calc(d_total, t_travel_ms):
     """
     Hitung akselerasi dan kecepatan maksimum:
@@ -204,25 +193,12 @@ def servo_set_max_speed(max_speed):
     
 def servo_set_tar_pulse(tar_pulse_1):
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_TARGET_POSITION, 0x00,  tar_pulse_1)
-
-
-def servo_position_mode(tar_joints):
     
-    cur_joint_1, cur_joint_2, cur_joint_3, cur_joint_4 = read_present_position()
+def servo_enable_heartbeat():
+    _, ret = set_req_sdo(ID1, SET_2_BYTE, OD_SERVO_PRODUCER_HEARTH_BEAT, 0x00,  1000)  # 1000 ms heartbeat
+    print(f"Heartbeat enabled: {ret} ms")
     
-    tar_joints = check_limit(tar_joints)
-    tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
-    
-    tar_pulse_1 = servo_degrees_to_pulses(tar_joint_1)
-    delta_pulse_1 = servo_degrees_to_pulses(tar_joint_1 - cur_joint_1)
-    accel_decel_1 = servo_accel_decel_calc(delta_pulse_1, travel_time)
-    
-    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
-    servo_max_speed_ppr = (int)((max_speed / SERVO_PPR) * 10)
-    servo_set_acceleration(accel_decel_1)
-    servo_set_deceleration(accel_decel_1)
-    servo_set_max_speed(servo_max_speed_ppr)
-    servo_set_tar_pulse(tar_pulse_1)
-
-    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
+def servo_disable_heartbeat():
+    _, ret = set_req_sdo(ID1, SET_2_BYTE, OD_SERVO_PRODUCER_HEARTH_BEAT, 0x00,  0)  # 1000 ms heartbeat
+    print(f"Heartbeat enabled: {ret} ms (disabled)")
     
