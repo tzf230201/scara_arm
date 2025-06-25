@@ -23,7 +23,7 @@ def wake_up():
     if selection != "servo":
         stepper_init()
     if selection != "stepper":
-        servo_init()
+        servo_init(7)
     is_wake_up = True
     
 

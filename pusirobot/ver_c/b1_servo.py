@@ -144,11 +144,29 @@ def decode_opeation_mode(operation_mode):
         if operation_mode == bit:
             print(f"  - {description}")
 
-def servo_read_operation_mode():
+def servo_get_operation_mode():
     operation_mode = req_sdo(ID1, OD_SERVO_MODE_OF_OPERATION, 0x00)
     # print(f"Operation mode: {operation_mode:02X}")
     decode_opeation_mode(operation_mode)
 
+
+SERVO_SUB_MODE = {
+	0: "Linear interpolation with a constant time.",
+	-1: "Linear interpolation with a variable time",
+	-2: "PVT (Position, Velocity, Time) interpolation"
+	}
+
+def decode_sub_mode(sub_mode):
+    print("Decoded operation mode:")
+    for bit, description in SERVO_SUB_MODE.items():
+        if sub_mode == bit:
+            print(f"  - {description}")
+
+def servo_get_sub_mode():
+    sub_mode = req_sdo(ID1, OD_SERVO_INTERPOLATION_SUB_MODE, 0x00)
+    # print(f"sub mode: {sub_mode:02X}")
+    decode_sub_mode(sub_mode)
+    
 def servo_shutdown():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x06)
     
@@ -163,7 +181,7 @@ def servo_goto_operational():
     id = 0x01
     send_can_command(f"000#01{id:02X}")
     
-def servo_init():
+def servo_init(OPERATION_MODE=1):
     print(f"servo init")
     # _,val = req_nmt(ID1)
     # # print(f"val: {val:02X}")
@@ -176,8 +194,11 @@ def servo_init():
     #     print(f"servo is already in operational mode")
     servo_enable_heartbeat()
     servo_switch_on()
-    servo_set_operation_mode(1)
-    servo_read_operation_mode()
+    servo_set_operation_mode(OPERATION_MODE)
+    servo_get_operation_mode()
+    if (OPERATION_MODE == 7):
+        servo_set_interpolation_sub_mode(-2)
+        servo_get_sub_mode()
     # print(f"servo wake_up")
 
 def servo_set_profile_type(profile_type):
@@ -202,4 +223,7 @@ def servo_enable_heartbeat():
 def servo_disable_heartbeat():
     _, ret = set_req_sdo(ID1, SET_2_BYTE, OD_SERVO_PRODUCER_HEARTH_BEAT, 0x00,  0)  # 1000 ms heartbeat
     print(f"Heartbeat enabled: {ret} ms (disabled)")
+    
+def servo_set_interpolation_sub_mode(sub_mode):
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_INTERPOLATION_SUB_MODE, 0x00,  sub_mode)
     
