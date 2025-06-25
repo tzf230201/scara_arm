@@ -162,7 +162,7 @@ SERVO_SUB_MODE = {
 	}
 
 def decode_sub_mode(sub_mode):
-    print("Decoded operation mode:")
+    print("Decoded sub mode:")
     for bit, description in SERVO_SUB_MODE.items():
         if sub_mode == bit:
             print(f"  - {description}")
