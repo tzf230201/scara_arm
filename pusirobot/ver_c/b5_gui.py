@@ -266,14 +266,16 @@ entry_tar_joint_4.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
 # pvt_mode_init_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 # pvt_mode_init_button = tk.Button(root, text="read PVT3 depth", command=pvt_mode_read_pvt_3_depth)
 # pvt_mode_init_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+
+
 # sp_joint_button = tk.Button(root, text="SP try", command=sp_joint)
 # sp_joint_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 pp_mode_button = tk.Button(root, text="PP try", command=pp_joint)
 pp_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
-# pvt_mode_button = tk.Button(root, text="PVT try", command=pvt_joint)
-# pvt_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+pvt_mode_button = tk.Button(root, text="PVT try", command=pvt_joint)
+pvt_mode_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 
 #baris 14 - 17
@@ -305,8 +307,8 @@ entry_tar_yaw.grid(row=17, column=1, padx=5, pady=5, sticky="ew")
 pp_move_button = tk.Button(root, text="PP move", command=pp_move)
 pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
-# pvt_move_button = tk.Button(root, text="PVT circular", command=pvt_move)
-# pvt_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+pvt_move_button = tk.Button(root, text="PVT move", command=pvt_move)
+pvt_move_button.grid(row=18, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 19
 motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
