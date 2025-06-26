@@ -242,7 +242,7 @@ def servo_set_interpolation_data(position, time, velocity):
     velocity: target velocity in counts/s
     """
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x01,  position)  # sub_index 1: position
-    set_sdo(ID1, SET_4_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x02,  time)      # sub_index 2: time
+    set_sdo(ID1, SET_1_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x02,  time)      # sub_index 2: time
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x03,  velocity)  # sub_index 3: velocity
 
 def servo_get_buffer_free_count():
@@ -264,3 +264,30 @@ def servo_get_next_trajectory_segment_id():
     next_id = req_sdo(ID1, OD_SERVO_NEXT_TRAJECTORY_SEGMENT_ID, 0x00)
     print(f"Next trajectory segment ID: {next_id}")
     return next_id
+
+# def servo_set_ip_segment_move_command(segment_id, position, time, velocity):
+#     """
+#     Set the IP segment move command for the servo.
+#     segment_id: The ID of the segment to set.
+#     position: Target position in counts.
+#     time: Time in ms.
+#     velocity: Target velocity in counts/s.
+#     """
+#     set_sdo(ID1, SET_2_BYTE, OD_SERVO_IP_SEGMENT_MOVE_COMMAND, 0x01, segment_id)  # sub_index 1: segment ID
+#     set_sdo(ID1, SET_4_BYTE, OD_SERVO_IP_SEGMENT_MOVE_COMMAND, 0x02, position)     # sub_index 2: position
+#     set_sdo(ID1, SET_4_BYTE, OD_SERVO_IP_SEGMENT_MOVE_COMMAND, 0x03, time)         # sub_index 3: time
+#     set_sdo(ID1, SET_4_BYTE, OD_SERVO_IP_SEGMENT_MOVE_COMMAND, 0x04, velocity)     # sub_index 4: velocity
+
+def servo_pvt_position(cur_po, tar_pos, travel_time):
+    """
+    Set PVT (Position, Velocity, Time) for servo.
+    cur_pos: Current position in counts.
+    tar_pos: Target position in counts.
+    tar_time: Time in ms.
+    tar_vel: Target velocity in counts/s.
+    """
+    position = tar_pos - cur_pos
+    servo_set_interpolation_data(position, tar_time, tar_vel)
+    
+    # Send the command to start the movement
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_IP_SEGMENT_MOVE_COMMAND, 0x01,  0x01)  # Start the segment move command
