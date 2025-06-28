@@ -23,7 +23,7 @@ def wake_up():
     if selection != "servo_only":
         stepper_init()
     if selection != "stepper_only":
-        servo_init(7)  # 7 is PVT mode, 1 is PP mode
+        servo_init(1)  # 7 is PVT mode, 1 is PP mode
     is_wake_up = True
     
 

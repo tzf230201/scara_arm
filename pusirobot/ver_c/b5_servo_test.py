@@ -135,20 +135,22 @@ def sp_move():
     
 def pp_joint():
     global last_time
+    selection = get_motor_selection()
     tar_joints = get_tar_joints()
     travel_time = get_travel_time()
     travel_time = travel_time * 1000
     
-    pp_angle(tar_joints, travel_time, 10000)
+    pp_angle(tar_joints, travel_time, 10000, selection)
     last_time = time.time()
     
 def pp_move():  
     global last_time
+    selection = get_motor_selection()
     tar_coor = get_tar_coor()
     travel_time = get_travel_time()
     travel_time = travel_time * 1000
        
-    pp_coor(tar_coor, travel_time, 10000)
+    pp_coor(tar_coor, travel_time, 10000, selection)
     last_time = time.time()
     
 
@@ -156,17 +158,17 @@ def start_dancing():
     global last_time
     travel_time = get_travel_time()
     # dancing(travel_time)
-    tar_coor = get_tar_coor()
-    dancing2(tar_coor, travel_time)
+    dancing2(travel_time)
     last_time = time.time()
     
 def homing():
     global last_time
+    selection = get_motor_selection()
     tar_joints = [0, 0, 0, 0]
     travel_time = get_travel_time()
     # sp_angle(tar_joints, travel_time)
     travel_time = travel_time * 1000
-    pp_angle(tar_joints, travel_time, 10000)
+    pp_angle(tar_joints, travel_time, 10000, selection)
     
     
     last_time = time.time()
@@ -286,11 +288,11 @@ dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew"
 # homing_button = tk.Button(root, text="homing", command=homing)
 # homing_button.grid(row=20, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
-jmc_button = tk.Button(root, text="run Servo Command", command=from_jmc_command)
-jmc_button.grid(row=21, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+# jmc_button = tk.Button(root, text="run Servo Command", command=from_jmc_command)
+# jmc_button.grid(row=21, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
-jmc2_button = tk.Button(root, text="Servo homing", command=from_jmc_homing)
-jmc2_button.grid(row=22, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+# jmc2_button = tk.Button(root, text="Servo homing", command=from_jmc_homing)
+# jmc2_button.grid(row=22, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 
 def execute_custom_commands():

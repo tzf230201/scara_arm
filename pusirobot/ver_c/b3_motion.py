@@ -654,7 +654,7 @@ def from_jmc_command():
     servo_set_deceleration(0x06)
     servo_set_max_speed(0x0C)
     servo_set_tar_pulse(0x682A)
-    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x3F)
     
 def from_jmc_homing():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
@@ -663,7 +663,7 @@ def from_jmc_homing():
     servo_set_deceleration(0x06)
     servo_set_max_speed(0x0A)
     servo_set_tar_pulse(0x00)
-    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x3F)
     
 # apakah bisa set origin untuk position mode?
 # berapa count per revolusi?
