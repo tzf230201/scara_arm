@@ -3,10 +3,10 @@ from b1_servo import *
 from b3_motion import *
 
 is_wake_up = False
-motor_selection = "stepper" #"all", "stepper", "servo"
+motor_selection = "stepper_only" #"all", "stepper_only", "servo_only"
 def set_motor_selection(selection):
     global motor_selection
-    if selection in ["all", "stepper", "servo"]:
+    if selection in ["all", "stepper_only", "servo_only"]:
         motor_selection = selection
     else:
         raise ValueError("Invalid motor selection. Choose 'all', 'stepper', or 'servo'.")
@@ -20,10 +20,10 @@ def wake_up():
     global is_wake_up
     start_can()
     selection = get_motor_selection()
-    if selection != "servo":
+    if selection != "servo_only":
         stepper_init()
-    if selection != "stepper":
-        servo_init(7)  # 7 is PVT mode
+    if selection != "stepper_only":
+        servo_init(7)  # 7 is PVT mode, 1 is PP mode
     is_wake_up = True
     
 
@@ -34,10 +34,10 @@ def is_already_wake_up():
 def shutdown():
     selection = get_motor_selection()
     
-    if selection != "servo":
+    if selection != "servo_only":
         stepper_shutdown()
         print(f"stepper shutdown")
-    if selection != "stepper":
+    if selection != "stepper_only":
         servo_shutdown()
         print(f"servo shutdown")
     # stop_can()
@@ -75,12 +75,12 @@ def read_present_position():
 
 def get_encoder_position():
     selection = get_motor_selection()
-    if selection != "stepper":
+    if selection != "stepper_only":
         enc1 = servo_get_motor_position(ID1)
     else: 
         enc1 = 0
         
-    if selection != "servo":
+    if selection != "servo_only":
         enc2 = stepper_get_encoder_position(ID2)
         enc3 = stepper_get_encoder_position(ID3)
         enc4 = stepper_get_encoder_position(ID4)
@@ -92,7 +92,7 @@ def get_encoder_position():
 
 def set_origin():
     selection = get_motor_selection()
-    if selection != "servo":
+    if selection != "servo_only":
         for node_id in [ID2, ID3, ID4]:
             stepper_calibration_zero(node_id)
             print(f"node {node_id} set to zero")

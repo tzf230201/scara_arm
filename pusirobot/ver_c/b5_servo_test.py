@@ -1,7 +1,7 @@
 import signal
 import tkinter as tk
 import time
-from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up
+from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up,set_motor_selection, get_motor_selection
 from b3_motion import dancing,dancing2, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, from_jmc_command, from_jmc_homing
 from b1_servo import servo_get_motor_velocity, servo_get_status_word
 from b0_can import send_can_command
@@ -171,6 +171,16 @@ def homing():
     
     last_time = time.time()
 
+def on_motor_selection_changed():
+    # This function, in principle, simply avoids sending commands to non-selected motors.
+    # This means if the user changes the motor selection in the middle of the program,
+    # it doesn't shut down the previously selected motors — their previous commands will still remain active.
+    selected = motor_type.get()
+    set_motor_selection(selected)
+    selected_motors = get_motor_selection()
+    print(f"Current motor selection: {selected_motors}")
+
+
 # def routine():
 # #     if is_already_wake_up():
 # #         read_present_position()
@@ -188,6 +198,30 @@ signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
 # Buat GUI
 root = tk.Tk()
 root.title("Motor Control Panel")
+
+# Radio button for motor selection
+motor_type = tk.StringVar(value="servo_only")
+
+radio_frame = tk.LabelFrame(root, text="Motor Selection", padx=10, pady=5)
+radio_frame.grid(row=0, column=0, rowspan=2, columnspan=2, padx=10, pady=5, sticky="nsew")
+
+
+# tk.Radiobutton(
+#     radio_frame, text="All motors", variable=motor_type, value="all",
+#     command=on_motor_selection_changed
+# ).grid(row=0, column=0, padx=5)
+
+# tk.Radiobutton(
+#     radio_frame, text="Stepper only", variable=motor_type, value="stepper_only",
+#     command=on_motor_selection_changed
+# ).grid(row=0, column=1, padx=5)
+
+# tk.Radiobutton(
+#     radio_frame, text="Servo only", variable=motor_type, value="servo_only",
+#     command=on_motor_selection_changed
+# ).grid(row=0, column=2, padx=5)
+
+on_motor_selection_changed()  # Set initial motor selection
 
 #baris 0
 # error_status_button = tk.Button(root, text="error status", command=error_status)
@@ -252,10 +286,10 @@ dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew"
 # homing_button = tk.Button(root, text="homing", command=homing)
 # homing_button.grid(row=20, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
-jmc_button = tk.Button(root, text="run command from JMC", command=from_jmc_command)
+jmc_button = tk.Button(root, text="run Servo Command", command=from_jmc_command)
 jmc_button.grid(row=21, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
-jmc2_button = tk.Button(root, text="JMC method homing", command=from_jmc_homing)
+jmc2_button = tk.Button(root, text="Servo homing", command=from_jmc_homing)
 jmc2_button.grid(row=22, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 

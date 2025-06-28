@@ -10,7 +10,7 @@ def get_cur_joints(selection):
     
     servo_id = ID1
     
-    if selection != "stepper":  
+    if selection != "stepper_only":  
         servo_pulse = servo_get_motor_position(servo_id)
     else:
         servo_pulse = 0
@@ -21,7 +21,7 @@ def get_cur_joints(selection):
     stepper_angles = []
     
     for stepper_id in stepper_ids:
-        if selection != "servo":  
+        if selection != "servo_only":  
             stepper_pulse = stepper_get_motor_position(stepper_id)
         else:
             stepper_pulse = 0
@@ -71,12 +71,14 @@ def sp_coor(tar_coor, travel_time, selection):
     print(f"tar joint = {tar_joints} degree")
     sp_angle(tar_joints, travel_time)
 
-# ######################################### PVT 3 ######################################### #
+    
+
+# ######################################### PP MODE ######################################### #
 from b2_pp import *
 
 def pp_angle(tar_joints, travel_time, max_speed, selection):
     
-    if selection != "servo": 
+    if selection != "servo_only": 
         pp_mode_init()
     
     cur_joints = get_cur_joints(selection)
@@ -99,7 +101,7 @@ def pp_angle(tar_joints, travel_time, max_speed, selection):
     accel_decel_3, max_speed_3 = stepper_accel_decel_calc(delta_pulse_3, travel_time)
     accel_decel_4, max_speed_4 = stepper_accel_decel_calc(delta_pulse_4, travel_time)
     
-    if selection != "servo":  
+    if selection != "servo_only":  
         pp_mode_set_acceleration(accel_decel_2, accel_decel_3, accel_decel_4) #6 may 2025
         pp_mode_set_deceleration(accel_decel_2, accel_decel_3, accel_decel_4) #6 may 2025
         pp_mode_set_max_speed(max_speed_2, max_speed_3, max_speed_4) #6 may 2025
@@ -108,23 +110,19 @@ def pp_angle(tar_joints, travel_time, max_speed, selection):
     # accel_decel_2 = stepper_pulses_to_steps(accel_decel_2)
     # accel_decel_3 = stepper_pulses_to_steps(accel_decel_3)
     # accel_decel_4 = stepper_pulses_to_steps(accel_decel_4)
-    if selection != "stepper":
-        set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
-    #max speed is in pps, we need to convert it to ppr, and 1 ppr is 10 in the servo
-    max_speed_rps = servo_pps_to_rps(max_speed)
-    #coba ulang lagi yang stepper agar mengikuti si servo
     
-    if selection != "stepper":  
+    if selection != "stepper_only":
+        set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
         servo_set_profile_type(0x00)
         servo_set_acceleration(accel_decel_1)
         servo_set_deceleration(accel_decel_1)
         servo_set_max_speed(max_speed_1)
         servo_set_tar_pulse(tar_pulse_1)
     
-    if selection != "servo":  
+    if selection != "servo_only":  
         pp_mode_start_absolute_motion() #6 may 2025
         
-    if selection != "stepper":  
+    if selection != "stepper_only":  
         set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x3F)
     
 def pp_coor(tar_coor, travel_time, max_speed, selection):
@@ -132,9 +130,54 @@ def pp_coor(tar_coor, travel_time, max_speed, selection):
     tar_joints = check_limit(tar_joints)
     print(f"tar joint = {tar_joints} degree")
     pp_angle(tar_joints, travel_time, max_speed, selection)
+    
+# ######################################### PVT ######################################### #
+
+def pvt_angle(tar_joints, travel_time, selection):
+    global stop_watch, time_out, last_time
+    group_id = 0x05
+    tar_pulses = []
+    node_ids = [ID1, ID2, ID3, ID4]
+    pvt_3_lower_limit = 60
+    pvt_3_upper_limit = 80
+    pvt_mode_init(group_id, PVT_3, 400, pvt_3_lower_limit, pvt_3_upper_limit)
+    cur_joints = get_cur_joints(selection)
+    servo_init(7)
+    
+    tar_pulses.append(servo_degrees_to_pulses(tar_joints[0]))
+    for tar_joint in tar_joints[1:]:
+        tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
+        
+    # Initialize p, v, and t as empty lists
+    p = [None] * 4
+    v = [None] * 4
+    t = [None] * 4
+    
+    p[0], v[0], t[0] = generate_pvt_trajectory_triangle_2(0, tar_pulses[0], travel_time)
+    
+    for i in range(1, 4):
+        tar_step = stepper_pulses_to_steps(tar_pulses[i])
+        p[i], v[i], t[i] = generate_pvt_trajectory_triangle_2(0 ,  tar_step, travel_time) 
+
+    for pos, vel, tim in zip(p[0], v[0], t[0]):
+        servo_set_interpolation_data(pos, vel, tim)
+        
+    for i in range(1, 4):
+        for pos, vel, tim in zip(p[i], v[i], t[i]):
+            pvt_mode_write_read(node_ids[i], pos, vel, tim)
+            # print(f"motor {i+1} write {pos}, {vel}, {tim}")
+    
+    pvt_mode_read_pvt_3_depth()
+    pvt_mode_start_pvt_step(group_id)
+    if selection != "stepper_only":
+        set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
+        set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x3F)
+    
+    last_time = time.time()
+    stop_watch = last_time
+    time_out = travel_time
 
 # ######################################### PVT 3 ######################################### #
-
 
 def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     global last_time, stop_watch, time_out
@@ -599,9 +642,9 @@ def dancing2(tar_coor, travel_time):
     pp_travel = sleep * 1000
     for i in range(10):
         print(f"i = {i}")
-        pp_angle(tar_joints, pp_travel, 10000)
+        pp_angle(tar_joints, pp_travel, 10000, "servo_only")
         time.sleep(sleep)
-        pp_angle([0, 0, 0, 0], pp_travel, 10000)
+        pp_angle([0, 0, 0, 0], pp_travel, 10000, "servo_only")
         time.sleep(sleep)
         
 def from_jmc_command():

@@ -73,9 +73,10 @@ def get_travel_time():
 
 def pvt_joint():
     global last_time
+    selection = get_motor_selection()
     cur_joints = read_present_position()
     tar_joints = get_tar_joints()
-    travel_time =get_travel_time()
+    travel_time = get_travel_time()
     
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
@@ -191,7 +192,7 @@ root = tk.Tk()
 root.title("Motor Control Panel")
 
 # Radio button for motor selection
-motor_type = tk.StringVar(value="servo")
+motor_type = tk.StringVar(value="servo_only")
 
 radio_frame = tk.LabelFrame(root, text="Motor Selection", padx=10, pady=5)
 radio_frame.grid(row=0, column=0, rowspan=2, columnspan=2, padx=10, pady=5, sticky="nsew")
@@ -203,12 +204,12 @@ tk.Radiobutton(
 ).grid(row=0, column=0, padx=5)
 
 tk.Radiobutton(
-    radio_frame, text="Stepper only", variable=motor_type, value="stepper",
+    radio_frame, text="Stepper only", variable=motor_type, value="stepper_only",
     command=on_motor_selection_changed
 ).grid(row=0, column=1, padx=5)
 
 tk.Radiobutton(
-    radio_frame, text="Servo only", variable=motor_type, value="servo",
+    radio_frame, text="Servo only", variable=motor_type, value="servo_only",
     command=on_motor_selection_changed
 ).grid(row=0, column=2, padx=5)
 
