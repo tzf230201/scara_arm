@@ -188,15 +188,15 @@ def servo_goto_operational():
     
 def servo_init(OPERATION_MODE=1):
     print(f"servo init")
-    # _,val = req_nmt(ID1)
-    # # print(f"val: {val:02X}")
-    # if val == 0x7F:
-    #     print(f"servo is not operational, going to operational mode")
-    #     servo_goto_operational()
-    #     time.sleep(1)
-    #     print(f"ok, servo in oeprational mode")
-    # elif val == 0x05:
-    #     print(f"servo is already in operational mode")
+    _,val = req_nmt(ID1)
+    # print(f"val: {val:02X}")
+    if val == 0x7F:
+        print(f"servo is not operational, going to operational mode")
+        servo_goto_operational()
+        time.sleep(1)
+        print(f"ok, servo in oeprational mode")
+    elif val == 0x05:
+        print(f"servo is already in operational mode")
     servo_enable_heartbeat()
     servo_switch_on()
     servo_set_operation_mode(OPERATION_MODE)
