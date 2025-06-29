@@ -286,8 +286,8 @@ dancing_button = tk.Button(root, text="10 times", command=start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 # #baris 20
-# homing_button = tk.Button(root, text="homing", command=homing)
-# homing_button.grid(row=20, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+homing_button = tk.Button(root, text="homing", command=homing)
+homing_button.grid(row=20, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 # jmc_button = tk.Button(root, text="run Servo Command", command=from_jmc_command)
 # jmc_button.grid(row=21, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
