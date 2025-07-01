@@ -113,6 +113,8 @@ def read_present_position():
 import json
 
 def save_origin_to_config(encoders):
+    with open("config_origin.json", "w") as f:
+        json.dump(config_data, f, indent=4)
     """
     Save encoder values to config_origin.json as a dictionary with clear keys.
     """
