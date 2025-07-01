@@ -737,7 +737,7 @@ def dancing2(tar_coor, travel_time):
         print(f"i = {i}")
         pp_angle(tar_joints, pp_travel, 10000, "servo_only")
         time.sleep(sleep)
-        pp_angle([10, 0, 0, 0], pp_travel, 10000, "servo_only")
+        pp_angle([40, 0, 0, 0], pp_travel, 10000, "servo_only")
         time.sleep(sleep)
         
 def from_jmc_command():
