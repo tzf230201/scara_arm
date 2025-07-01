@@ -8,7 +8,6 @@ from b1_servo import servo_get_motor_velocity, servo_get_status_word
 import sys
 
 origins = load_origin_from_config()
-print(f"origins: {origins}")
 # class Tee:
 #     def __init__(self, file_name):
 #         self.console = sys.stdout  # Standard output (console)

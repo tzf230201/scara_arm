@@ -111,66 +111,6 @@ def read_present_position():
 #     else:
 #         raise ValueError("set origin only for stepper, choose 'all' or 'only stepper'")
 
-import os
-import json
-
-def load_origin_from_config():
-    """
-    Load origin values from config_origin.json.
-    If file does not exist, create it with all zeros.
-    Returns a tuple (origin_1, origin_2, origin_3, origin_4).
-    """
-    # Get the directory of the current script
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(script_dir, "config_origin.json")
-    
-    default_config = {
-        "origin_1": 0,
-        "origin_2": 0,
-        "origin_3": 0,
-        "origin_4": 0
-    }
-    
-    try:
-        with open(config_path, "r") as f:
-            config_data = json.load(f)
-        
-        origin_1 = config_data.get("origin_1", 0)
-        origin_2 = config_data.get("origin_2", 0)
-        origin_3 = config_data.get("origin_3", 0)
-        origin_4 = config_data.get("origin_4", 0)
-        
-        print(f"Loaded origins: {origin_1}, {origin_2}, {origin_3}, {origin_4}")
-        return origin_1, origin_2, origin_3, origin_4
-    
-    except FileNotFoundError:
-        # File not found, create new file with defaults
-        with open(config_path, "w") as f:
-            json.dump(default_config, f, indent=4)
-        print(f"config_origin.json not found. Created new file with defaults.")
-        return 0, 0, 0, 0
-    
-    except json.JSONDecodeError:
-        print("Invalid JSON format in config_origin.json. Returning default (0,0,0,0).")
-        return 0, 0, 0, 0
-
-def save_origin_to_config(encoders):
-    """
-    Save encoder values to config_origin.json as a dictionary with keys: origin_1..origin_4.
-    """
-    config_data = {
-        "origin_1": encoders[0],
-        "origin_2": encoders[1],
-        "origin_3": encoders[2],
-        "origin_4": encoders[3],
-    }
-    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config_origin.json")
-    with open(config_path, "w") as f:
-        json.dump(config_data, f, indent=4)
-
-    print(f"Origin saved to {config_path}")
-
-
 
 def get_encoder_position():
     """
@@ -204,8 +144,8 @@ def set_origin():
         encoders = get_encoder_position()
         
         # Save encoder readings to config file
-        save_origin_to_config(encoders)
-        
+        set_origins(encoders)
+
         for node_id in [ID2, ID3, ID4]:
             stepper_calibration_zero(node_id)
             print(f"Node {node_id} set to zero")
