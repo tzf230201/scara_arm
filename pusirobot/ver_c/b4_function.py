@@ -111,6 +111,9 @@ def read_present_position():
 #     else:
 #         raise ValueError("set origin only for stepper, choose 'all' or 'only stepper'")
 import json
+import os
+script_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(script_dir, "config_origin.json")
 
 def save_origin_to_config(encoders):
     """
