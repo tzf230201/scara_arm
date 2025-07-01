@@ -110,9 +110,49 @@ def read_present_position():
 #         save_settings()
 #     else:
 #         raise ValueError("set origin only for stepper, choose 'all' or 'only stepper'")
-import json
-import os
 
+import os
+import json
+
+def load_origin_from_config():
+    """
+    Load origin values from config_origin.json.
+    If file does not exist, create it with all zeros.
+    Returns a tuple (origin_1, origin_2, origin_3, origin_4).
+    """
+    # Get the directory of the current script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(script_dir, "config_origin.json")
+    
+    default_config = {
+        "origin_1": 0,
+        "origin_2": 0,
+        "origin_3": 0,
+        "origin_4": 0
+    }
+    
+    try:
+        with open(config_path, "r") as f:
+            config_data = json.load(f)
+        
+        origin_1 = config_data.get("origin_1", 0)
+        origin_2 = config_data.get("origin_2", 0)
+        origin_3 = config_data.get("origin_3", 0)
+        origin_4 = config_data.get("origin_4", 0)
+        
+        print(f"Loaded origins: {origin_1}, {origin_2}, {origin_3}, {origin_4}")
+        return origin_1, origin_2, origin_3, origin_4
+    
+    except FileNotFoundError:
+        # File not found, create new file with defaults
+        with open(config_path, "w") as f:
+            json.dump(default_config, f, indent=4)
+        print(f"config_origin.json not found. Created new file with defaults.")
+        return 0, 0, 0, 0
+    
+    except json.JSONDecodeError:
+        print("Invalid JSON format in config_origin.json. Returning default (0,0,0,0).")
+        return 0, 0, 0, 0
 
 def save_origin_to_config(encoders):
     """
