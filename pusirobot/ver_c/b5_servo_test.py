@@ -329,6 +329,8 @@ entry_custom.grid(row=23, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 custom_button = tk.Button(root, text="Execute custom commands", command=execute_custom_commands)
 custom_button.grid(row=24, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
+set_origin_button = tk.Button(root, text="set origin", command=set_origin)
+set_origin_button.grid(row=25, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 
 # Menangani event saat jendela ditutup
