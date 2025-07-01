@@ -158,9 +158,8 @@ def set_origin():
     Set origin for stepper motors and save encoder values to config.
     Raises ValueError if motor selection does not include stepper.
     """
-    
+    selection = get_motor_selection()
     if selection == "all":
-        selection = get_motor_selection()
         encoders = get_encoder_position()
         
         # Save encoder readings to config file
