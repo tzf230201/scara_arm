@@ -158,20 +158,22 @@ def set_origin():
     Set origin for stepper motors and save encoder values to config.
     Raises ValueError if motor selection does not include stepper.
     """
-    selection = get_motor_selection()
-    encoders = get_encoder_position()
     
-    # Save encoder readings to config file
-    save_origin_to_config(encoders)
-    
-    if selection in ["all", "stepper_only"]:
+    if selection == "all":
+        selection = get_motor_selection()
+        encoders = get_encoder_position()
+        
+        # Save encoder readings to config file
+        save_origin_to_config(encoders)
+        
         for node_id in [ID2, ID3, ID4]:
             stepper_calibration_zero(node_id)
             print(f"Node {node_id} set to zero")
         
         save_settings()
+       
     else:
-        raise ValueError("Set origin only valid for stepper motors. Choose 'all' or 'stepper_only'.")
+        raise ValueError("Set origin only valid for stepper motors. Choose 'all'")
 
 
 # Example usage in button:
