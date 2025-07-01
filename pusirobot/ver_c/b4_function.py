@@ -156,19 +156,20 @@ def load_origin_from_config():
 
 def save_origin_to_config(encoders):
     """
-    Save encoder values to config_origin.json as a dictionary with clear keys.
+    Save encoder values to config_origin.json as a dictionary with keys: origin_1..origin_4.
     """
     config_data = {
-        "origin_encoder_1": encoders[0],
-        "origin_encoder_2": encoders[1],
-        "origin_encoder_3": encoders[2],
-        "origin_encoder_4": encoders[3],
+        "origin_1": encoders[0],
+        "origin_2": encoders[1],
+        "origin_3": encoders[2],
+        "origin_4": encoders[3],
     }
     config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config_origin.json")
     with open(config_path, "w") as f:
         json.dump(config_data, f, indent=4)
 
     print(f"Origin saved to {config_path}")
+
 
 
 def get_encoder_position():
