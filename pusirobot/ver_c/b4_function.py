@@ -72,33 +72,108 @@ def read_present_position():
     # servo_status = servo_get_status_word(ID1)
     
     # print(f"servo status (hex): {servo_status:08X}, servo velocity: {servo_vel}")
+# import json
+
+# def save_origin_to_config(encoder_value):
+#     config_data = {
+#         "origin_encoder": encoder_value
+#     }
+#     with open("config_origin.json", "w") as f:
+#         json.dump(config_data, f, indent=4)
+#     print("Origin saved to config_origin.json")
+
+# def get_encoder_position():
+#     selection = get_motor_selection()
+#     if selection != "stepper_only":
+#         enc1 = servo_get_motor_position(ID1)
+#     else: 
+#         enc1 = 0
+        
+#     if selection != "servo_only":
+#         enc2 = stepper_get_encoder_position(ID2)
+#         enc3 = stepper_get_encoder_position(ID3)
+#         enc4 = stepper_get_encoder_position(ID4)
+#     else:
+#         enc2 = enc3 = enc4 = 0
+    
+#     print(f"enc: {enc1} {enc2}, {enc3}, {enc4}")
+#     return enc1, enc2, enc3, enc4
+
+# def set_origin():
+#     selection = get_motor_selection()
+#     encoders = get_encoder_position()
+#     save_origin_to_config(encoders)
+#     if selection != "servo_only":
+#         for node_id in [ID2, ID3, ID4]:
+#             stepper_calibration_zero(node_id)
+#             print(f"node {node_id} set to zero")
+#         save_settings()
+#     else:
+#         raise ValueError("set origin only for stepper, choose 'all' or 'only stepper'")
+import json
+
+def save_origin_to_config(encoders):
+    """
+    Save encoder values to config_origin.json as a dictionary with clear keys.
+    """
+    config_data = {
+        "origin_encoder_1": encoders[0],
+        "origin_encoder_2": encoders[1],
+        "origin_encoder_3": encoders[2],
+        "origin_encoder_4": encoders[3],
+    }
+    
+    with open("config_origin.json", "w") as f:
+        json.dump(config_data, f, indent=4)
+    
+    print("Origin saved to config_origin.json")
+
 
 def get_encoder_position():
+    """
+    Get encoder position for servo (ID1) and steppers (ID2, ID3, ID4) based on motor selection.
+    """
     selection = get_motor_selection()
-    if selection != "stepper_only":
+    
+    # Initialize encoders with default 0
+    enc1 = enc2 = enc3 = enc4 = 0
+    
+    if selection in ["all", "servo_only"]:
         enc1 = servo_get_motor_position(ID1)
-    else: 
-        enc1 = 0
-        
-    if selection != "servo_only":
+    
+    if selection in ["all", "stepper_only"]:
         enc2 = stepper_get_encoder_position(ID2)
         enc3 = stepper_get_encoder_position(ID3)
         enc4 = stepper_get_encoder_position(ID4)
-    else:
-        enc2 = enc3 = enc4 = 0
     
-    print(f"enc: {enc1} {enc2}, {enc3}, {enc4}")
+    print(f"Encoder readings: {enc1}, {enc2}, {enc3}, {enc4}")
+    
     return enc1, enc2, enc3, enc4
 
+
 def set_origin():
+    """
+    Set origin for stepper motors and save encoder values to config.
+    Raises ValueError if motor selection does not include stepper.
+    """
     selection = get_motor_selection()
-    if selection != "servo_only":
+    encoders = get_encoder_position()
+    
+    # Save encoder readings to config file
+    save_origin_to_config(encoders)
+    
+    if selection in ["all", "stepper_only"]:
         for node_id in [ID2, ID3, ID4]:
             stepper_calibration_zero(node_id)
-            print(f"node {node_id} set to zero")
+            print(f"Node {node_id} set to zero")
+        
         save_settings()
     else:
-        raise ValueError("set origin only for stepper, choose 'all' or 'only stepper'")
-        
+        raise ValueError("Set origin only valid for stepper motors. Choose 'all' or 'stepper_only'.")
+
+
+# Example usage in button:
+# set_origin_button = tk.Button(root, text="set origin", command=set_origin)
+
     
     
