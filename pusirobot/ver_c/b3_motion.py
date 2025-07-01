@@ -187,6 +187,7 @@ def pp_angle(tar_joints, travel_time, max_speed, selection):
     
     print(f"cur joint = {cur_joints} degree")
     print(f"tar joint = {tar_joints} degree")
+    print(f"delta pulse = {delta_pulse_1}, {delta_pulse_2}, {delta_pulse_3}, {delta_pulse_4}")
     print(f"tar pulse = {tar_pulse_1}, {tar_pulse_2}, {tar_pulse_3}, {tar_pulse_4}")
     print(f"tar accel = {accel_decel_1}, {accel_decel_2}, {accel_decel_3}, {accel_decel_4}")
     print(f"tar max speed = {max_speed_1}, {max_speed_2}, {max_speed_3}, {max_speed_4}")
