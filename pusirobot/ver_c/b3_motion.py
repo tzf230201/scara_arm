@@ -507,8 +507,8 @@ def check_limit(tar_joints):
     
     # if tar_joint_1 > (13004): # 6 may 2025
     #     tar_joint_1 = 13004 # 6 may 2025
-    if tar_joint_1 > (2000): # 6 may 2025
-        tar_joint_1 = 2000 # 6 may 2025
+    if tar_joint_1 > (4000): # 6 may 2025
+        tar_joint_1 = 4000 # 6 may 2025
         print(f"tar_joint_1 greater than {tar_joint_1}")
     elif tar_joint_1 < 0:
         tar_joint_1 = 0
@@ -737,7 +737,7 @@ def dancing2(tar_coor, travel_time):
         print(f"i = {i}")
         pp_angle(tar_joints, pp_travel, 10000, "servo_only")
         time.sleep(sleep)
-        pp_angle([0, 0, 0, 0], pp_travel, 10000, "servo_only")
+        pp_angle([10, 0, 0, 0], pp_travel, 10000, "servo_only")
         time.sleep(sleep)
         
 def from_jmc_command():
