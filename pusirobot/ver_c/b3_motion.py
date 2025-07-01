@@ -124,6 +124,7 @@ def pp_angle(tar_joints, travel_time, max_speed, selection):
         pp_mode_start_absolute_motion() #6 may 2025
         
     if selection != "stepper_only":  
+        time.sleep(1)  # wait for servo to switch on
         set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x3F)
     
 def pp_coor(tar_coor, travel_time, max_speed, selection):
