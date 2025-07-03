@@ -231,6 +231,8 @@ def routine():
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
             root.after(int(dancing_pp_travel), routine)
+        else:
+            stop()
 
 def stop():
     global enable_motion
