@@ -289,7 +289,7 @@ entry_tar_z.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
 tk.Label(root, text="number of run:").grid(row=17, column=0, padx=5, pady=5, sticky="ew")
 entry_nor = tk.Entry(root)
 entry_nor.insert(0, "5")
-entry_nor.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
+entry_nor.grid(row=17, column=1, padx=5, pady=5, sticky="ew")
 
 
 pp_move_button = tk.Button(root, text="go to coordinate", command=pp_move)
