@@ -212,7 +212,7 @@ def start_dancing():
     
     travel_time = get_travel_time()
     dancing_sleep = travel_time + 0.1
-    dancing_pp_travel = dancing_sleep * 1000
+    dancing_pp_travel = (int)(dancing_sleep * 1000)
     
     
     how_many_times = get_nor()
