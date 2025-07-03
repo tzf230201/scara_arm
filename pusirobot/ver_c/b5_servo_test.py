@@ -217,7 +217,7 @@ def routine():
         # servo_get_motor_velocity(0x601)
         # servo_get_status_word(0x601)
         # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
-        if enable_motion or dancing_i < how_many_times:
+        if enable_motion and dancing_i < how_many_times:
             if is_up:
                 # pp_angle(dancing_tar_joints, dancing_pp_travel, 10000, "servo_only")
                 is_up = False
@@ -231,7 +231,16 @@ def routine():
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
             root.after(int(dancing_pp_travel), routine)
+
+def stop():
+    global enable_motion
+    global dancing_i
+    enable_motion = False
+    dancing_i = 0
+    print("stop")
     
+    
+
 def homing():
     global last_time
     selection = get_motor_selection()
@@ -243,15 +252,6 @@ def homing():
     
     
     last_time = time.time()
-
-
-def stop():
-    global enable_motion
-    global dancing_i
-    enable_motion = False
-    dancing_i = 0
-    print("stop")
-
 def on_motor_selection_changed():
     # This function, in principle, simply avoids sending commands to non-selected motors.
     # This means if the user changes the motor selection in the middle of the program,
