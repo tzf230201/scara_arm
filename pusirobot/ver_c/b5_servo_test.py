@@ -27,7 +27,7 @@ last_time = time.time()
 
 def signal_handler():
     # if is_already_wake_up():
-         shutdown()
+        #  shutdown()
         #  homing()
     print("SIGINT received, closing application...")
    
