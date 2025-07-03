@@ -202,7 +202,7 @@ def start_dancing():
     
     # dancing2(tar_coor, travel_time, nor)
     last_time = time.time()
-    print(f"enter dancing2")
+    # print(f"enter dancing2")
     root.after(500, routine)
     
 def routine():
