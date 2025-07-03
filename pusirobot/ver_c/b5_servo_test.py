@@ -233,6 +233,8 @@ def routine():
             root.after(int(dancing_pp_travel), routine)
         else:
             stop()
+    else:
+        print(f"Robot is not awake, cannot perform motion.")
 
 def stop():
     global enable_motion
