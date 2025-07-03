@@ -182,6 +182,7 @@ def start_dancing():
     global is_up
     global dancing_pp_travel
     global how_many_times
+    global dancing_i
     
     travel_time = get_travel_time()
     dancing_sleep = travel_time + 0.1
