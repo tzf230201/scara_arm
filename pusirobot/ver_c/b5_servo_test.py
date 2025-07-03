@@ -174,6 +174,35 @@ dancing_pp_travel = 1000
 how_many_times = 1  # Default number of times to run the dance routine
 dancing_i = 0
 
+def routine():
+    global enable_motion
+    global is_up
+    global dancing_pp_travel
+    global dancing_sleep
+    global dancing_i
+    global how_many_times
+    print(f"enter routine")
+    if is_already_wake_up():
+        # read_present_position()
+        # servo_get_motor_velocity(0x601)
+        # servo_get_status_word(0x601)
+        # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
+        if enable_motion or dancing_i < how_many_times:
+            if is_up:
+                # pp_angle(dancing_tar_joints, dancing_pp_travel, 10000, "servo_only")
+                print(f"Running dance routine up{dancing_i + 1} of {how_many_times}")
+                is_up = False
+            else :
+                # pp_angle([40, 0, 0, 0], dancing_pp_travel, 10000, "servo_only")
+                print(f"Running dance routine down{dancing_i + 1} of {how_many_times}")
+                is_up = True
+                dancing_i += 1
+                
+                
+            delta_time = time.time() - last_time
+            print(f"time : {delta_time:.2f}")
+            root.after(dancing_sleep, routine)
+            
 def start_dancing():
     global last_time
     global enable_motion
@@ -233,34 +262,7 @@ def on_motor_selection_changed():
     print(f"Current motor selection: {selected_motors}")
 
 
-def routine():
-    global enable_motion
-    global is_up
-    global dancing_pp_travel
-    global dancing_sleep
-    global dancing_i
-    global how_many_times
-    print(f"enter routine")
-    if is_already_wake_up():
-        # read_present_position()
-        # servo_get_motor_velocity(0x601)
-        # servo_get_status_word(0x601)
-        # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
-        if enable_motion or dancing_i < how_many_times:
-            if is_up:
-                # pp_angle(dancing_tar_joints, dancing_pp_travel, 10000, "servo_only")
-                print(f"Running dance routine up{dancing_i + 1} of {how_many_times}")
-                is_up = False
-            else :
-                # pp_angle([40, 0, 0, 0], dancing_pp_travel, 10000, "servo_only")
-                print(f"Running dance routine down{dancing_i + 1} of {how_many_times}")
-                is_up = True
-                dancing_i += 1
-                
-                
-            delta_time = time.time() - last_time
-            print(f"time : {delta_time:.2f}")
-            root.after(dancing_sleep, routine)
+
     
     
     
