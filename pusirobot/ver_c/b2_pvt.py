@@ -232,6 +232,7 @@ def generate_pvt_trajectory_round_trip(cur_pulse, tar_pulse, time_travel):
 
 def generate_pvt_trajectory_triangle_2(cur_pulse, tar_pulse, travel_time):
     # Menghitung interval waktu dt dalam detik
+    travel_time = travel_time / 1000  # Konversi dari ms ke detik
     dt = pvt_time_interval / 1000  # 100 ms = 0.1 s
     num_steps = int(travel_time / dt) + 1
     

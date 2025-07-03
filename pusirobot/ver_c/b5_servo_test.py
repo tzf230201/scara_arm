@@ -91,68 +91,19 @@ def get_travel_time():
         travel_time = int(entry_time.get())
     except ValueError:
         print("Please enter valid numbers for angles.")
-    
-    travel_time = travel_time/1000
 
     return travel_time
+    
+    
 
-def pvt_joint():
-    global last_time
-    cur_joints = read_present_position()
-    tar_joints = get_tar_joints()
-    travel_time =get_travel_time()
-    
-    # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
-    pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
-    last_time = time.time()
-
-def pvt_move():
-    global last_time
-    travel_time = 1.0
-    sleep = travel_time + 0.1
-    
-    coor_1 = [130, 0, 0, 0]
-        
-    sp_coor(coor_1, travel_time)
-    time.sleep(sleep)
-    
-    cur_joint = read_present_position()
-    # Contoh penggunaan
-    cur_pos = (130, 0)  # (x, y) posisi awal
-    center_pos = (170, 0)  # Pusat lingkaran
-    end_angle = 360  # Gerakan setengah lingkaran
-    travel_time = 4  # dalam detik
-    direction = "CCW"  # Arah rotasi
-    
-    
-    pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction)
-    last_time = time.time()
-    
-    
-def sp_joint():
-    global last_time
-    tar_joints = get_tar_joints()
-    travel_time = get_travel_time()
-    
-    sp_angle(tar_joints, travel_time)
-    last_time = time.time()
-    
-def sp_move():  
-    global last_time
-    tar_coor = get_tar_coor()
-    travel_time = get_travel_time()
-    
-    sp_coor(tar_coor, travel_time)
-    last_time = time.time()
     
 def pp_joint():
     global last_time
     selection = get_motor_selection()
     tar_joints = get_tar_joints()
     travel_time = get_travel_time()
-    travel_time = travel_time * 1000
     
-    pp_angle(tar_joints, travel_time, 10000, selection)
+    pp_angle(tar_joints, travel_time, selection)
     last_time = time.time()
     
 def pp_move():  
@@ -160,16 +111,15 @@ def pp_move():
     selection = get_motor_selection()
     tar_coor = get_tar_coor()
     travel_time = get_travel_time()
-    travel_time = travel_time * 1000
        
-    pp_coor(tar_coor, travel_time, 10000, selection)
+    pp_coor(tar_coor, travel_time, selection)
     last_time = time.time()
     
 
 enable_motion = True
 is_up = True
 dancing_tar_joints = [40, 0, 0, 0]  # Default target angle for dancing
-dancing_pp_travel = 1000
+dancing_travel_time = 4000
 how_many_times = 1  # Default number of times to run the dance routine
 dancing_i = 0
 
@@ -180,13 +130,12 @@ def start_dancing():
     global enable_motion
     global dancing_tar_joints
     global is_up
-    global dancing_pp_travel
+    global dancing_travel_time
     global how_many_times
     global dancing_i
     
     travel_time = get_travel_time()
-    dancing_sleep = travel_time + 0.1
-    dancing_pp_travel = (int)(dancing_sleep * 1000)
+    dancing_travel_time = (int)(travel_time)
     
     
     how_many_times = get_nor()
@@ -208,7 +157,7 @@ def start_dancing():
 def routine():
     global enable_motion
     global is_up
-    global dancing_pp_travel
+    global dancing_travel_time
     global dancing_i
     global how_many_times
     # print(f"enter routine")
@@ -219,19 +168,18 @@ def routine():
         # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
         if enable_motion and dancing_i < how_many_times:
             if is_up:
-                pp_angle(dancing_tar_joints, dancing_pp_travel, 10000, "servo_only")
+                pp_angle(dancing_tar_joints, dancing_travel_time, "servo_only")
                 is_up = False
             else :
-                pp_angle([40, 0, 0, 0], dancing_pp_travel, 10000, "servo_only")
-                
+                pp_angle([40, 0, 0, 0], dancing_travel_time, "servo_only")
                 is_up = True
-                
-                print(f"counter {dancing_i + 1} of {how_many_times}")
                 dancing_i += 1
+                print(f"counter {dancing_i} of {how_many_times}")
+                
                 
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
-            root.after(int(dancing_pp_travel), routine)
+            root.after(int(dancing_travel_time + 100), routine)
         else:
             stop()
     else:
@@ -252,8 +200,7 @@ def homing():
     tar_joints = [40, 0, 0, 0]
     travel_time = get_travel_time()
     # sp_angle(tar_joints, travel_time)
-    travel_time = travel_time * 1000
-    pp_angle(tar_joints, travel_time, 10000, selection)
+    pp_angle(tar_joints, travel_time, selection)
     
     
     last_time = time.time()

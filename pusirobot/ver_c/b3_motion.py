@@ -119,13 +119,14 @@ def get_cur_joints(selection):
 from b2_sp import * 
 
 def sp_angle(tar_joints, travel_time, selection):
+    travel_time_s = (travel_time / 1000)  # Convert milliseconds to seconds
     global stop_watch, time_out, last_time
     group_id = 5
     sp_mode_init(group_id)
     
     cur_joints = get_cur_joints(selection)
     delta_joints = [tar - cur for tar, cur in zip(tar_joints, cur_joints)]
-    tar_speeds = [stepper_degrees_to_pulses(int(delta / travel_time)) for delta in delta_joints]
+    tar_speeds = [stepper_degrees_to_pulses(int(delta / travel_time_s)) for delta in delta_joints]
     
     tar_pulses = []
     for tar_joint in tar_joints:
@@ -151,14 +152,14 @@ def sp_coor(tar_coor, travel_time, selection):
     tar_joints = inverse_kinematics(tar_coor)
     tar_joints = check_limit(tar_joints)
     print(f"tar joint = {tar_joints} degree")
-    sp_angle(tar_joints, travel_time)
+    sp_angle(tar_joints, travel_time, selection)
 
     
 
 # ######################################### PP MODE ######################################### #
 from b2_pp import *
 
-def pp_angle(tar_joints, travel_time, max_speed, selection):
+def pp_angle(tar_joints, travel_time, selection):
     
     origins = get_origins()
     
@@ -218,11 +219,11 @@ def pp_angle(tar_joints, travel_time, max_speed, selection):
         time.sleep(0.5)  # wait for servo to switch on
         set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
     
-def pp_coor(tar_coor, travel_time, max_speed, selection):
+def pp_coor(tar_coor, travel_time, selection):
     tar_joints = inverse_kinematics(tar_coor)
     tar_joints = check_limit(tar_joints)
     print(f"tar joint = {tar_joints} degree")
-    pp_angle(tar_joints, travel_time, max_speed, selection)
+    pp_angle(tar_joints, travel_time, selection)
     
 # ######################################### PVT ######################################### #
 
@@ -268,7 +269,7 @@ def pvt_angle(tar_joints, travel_time, selection):
     
     last_time = time.time()
     stop_watch = last_time
-    time_out = travel_time
+    time_out = travel_time / 1000
 
 # ######################################### PVT 3 ######################################### #
 
@@ -306,7 +307,7 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     pvt_mode_start_pvt_step(group_id)
     last_time = time.time()
     stop_watch = last_time
-    time_out = travel_time
+    time_out = travel_time / 1000
     
     
             #     last_point = len(p[i])-1
@@ -346,6 +347,7 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
 
 # ######################################### PVT CIRCULAR ######################################### #
 def gen_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
+    travel_time = travel_time / 1000  # Konversi dari ms ke detik
     dt = pvt_time_interval / 1000  # Konversi ke detik
     num_steps = int(travel_time / dt) + 1
 
@@ -486,7 +488,7 @@ def pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
     pvt_mode_start_pvt_step(group_id)
     last_time = time.time()
     stop_watch = last_time
-    time_out = travel_time
+    time_out = travel_time / 1000
 
 
 
@@ -609,7 +611,8 @@ def forward_kinematics(cur_joints):
 # ######################################### DANCING ######################################### #
 
 def straight_line(travel_time):
-    sleep = travel_time + 0.1
+    sleep = (travel_time / 1000) + 0.1 # in seconds
+
     
     coor_1 = [258, 0, 0, 0]
     coor_2 = [150, 0, 0, 0]
@@ -621,7 +624,8 @@ def straight_line(travel_time):
         time.sleep(sleep)
     
 def rectangular(travel_time):
-    sleep = travel_time + 0.1
+    sleep = (travel_time / 1000) + 0.1 # in seconds
+
     
     coor_1 = [210, 40, 0, 0]
     coor_2 = [210, -40, 0, 0]
@@ -643,7 +647,8 @@ def rectangular(travel_time):
 
         
 def home_position(travel_time):
-    sleep = travel_time + 0.1
+    sleep = (travel_time / 1000) + 0.1 # in seconds
+
     
     home_angles = [0, 0, 0, 0]
     sp_angle(home_angles, travel_time)
@@ -651,14 +656,14 @@ def home_position(travel_time):
 
 		
 def shuttle_position(travel_time):
-    sleep = travel_time
+    sleep = (travel_time / 1000)
     
     shuttle_coor = [166.82, -168, 0, 0]
     sp_coor(shuttle_coor, travel_time)
     time.sleep(sleep)
 
 def pre_past_shelf(travel_time):
-    sleep = travel_time
+    sleep = (travel_time / 1000)
     
     pre_past_shelf_coor = [107, 100, 0, 90]
     sp_coor(pre_past_shelf_coor, travel_time)
@@ -666,14 +671,14 @@ def pre_past_shelf(travel_time):
 
 
 def pickup_from_shelf(travel_time):
-    sleep = travel_time
+    sleep = (travel_time / 1000)
     
     pickup_from_shelf_coor = [107, 224, 0, 90]
     sp_coor(pickup_from_shelf_coor, travel_time)
     time.sleep(sleep)
 
 def place_onto_shelf(travel_time):
-    sleep = travel_time
+    sleep = (travel_time / 1000)
     
     place_from_shelf_coor = [107, 197, 0, 90]
     sp_coor(place_from_shelf_coor, travel_time)
@@ -681,7 +686,7 @@ def place_onto_shelf(travel_time):
 
         
 def dancing(travel_time):
-    sleep = travel_time + 0.1
+    sleep = (travel_time / 1000) + 0.1 # in seconds
 
     straight_line(travel_time)
     sp_coor([140, 0, 0, -20], travel_time)
@@ -731,13 +736,13 @@ def dancing(travel_time):
 def dancing2(tar_coor, travel_time, nor):
     tar_joints = inverse_kinematics(tar_coor)
     tar_joints = check_limit(tar_joints)
-    sleep = travel_time + 0.1
-    pp_travel = sleep * 1000
+    sleep = (travel_time / 1000) + 0.1 # in seconds
+
     for i in range(nor):
         print(f"i = {i}")
-        pp_angle(tar_joints, pp_travel, 10000, "servo_only")
+        pp_angle(tar_joints, travel_time, 10000, "servo_only")
         time.sleep(sleep)
-        pp_angle([40, 0, 0, 0], pp_travel, 10000, "servo_only")
+        pp_angle([40, 0, 0, 0], travel_time, 10000, "servo_only")
         time.sleep(sleep)
                
 def from_jmc_command():

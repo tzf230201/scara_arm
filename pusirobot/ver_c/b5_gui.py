@@ -66,8 +66,6 @@ def get_travel_time():
         travel_time = int(entry_time.get())
     except ValueError:
         print("Please enter valid numbers for angles.")
-    
-    travel_time = travel_time/1000
 
     return travel_time
 
@@ -128,9 +126,8 @@ def pp_joint():
     selection = get_motor_selection()
     tar_joints = get_tar_joints()
     travel_time = get_travel_time()
-    travel_time = travel_time * 1000
     
-    pp_angle(tar_joints, travel_time, 10000, selection)
+    pp_angle(tar_joints, travel_time, selection)
     last_time = time.time()
     
 def pp_move():  
@@ -138,9 +135,8 @@ def pp_move():
     selection = get_motor_selection()
     tar_coor = get_tar_coor()
     travel_time = get_travel_time()
-    travel_time = travel_time * 1000
        
-    pp_coor(tar_coor, travel_time, 10000, selection)
+    pp_coor(tar_coor, travel_time, selection)
     last_time = time.time()
     
 
@@ -157,8 +153,7 @@ def homing():
     tar_joints = [0, 0, 0, 0]
     travel_time = get_travel_time()
     # sp_angle(tar_joints, travel_time)
-    travel_time = travel_time * 1000
-    pp_angle(tar_joints, travel_time, 10000, selection)
+    pp_angle(tar_joints, travel_time, selection)
     
     
     last_time = time.time()
