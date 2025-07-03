@@ -225,8 +225,9 @@ def routine():
                 pp_angle([40, 0, 0, 0], dancing_pp_travel, 10000, "servo_only")
                 
                 is_up = True
-                dancing_i += 1
+                
                 print(f"counter {dancing_i + 1} of {how_many_times}")
+                dancing_i += 1
                 
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
