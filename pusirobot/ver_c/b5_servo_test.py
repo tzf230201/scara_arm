@@ -292,7 +292,7 @@ entry_nor.insert(0, "5")
 entry_nor.grid(row=17, column=1, padx=5, pady=5, sticky="ew")
 
 
-pp_move_button = tk.Button(root, text="go to coordinate", command=pp_move)
+pp_move_button = tk.Button(root, text="Go to Coordinate", command=pp_move)
 pp_move_button.grid(row=18, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 
@@ -300,7 +300,7 @@ pp_move_button.grid(row=18, column=0, columnspan=2, pady=10, padx=5, sticky="ew"
 motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-dancing_button = tk.Button(root, text="10 times", command=start_dancing)
+dancing_button = tk.Button(root, text="Run N Times", command=start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 # #baris 20
