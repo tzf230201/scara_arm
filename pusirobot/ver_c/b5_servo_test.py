@@ -239,6 +239,7 @@ def routine():
     global dancing_pp_travel
     global dancing_sleep
     global dancing_i
+    global how_many_times
     print(f"enter routine")
     if is_already_wake_up():
         # read_present_position()
