@@ -200,6 +200,7 @@ def start_dancing():
     
     # dancing2(tar_coor, travel_time, nor)
     last_time = time.time()
+    print(f"enter dancing2")
     root.after(500, routine)
     
 def homing():
@@ -238,7 +239,7 @@ def routine():
     global dancing_pp_travel
     global dancing_sleep
     global dancing_i
-    
+    print(f"enter routine")
     if is_already_wake_up():
         # read_present_position()
         # servo_get_motor_velocity(0x601)
