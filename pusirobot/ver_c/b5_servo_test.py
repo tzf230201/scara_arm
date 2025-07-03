@@ -186,6 +186,9 @@ def homing():
     
     
     last_time = time.time()
+    
+def stop():
+    print("stop")
 
 def on_motor_selection_changed():
     # This function, in principle, simply avoids sending commands to non-selected motors.
@@ -259,10 +262,10 @@ entry_time.insert(0, "4000")
 entry_time.grid(row=12, column=1, padx=5, pady=5, sticky="ew")
 
 # baris 3d
-wake_up_button = tk.Button(root, text="Wake Up", command=wake_up)
+wake_up_button = tk.Button(root, text="Wake Up", bg="#CC2BE8", fg="white", command=wake_up)
 wake_up_button.grid(row=3, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-shutdown_button = tk.Button(root, text="Shutdown", bg="red", fg="white", command=shutdown)
+shutdown_button = tk.Button(root, text="Shutdown", bg="maroon", fg="white", command=shutdown)
 shutdown_button.grid(row=3, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 tk.Label(
@@ -300,12 +303,15 @@ pp_move_button.grid(row=18, column=0, columnspan=2, pady=10, padx=5, sticky="ew"
 motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-dancing_button = tk.Button(root, text="Run N Times", command=start_dancing)
+dancing_button = tk.Button(root, text="Run N Times",bg="green",fg="black", command=start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 # #baris 20
-homing_button = tk.Button(root, text="homing", command=homing)
-homing_button.grid(row=20, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+homing_button = tk.Button(root, text="homing", bg="cyan",fg="black",  command=homing)
+homing_button.grid(row=20, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+
+stop_button = tk.Button(root, text="stop", bg="red",fg="white", command=stop)
+stop_button.grid(row=20, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 # jmc_button = tk.Button(root, text="run Servo Command", command=from_jmc_command)
 # jmc_button.grid(row=21, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
