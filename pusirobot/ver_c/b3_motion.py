@@ -222,7 +222,7 @@ def pp_angle(tar_joints, travel_time, selection):
 def pp_coor(tar_coor, travel_time, selection):
     tar_joints = inverse_kinematics(tar_coor)
     tar_joints = check_limit(tar_joints)
-    print(f"tar joint = {tar_joints} degree")
+    print(f"tar joint = {tar_joints:.2f} degree")
     pp_angle(tar_joints, travel_time, selection)
     
 # ######################################### PVT ######################################### #
