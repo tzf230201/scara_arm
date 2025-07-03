@@ -211,7 +211,7 @@ def routine():
     global dancing_pp_travel
     global dancing_i
     global how_many_times
-    print(f"enter routine")
+    # print(f"enter routine")
     if is_already_wake_up():
         # read_present_position()
         # servo_get_motor_velocity(0x601)
@@ -219,10 +219,10 @@ def routine():
         # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
         if enable_motion and dancing_i < how_many_times:
             if is_up:
-                # pp_angle(dancing_tar_joints, dancing_pp_travel, 10000, "servo_only")
+                pp_angle(dancing_tar_joints, dancing_pp_travel, 10000, "servo_only")
                 is_up = False
             else :
-                # pp_angle([40, 0, 0, 0], dancing_pp_travel, 10000, "servo_only")
+                pp_angle([40, 0, 0, 0], dancing_pp_travel, 10000, "servo_only")
                 
                 is_up = True
                 dancing_i += 1
