@@ -48,6 +48,18 @@ def get_tar_joints():
 
     return tar_joints
 
+def get_nor():
+    nor = 1
+    try:  
+        nor = int(entry_nor.get())
+    except ValueError:
+        print("Please enter valid numbers for angles.")
+        
+    if nor < 1:
+        nor = 1
+
+    return nor
+
 
 # def get_tar_coor(): #6 may 2025
 #     try:
@@ -157,9 +169,10 @@ def pp_move():
 def start_dancing():
     global last_time
     travel_time = get_travel_time()
+    nor = 
     # dancing(travel_time)
     tar_coor = get_tar_coor()
-    dancing2(tar_coor, travel_time)
+    dancing2(tar_coor, travel_time, nor)
     last_time = time.time()
     
 def homing():
@@ -272,6 +285,11 @@ tk.Label(root, text="coor z (mm):").grid(row=16, column=0, padx=5, pady=5, stick
 entry_tar_z = tk.Entry(root)
 entry_tar_z.insert(0, "100")
 entry_tar_z.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
+
+tk.Label(root, text="number of run:").grid(row=17, column=0, padx=5, pady=5, sticky="ew")
+entry_nor = tk.Entry(root)
+entry_nor.insert(0, "5")
+entry_nor.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
 
 
 pp_move_button = tk.Button(root, text="go to coordinate", command=pp_move)

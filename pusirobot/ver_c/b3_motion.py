@@ -728,12 +728,12 @@ def dancing(travel_time):
     sp_coor([258, 0, 0, 0], travel_time)
     
     
-def dancing2(tar_coor, travel_time):
+def dancing2(tar_coor, travel_time, nor):
     tar_joints = inverse_kinematics(tar_coor)
     tar_joints = check_limit(tar_joints)
     sleep = travel_time + 0.1
     pp_travel = sleep * 1000
-    for i in range(10):
+    for i in range(nor):
         print(f"i = {i}")
         pp_angle(tar_joints, pp_travel, 10000, "servo_only")
         time.sleep(sleep)
