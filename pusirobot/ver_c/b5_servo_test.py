@@ -169,7 +169,6 @@ def pp_move():
 enable_motion = True
 is_up = True
 dancing_tar_joints = [40, 0, 0, 0]  # Default target angle for dancing
-dancing_sleep = 500
 dancing_pp_travel = 1000
 how_many_times = 1  # Default number of times to run the dance routine
 dancing_i = 0
