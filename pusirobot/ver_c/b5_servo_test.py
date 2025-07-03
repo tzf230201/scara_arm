@@ -196,12 +196,12 @@ def routine():
                 print(f"Running dance routine down {dancing_i + 1} of {how_many_times}")
                 is_up = True
                 dancing_i += 1
-                
+            
                 
             delta_time = time.time() - last_time
             print(f"time : {delta_time:.2f}")
-            root.after(dancing_pp_travel, routine)
-            
+            root.after(int(dancing_pp_travel), routine)
+
 def start_dancing():
     global last_time
     global enable_motion
