@@ -200,6 +200,7 @@ def start_dancing():
     
     # dancing2(tar_coor, travel_time, nor)
     last_time = time.time()
+    root.after(500, routine)
     
 def homing():
     global last_time
