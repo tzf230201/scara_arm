@@ -2,7 +2,7 @@ import signal
 import tkinter as tk
 import time
 from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up,set_motor_selection, get_motor_selection
-from b3_motion import dancing,dancing2, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, from_jmc_command, from_jmc_homing
+from b3_motion import dancing,dancing2, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, from_jmc_command, from_jmc_homing, inverse_kinematics, check_limit
 from b1_servo import servo_get_motor_velocity, servo_get_status_word
 from b0_can import send_can_command
 import sys
@@ -166,13 +166,20 @@ def pp_move():
     last_time = time.time()
     
 
+enable_motion = True
+is_up = True
+tar_angle_dance = [40, 0, 0, 0]  # Default target angle for dancing
+
 def start_dancing():
     global last_time
+    global enable_motion
     travel_time = get_travel_time()
     nor = get_nor()
     # dancing(travel_time)
     tar_coor = get_tar_coor()
-    dancing2(tar_coor, travel_time, nor)
+    tar_joints = inverse_kinematics(tar_coor)
+    enable_motion = True
+    # dancing2(tar_coor, travel_time, nor)
     last_time = time.time()
     
 def homing():
@@ -186,8 +193,11 @@ def homing():
     
     
     last_time = time.time()
-    
+
+
 def stop():
+    global enable_motion
+    enable_motion = False
     print("stop")
 
 def on_motor_selection_changed():
@@ -200,16 +210,28 @@ def on_motor_selection_changed():
     print(f"Current motor selection: {selected_motors}")
 
 
-# def routine():
-# #     if is_already_wake_up():
-# #         read_present_position()
-# #         # servo_get_motor_velocity(0x601)
-# #         # servo_get_status_word(0x601)
-# #         # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
-# #         delta_time = time.time() - last_time
-# #         print(f"time : {delta_time:.2f}")
+def routine():
+    global enable_motion
+    if is_already_wake_up():
+        # read_present_position()
+        # servo_get_motor_velocity(0x601)
+        # servo_get_status_word(0x601)
+        # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
+        if enable_motion:
+            tar_joints = inverse_kinematics(tar_coor)
+            tar_joints = check_limit(tar_joints)
+            sleep = travel_time + 0.1
+            pp_travel = sleep * 1000
+            for i in range(nor):
+                print(f"i = {i}")
+                pp_angle(tar_joints, pp_travel, 10000, "servo_only")
+                time.sleep(sleep)
+                pp_angle([40, 0, 0, 0], pp_travel, 10000, "servo_only")
+                time.sleep(sleep)
+                delta_time = time.time() - last_time
+                print(f"time : {delta_time:.2f}")
     
-#     root.after(500, routine)
+    root.after(500, routine)
     
 # Menangani sinyal SIGINT (Ctrl + C)
 signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
@@ -320,38 +342,38 @@ stop_button.grid(row=20, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 # jmc2_button.grid(row=22, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 
-def execute_custom_commands():
-    try:
-        commands = entry_custom.get("1.0", tk.END).strip().split('\n')
-        for line in commands:
-            parts = line.strip().split()
-            if len(parts) != 9:
-                print(f"Invalid format (expecting 9 hex values): {line}")
-                continue
-            can_id = parts[0]
-            data_bytes = ''.join(parts[1:])  # Gabungkan semua byte tanpa spasi
-            formatted_command = f"{can_id}#{data_bytes}"
-            send_can_command(formatted_command)
-        print(f"Custom commands executed successfully.")
-    except Exception as e:
-        print(f"Error executing custom commands: {e}")
+# def execute_custom_commands():
+#     try:
+#         commands = entry_custom.get("1.0", tk.END).strip().split('\n')
+#         for line in commands:
+#             parts = line.strip().split()
+#             if len(parts) != 9:
+#                 print(f"Invalid format (expecting 9 hex values): {line}")
+#                 continue
+#             can_id = parts[0]
+#             data_bytes = ''.join(parts[1:])  # Gabungkan semua byte tanpa spasi
+#             formatted_command = f"{can_id}#{data_bytes}"
+#             send_can_command(formatted_command)
+#         print(f"Custom commands executed successfully.")
+#     except Exception as e:
+#         print(f"Error executing custom commands: {e}")
         
         
-entry_custom = tk.Text(root, height=15, width=50)
-entry_custom.insert(tk.END, """\
-601 2B 40 60 00 0F 00 00 00
-601 2F 60 60 00 01 00 00 00
-601 2B 83 60 00 64 00 00 00
-601 2B 84 60 00 64 00 00 00
-601 23 81 60 00 0A 00 00 00
-601 23 7A 60 00 88 13 00 00
-601 2B 40 60 00 1F 00 00 00""")
-entry_custom.grid(row=23, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+# entry_custom = tk.Text(root, height=15, width=50)
+# entry_custom.insert(tk.END, """\
+# 601 2B 40 60 00 0F 00 00 00
+# 601 2F 60 60 00 01 00 00 00
+# 601 2B 83 60 00 64 00 00 00
+# 601 2B 84 60 00 64 00 00 00
+# 601 23 81 60 00 0A 00 00 00
+# 601 23 7A 60 00 88 13 00 00
+# 601 2B 40 60 00 1F 00 00 00""")
+# entry_custom.grid(row=23, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
 
 
-custom_button = tk.Button(root, text="Execute custom commands", command=execute_custom_commands)
-custom_button.grid(row=24, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+# custom_button = tk.Button(root, text="Execute custom commands", command=execute_custom_commands)
+# custom_button.grid(row=24, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
 
 set_origin_button = tk.Button(root, text="set origin", command=set_origin)
 set_origin_button.grid(row=25, column=1, columnspan=1, pady=10, padx=5, sticky="ew")

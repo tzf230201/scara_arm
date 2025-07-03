@@ -739,7 +739,7 @@ def dancing2(tar_coor, travel_time, nor):
         time.sleep(sleep)
         pp_angle([40, 0, 0, 0], pp_travel, 10000, "servo_only")
         time.sleep(sleep)
-        
+               
 def from_jmc_command():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
     servo_set_operation_mode(0x01)
