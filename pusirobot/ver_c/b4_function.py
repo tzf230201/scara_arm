@@ -121,13 +121,13 @@ def get_encoder_position():
     # Initialize encoders with default 0
     enc1 = enc2 = enc3 = enc4 = 0
     
-    if selection in ["all", "servo_only"]:
-        enc1 = servo_get_motor_position(ID1)
+    # if selection in ["all", "servo_only"]:
+    enc1 = servo_get_motor_position(ID1)
     
-    if selection in ["all", "stepper_only"]:
-        enc2 = stepper_get_encoder_position(ID2)
-        enc3 = stepper_get_encoder_position(ID3)
-        enc4 = stepper_get_encoder_position(ID4)
+    # if selection in ["all", "stepper_only"]:
+    enc2 = stepper_get_encoder_position(ID2)
+    enc3 = stepper_get_encoder_position(ID3)
+    enc4 = stepper_get_encoder_position(ID4)
     
     print(f"Encoder readings: {enc1}, {enc2}, {enc3}, {enc4}")
     
