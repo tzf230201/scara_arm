@@ -169,7 +169,7 @@ def pp_move():
 enable_motion = True
 is_up = True
 dancing_tar_joints = [40, 0, 0, 0]  # Default target angle for dancing
-dancing_sleep = 0.5
+dancing_sleep = 500
 dancing_pp_travel = 1000
 how_many_times = 1  # Default number of times to run the dance routine
 dancing_i = 0
@@ -178,7 +178,6 @@ def routine():
     global enable_motion
     global is_up
     global dancing_pp_travel
-    global dancing_sleep
     global dancing_i
     global how_many_times
     print(f"enter routine")
@@ -190,25 +189,24 @@ def routine():
         if enable_motion or dancing_i < how_many_times:
             if is_up:
                 # pp_angle(dancing_tar_joints, dancing_pp_travel, 10000, "servo_only")
-                print(f"Running dance routine up{dancing_i + 1} of {how_many_times}")
+                print(f"Running dance routine up {dancing_i + 1} of {how_many_times}")
                 is_up = False
             else :
                 # pp_angle([40, 0, 0, 0], dancing_pp_travel, 10000, "servo_only")
-                print(f"Running dance routine down{dancing_i + 1} of {how_many_times}")
+                print(f"Running dance routine down {dancing_i + 1} of {how_many_times}")
                 is_up = True
                 dancing_i += 1
                 
                 
             delta_time = time.time() - last_time
             print(f"time : {delta_time:.2f}")
-            root.after(dancing_sleep, routine)
+            root.after(dancing_pp_travel, routine)
             
 def start_dancing():
     global last_time
     global enable_motion
     global dancing_tar_joints
     global is_up
-    global dancing_sleep
     global dancing_pp_travel
     global how_many_times
     
