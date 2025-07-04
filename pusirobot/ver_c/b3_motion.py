@@ -217,7 +217,7 @@ def pp_angle(tar_joints, travel_time, selection):
         
     if selection != "stepper_only":  
         time.sleep(0.5)  # wait for servo to switch on
-        set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
+        # set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
     
 def pp_coor(tar_coor, travel_time, selection):
     tar_joints = inverse_kinematics(tar_coor)
@@ -225,6 +225,8 @@ def pp_coor(tar_coor, travel_time, selection):
     formatted_tar_joints = "°, ".join([f"{tar_joint:.2f}" for tar_joint in tar_joints]) #6 may 2025
     print(f"tar joint = {formatted_tar_joints} degree")
     pp_angle(tar_joints, travel_time, selection)
+    
+    
     
 # ######################################### PVT ######################################### #
 
