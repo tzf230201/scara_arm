@@ -9,6 +9,12 @@ from b2_pvt import *
 import os
 import json
 
+def print_red(text):
+    # ANSI escape code untuk warna merah
+    RED = '\033[31m'  # Kode warna 256-color mode untuk merah
+    RESET = '\033[0m'  # Untuk mengembalikan warna ke default
+    print(f"{RED}{text}{RESET}")
+
 def load_origin_from_config():
     """
     Load origin values from config_origin.json.
@@ -217,10 +223,10 @@ def pp_angle(tar_joints, travel_time, selection):
         
     if selection != "stepper_only":  
         time.sleep(0.5)  # wait for servo to switch on
-        if (accel_decel_1 < 582549):
+        if (accel_decel_1 <= 582549):
             set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
         else:
-            print(f"acceleration is too high, dangerous movement")
+            print_red(f"acceleration is too high, dangerous movement")
     
 def pp_coor(tar_coor, travel_time, selection):
     tar_joints = inverse_kinematics(tar_coor)
