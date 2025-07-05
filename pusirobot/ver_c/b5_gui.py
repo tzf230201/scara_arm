@@ -173,26 +173,9 @@ def read_motion_csv(filename):
 
     return motions
 
-enable_motion = True
-is_up = True
-dancing_tar_joints = [40, 0, 0, 0]  # Default target angle for dancing
-dancing_travel_time = 4000
-how_many_times = 1  # Default number of times to run the dance routine
-dancing_cnt = 0   
-
-def start_dancing():
-    global last_time
-    global enable_motion
-    global dancing_cnt
-    enable_motion = True
-    dancing_cnt = 0  # Reset the counter
-    
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(script_dir, "motion_data.csv")
-    data = read_motion_csv(filename)
-    how_many_times = len(data)  # Set how many times to run based on the number of entries in the CSV
-    print(f"number of motion: {how_many_times}")
-    for entry in data:
+def print_motion_data(motion_data):
+    i = 0
+    for entry in motion_data:
         motion_type = entry['motion_type']
         travel_time = entry['travel_time']
         d1 = entry['d1']
@@ -200,58 +183,71 @@ def start_dancing():
         d3 = entry['d3']
         d4 = entry['d4']
 
-        print(f"{dancing_cnt} : {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
-        dancing_cnt +=1
+        print(f"{i} : {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
+        i += 1
 
-        # if jenis_motion == 'dancing':
-        #     # Convert to target coordinates
-        #     tar_coor = [x, y, z, yaw]
-        #     print(f"Performing {jenis_motion} with coordinates: {tar_coor} and travel time: {travel_time} ms")
-        #     dancing2(tar_coor, travel_time, "servo_only")
-        #     last_time = time.time()
-        #     break
+motion_enable = True
+motion_size = 0  # Initialize motion size
+motion_cnt = 0   
+motion_data = []
+
+def start_dancing():
+    global last_time
+    global motion_enable
+    global motion_cnt
+    global motion_data
+    global motion_size
+    
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    filename = os.path.join(script_dir, "motion_data.csv")
+    
+    motion_data = read_motion_csv(filename)
+    motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
+    motion_cnt = 0  # Reset the counter
+    motion_enable = True
+    
     
     # dancing2(tar_coor, travel_time, nor)
     last_time = time.time()
     # print(f"enter dancing2")
-    # root.after(500, routine)
+    root.after(500, routine)
 
 def routine():
-    global enable_motion
-    global is_up
-    global dancing_travel_time
-    global dancing_cnt
-    global how_many_times
+    global motion_enable
+    global motion_cnt
+    global motion_size
+    global motion_data
     # print(f"enter routine")
     if is_already_wake_up():
-        # read_present_position()
-        # servo_get_motor_velocity(0x601)
-        # servo_get_status_word(0x601)
-        # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
-        if enable_motion and dancing_cnt < how_many_times:
-            if is_up:
-                pp_angle(dancing_tar_joints, dancing_travel_time, "servo_only")
-                is_up = False
-            else :
-                pp_angle([40, 0, 0, 0], dancing_travel_time, "servo_only")
-                is_up = True
-                dancing_cnt += 1
-                print(f"counter {dancing_cnt} of {how_many_times}")
+
+        if motion_enable and motion_cnt < motion_size:
+            for motion_cnt in range(motion_size):
+                entry = motion_data[motion_cnt]
+                motion_type = entry['motion_type']
+                travel_time = entry['travel_time']
+                d1 = entry['d1']
+                d2 = entry['d2']
+                d3 = entry['d3']
+                d4 = entry['d4']
                 
+                print(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
+                motion_cnt += 1
+                print(f"counter {motion_cnt} of {motion_size}")
                 
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
-            root.after(int(dancing_travel_time + 100), routine)
+            
+            root.after(int(travel_time + 100), routine)
         else:
             stop()
     else:
         print(f"Robot is not awake, cannot perform motion.")
 
 def stop():
-    global enable_motion
-    global dancing_i
-    enable_motion = False
-    dancing_i = 0
+    global motion_enable
+    global motion_cnt
+    motion_enable = False
+    motion_cnt = 0
     print("stop")
     
 def homing():
