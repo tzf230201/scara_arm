@@ -138,48 +138,80 @@ def pp_move():
        
     pp_coor(tar_coor, travel_time, selection)
     last_time = time.time()
- 
+
+
+import csv
+
+def read_motion_csv(filename):
+    motions = []
+
+    with open(filename, mode='r', newline='') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            jenis_motion = row['jenis_motion']
+            travel_time = int(row['travel_time'])  # in ms
+
+            # For pp_mode: interpret as x,y,z,yaw
+            x = float(row['x'])
+            y = float(row['y'])
+            z = float(row['z'])
+            yaw = float(row['yaw'])
+
+            motion_data = {
+                'jenis_motion': jenis_motion,
+                'travel_time': travel_time,
+                'x': x,
+                'y': y,
+                'z': z,
+                'yaw': yaw
+            }
+            motions.append(motion_data)
+
+    return motions
+
 enable_motion = True
 is_up = True
 dancing_tar_joints = [40, 0, 0, 0]  # Default target angle for dancing
 dancing_travel_time = 4000
 how_many_times = 1  # Default number of times to run the dance routine
-dancing_i = 0   
+dancing_cnt = 0   
 
 def start_dancing():
     global last_time
     global enable_motion
-    global dancing_tar_joints
-    global is_up
-    global dancing_travel_time
-    global how_many_times
-    global dancing_i
-    
-    travel_time = get_travel_time()
-    dancing_travel_time = (int)(travel_time)
-    
-    
-    how_many_times = get_nor()
-    dancing_i = 0  # Reset the dance iteration counter
-    
-    # dancing(travel_time)
-    tar_coor = get_tar_coor()
-    tar_joints = inverse_kinematics(tar_coor)
-    dancing_tar_joints = check_limit(tar_joints)
-    
-    is_up = True  # Reset is_up to True at the start of dancing  
+    global dancing_cnt
     enable_motion = True
+    dancing_cnt = 0  # Reset the counter
+    
+    filename = 'motion_data.csv'  # Replace with your actual filename
+    data = read_motion_csv(filename)
+    print(f"Read {len(data)} motion entries from {filename}")
+    for entry in data:
+        jenis_motion = entry['jenis_motion']
+        travel_time = entry['travel_time']
+        x = entry['x']
+        y = entry['y']
+        z = entry['z']
+        yaw = entry['yaw']
+
+        # if jenis_motion == 'dancing':
+        #     # Convert to target coordinates
+        #     tar_coor = [x, y, z, yaw]
+        #     print(f"Performing {jenis_motion} with coordinates: {tar_coor} and travel time: {travel_time} ms")
+        #     dancing2(tar_coor, travel_time, "servo_only")
+        #     last_time = time.time()
+        #     break
     
     # dancing2(tar_coor, travel_time, nor)
     last_time = time.time()
     # print(f"enter dancing2")
-    root.after(500, routine)
+    # root.after(500, routine)
 
 def routine():
     global enable_motion
     global is_up
     global dancing_travel_time
-    global dancing_i
+    global dancing_cnt
     global how_many_times
     # print(f"enter routine")
     if is_already_wake_up():
@@ -187,15 +219,15 @@ def routine():
         # servo_get_motor_velocity(0x601)
         # servo_get_status_word(0x601)
         # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
-        if enable_motion and dancing_i < how_many_times:
+        if enable_motion and dancing_cnt < how_many_times:
             if is_up:
                 pp_angle(dancing_tar_joints, dancing_travel_time, "servo_only")
                 is_up = False
             else :
                 pp_angle([40, 0, 0, 0], dancing_travel_time, "servo_only")
                 is_up = True
-                dancing_i += 1
-                print(f"counter {dancing_i} of {how_many_times}")
+                dancing_cnt += 1
+                print(f"counter {dancing_cnt} of {how_many_times}")
                 
                 
             # delta_time = time.time() - last_time
