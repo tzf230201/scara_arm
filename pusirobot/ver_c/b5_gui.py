@@ -198,6 +198,9 @@ def start_dancing():
         y = entry['y']
         z = entry['z']
         yaw = entry['yaw']
+        
+        print(f"{dancing_cnt} : Performing {jenis_motion} with travel time: {travel_time} ms, x: {x}, y: {y}, z: {z}, yaw: {yaw}")
+        dancing_cnt +=1
 
         # if jenis_motion == 'dancing':
         #     # Convert to target coordinates
