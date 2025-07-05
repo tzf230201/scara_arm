@@ -41,18 +41,6 @@ def shutdown():
         servo_shutdown()
         print(f"servo shutdown")
     # stop_can()
-
-def print_yellow(text):
-    # ANSI escape code untuk warna kuning
-    YELLOW = '\033[93m'
-    RESET = '\033[0m'  # Untuk mengembalikan warna ke default
-    print(f"{YELLOW}{text}{RESET}")
-    
-def print_orange(text):
-    # ANSI escape code untuk warna kuning yang menyerupai oranye
-    ORANGE = '\033[38;5;214m'  # Kode warna 256-color mode untuk oranye
-    RESET = '\033[0m'  # Untuk mengembalikan warna ke default
-    print(f"{ORANGE}{text}{RESET}")
     
 def read_present_position():
     selection = get_motor_selection()

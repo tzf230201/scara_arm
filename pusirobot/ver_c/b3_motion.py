@@ -15,6 +15,18 @@ def print_red(text):
     RESET = '\033[0m'  # Untuk mengembalikan warna ke default
     print(f"{RED}{text}{RESET}")
 
+def print_yellow(text):
+    # ANSI escape code untuk warna kuning
+    YELLOW = '\033[93m'
+    RESET = '\033[0m'  # Untuk mengembalikan warna ke default
+    print(f"{YELLOW}{text}{RESET}")
+
+def print_orange(text):
+    # ANSI escape code untuk warna kuning yang menyerupai oranye
+    ORANGE = '\033[38;5;214m'  # Kode warna 256-color mode untuk oranye
+    RESET = '\033[0m'  # Untuk mengembalikan warna ke default
+    print(f"{ORANGE}{text}{RESET}")
+
 def load_origin_from_config():
     """
     Load origin values from config_origin.json.
@@ -219,14 +231,17 @@ def pp_angle(tar_joints, travel_time, selection):
         servo_set_tar_pulse(tar_pulse_1)
     
     if selection != "servo_only":  
-        pp_mode_start_absolute_motion() #6 may 2025
+        pp_mode_start_absolute_motion()
         
     if selection != "stepper_only":  
         time.sleep(0.5)  # wait for servo to switch on
-        if (accel_decel_1 <= 582549):
+        max_accel_servo = 583000 # 582549
+        if (accel_decel_1 <= max_accel_servo):
             set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
+            if (accel_decel_1 >= (max_accel_servo * 0.8)):
+                print_yellow(f"warning : almost max acceleration")
         else:
-            print_red(f"acceleration is too high, dangerous movement")
+            print_red(f"error : touching max acceleration, movement denied")
     
 def pp_coor(tar_coor, travel_time, selection):
     tar_joints = inverse_kinematics(tar_coor)
