@@ -168,6 +168,7 @@ def read_motion_csv(filename):
                 'z': z,
                 'yaw': yaw
             }
+            print(f"Read motion entry: {motion_data}")  # DEBUG ENTRY
             motions.append(motion_data)
 
     return motions
