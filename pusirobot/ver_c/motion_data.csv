@@ -1,4 +1,8 @@
-jenis_motion,travel_time,x,y,z,yaw
-pp_mode,4000,258,0,0,0
-pp_mode,1000,150,0,0,0
-pp_mode,3000,150,50,0,0
+motion_type,travel_time,d1,d2,d3,d4
+pp_coor,4000,258,0,0,0
+pp_coor,1000,150,0,0,0
+pp_coor,3000,150,50,0,0
+pp_angle,4000,0,0,0,0
+pp_angle,1000,40,0,0,0
+pp_angle,3000,400,0,0,0
+

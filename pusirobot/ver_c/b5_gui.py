@@ -151,22 +151,22 @@ def read_motion_csv(filename):
         print("CSV fieldnames:", reader.fieldnames)  # DEBUG HEADER
 
         for row in reader:
-            jenis_motion = row['jenis_motion']
+            motion_type = row['motion_type']
             travel_time = int(row['travel_time'])  # in ms
 
             # For pp_mode: interpret as x,y,z,yaw
-            x = float(row['x'])
-            y = float(row['y'])
-            z = float(row['z'])
-            yaw = float(row['yaw'])
+            d1 = float(row['d1'])
+            d2 = float(row['d2'])
+            d3 = float(row['d3'])
+            d4 = float(row['d4'])
 
             motion_data = {
-                'jenis_motion': jenis_motion,
+                'motion_type': motion_type,
                 'travel_time': travel_time,
-                'x': x,
-                'y': y,
-                'z': z,
-                'yaw': yaw
+                'd1': d1,
+                'd2': d2,
+                'd3': d3,
+                'd4': d4
             }
             # print(f"Read motion entry: {motion_data}")  # DEBUG ENTRY
             motions.append(motion_data)
@@ -193,14 +193,14 @@ def start_dancing():
     how_many_times = len(data)  # Set how many times to run based on the number of entries in the CSV
     print(f"number of motion: {how_many_times}")
     for entry in data:
-        jenis_motion = entry['jenis_motion']
+        motion_type = entry['motion_type']
         travel_time = entry['travel_time']
-        x = entry['x']
-        y = entry['y']
-        z = entry['z']
-        yaw = entry['yaw']
-        
-        print(f"{dancing_cnt} : {jenis_motion}, {travel_time} ms, x: {x}, y: {y}, z: {z}, yaw: {yaw}")
+        d1 = entry['d1']
+        d2 = entry['d2']
+        d3 = entry['d3']
+        d4 = entry['d4']
+
+        print(f"{dancing_cnt} : {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
         dancing_cnt +=1
 
         # if jenis_motion == 'dancing':
