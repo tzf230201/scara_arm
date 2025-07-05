@@ -199,7 +199,7 @@ def start_dancing():
         z = entry['z']
         yaw = entry['yaw']
         
-        print(f"{dancing_cnt} : Performing {jenis_motion} with travel time: {travel_time} ms, x: {x}, y: {y}, z: {z}, yaw: {yaw}")
+        print(f"{dancing_cnt} : {jenis_motion}, {travel_time} ms, x: {x}, y: {y}, z: {z}, yaw: {yaw}")
         dancing_cnt +=1
 
         # if jenis_motion == 'dancing':
