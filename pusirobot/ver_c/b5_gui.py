@@ -191,7 +191,7 @@ def start_dancing():
     filename = os.path.join(script_dir, "motion_data.csv")
     data = read_motion_csv(filename)
     how_many_times = len(data)  # Set how many times to run based on the number of entries in the CSV
-    print(f"jumlah motion: {how_many_times}")
+    print(f"number of motion: {how_many_times}")
     for entry in data:
         jenis_motion = entry['jenis_motion']
         travel_time = entry['travel_time']
