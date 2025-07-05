@@ -141,6 +141,7 @@ def pp_move():
 
 
 import csv
+import os
 
 def read_motion_csv(filename):
     motions = []
@@ -183,7 +184,8 @@ def start_dancing():
     enable_motion = True
     dancing_cnt = 0  # Reset the counter
     
-    filename = 'motion_data.csv'  # Replace with your actual filename
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    filename = os.path.join(script_dir, "motion_data.csv")
     data = read_motion_csv(filename)
     print(f"Read {len(data)} motion entries from {filename}")
     for entry in data:
