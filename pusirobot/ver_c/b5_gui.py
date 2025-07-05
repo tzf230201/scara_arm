@@ -148,6 +148,8 @@ def read_motion_csv(filename):
 
     with open(filename, mode='r', newline='') as file:
         reader = csv.DictReader(file)
+        print("CSV fieldnames:", reader.fieldnames)  # DEBUG HEADER
+
         for row in reader:
             jenis_motion = row['jenis_motion']
             travel_time = int(row['travel_time'])  # in ms
