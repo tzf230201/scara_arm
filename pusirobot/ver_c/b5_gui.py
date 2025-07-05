@@ -252,7 +252,7 @@ def stop():
 def homing():
     global last_time
     selection = get_motor_selection()
-    tar_joints = [0, 0, 0, 0]
+    tar_joints = [40, 0, 0, 0]
     travel_time = get_travel_time()
     # sp_angle(tar_joints, travel_time)
     pp_angle(tar_joints, travel_time, selection)
