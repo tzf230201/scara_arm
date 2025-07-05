@@ -221,19 +221,18 @@ def routine():
     if is_already_wake_up():
 
         if motion_enable and motion_cnt < motion_size:
-            for motion_cnt in range(motion_size):
-                entry = motion_data[motion_cnt]
-                motion_type = entry['motion_type']
-                travel_time = entry['travel_time']
-                d1 = entry['d1']
-                d2 = entry['d2']
-                d3 = entry['d3']
-                d4 = entry['d4']
-                
-                print(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
-                motion_cnt += 1
-                print(f"counter {motion_cnt} of {motion_size}")
-                
+            entry = motion_data[motion_cnt]
+            motion_type = entry['motion_type']
+            travel_time = entry['travel_time']
+            d1 = entry['d1']
+            d2 = entry['d2']
+            d3 = entry['d3']
+            d4 = entry['d4']
+            
+            print(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
+            motion_cnt += 1
+            print(f"counter {motion_cnt} of {motion_size}")
+            
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
             
