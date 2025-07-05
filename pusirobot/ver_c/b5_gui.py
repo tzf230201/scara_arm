@@ -138,14 +138,80 @@ def pp_move():
        
     pp_coor(tar_coor, travel_time, selection)
     last_time = time.time()
-    
+ 
+enable_motion = True
+is_up = True
+dancing_tar_joints = [40, 0, 0, 0]  # Default target angle for dancing
+dancing_travel_time = 4000
+how_many_times = 1  # Default number of times to run the dance routine
+dancing_i = 0   
 
 def start_dancing():
     global last_time
+    global enable_motion
+    global dancing_tar_joints
+    global is_up
+    global dancing_travel_time
+    global how_many_times
+    global dancing_i
+    
     travel_time = get_travel_time()
+    dancing_travel_time = (int)(travel_time)
+    
+    
+    how_many_times = get_nor()
+    dancing_i = 0  # Reset the dance iteration counter
+    
     # dancing(travel_time)
-    dancing2(travel_time)
+    tar_coor = get_tar_coor()
+    tar_joints = inverse_kinematics(tar_coor)
+    dancing_tar_joints = check_limit(tar_joints)
+    
+    is_up = True  # Reset is_up to True at the start of dancing  
+    enable_motion = True
+    
+    # dancing2(tar_coor, travel_time, nor)
     last_time = time.time()
+    # print(f"enter dancing2")
+    root.after(500, routine)
+
+def routine():
+    global enable_motion
+    global is_up
+    global dancing_travel_time
+    global dancing_i
+    global how_many_times
+    # print(f"enter routine")
+    if is_already_wake_up():
+        # read_present_position()
+        # servo_get_motor_velocity(0x601)
+        # servo_get_status_word(0x601)
+        # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
+        if enable_motion and dancing_i < how_many_times:
+            if is_up:
+                pp_angle(dancing_tar_joints, dancing_travel_time, "servo_only")
+                is_up = False
+            else :
+                pp_angle([40, 0, 0, 0], dancing_travel_time, "servo_only")
+                is_up = True
+                dancing_i += 1
+                print(f"counter {dancing_i} of {how_many_times}")
+                
+                
+            # delta_time = time.time() - last_time
+            # print(f"time : {delta_time:.2f}")
+            root.after(int(dancing_travel_time + 100), routine)
+        else:
+            stop()
+    else:
+        print(f"Robot is not awake, cannot perform motion.")
+
+def stop():
+    global enable_motion
+    global dancing_i
+    enable_motion = False
+    dancing_i = 0
+    print("stop")
     
 def homing():
     global last_time

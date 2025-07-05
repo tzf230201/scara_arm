@@ -241,7 +241,7 @@ def pp_angle(tar_joints, travel_time, selection):
             if (accel_decel_1 >= (max_accel_servo * 0.8)):
                 print_yellow(f"warning : almost max acceleration")
         else:
-            print_red(f"error : touching max acceleration, movement denied")
+            print_red(f"motion denied, acceleration is too high, dangerous movement")
     
 def pp_coor(tar_coor, travel_time, selection):
     tar_joints = inverse_kinematics(tar_coor)
