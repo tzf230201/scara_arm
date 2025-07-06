@@ -1,10 +1,34 @@
 motion_type,travel_time,d1,d2,d3,d4
 pp_coor,4000,258,0,0,0
-pp_angle,4000,0,0,0,0
-home, 4000,0,0,0,0
-shuttle_position, 4000,0,0,0,0
-pre_past_shelf, 4000,0,0,0,0
-pickup_from_shelf, 4000,0,0,0,0
-place_to_shelf, 4000,0,0,0,0
-
-
+pp_coor,4000,150,0,0,0
+pp_coor,4000,258,0,0,0
+pp_coor,4000,150,0,0,0
+pp_coor,4000,258,0,0,0
+pp_coor,4000,150,0,0,0
+pp_coor,4000,140,0,0,-20
+pp_coor,4000,140,0,0,90
+pp_coor,4000,140,-168,0,0
+home,4000,0,0,0,0
+shuttle,4000,0,0,0,0
+home,4000,0,0,0,0
+shuttle,4000,0,0,0,0
+home,4000,0,0,0,0
+pp_coor,4000,210,40,0,0
+pp_coor,4000,210,-40,0,0
+pp_coor,4000,130,-40,0,0
+pp_coor,4000,130,40,0,0
+pp_coor,4000,210,40,0,0
+pp_coor,4000,210,-40,0,0
+pp_coor,4000,130,-40,0,0
+pp_coor,4000,130,40,0,0
+pp_coor,4000,130,40,0,0
+pp_coor,4000,130,0,0,0
+pre_past_shelf,4000,0,0,0,0
+pickup_from_shelf,4000,0,0,0,0
+pre_past_shelf,4000,0,0,0,0
+pickup_from_shelf,4000,0,0,0,0
+pre_past_shelf,4000,0,0,0,0
+pp_coor,4000,150,0,0,0
+pp_coor,4000,258,0,0,90
+pp_coor,4000,258,0,0,-90
+pp_coor,4000,258,0,0,0
