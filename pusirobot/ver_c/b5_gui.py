@@ -186,6 +186,13 @@ def print_motion_data(motion_data):
         print(f"{i} : {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
         i += 1
 
+home_angle = [40, 0, 0, 0]  # home position in coor
+shuttle_coor = [166.82, -168, 0, 0]
+pre_past_shelf_coor = [107, 100, 0, 90]
+pickup_from_shelf_coor = [107, 224, 0, 90]
+place_onto_shelf_coor = [107, 197, 0, 90]
+ 
+ 
 def execute_motion_data(entry):
     motion_type = entry['motion_type']
     travel_time = entry['travel_time']
@@ -199,18 +206,14 @@ def execute_motion_data(entry):
     elif motion_type == 'pp_angle':
         pp_angle([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
     elif motion_type == 'home':
-        pp_angle([40, 0, 0, 0], travel_time, selection=get_motor_selection())
-    elif motion_type == 'shuttle_position':
-        shuttle_coor = [166.82, -168, 0, 0]
+        pp_angle(home_angle, travel_time, selection=get_motor_selection())
+    elif motion_type == 'shuttle':
         pp_coor(shuttle_coor, travel_time, selection=get_motor_selection())
     elif motion_type == 'pre_past_shelf':
-        pre_past_shelf_coor = [107, 100, 0, 90]
         pp_coor(pre_past_shelf_coor, travel_time, selection=get_motor_selection())
     elif motion_type == 'pickup_from_shelf':
-        pickup_from_shelf_coor = [107, 224, 0, 90]
         pp_coor(pickup_from_shelf_coor, travel_time, selection=get_motor_selection())
     elif motion_type == 'place_onto_shelf':
-        place_onto_shelf_coor = [107, 197, 0, 90]
         pp_coor(place_onto_shelf_coor, travel_time, selection=get_motor_selection())
 
     # print(f"Executing: {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
@@ -283,7 +286,7 @@ def stop():
 def homing():
     global last_time
     selection = get_motor_selection()
-    tar_joints = [40, 0, 0, 0]
+    tar_joints = home_coor
     travel_time = get_travel_time()
     # sp_angle(tar_joints, travel_time)
     pp_angle(tar_joints, travel_time, selection)
