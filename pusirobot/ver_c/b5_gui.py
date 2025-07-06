@@ -2,7 +2,7 @@ import signal
 import tkinter as tk
 import time
 from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up, set_motor_selection, get_motor_selection
-from b3_motion import dancing,dancing2, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor
+from b3_motion import sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, shuttle_position, pre_past_shelf, pickup_from_shelf
 from b1_servo import servo_get_motor_velocity, servo_get_status_word
 import sys
 
@@ -186,6 +186,36 @@ def print_motion_data(motion_data):
         print(f"{i} : {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
         i += 1
 
+def execute_motion_data(entry):
+    motion_type = entry['motion_type']
+    travel_time = entry['travel_time']
+    d1 = entry['d1']
+    d2 = entry['d2']
+    d3 = entry['d3']
+    d4 = entry['d4']
+    
+    if motion_type == 'pp_coor':
+        pp_coor([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
+    elif motion_type == 'pp_angle':
+        pp_angle([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
+    elif motion_type == 'home':
+        pp_angle([40, 0, 0, 0], travel_time, selection=get_motor_selection())
+    elif motion_type == 'shuttle_position':
+        shuttle_coor = [166.82, -168, 0, 0]
+        pp_coor(shuttle_coor, travel_time, selection=get_motor_selection())
+    elif motion_type == 'pre_past_shelf':
+        pre_past_shelf_coor = [107, 100, 0, 90]
+        pp_coor(pre_past_shelf_coor, travel_time, selection=get_motor_selection())
+    elif motion_type == 'pickup_from_shelf':
+        pickup_from_shelf_coor = [107, 224, 0, 90]
+        pp_coor(pickup_from_shelf_coor, travel_time, selection=get_motor_selection())
+    elif motion_type == 'place_onto_shelf':
+        place_onto_shelf_coor = [107, 197, 0, 90]
+        pp_coor(place_onto_shelf_coor, travel_time, selection=get_motor_selection())
+
+    # print(f"Executing: {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
+
+
 motion_enable = True
 motion_size = 0  # Initialize motion size
 motion_cnt = 0   
@@ -232,6 +262,7 @@ def routine():
             print(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
             motion_cnt += 1
             print(f"counter {motion_cnt} of {motion_size}")
+            execute_motion_data(entry)
             
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
@@ -270,16 +301,7 @@ def on_motor_selection_changed():
     selected_motors = get_motor_selection()
     print(f"Current motor selection: {selected_motors}")
 
-# def routine():
-# #     if is_already_wake_up():
-# #         read_present_position()
-# #         # servo_get_motor_velocity(0x601)
-# #         # servo_get_status_word(0x601)
-# #         # Memanggil fungsi print_continuously lagi setelah 1000 ms (1 detik)
-# #         delta_time = time.time() - last_time
-# #         print(f"time : {delta_time:.2f}")
-    
-#     root.after(500, routine)
+
     
 # Menangani sinyal SIGINT (Ctrl + C)
 signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
@@ -311,20 +333,6 @@ tk.Radiobutton(
 ).grid(row=0, column=2, padx=5)
 
 on_motor_selection_changed()  # Set initial motor selection
-
-#baris 0
-# error_status_button = tk.Button(root, text="error status", command=error_status)
-# error_status_button.grid(row=0, column=0, columnspan=1, pady=10,sticky="ew", padx=5)
-
-# save_settings_button = tk.Button(root, text="save settings", command=save_settings)
-# save_settings_button.grid(row=0, column=1, columnspan=1, pady=10, sticky="ew", padx=5)
-
-#baris 1 dan 2
-
-# tk.Label(root, text="Enter max speed:").grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-# entry_speed = tk.Entry(root)
-# entry_speed.insert(0, "1000")
-# entry_speed.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
 
 tk.Label(root, text="Enter time:").grid(row=2, column=0, padx=5, pady=5, sticky="ew")
 entry_time = tk.Entry(root)
