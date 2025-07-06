@@ -343,10 +343,10 @@ entry_time.insert(0, "4000")
 entry_time.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
 
 # baris 3d
-wake_up_button = tk.Button(root, text="Wake Up", command=wake_up)
+wake_up_button = tk.Button(root, text="Wake Up", bg="#CC2BE8", fg="white", command=wake_up)
 wake_up_button.grid(row=3, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-shutdown_button = tk.Button(root, text="Shutdown", bg="red", fg="white", command=shutdown)
+shutdown_button = tk.Button(root, text="Shutdown", bg="maroon", fg="white", command=shutdown)
 shutdown_button.grid(row=3, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 # baris 4 sampai 7
