@@ -427,8 +427,11 @@ dancing_button = tk.Button(root, text="dancing", command=start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 20
-homing_button = tk.Button(root, text="homing", command=homing)
-homing_button.grid(row=20, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+homing_button = tk.Button(root, text="homing", bg="cyan",fg="black",  command=homing)
+homing_button.grid(row=20, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+
+stop_button = tk.Button(root, text="stop", bg="red",fg="white", command=stop)
+stop_button.grid(row=20, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 21
 encoder_position_button = tk.Button(root, text="read encoder", command=get_encoder_position)
