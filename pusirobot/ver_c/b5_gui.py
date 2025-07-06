@@ -243,7 +243,8 @@ def start_dancing():
     # dancing2(tar_coor, travel_time, nor)
     last_time = time.time()
     # print(f"enter dancing2")
-    root.after(500, routine)
+    print_motion_data(motion_data)  # DEBUG: Print all motion data
+    # root.after(500, routine)
 
 def routine():
     global motion_enable
@@ -380,10 +381,10 @@ entry_tar_joint_4.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
 # sp_joint_button = tk.Button(root, text="SP try", command=sp_joint)
 # sp_joint_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-pp_mode_button = tk.Button(root, text="PP try", command=pp_joint)
+pp_mode_button = tk.Button(root, text="PP angle", command=pp_joint)
 pp_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
-pvt_mode_button = tk.Button(root, text="PVT try", command=pvt_joint)
+pvt_mode_button = tk.Button(root, text="PVT angle", command=pvt_joint)
 pvt_mode_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 
@@ -413,10 +414,10 @@ entry_tar_yaw.grid(row=17, column=1, padx=5, pady=5, sticky="ew")
 # sp_move_button = tk.Button(root, text="SP move", command=sp_move)
 # sp_move_button.grid(row=18, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-pp_move_button = tk.Button(root, text="PP move", command=pp_move)
+pp_move_button = tk.Button(root, text="PP coor", command=pp_move)
 pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
-pvt_move_button = tk.Button(root, text="PVT move", command=pvt_move)
+pvt_move_button = tk.Button(root, text="PVT coor", command=pvt_move)
 pvt_move_button.grid(row=18, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 19

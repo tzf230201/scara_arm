@@ -59,7 +59,7 @@ def pp_mode_start_realtive_motion():
 ################################## function #############################################3
 
 def pp_mode_init():
-    print(f"start pp mode initialization")
+    # print(f"start pp mode initialization")
     
     init_motor_enable(1)
     init_torque_ring_enable(1)
@@ -72,7 +72,7 @@ def pp_mode_init():
     pp_mode_set_start_speed(150)
     pp_mode_set_stop_speed(150)
     
-    print(f"the motors is in pp mode")
+    print(f"the steppers are in pp mode")
     
 def stepper_accel_decel_calc(d_total, t_travel_ms):
     # print(f"d_total: {d_total} pulses, t_travel_ms: {t_travel_ms} ms")
