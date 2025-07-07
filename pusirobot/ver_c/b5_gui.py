@@ -423,7 +423,7 @@ entry_tar_yaw.grid(row=17, column=1, padx=5, pady=5, sticky="ew")
 pp_move_button = tk.Button(root, text="PP coor", command=pp_move)
 pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
-pvt_move_button = tk.Button(root, text="PVT coor", command=pvt_move)
+pvt_move_button = tk.Button(root, text="curcular test", command=pvt_move)
 pvt_move_button.grid(row=18, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 19
