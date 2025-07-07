@@ -277,23 +277,13 @@ def pvt_angle(tar_joints, travel_time, selection):
     
     p[0], v[0], t[0] = generate_pvt_trajectory_triangle_2(0, tar_pulses[0], travel_time)
     
-    for i in range(1, 4):
-        tar_step = stepper_pulses_to_steps(tar_pulses[i])
-        p[i], v[i], t[i] = generate_pvt_trajectory_triangle_2(0 ,  tar_step, travel_time) 
 
     for pos, vel, tim in zip(p[0], v[0], t[0]):
         servo_set_interpolation_data(pos, vel, tim)
-        
-    for i in range(1, 4):
-        for pos, vel, tim in zip(p[i], v[i], t[i]):
-            pvt_mode_write_read(node_ids[i], pos, vel, tim)
-            # print(f"motor {i+1} write {pos}, {vel}, {tim}")
-    
-    pvt_mode_read_pvt_3_depth()
-    pvt_mode_start_pvt_step(group_id)
+
     if selection != "stepper_only":
         set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
-        set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x3F)
+        set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
     
     last_time = time.time()
     stop_watch = last_time
@@ -332,7 +322,7 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
                 
                 
     pvt_mode_read_pvt_3_depth()
-    pvt_mode_start_pvt_step(group_id)
+    # pvt_mode_start_pvt_step(group_id)
     last_time = time.time()
     stop_watch = last_time
     time_out = travel_time / 1000

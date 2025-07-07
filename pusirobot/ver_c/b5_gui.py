@@ -4,6 +4,7 @@ import time
 from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up, set_motor_selection, get_motor_selection
 from b3_motion import sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, shuttle_position, pre_past_shelf, pickup_from_shelf
 from b1_servo import servo_get_motor_velocity, servo_get_status_word
+from b2_pvt import pvt_mode_start_pvt_step
 import sys
 
 # class Tee:
@@ -78,6 +79,8 @@ def pvt_joint():
     
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
+    group_id = 0x05
+    pvt_mode_start_pvt_step(group_id)
     last_time = time.time()
 
 def pvt_move():
