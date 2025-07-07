@@ -1,5 +1,6 @@
 import time
 import math
+import numpy as np
 from b1_stepper import *
 
 pvt_time_interval = 50
