@@ -149,6 +149,7 @@ def reset_communication():
 def save_settings():
     #save settings
     for id in [ID2, ID3, ID4]:
+        print(f"save settings for node {id}")
         set_sdo(id, SET_1_BYTE, OD_STEPPER_SYSTEM_CONTROL, 0x00, 2)  
 
 def stall_on():
