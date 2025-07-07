@@ -3,6 +3,7 @@ import math
 from b1_servo import *
 from b1_stepper import *
 from b2_pvt import *
+import numpy as np
 # enc: 131744993 -794543, -802111, -802962
 #enc: 131876599 -794544, -802109, -802962
 
