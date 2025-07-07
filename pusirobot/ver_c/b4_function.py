@@ -40,8 +40,8 @@ def shutdown():
         stepper_shutdown()
         print(f"stepper shutdown")
     if selection != "stepper_only":
-        servo_shutdown()
-        print(f"servo shutdown")
+        # servo_shutdown()
+        # print(f"servo shutdown")
     # stop_can()
     
 def read_present_position():
