@@ -178,6 +178,42 @@ def sp_coor(tar_coor, travel_time, selection):
 # ######################################### PP MODE ######################################### #
 from b2_pp import *
 
+def pp_angle_servo(tar_joints, travel_time, selection):
+    
+    origins = get_origins()
+        
+    cur_joints = get_cur_joints(selection)
+    
+    cur_joint_1, cur_joint_2, cur_joint_3, cur_joint_4 = cur_joints
+    tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
+    
+    tar_pulse_1 = servo_degrees_to_pulses(tar_joint_1) + origins[0]
+
+    
+    delta_pulse_1 = servo_degrees_to_pulses(tar_joint_1 - cur_joint_1)
+
+    
+    accel_decel_1, max_speed_1 = servo_accel_decel_calc(delta_pulse_1, travel_time)
+
+    
+    if selection != "stepper_only":
+        set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
+        servo_set_profile_type(0x00)
+        servo_set_acceleration(accel_decel_1)
+        servo_set_deceleration(accel_decel_1)
+        servo_set_max_speed(max_speed_1)
+        servo_set_tar_pulse(tar_pulse_1)
+        
+    if selection != "stepper_only":  
+        max_accel_servo = 583000 # 582549
+        if (accel_decel_1 <= max_accel_servo):
+            if (accel_decel_1 >= (max_accel_servo * 0.8)):
+                print_yellow(f"warning : almost max acceleration")
+            return 1
+        else:
+            print_red(f"motion denied, acceleration is too high, dangerous movement")
+            return 0
+
 def pp_angle(tar_joints, travel_time, selection):
     
     origins = get_origins()

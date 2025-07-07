@@ -294,3 +294,8 @@ def servo_pvt_position(cur_po, tar_pos, travel_time):
     
     # Send the command to start the movement
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_IP_SEGMENT_MOVE_COMMAND, 0x01,  0x01)  # Start the segment move command
+    
+    
+    
+def servo_execute():
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
