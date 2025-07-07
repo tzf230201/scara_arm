@@ -196,12 +196,13 @@ def servo_init(OPERATION_MODE=1):
     if val == 0x7F:
         print(f"servo is not operational, going to operational mode")
         servo_goto_operational()
+        servo_switch_on()
         time.sleep(1)
         print(f"ok, servo in oeprational mode")
     elif val == 0x05:
         print(f"servo is already in operational mode")
     
-    servo_switch_on()
+    
     servo_set_operation_mode(OPERATION_MODE)
     servo_get_operation_mode()
     if (OPERATION_MODE == 7):
