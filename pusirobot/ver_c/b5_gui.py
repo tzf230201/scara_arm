@@ -250,7 +250,7 @@ def start_dancing():
     last_time = time.time()
     # print(f"enter dancing2")
     print_motion_data(motion_data)  # DEBUG: Print all motion data
-    # root.after(500, routine)
+    root.after(500, routine)
 
 def routine():
     global motion_enable
