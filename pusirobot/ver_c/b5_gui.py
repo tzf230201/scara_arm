@@ -193,10 +193,10 @@ def print_motion_data(motion_data):
         i += 1
 
 home_angle = [40, 0, 0, 0]  # home position in coor
-shuttle_coor = [166.82, -168, 0, 0]
-pre_past_shelf_coor = [107, 100, 0, 90]
-pickup_from_shelf_coor = [107, 224, 0, 90]
-place_onto_shelf_coor = [107, 197, 0, 90]
+shuttle_coor = [166.82, -168, 10, 0]
+pre_past_shelf_coor = [107, 100, 10, 90]
+pickup_from_shelf_coor = [107, 224, 10, 90]
+place_onto_shelf_coor = [107, 197, 10, 90]
  
  
 def execute_motion_data(entry):
@@ -272,6 +272,7 @@ def routine():
             print(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
             motion_cnt += 1
             print(f"counter {motion_cnt} of {motion_size}")
+            read_present_position()
             execute_motion_data(entry)
             
             # delta_time = time.time() - last_time
