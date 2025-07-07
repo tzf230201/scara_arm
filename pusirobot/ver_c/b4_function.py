@@ -21,8 +21,10 @@ def wake_up():
     start_can()
     selection = get_motor_selection()
     if selection != "servo_only":
+        print(f"stepper intialization")
         stepper_init()
     if selection != "stepper_only":
+        print(f"servo intialization")
         servo_init(1)  # 7 is PVT mode, 1 is PP mode
     is_wake_up = True
     
