@@ -267,7 +267,7 @@ def pp_angle(tar_joints, travel_time, selection):
         servo_set_tar_pulse(tar_pulse_1)
     
     if selection != "servo_only":  
-        # pp_mode_start_absolute_motion()
+        pp_mode_start_absolute_motion()
         print(f"pp mode start absolute motion")
         
     if selection != "stepper_only":  
