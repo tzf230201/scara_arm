@@ -54,7 +54,7 @@ def pp_mode_start_absolute_motion():
 
 def pp_mode_start_realtive_motion():
     for id in [ID2, ID3, ID4]:
-        send_can_command(f"{id:03X}#2b2e600110000000")
+        set_sdo(id,SET_2_BYTE, OD_STEPPER_PP_MOTION_2, 0x01, 0x10)
         
         
 ################################## function #############################################3

@@ -218,8 +218,8 @@ def pp_angle(tar_joints, travel_time, selection):
     # print(f"masuk pp angle")
     origins = get_origins()
     
-    # if selection != "servo_only": 
-        # pp_mode_init()
+    if selection != "servo_only": 
+        pp_mode_init()
     
     cur_joints = get_cur_joints(selection)
     
@@ -268,7 +268,7 @@ def pp_angle(tar_joints, travel_time, selection):
     
     if selection != "servo_only":  
         pp_mode_start_absolute_motion()
-        print(f"pp mode start absolute motion")
+        # print(f"pp mode start absolute motion")
         
     if selection != "stepper_only":  
         # time.sleep(0.5)  # wait for servo to switch on
