@@ -50,9 +50,10 @@ def read_present_position():
     cur_joints = get_cur_joints(selection)
     cur_coor = forward_kinematics(cur_joints)
     
-    formatted_angles = "°, ".join([f"{angle:.2f}" for angle in cur_joints]) #6 may 2025
+    print(f"cur joint : {cur_joints}")  #6 may 2025
+    # formatted_angles = "°, ".join([f"{angle:.2f}" for angle in cur_joints]) #6 may 2025
     # print_yellow(f"cur joint : {formatted_angles}°")#yellow #6 may 2025
-    print(f"cur joint : {formatted_angles}°")#yellow #6 may 2025
+    # print(f"cur joint : {formatted_angles}°")#yellow #6 may 2025
     # j1, j2, j3, j4 = cur_joints #6 may 2025
     # print_yellow(f"cur servo's angle: {j1:.1f}°")#yellow #6 may 2025
     
