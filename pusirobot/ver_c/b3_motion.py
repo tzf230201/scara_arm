@@ -223,30 +223,30 @@ def pp_angle(tar_joints, travel_time, selection):
     
     cur_joints = get_cur_joints(selection)
     
-    # cur_joint_1, cur_joint_2, cur_joint_3, cur_joint_4 = cur_joints
-    # tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
+    cur_joint_1, cur_joint_2, cur_joint_3, cur_joint_4 = cur_joints
+    tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
     
-    # tar_pulse_1 = servo_degrees_to_pulses(tar_joint_1) + origins[0]
-    # tar_pulse_2 = stepper_degrees_to_pulses(tar_joint_2)
-    # tar_pulse_3 = stepper_degrees_to_pulses(tar_joint_3)
-    # tar_pulse_4 = stepper_degrees_to_pulses(tar_joint_4)
+    tar_pulse_1 = servo_degrees_to_pulses(tar_joint_1) + origins[0]
+    tar_pulse_2 = stepper_degrees_to_pulses(tar_joint_2)
+    tar_pulse_3 = stepper_degrees_to_pulses(tar_joint_3)
+    tar_pulse_4 = stepper_degrees_to_pulses(tar_joint_4)
     
-    # delta_pulse_1 = servo_degrees_to_pulses(tar_joint_1 - cur_joint_1)
-    # delta_pulse_2 = stepper_degrees_to_pulses(tar_joint_2 - cur_joint_2)
-    # delta_pulse_3 = stepper_degrees_to_pulses(tar_joint_3 - cur_joint_3)
-    # delta_pulse_4 = stepper_degrees_to_pulses(tar_joint_4 - cur_joint_4)
+    delta_pulse_1 = servo_degrees_to_pulses(tar_joint_1 - cur_joint_1)
+    delta_pulse_2 = stepper_degrees_to_pulses(tar_joint_2 - cur_joint_2)
+    delta_pulse_3 = stepper_degrees_to_pulses(tar_joint_3 - cur_joint_3)
+    delta_pulse_4 = stepper_degrees_to_pulses(tar_joint_4 - cur_joint_4)
     
-    # accel_decel_1, max_speed_1 = servo_accel_decel_calc(delta_pulse_1, travel_time)
-    # accel_decel_2, max_speed_2 = stepper_accel_decel_calc(delta_pulse_2, travel_time)
-    # accel_decel_3, max_speed_3 = stepper_accel_decel_calc(delta_pulse_3, travel_time)
-    # accel_decel_4, max_speed_4 = stepper_accel_decel_calc(delta_pulse_4, travel_time)
+    accel_decel_1, max_speed_1 = servo_accel_decel_calc(delta_pulse_1, travel_time)
+    accel_decel_2, max_speed_2 = stepper_accel_decel_calc(delta_pulse_2, travel_time)
+    accel_decel_3, max_speed_3 = stepper_accel_decel_calc(delta_pulse_3, travel_time)
+    accel_decel_4, max_speed_4 = stepper_accel_decel_calc(delta_pulse_4, travel_time)
     
-    # # print(f"cur joint = {cur_joints} degree")
-    # # print(f"tar joint = {tar_joints} degree")
-    # # print(f"delta pulse = {delta_pulse_1}, {delta_pulse_2}, {delta_pulse_3}, {delta_pulse_4}")
-    # # print(f"tar pulse = {tar_pulse_1}, {tar_pulse_2}, {tar_pulse_3}, {tar_pulse_4}")
-    # # print(f"tar accel = {accel_decel_1}, {accel_decel_2}, {accel_decel_3}, {accel_decel_4}")
-    # # print(f"tar max speed = {max_speed_1}, {max_speed_2}, {max_speed_3}, {max_speed_4}")
+    # print(f"cur joint = {cur_joints} degree")
+    # print(f"tar joint = {tar_joints} degree")
+    # print(f"delta pulse = {delta_pulse_1}, {delta_pulse_2}, {delta_pulse_3}, {delta_pulse_4}")
+    # print(f"tar pulse = {tar_pulse_1}, {tar_pulse_2}, {tar_pulse_3}, {tar_pulse_4}")
+    # print(f"tar accel = {accel_decel_1}, {accel_decel_2}, {accel_decel_3}, {accel_decel_4}")
+    # print(f"tar max speed = {max_speed_1}, {max_speed_2}, {max_speed_3}, {max_speed_4}")
     
     # if selection != "servo_only":  
     #     pp_mode_set_acceleration(accel_decel_2, accel_decel_3, accel_decel_4) #6 may 2025
