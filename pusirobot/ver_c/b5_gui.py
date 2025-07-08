@@ -130,8 +130,8 @@ def sp_move():
 def pp_joint():
     global last_time
     selection = get_motor_selection()
-    # tar_joints = get_tar_joints()
-    # travel_time = get_travel_time()
+    tar_joints = get_tar_joints()
+    travel_time = get_travel_time()
     # # print(f"masuk pp joint")
     # pp_angle(tar_joints, travel_time, selection)
     # # last_time = time.time()
