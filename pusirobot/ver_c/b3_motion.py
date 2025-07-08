@@ -218,8 +218,8 @@ def pp_angle(tar_joints, travel_time, selection):
     # print(f"masuk pp angle")
     origins = get_origins()
     
-    # if selection != "servo_only": 
-        # pp_mode_init()
+    if selection != "servo_only": 
+        pp_mode_init()
     
     cur_joints = get_cur_joints(selection)
     
