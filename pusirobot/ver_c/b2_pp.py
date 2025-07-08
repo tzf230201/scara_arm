@@ -49,7 +49,8 @@ def pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4):
         
 def pp_mode_start_absolute_motion():
     for id in [ID2, ID3, ID4]:
-        send_can_command(f"{id:03X}#2b2e600150000000")
+        # send_can_command(f"{id:03X}#2b2e600150000000")
+        set_sdo(id,SET_2_BYTE, OD_STEPPER_PP_MOTION_2, 0x01, 0x50)
 
 def pp_mode_start_realtive_motion():
     for id in [ID2, ID3, ID4]:
