@@ -248,37 +248,37 @@ def pp_angle(tar_joints, travel_time, selection):
     # print(f"tar accel = {accel_decel_1}, {accel_decel_2}, {accel_decel_3}, {accel_decel_4}")
     # print(f"tar max speed = {max_speed_1}, {max_speed_2}, {max_speed_3}, {max_speed_4}")
     
-    # if selection != "servo_only":  
-    #     pp_mode_set_acceleration(accel_decel_2, accel_decel_3, accel_decel_4) #6 may 2025
-    #     pp_mode_set_deceleration(accel_decel_2, accel_decel_3, accel_decel_4) #6 may 2025
-    #     pp_mode_set_max_speed(max_speed_2, max_speed_3, max_speed_4) #6 may 2025
-    #     pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4) #6 may 2025
+    if selection != "servo_only":  
+        pp_mode_set_acceleration(accel_decel_2, accel_decel_3, accel_decel_4) #6 may 2025
+        pp_mode_set_deceleration(accel_decel_2, accel_decel_3, accel_decel_4) #6 may 2025
+        pp_mode_set_max_speed(max_speed_2, max_speed_3, max_speed_4) #6 may 2025
+        pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4) #6 may 2025
     
-    # # accel_decel_2 = stepper_pulses_to_steps(accel_decel_2)
-    # # accel_decel_3 = stepper_pulses_to_steps(accel_decel_3)
-    # # accel_decel_4 = stepper_pulses_to_steps(accel_decel_4)
+    # accel_decel_2 = stepper_pulses_to_steps(accel_decel_2)
+    # accel_decel_3 = stepper_pulses_to_steps(accel_decel_3)
+    # accel_decel_4 = stepper_pulses_to_steps(accel_decel_4)
     
-    # if selection != "stepper_only":
-    #     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
-    #     time.sleep(0.1)  # wait for servo to switch on
-    #     servo_set_profile_type(0x00)
-    #     servo_set_acceleration(accel_decel_1)
-    #     servo_set_deceleration(accel_decel_1)
-    #     servo_set_max_speed(max_speed_1)
-    #     servo_set_tar_pulse(tar_pulse_1)
+    if selection != "stepper_only":
+        set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
+        servo_set_profile_type(0x00)
+        servo_set_acceleration(accel_decel_1)
+        servo_set_deceleration(accel_decel_1)
+        servo_set_max_speed(max_speed_1)
+        servo_set_tar_pulse(tar_pulse_1)
     
-    # if selection != "servo_only":  
-    #     pp_mode_start_absolute_motion()
+    if selection != "servo_only":  
+        # pp_mode_start_absolute_motion()
+        print(f"pp mode start absolute motion")
         
-    # if selection != "stepper_only":  
-    #     # time.sleep(0.5)  # wait for servo to switch on
-    #     max_accel_servo = 583000 # 582549
-    #     if (accel_decel_1 <= max_accel_servo):
-    #         set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
-    #         if (accel_decel_1 >= (max_accel_servo * 0.8)):
-    #             print_yellow(f"warning : almost max acceleration")
-    #     else:
-    #         print_red(f"motion denied, acceleration is too high, dangerous movement")
+    if selection != "stepper_only":  
+        # time.sleep(0.5)  # wait for servo to switch on
+        max_accel_servo = 583000 # 582549
+        if (accel_decel_1 <= max_accel_servo):
+            set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
+            if (accel_decel_1 >= (max_accel_servo * 0.8)):
+                print_yellow(f"warning : almost max acceleration")
+        else:
+            print_red(f"motion denied, acceleration is too high, dangerous movement")
     
 def pp_coor(tar_coor, travel_time, selection):
     tar_joints = inverse_kinematics(tar_coor)
