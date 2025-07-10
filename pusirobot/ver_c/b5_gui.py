@@ -1,8 +1,8 @@
 import signal
 import tkinter as tk
 import time
-from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up, set_motor_selection, get_motor_selection
-from b3_motion import sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, pp_angle_servo, print_red, print_orange, print_yellow
+from b4_function import wake_up, shutdown,get_encoder_position, set_origin, is_already_wake_up, set_motor_selection, get_motor_selection
+from b3_motion import sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, pp_angle_servo, print_red, print_orange, print_yellow, forward_kinematics, get_cur_joints
 from b1_servo import servo_execute
 from b2_pvt import pvt_mode_start_pvt_step
 import sys
@@ -134,7 +134,7 @@ def pp_joint():
     travel_time = get_travel_time()
     # # print(f"masuk pp joint")
     pp_angle(tar_joints, travel_time, selection)
-    # # last_time = time.time()
+    last_time = time.time()
     
 def pp_move():  
     global last_time
@@ -315,7 +315,28 @@ def on_motor_selection_changed():
     selected_motors = get_motor_selection()
     print(f"Current motor selection: {selected_motors}")
 
-
+def read_present_position():
+    global last_time
+    selection = get_motor_selection()
+    cur_joints = get_cur_joints(selection)
+    cur_coor = forward_kinematics(cur_joints)
+    
+    formatted_angles = "°, ".join([f"{angle:.2f}" for angle in cur_joints]) #6 may 2025
+    # print_yellow(f"cur joint : {formatted_angles}°")#yellow #6 may 2025
+    # j1, j2, j3, j4 = cur_joints #6 may 2025
+    # print_yellow(f"cur servo's angle: {j1:.1f}°")#yellow #6 may 2025
+    
+    cur_x, cur_y, cur_z, cur_yaw = cur_coor
+    print_orange(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f}°")#orange #6 may 2025
+    
+    delta_time = time.time() - last_time
+    print(f"time : {delta_time:.2f} seconds")
+    # print_orange(f"cur coor z:{cur_z:.1f} mm")#orange #6 may 2025
+    
+    # servo_vel = servo_get_motor_velocity(ID1)
+    # servo_status = servo_get_status_word(ID1)
+    
+    # print(f"servo status (hex): {servo_status:08X}, servo velocity: {servo_vel}")
     
 # Menangani sinyal SIGINT (Ctrl + C)
 signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
