@@ -126,12 +126,12 @@ def init_change_group_id(group_id):
 def init_set_accel_coef(accel_coef_option):
     for id in [ID2, ID3, ID4]:
         _,ret = set_req_sdo(id, SET_1_BYTE, OD_STEPPER_ACCEL_COEF, 0x00, accel_coef_option)
-    print(f"accel coef = {ret}") 
+    # print(f"accel coef = {ret}") 
              
 def init_set_decel_coef(decel_coef_option):  
     for id in [ID2, ID3, ID4]:
         _,ret = set_req_sdo(id, SET_1_BYTE, OD_STEPPER_DECEL_COEF, 0x00, decel_coef_option)
-    print(f"decel coef = {ret}")  
+    # print(f"decel coef = {ret}")  
  
 def emergency_stop_stepping():
     for id in [ID2, ID3, ID4]:
