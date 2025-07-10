@@ -276,7 +276,7 @@ def pp_angle(tar_joints, travel_time, selection):
         if (accel_decel_1 <= max_accel_servo):
             set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
             if (accel_decel_1 >= (max_accel_servo * 0.8)):
-                print_yellow(f"warning : almost max acceleration")
+                print_yellow(f"warning : almost reaching max acceleration")
         else:
             print_red(f"motion denied, acceleration is too high, dangerous movement")
     

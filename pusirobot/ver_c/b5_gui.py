@@ -269,6 +269,8 @@ def routine():
             d3 = entry['d3']
             d4 = entry['d4']
             
+            entry['travel_time'] = get_travel_time
+            
             print(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
             motion_cnt += 1
             print(f"counter {motion_cnt} of {motion_size}")
