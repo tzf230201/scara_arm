@@ -73,7 +73,7 @@ def pp_mode_init():
     pp_mode_set_start_speed(150)
     pp_mode_set_stop_speed(150)
     
-    print(f"the steppers are in pp mode")
+    # print(f"the steppers are in pp mode")
     
 def stepper_accel_decel_calc(d_total, t_travel_ms):
     # print(f"d_total: {d_total} pulses, t_travel_ms: {t_travel_ms} ms")
