@@ -263,13 +263,14 @@ def routine():
         if motion_enable and motion_cnt < motion_size:
             entry = motion_data[motion_cnt]
             motion_type = entry['motion_type']
+            entry['travel_time'] = get_travel_time()
             travel_time = entry['travel_time']
             d1 = entry['d1']
             d2 = entry['d2']
             d3 = entry['d3']
             d4 = entry['d4']
             
-            entry['travel_time'] = get_travel_time()
+            
             
             print(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
             motion_cnt += 1
