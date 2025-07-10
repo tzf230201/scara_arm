@@ -250,14 +250,15 @@ def pp_angle(tar_joints, travel_time, selection):
     
     if selection != "servo_only":  
         max_speed_2, max_speed_3, max_speed_4 = 10000, 10000, 10000
+        accel_decel_2 = stepper_pulses_to_steps(accel_decel_2)
+        accel_decel_3 = stepper_pulses_to_steps(accel_decel_3)
+        accel_decel_4 = stepper_pulses_to_steps(accel_decel_4)
         pp_mode_set_acceleration(accel_decel_2, accel_decel_3, accel_decel_4)
         pp_mode_set_deceleration(accel_decel_2, accel_decel_3, accel_decel_4)
         pp_mode_set_max_speed(max_speed_2, max_speed_3, max_speed_4)
         pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4)
     
-    # accel_decel_2 = stepper_pulses_to_steps(accel_decel_2)
-    # accel_decel_3 = stepper_pulses_to_steps(accel_decel_3)
-    # accel_decel_4 = stepper_pulses_to_steps(accel_decel_4)
+  
     
     if selection != "stepper_only":
         set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
