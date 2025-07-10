@@ -2,7 +2,7 @@ import signal
 import tkinter as tk
 import time
 from b4_function import wake_up, shutdown, read_present_position, get_encoder_position, set_origin, is_already_wake_up, set_motor_selection, get_motor_selection
-from b3_motion import sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, pp_angle_servo
+from b3_motion import sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, pp_angle_servo, print_red, print_orange, print_yellow
 from b1_servo import servo_execute
 from b2_pvt import pvt_mode_start_pvt_step
 import sys
@@ -272,7 +272,7 @@ def routine():
             
             
             read_present_position()
-            print(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
+            print_red(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
             motion_cnt += 1
             print(f"counter {motion_cnt} of {motion_size}")
             execute_motion_data(entry)
