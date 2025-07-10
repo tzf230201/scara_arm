@@ -273,9 +273,9 @@ def routine():
             
             read_present_position()
             # print_red(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
+            print(f"counter {motion_cnt + 1} of {motion_size}")
             print_red(f"tar coor, x:{d1} mm, y:{d2} mm, z:{d3} mm, yaw:{d4}°")
             motion_cnt += 1
-            print(f"counter {motion_cnt} of {motion_size}")
             execute_motion_data(entry)
             
             # delta_time = time.time() - last_time
