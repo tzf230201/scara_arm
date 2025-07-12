@@ -73,7 +73,7 @@ def get_travel_time():
 def pvt_joint():
     global last_time
     selection = get_motor_selection()
-    cur_joints = read_present_position()
+    cur_joints = get_cur_joints(selection)
     tar_joints = get_tar_joints()
     travel_time = get_travel_time()
     
