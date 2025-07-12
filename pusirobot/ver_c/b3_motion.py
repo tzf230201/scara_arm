@@ -335,6 +335,7 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     global last_time, stop_watch, time_out
     group_id = 0x05
     tar_pulses = []
+    cur_pulses = []
     node_ids = [ID1, ID2, ID3, ID4]
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
@@ -343,6 +344,9 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     
     for tar_joint in tar_joints:
         tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
+        
+    for cur_joint in cur_joints:
+        cur_pulses.append(stepper_degrees_to_pulses(cur_joint))
     
     
     # Initialize p, v, and t as empty lists
@@ -353,7 +357,7 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     #qq
     for i in range(1, 4):
         tar_step = stepper_pulses_to_steps(tar_pulses[i])
-        p[i], v[i], t[i] = generate_pvt_trajectory_triangle_2(cur_joints[i] ,  tar_step, travel_time) 
+        p[i], v[i], t[i] = generate_pvt_trajectory_triangle_2(cur_pulses[i] ,  tar_step, travel_time) 
     
     for i in range(1, 4):
         for pos, vel, tim in zip(p[i], v[i], t[i]):
