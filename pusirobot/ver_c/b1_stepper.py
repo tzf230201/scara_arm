@@ -280,4 +280,3 @@ def stepper_shutdown():
     init_torque_ring_enable(0)  
     init_set_max_current(0)
     # reset_node()
-    print(f"stepper shutdown")

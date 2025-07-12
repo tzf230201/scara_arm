@@ -369,7 +369,7 @@ tk.Radiobutton(
 
 on_motor_selection_changed()  # Set initial motor selection
 
-tk.Label(root, text="Enter time:").grid(row=2, column=0, padx=5, pady=5, sticky="ew")
+tk.Label(root, text="Enter time (ms):").grid(row=2, column=0, padx=5, pady=5, sticky="ew")
 entry_time = tk.Entry(root)
 entry_time.insert(0, "4000")
 entry_time.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
