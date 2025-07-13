@@ -281,10 +281,10 @@ def generate_pvt_trajectory_triangle_2(cur_pulse, tar_pulse, travel_time):
         
         time += dt
 
-    # Pastikan posisi akhir tepat di target
-    position_points.append(tar_pulse)
-    velocity_points.append(0.0)
-    time_points.append(travel_time)
+    # # Pastikan posisi akhir tepat di target
+    # position_points.append(tar_pulse)
+    # velocity_points.append(0.0)
+    # time_points.append(travel_time)
     
     
     position_points = np.round(position_points).astype(int)
