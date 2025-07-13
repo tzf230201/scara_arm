@@ -67,7 +67,7 @@ OD_STEPPER_POWER_LOSS_BEHAVIOR = 0X6031
 
 
 
-MICROSTEP = 32
+MICROSTEP = 64
 
 STEPPER_PPR = 4096
 STEPPER_RATIO = STEPPER_PPR / 360
@@ -266,7 +266,7 @@ def read_sp_mode_arrival_status():
 def stepper_init():
     init_motor_enable(1)
     init_torque_ring_enable(1)
-    init_set_max_current(3000)
+    init_set_max_current(1500)
     init_microstepping(MICROSTEP)
     init_set_accel_coef(1)
     init_set_decel_coef(1)
