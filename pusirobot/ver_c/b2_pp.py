@@ -64,7 +64,7 @@ def pp_mode_init():
     
     init_motor_enable(1)
     init_torque_ring_enable(1)
-    init_set_max_current(1000)
+    init_set_max_current(STEPPER_MAX_CURRENT)
     init_microstepping(MICROSTEP)
     init_operation_mode(4)
 

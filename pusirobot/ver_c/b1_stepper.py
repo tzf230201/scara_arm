@@ -65,7 +65,7 @@ OD_STEPPER_STEP_NOTIFICATION = 0X602C
 #power loss behavior
 OD_STEPPER_POWER_LOSS_BEHAVIOR = 0X6031
 
-
+STEPPER_MAX_CURRENT = 1000
 
 MICROSTEP = 128
 
@@ -108,7 +108,7 @@ def init_set_max_current(max_current):
 def init_microstepping(sub_division):
     for id in [ID2, ID3, ID4]:
         ensure_set_req_sdo(id, SET_2_BYTE, OD_STEPPER_MICROSTEPPING, 0x00, sub_division)
-    # print(f"microstep set to {sub_division}") 
+    print(f"microstep set to {sub_division}") 
 
 def init_operation_mode(mode):
     for id in [ID2, ID3, ID4]:
@@ -266,7 +266,7 @@ def read_sp_mode_arrival_status():
 def stepper_init():
     init_motor_enable(1)
     init_torque_ring_enable(1)
-    init_set_max_current(1500)
+    init_set_max_current(STEPPER_MAX_CURRENT)
     init_microstepping(MICROSTEP)
     init_set_accel_coef(1)
     init_set_decel_coef(1)
