@@ -155,7 +155,7 @@ def save_settings():
 def stall_on():
     for id in [ID2, ID3, ID4]:
         set_sdo(id, SET_1_BYTE, OD_STEPPER_STALL_SET, 0x00, 0x01)
-        _, ret = set_req_sdo(id, SET_2_BYTE, OD_STEPPER_STALL_LENGTH, 0x00, 64)
+        _, ret = set_req_sdo(id, SET_2_BYTE, OD_STEPPER_STALL_LENGTH, 0x00, 32)
     print(f"stall length set to {ret}")
     print(f"stall (open-loop) activated")
     save_settings()
