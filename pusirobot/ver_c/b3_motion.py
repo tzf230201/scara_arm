@@ -356,7 +356,8 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     
     #qq
     for i in range(1, 4):
-        tar_step = stepper_pulses_to_steps(tar_pulses[i])
+        # tar_step = stepper_pulses_to_steps(tar_pulses[i])
+        tar_step = tar_pulses[i]
         p[i], v[i], t[i] = generate_pvt_trajectory_triangle_2(cur_pulses[i] ,  tar_step, travel_time) 
     
     for i in range(1, 4):
