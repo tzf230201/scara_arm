@@ -399,7 +399,7 @@ entry_tar_joint_3.grid(row=6, column=1, padx=5, pady=5, sticky="ew")
 
 tk.Label(root, text="angle 4 (degree):").grid(row=7, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_joint_4 = tk.Entry(root)
-entry_tar_joint_4.insert(0, "-262.5")#262.5
+entry_tar_joint_4.insert(0, "-712.50")#262.5
 entry_tar_joint_4.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
 
 #baris 13
