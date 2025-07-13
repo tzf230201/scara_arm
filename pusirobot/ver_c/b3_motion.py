@@ -362,8 +362,8 @@ def pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time):
     
     for i in range(1, 4):
         for pos, vel, tim in zip(p[i], v[i], t[i]):
-            if (vel != 0):
-                pvt_mode_write_read(node_ids[i], pos, vel, tim)
+            # if (vel != 0):
+            pvt_mode_write_read(node_ids[i], pos, vel, tim)
             # print(f"motor {i+1} write {pos}, {vel}, {tim}")
                 
                 
