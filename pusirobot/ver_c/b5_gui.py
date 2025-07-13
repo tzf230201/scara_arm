@@ -423,22 +423,22 @@ pvt_mode_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew
 
 tk.Label(root, text="coor x (mm):").grid(row=14, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_x = tk.Entry(root)
-entry_tar_x.insert(0, "130")
+entry_tar_x.insert(0, "107")
 entry_tar_x.grid(row=14, column=1, padx=5, pady=5, sticky="ew")
 
 tk.Label(root, text="coor y (mm):").grid(row=15, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_y = tk.Entry(root)
-entry_tar_y.insert(0, "0")
+entry_tar_y.insert(0, "224")
 entry_tar_y.grid(row=15, column=1, padx=5, pady=5, sticky="ew")
 
 tk.Label(root, text="coor z (mm):").grid(row=16, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_z = tk.Entry(root)
-entry_tar_z.insert(0, "0")
+entry_tar_z.insert(0, "90")
 entry_tar_z.grid(row=16, column=1, padx=5, pady=5, sticky="ew")
 
 tk.Label(root, text="coor yaw (degree):").grid(row=17, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_yaw = tk.Entry(root)
-entry_tar_yaw.insert(0, "0")
+entry_tar_yaw.insert(0, "90")
 entry_tar_yaw.grid(row=17, column=1, padx=5, pady=5, sticky="ew")
 
 # #baris 18
