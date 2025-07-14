@@ -62,16 +62,16 @@ def pp_mode_start_realtive_motion():
 def pp_mode_init():
     # print(f"start pp mode initialization")
     
-    init_motor_enable(1)
-    init_torque_ring_enable(1)
-    init_set_max_current(STEPPER_MAX_CURRENT)
-    init_microstepping(MICROSTEP)
+    # init_motor_enable(1)
+    # init_torque_ring_enable(1)
+    # init_set_max_current(STEPPER_MAX_CURRENT)
+    # init_microstepping(MICROSTEP)
     init_operation_mode(4)
 
-    pp_mode_set_acceleration(8192, 8192, 8192)
-    pp_mode_set_deceleration(8192, 8192, 8192)
-    pp_mode_set_start_speed(150)
-    pp_mode_set_stop_speed(150)
+    # pp_mode_set_acceleration(8192, 8192, 8192)
+    # pp_mode_set_deceleration(8192, 8192, 8192)
+    # pp_mode_set_start_speed(150)
+    # pp_mode_set_stop_speed(150)
     
     # print(f"the steppers are in pp mode")
     
