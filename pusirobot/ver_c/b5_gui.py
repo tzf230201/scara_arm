@@ -285,7 +285,7 @@ def routine():
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
             
-            root.after(int(travel_time + 100), routine)
+            root.after(int(travel_time + 500), routine)
         else:
             stop()
     else:
