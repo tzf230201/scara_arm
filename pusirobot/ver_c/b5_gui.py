@@ -221,6 +221,10 @@ def execute_motion_data(entry):
         pp_coor(pickup_from_shelf_coor, travel_time, selection=get_motor_selection())
     elif motion_type == 'place_onto_shelf':
         pp_coor(place_onto_shelf_coor, travel_time, selection=get_motor_selection())
+    elif motion_type == 'sp_coor':
+        sp_coor([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
+    elif motion_type == 'sp_angle':
+        sp_angle([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
 
     # print(f"Executing: {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
 
@@ -281,7 +285,7 @@ def routine():
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
             
-            root.after(int(travel_time + 500), routine)
+            root.after(int(travel_time + 100), routine)
         else:
             stop()
     else:
