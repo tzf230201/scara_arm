@@ -470,10 +470,10 @@ entry_tar_yaw.insert(0, "90")
 entry_tar_yaw.grid(row=17, column=1, padx=5, pady=5, sticky="ew")
 
 # #baris 18
-sp_move_button = tk.Button(root, text="SP move", command=sp_move)
-sp_move_button.grid(row=18, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+# sp_move_button = tk.Button(root, text="SP move", command=sp_move)
+# sp_move_button.grid(row=18, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-pvt_move_button = tk.Button(root, text="circular test", command=pvt_move)
+pvt_move_button = tk.Button(root, text="PVT move", command=pvt_move)
 pvt_move_button.grid(row=18, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 
