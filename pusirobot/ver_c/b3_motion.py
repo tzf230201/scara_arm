@@ -573,8 +573,8 @@ def check_limit(tar_joints):
     
     # if tar_joint_1 > (13004): # 6 may 2025
     #     tar_joint_1 = 13004 # 6 may 2025
-    if tar_joint_1 > (4000): # 6 may 2025
-        tar_joint_1 = 4000 # 6 may 2025
+    if tar_joint_1 > (3551*4): # 6 may 2025
+        tar_joint_1 = (3551*4) # 6 may 2025
         print(f"tar_joint_1 greater than {tar_joint_1}")
     elif tar_joint_1 < 0:
         tar_joint_1 = 0
