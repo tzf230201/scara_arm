@@ -416,11 +416,11 @@ entry_tar_joint_4.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
 # pvt_mode_init_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 
-sp_joint_button = tk.Button(root, text="SP try", command=sp_joint)
-sp_joint_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+# sp_joint_button = tk.Button(root, text="SP try", command=sp_joint)
+# sp_joint_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-# pvt_mode_button = tk.Button(root, text="PVT angle", command=pvt_joint)
-# pvt_mode_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+pvt_mode_button = tk.Button(root, text="PVT angle", command=pvt_joint)
+pvt_mode_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 
 pp_mode_button = tk.Button(root, text="PP angle", command=pp_joint)
