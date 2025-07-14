@@ -67,7 +67,7 @@ def send_can_command(command):
 
     msg = can.Message(arbitration_id=can_id, data=can_data, is_extended_id=False)
     bus.send(msg)
-    time.sleep(0.1)
+    time.sleep(0.5)
 
 
 def read_sdo(request_id):
