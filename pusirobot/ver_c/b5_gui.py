@@ -238,7 +238,7 @@ def start_dancing():
     global motion_size
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(script_dir, "motion_data_2.csv")
+    filename = os.path.join(script_dir, "motion_data_3_with_sp.csv")
     
     motion_data = read_motion_csv(filename)
     motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
