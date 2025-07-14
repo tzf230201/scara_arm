@@ -263,7 +263,7 @@ def routine():
         if motion_enable and motion_cnt < motion_size:
             entry = motion_data[motion_cnt]
             motion_type = entry['motion_type']
-            # entry['travel_time'] = get_travel_time()
+            # entry['travel_time'] = get_travel_time() #atur waktu
             travel_time = entry['travel_time']
             d1 = entry['d1']
             d2 = entry['d2']
