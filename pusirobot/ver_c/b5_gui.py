@@ -238,7 +238,7 @@ def start_dancing():
     global motion_size
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(script_dir, "motion_data.csv")
+    filename = os.path.join(script_dir, "motion_data_2.csv")
     
     motion_data = read_motion_csv(filename)
     motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
@@ -263,7 +263,7 @@ def routine():
         if motion_enable and motion_cnt < motion_size:
             entry = motion_data[motion_cnt]
             motion_type = entry['motion_type']
-            entry['travel_time'] = get_travel_time()
+            # entry['travel_time'] = get_travel_time()
             travel_time = entry['travel_time']
             d1 = entry['d1']
             d2 = entry['d2']
