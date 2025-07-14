@@ -223,6 +223,8 @@ def pp_angle(tar_joints, travel_time, selection):
     
     cur_joints = get_cur_joints(selection)
     
+    tar_joints = check_limit(tar_joints)
+    
     cur_joint_1, cur_joint_2, cur_joint_3, cur_joint_4 = cur_joints
     tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
     
