@@ -986,5 +986,54 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
 
     plt.tight_layout()
     plt.show()
+    
+    # Fungsi untuk menghitung kecepatan joint dalam RPM
+    def calculate_joint_speed(displacement, interval):
+        speed_rpm = []
+        for i in range(1, len(displacement)):
+            if displacement[i] is not None and displacement[i-1] is not None:
+                speed_dps = displacement[i] / interval
+                speed_rpm.append((speed_dps * 60) / 360)
+            else:
+                speed_rpm.append(None)  # Jika ada nilai None, maka hasilnya None
+        speed_rpm.insert(0, 0)  # Tidak ada kecepatan pada titik awal, jadi kecepatan awal adalah 0
+        return speed_rpm
+    
+    # Interval waktu antara setiap langkah
+    interval = (time_values[1] - time_values[0]) / 1000  # Konversi dari ms ke detik
+    
+
+    # Menghitung kecepatan dalam RPM
+    joint_1_speed_rpm = calculate_joint_speed(joint_2_displacement, interval)
+    joint_2_speed_rpm = calculate_joint_speed(joint_2_displacement, interval)
+    joint_3_speed_rpm = calculate_joint_speed(joint_3_displacement, interval)
+    joint_4_speed_rpm = calculate_joint_speed(joint_4_displacement, interval)
+    
+    # Plot kecepatan joint dalam RPM
+    plt.figure(figsize=(12, 8))
+    plt.subplot(3, 1, 1)
+    plt.plot(time_values - start_time, joint_2_speed_rpm, label='Joint 2 Speed (RPM)')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('Speed (RPM)')
+    plt.grid(True)
+    plt.legend()
+    plt.title('Joint 2 Speed Over Time')
+
+    plt.subplot(3, 1, 2)
+    plt.plot(time_values - start_time, joint_3_speed_rpm, label='Joint 3 Speed (RPM)')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('Speed (RPM)')
+    plt.grid(True)
+    plt.legend()
+
+    plt.subplot(3, 1, 3)
+    plt.plot(time_values - start_time, joint_4_speed_rpm, label='Joint 4 Speed (RPM)')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('Speed (RPM)')
+    plt.grid(True)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
 
     return 0
