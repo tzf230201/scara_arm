@@ -944,6 +944,42 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     plt.tight_layout()
     plt.show()
     
+    def calculate_relative_position(joint_values):
+        base = joint_values[0]
+        return [j - base if j is not None else None for j in joint_values]
+
+    joint_1_relative = calculate_relative_position(joint_1_values)
+    joint_2_relative = calculate_relative_position(joint_2_values)
+    joint_3_relative = calculate_relative_position(joint_3_values)
+    joint_4_relative = calculate_relative_position(joint_4_values)
+    
+    plt.figure(figsize=(12, 8))
+    plt.subplot(3, 1, 1)
+    plt.plot(time_values, joint_2_relative, label='Joint 2 Relative Position')
+    plt.ylabel('Degrees')
+    plt.xlabel('Time (s)')
+    plt.title('Relative Joint Position')
+    plt.grid(True)
+    plt.legend()
+
+    plt.subplot(3, 1, 2)
+    plt.plot(time_values, joint_3_relative, label='Joint 3 Relative Position')
+    plt.ylabel('Degrees')
+    plt.xlabel('Time (s)')
+    plt.grid(True)
+    plt.legend()
+
+    plt.subplot(3, 1, 3)
+    plt.plot(time_values, joint_4_relative, label='Joint 4 Relative Position')
+    plt.ylabel('Degrees')
+    plt.xlabel('Time (s)')
+    plt.grid(True)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+
     def calculate_joint_displacement(joint_values):
         displacement = []
         for i in range(1, len(joint_values)):
@@ -1004,7 +1040,7 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     
 
     # Menghitung kecepatan dalam RPM
-    joint_1_speed_rpm = calculate_joint_speed(joint_2_displacement, interval)
+    joint_1_speed_rpm = calculate_joint_speed(joint_1_displacement, interval)
     joint_2_speed_rpm = calculate_joint_speed(joint_2_displacement, interval)
     joint_3_speed_rpm = calculate_joint_speed(joint_3_displacement, interval)
     joint_4_speed_rpm = calculate_joint_speed(joint_4_displacement, interval)
