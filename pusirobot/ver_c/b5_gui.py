@@ -211,7 +211,7 @@ def print_motion_data(motion_data):
         print(f"{i} : {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
         i += 1
 
-home_angle = [40, 0, 0, 0]  # home position in coor
+home_angle = [360, 0, 0, 0]  # home position in coor
 shuttle_coor = [166.82, -168, 10, 0]
 pre_past_shelf_coor = [107, 100, 10, 90]
 pickup_from_shelf_coor = [107, 224, 10, 90]
