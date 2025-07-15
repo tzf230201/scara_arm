@@ -798,3 +798,11 @@ def dancing(travel_time):
     time.sleep(sleep)
     sp_coor([258, 0, 0, 0], travel_time)
 
+def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
+    cur_coor = forward_kinematics(cur_joints)
+    tar_coor = forward_kinematics(tar_joints)
+    
+    steps = travel_time / pvt_time_interval
+    
+    print(f"cur_coor:{cur_coor}, tar_coor:{tar_coor}, steps:{steps}")
+    return 0

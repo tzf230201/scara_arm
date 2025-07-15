@@ -2,7 +2,7 @@ import signal
 import tkinter as tk
 import time
 from b4_function import wake_up, shutdown,get_encoder_position, set_origin, is_already_wake_up, set_motor_selection, get_motor_selection
-from b3_motion import sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3, pp_angle, pp_coor, pp_angle_servo, print_red, print_orange, print_yellow, forward_kinematics, inverse_kinematics, get_cur_joints, check_limit
+from b3_motion import sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt_3,pvt_mode_try_pvt_4, pp_angle, pp_coor, pp_angle_servo, print_red, print_orange, print_yellow, forward_kinematics, inverse_kinematics, get_cur_joints, check_limit
 from b1_servo import servo_execute
 from b2_pvt import pvt_mode_start_pvt_step
 import sys
@@ -78,7 +78,7 @@ def pvt_joint():
     travel_time = get_travel_time()
     
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
-    pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
+    pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time)
     # ret = pp_angle_servo(tar_joints, travel_time, selection)
     # if ret == 1:
     #     servo_execute()  # Execute the servo command to start the movement
