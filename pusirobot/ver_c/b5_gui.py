@@ -415,12 +415,12 @@ entry_tar_joint_1.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
 
 tk.Label(root, text="angle 2 (degree):").grid(row=5, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_joint_2 = tk.Entry(root)
-entry_tar_joint_2.insert(0, "445.80")#"482.5")
+entry_tar_joint_2.insert(0, "498.66")#"482.5")
 entry_tar_joint_2.grid(row=5, column=1, padx=5, pady=5, sticky="ew")
 
 tk.Label(root, text="angle 3 (degree):").grid(row=6, column=0, padx=5, pady=5, sticky="ew")
 entry_tar_joint_3 = tk.Entry(root)
-entry_tar_joint_3.insert(0, "331.54")#"-187.5")
+entry_tar_joint_3.insert(0, "333.74")#"-187.5")
 entry_tar_joint_3.grid(row=6, column=1, padx=5, pady=5, sticky="ew")
 
 tk.Label(root, text="angle 4 (degree):").grid(row=7, column=0, padx=5, pady=5, sticky="ew")
