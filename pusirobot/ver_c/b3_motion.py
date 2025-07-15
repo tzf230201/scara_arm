@@ -804,8 +804,9 @@ import matplotlib.pyplot as plt
 def generate_coor_straight_trajectory(start, end, steps):
     x_points = np.linspace(start[0], end[0], steps)
     y_points = np.linspace(start[1], end[1], steps)
-    c_points = np.linspace(start[2], end[2], steps)
-    trajectory = list(zip(x_points, y_points, c_points))
+    z_points = np.linspace(start[2], end[2], steps)
+    yaw_points = np.linspace(start[3], end[3], steps)
+    trajectory = list(zip(x_points, y_points, z_points, yaw_points))
     return trajectory
 
 def transform_time_to_angle(current_time, start_time, travel_time):
@@ -830,14 +831,14 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     cur_x, cur_y, cur_z, cur_yaw = cur_coor
     tar_x, tar_y, tar_z, tar_yaw = tar_coor
     
-    start_coor = cur_x, cur_y, cur_yaw
-    end_coor = tar_x, tar_y, tar_yaw
+    start_coor = cur_x, cur_y, cur_z, cur_yaw
+    end_coor = tar_x, tar_y, cur_z, tar_yaw
 
     steps = int(travel_time / pvt_time_interval)  # Make sure pvt_time_interval is defined
 
-    print(f"cur_coor: ({cur_x:.2f}, {cur_y:.2f}, {cur_z:.2f}, {cur_yaw:.2f})")
-    print(f"tar_coor: ({tar_x:.2f}, {tar_y:.2f}, {tar_z:.2f}, {tar_yaw:.2f})")
-    print(f"steps: {steps}")
+    # print(f"cur_coor: ({cur_x:.2f}, {cur_y:.2f}, {cur_z:.2f}, {cur_yaw:.2f})")
+    # print(f"tar_coor: ({tar_x:.2f}, {tar_y:.2f}, {tar_z:.2f}, {tar_yaw:.2f})")
+    # print(f"steps: {steps}")
     
     trajectory = generate_coor_straight_trajectory(start_coor, end_coor, steps)
     
@@ -859,26 +860,30 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     # Calculate sine wave values for x and y positions
     x_over_time = [sine_wave(t, start_time, travel_time, cur_x, tar_x) for t in time_values]
     y_over_time = [sine_wave(t, start_time, travel_time, cur_y, tar_y) for t in time_values]
-    c_over_time = [sine_wave(t, start_time, travel_time, cur_yaw, tar_yaw) for t in time_values]
+    z_over_time = [sine_wave(t, start_time, travel_time, cur_z, tar_z) for t in time_values]
+    yaw_over_time = [sine_wave(t, start_time, travel_time, cur_yaw, tar_yaw) for t in time_values]
 
-    trajectory_over_time = list(zip(x_over_time, y_over_time, c_over_time))
+    trajectory_over_time = list(zip(x_over_time, y_over_time, z_over_time, yaw_over_time))
     
     # Calculate joint angles for each point in the trajectory
-    joint2_values = []
-    joint3_values = []
-    joint4_values = []
+    joint_1_values = []
+    joint_2_values = []
+    joint_3_values = []
+    joint_4_values = []
 
-    for (x, y, c) in trajectory_over_time:
+    for (x, y, z, yaw) in trajectory_over_time:
         try:
-            joint2, joint3, joint4 = inverse_kinematics(x, y, c)
-            joint2_values.append(joint2)
-            joint3_values.append(joint3)
-            joint4_values.append(joint4)
+            joint_1, joint_2, joint_3, joint_4 = inverse_kinematics(x, y, z, yaw)
+            joint_1_values.append(joint_1)
+            joint_2_values.append(joint_2)
+            joint_3_values.append(joint_3)
+            joint_4_values.append(joint_4)
         except ValueError as e:
             print(f"Error calculating inverse kinematics for (x={x}, y={y}, c={c}): {e}")
-            joint2_values.append(None)  # Use None to indicate out-of-bound values
-            joint3_values.append(None)
-            joint4_values.append(None)
+            joint_1_values.append(None) # Use None to indicate out-of-bound values
+            joint_2_values.append(None) 
+            joint_3_values.append(None)
+            joint_4_values.append(None)
 
     
     # Plot x, y, and c over time in one window
@@ -901,7 +906,7 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     plt.legend()
 
     plt.subplot(3, 1, 3)
-    plt.plot(time_values - start_time, c_over_time, label='C over Time')
+    plt.plot(time_values - start_time, yaw_over_time, label='C over Time')
     plt.xlabel('Time (ms)')
     plt.ylabel('C Position')
     plt.grid(True)
