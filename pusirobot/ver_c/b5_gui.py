@@ -79,9 +79,9 @@ def pvt_joint():
     
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
-    ret = pp_angle_servo(tar_joints, travel_time, selection)
-    if ret == 1:
-        servo_execute()  # Execute the servo command to start the movement
+    # ret = pp_angle_servo(tar_joints, travel_time, selection)
+    # if ret == 1:
+    #     servo_execute()  # Execute the servo command to start the movement
     group_id = 0x05
     pvt_mode_start_pvt_step(group_id)
     last_time = time.time()
@@ -98,9 +98,9 @@ def pvt_move():
     print(f"tar joint = {tar_joints} degree")
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
-    ret = pp_angle_servo(tar_joints, travel_time, selection)
-    if ret == 1:
-        servo_execute()  # Execute the servo command to start the movement
+    # ret = pp_angle_servo(tar_joints, travel_time, selection)
+    # if ret == 1:
+    #     servo_execute()  # Execute the servo command to start the movement
     group_id = 0x05
     pvt_mode_start_pvt_step(group_id)
     last_time = time.time()
