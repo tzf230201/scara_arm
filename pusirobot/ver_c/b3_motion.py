@@ -818,11 +818,11 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     start_coor = cur_x, cur_y, cur_yaw
     end_coor = tar_x, tar_y, tar_yaw
 
-    steps = travel_time / pvt_time_interval  # Make sure pvt_time_interval is defined
+    steps = int(travel_time / pvt_time_interval)  # Make sure pvt_time_interval is defined
 
     print(f"cur_coor: ({cur_x:.2f}, {cur_y:.2f}, {cur_z:.2f}, {cur_yaw:.2f})")
     print(f"tar_coor: ({tar_x:.2f}, {tar_y:.2f}, {tar_z:.2f}, {tar_yaw:.2f})")
-    print(f"steps: {steps:.2f}")
+    print(f"steps: {steps}")
     
     trajectory = generate_coor_straight_trajectory(start_coor, end_coor, steps)
     
