@@ -802,7 +802,10 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     cur_coor = forward_kinematics(cur_joints)
     tar_coor = forward_kinematics(tar_joints)
     
+    cur_x, cur_y, cur_z, cur_yaw = cur_coor
+    tar_x, tar_y, tar_z, tar_yaw = tar_coor
+    
     steps = travel_time / pvt_time_interval
     
-    print(f"cur_coor:{cur_coor}, tar_coor:{tar_coor}, steps:{steps}")
+    print(f"cur_coor:{cur_coor:.2f}, tar_coor:{tar_coor:.2f}, steps:{steps:.2f}")
     return 0
