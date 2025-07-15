@@ -798,17 +798,44 @@ def dancing(travel_time):
     time.sleep(sleep)
     sp_coor([258, 0, 0, 0], travel_time)
 
+
+def generate_coor_straight_trajectory(start, end, steps):
+    x_points = np.linspace(start[0], end[0], steps)
+    y_points = np.linspace(start[1], end[1], steps)
+    c_points = np.linspace(start[2], end[2], steps)
+    trajectory = list(zip(x_points, y_points, c_points))
+    return trajectory
+
+import matplotlib.pyplot as plt
+
 def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     cur_coor = forward_kinematics(cur_joints)
     tar_coor = forward_kinematics(tar_joints)
 
     cur_x, cur_y, cur_z, cur_yaw = cur_coor
     tar_x, tar_y, tar_z, tar_yaw = tar_coor
+    
+    start_coor = cur_x, cur_y, cur_yaw
+    end_coor = tar_x, tar_y, tar_yaw
 
     steps = travel_time / pvt_time_interval  # Make sure pvt_time_interval is defined
 
     print(f"cur_coor: ({cur_x:.2f}, {cur_y:.2f}, {cur_z:.2f}, {cur_yaw:.2f})")
     print(f"tar_coor: ({tar_x:.2f}, {tar_y:.2f}, {tar_z:.2f}, {tar_yaw:.2f})")
     print(f"steps: {steps:.2f}")
+    
+    trajectory = generate_coor_straight_trajectory(start_coor, end_coor, steps)
+    
+    # Plot the trajectory in one window
+    plt.figure(figsize=(8, 6))
+    plt.plot([point[0] for point in trajectory], [point[1] for point in trajectory], label='Trajectory')
+    plt.xlim(0, 258)
+    plt.ylim(-258, 258)
+    plt.xlabel('X Position')
+    plt.ylabel('Y Position')
+    plt.title('Generated Trajectory')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
 
     return steps
