@@ -799,6 +799,8 @@ def dancing(travel_time):
     sp_coor([258, 0, 0, 0], travel_time)
 
 
+import matplotlib.pyplot as plt
+
 def generate_coor_straight_trajectory(start, end, steps):
     x_points = np.linspace(start[0], end[0], steps)
     y_points = np.linspace(start[1], end[1], steps)
@@ -806,7 +808,20 @@ def generate_coor_straight_trajectory(start, end, steps):
     trajectory = list(zip(x_points, y_points, c_points))
     return trajectory
 
-import matplotlib.pyplot as plt
+def transform_time_to_angle(current_time, start_time, travel_time):
+    elapsed_time = current_time - start_time
+    angle = ((elapsed_time / travel_time) * 180) - 90
+    angle = min(max(angle, -90), 90)
+    return angle
+
+def sine_wave(current_time, start_time, travel_time, cur_pos, tar_pos):
+    angle = transform_time_to_angle(current_time, start_time, travel_time)
+    angle_radians = math.radians(angle)
+    sin_value = math.sin(angle_radians)
+    output = cur_pos + (sin_value + 1) / 2 * (tar_pos - cur_pos)
+    return output
+
+
 
 def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     cur_coor = forward_kinematics(cur_joints)
@@ -837,5 +852,62 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     plt.grid(True)
     plt.legend()
     plt.show()
+    
+    start_time = 0
+    time_values = np.linspace(start_time, start_time + travel_time, steps)
+    
+    # Calculate sine wave values for x and y positions
+    x_over_time = [sine_wave(t, start_time, travel_time, cur_x, tar_x) for t in time_values]
+    y_over_time = [sine_wave(t, start_time, travel_time, cur_y, tar_y) for t in time_values]
+    c_over_time = [sine_wave(t, start_time, travel_time, cur_yaw, tar_yaw) for t in time_values]
 
-    return steps
+    trajectory_over_time = list(zip(x_over_time, y_over_time, c_over_time))
+    
+    # Calculate joint angles for each point in the trajectory
+    joint2_values = []
+    joint3_values = []
+    joint4_values = []
+
+    for (x, y, c) in trajectory_over_time:
+        try:
+            joint2, joint3, joint4 = inverse_kinematics(x, y, c)
+            joint2_values.append(joint2)
+            joint3_values.append(joint3)
+            joint4_values.append(joint4)
+        except ValueError as e:
+            print(f"Error calculating inverse kinematics for (x={x}, y={y}, c={c}): {e}")
+            joint2_values.append(None)  # Use None to indicate out-of-bound values
+            joint3_values.append(None)
+            joint4_values.append(None)
+
+    
+    # Plot x, y, and c over time in one window
+    plt.figure(figsize=(12, 8))
+
+    # Plot x and y over time
+    plt.subplot(3, 1, 1)
+    plt.plot(time_values - start_time, x_over_time, label='X over Time')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('X Position')
+    plt.grid(True)
+    plt.legend()
+    plt.title('X and Y Position over Time')
+
+    plt.subplot(3, 1, 2)
+    plt.plot(time_values - start_time, y_over_time, label='Y over Time')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('Y Position')
+    plt.grid(True)
+    plt.legend()
+
+    plt.subplot(3, 1, 3)
+    plt.plot(time_values - start_time, c_over_time, label='C over Time')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('C Position')
+    plt.grid(True)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+    return 0
