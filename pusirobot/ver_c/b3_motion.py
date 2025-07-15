@@ -873,7 +873,7 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
 
     for (x, y, z, yaw) in trajectory_over_time:
         try:
-            joint_1, joint_2, joint_3, joint_4 = inverse_kinematics(x, y, z, yaw)
+            joint_1, joint_2, joint_3, joint_4 = inverse_kinematics([x, y, z, yaw])
             joint_1_values.append(joint_1)
             joint_2_values.append(joint_2)
             joint_3_values.append(joint_3)
