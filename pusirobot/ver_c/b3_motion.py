@@ -943,5 +943,48 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
 
     plt.tight_layout()
     plt.show()
+    
+    def calculate_joint_displacement(joint_values):
+        displacement = []
+        for i in range(1, len(joint_values)):
+            if joint_values[i] is not None and joint_values[i-1] is not None:
+                delta_position = joint_values[i] - joint_values[i-1]
+                displacement.append(delta_position)
+            else:
+                displacement.append(None)  # Jika ada nilai None, maka hasilnya None
+        displacement.insert(0, 0)  # Tidak ada pergerakan pada titik awal, jadi displacement awal adalah 0
+        return displacement
+    
+    # Menghitung diferensial posisi untuk setiap joint
+    joint_1_displacement = calculate_joint_displacement(joint_1_values)
+    joint_2_displacement = calculate_joint_displacement(joint_2_values)
+    joint_3_displacement = calculate_joint_displacement(joint_3_values)
+    joint_4_displacement = calculate_joint_displacement(joint_4_values)
+    
+    plt.figure(figsize=(12, 8))
+    plt.subplot(3, 1, 1)
+    plt.plot(time_values - start_time, joint_2_displacement, label='Joint 2 Displacement')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('Joint 2 Displacement')
+    plt.grid(True)
+    plt.legend()
+    plt.title('Joint Displacement Over Time')
+
+    plt.subplot(3, 1, 2)
+    plt.plot(time_values - start_time, joint_3_displacement, label='Joint 3 Displacement')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('Joint 3 Displacement')
+    plt.grid(True)
+    plt.legend()
+
+    plt.subplot(3, 1, 3)
+    plt.plot(time_values - start_time, joint_4_displacement, label='Joint 4 Displacement')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('Joint 4 Displacement')
+    plt.grid(True)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
 
     return 0
