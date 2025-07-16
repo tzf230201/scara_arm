@@ -838,6 +838,8 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     cur_x, cur_y, cur_z, cur_yaw = cur_coor
     tar_x, tar_y, tar_z, tar_yaw = tar_coor
     
+    sp_angle(cur_joints, 100, "stepper_only")
+    
     start_coor = cur_x, cur_y, cur_z, cur_yaw
     end_coor = tar_x, tar_y, cur_z, tar_yaw
 
@@ -1156,11 +1158,11 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     
     
     for pos, vel, tim in pvt_joint_2:
-        if (vel != 0) and (pos != 0):
+        if (vel != 0):
             pvt_mode_write_read(ID2, pos, vel, tim)
         
     for pos, vel, tim in pvt_joint_3:
-        if (vel != 0) and (pos != 0):
+        if (vel != 0):
             pvt_mode_write_read(ID3, pos, vel, tim)
         
     # for pos, vel, tim in pvt_joint_4:
