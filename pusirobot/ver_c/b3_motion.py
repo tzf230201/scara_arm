@@ -829,6 +829,9 @@ def sine_wave(current_time, start_time, travel_time, cur_pos, tar_pos):
 
 
 def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
+    
+    show = 1
+    
     cur_coor = forward_kinematics(cur_joints)
     tar_coor = forward_kinematics(tar_joints)
 
@@ -846,17 +849,18 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     
     trajectory = generate_coor_straight_trajectory(start_coor, end_coor, steps)
     
-    # Plot the trajectory in one window
-    plt.figure(figsize=(8, 6))
-    plt.plot([point[0] for point in trajectory], [point[1] for point in trajectory], label='Trajectory')
-    plt.xlim(0, 258)
-    plt.ylim(-258, 258)
-    plt.xlabel('X Position')
-    plt.ylabel('Y Position')
-    plt.title('Generated Trajectory')
-    plt.grid(True)
-    plt.legend()
-    plt.show()
+    if show == 1:
+        # Plot the trajectory in one window
+        plt.figure(figsize=(8, 6))
+        plt.plot([point[0] for point in trajectory], [point[1] for point in trajectory], label='Trajectory')
+        plt.xlim(0, 258)
+        plt.ylim(-258, 258)
+        plt.xlabel('X Position')
+        plt.ylabel('Y Position')
+        plt.title('Generated Trajectory')
+        plt.grid(True)
+        plt.legend()
+        plt.show()
     
     start_time = 0
     time_values = np.linspace(start_time, start_time + travel_time, steps)
@@ -889,64 +893,64 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
             joint_3_values.append(None)
             joint_4_values.append(None)
 
-    
+    if show == 1:
     # Plot x, y, and c over time in one window
-    plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 8))
 
-    # Plot x and y over time
-    plt.subplot(3, 1, 1)
-    plt.plot(time_values - start_time, x_over_time, label='X over Time')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('X Position')
-    plt.grid(True)
-    plt.legend()
-    plt.title('X and Y Position over Time')
+        # Plot x and y over time
+        plt.subplot(3, 1, 1)
+        plt.plot(time_values - start_time, x_over_time, label='X over Time')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('X Position')
+        plt.grid(True)
+        plt.legend()
+        plt.title('X and Y Position over Time')
 
-    plt.subplot(3, 1, 2)
-    plt.plot(time_values - start_time, y_over_time, label='Y over Time')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Y Position')
-    plt.grid(True)
-    plt.legend()
+        plt.subplot(3, 1, 2)
+        plt.plot(time_values - start_time, y_over_time, label='Y over Time')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Y Position')
+        plt.grid(True)
+        plt.legend()
 
-    plt.subplot(3, 1, 3)
-    plt.plot(time_values - start_time, yaw_over_time, label='C over Time')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('C Position')
-    plt.grid(True)
-    plt.legend()
+        plt.subplot(3, 1, 3)
+        plt.plot(time_values - start_time, yaw_over_time, label='C over Time')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('C Position')
+        plt.grid(True)
+        plt.legend()
 
-    plt.tight_layout()
-    plt.show()
-    
-    # Plot joint angles over time
-    plt.figure(figsize=(12, 8))
+        plt.tight_layout()
+        plt.show()
+        
+        # Plot joint angles over time
+        plt.figure(figsize=(12, 8))
 
-    # Plot joint2, joint3, and joint4 over time
-    plt.subplot(3, 1, 1)
-    plt.plot(time_values - start_time, joint_2_values, label='Joint 2')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Joint 2 Angle')
-    plt.grid(True)
-    plt.legend()
-    plt.title('Joint Angles Over Time')
+        # Plot joint2, joint3, and joint4 over time
+        plt.subplot(3, 1, 1)
+        plt.plot(time_values - start_time, joint_2_values, label='Joint 2')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Joint 2 Angle')
+        plt.grid(True)
+        plt.legend()
+        plt.title('Joint Angles Over Time')
 
-    plt.subplot(3, 1, 2)
-    plt.plot(time_values - start_time, joint_3_values, label='Joint 3')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Joint 3 Angle')
-    plt.grid(True)
-    plt.legend()
+        plt.subplot(3, 1, 2)
+        plt.plot(time_values - start_time, joint_3_values, label='Joint 3')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Joint 3 Angle')
+        plt.grid(True)
+        plt.legend()
 
-    plt.subplot(3, 1, 3)
-    plt.plot(time_values - start_time, joint_4_values, label='Joint 4')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Joint 4 Angle')
-    plt.grid(True)
-    plt.legend()
+        plt.subplot(3, 1, 3)
+        plt.plot(time_values - start_time, joint_4_values, label='Joint 4')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Joint 4 Angle')
+        plt.grid(True)
+        plt.legend()
 
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
     
     def calculate_relative_position(joint_values):
         base = joint_values[0]
@@ -957,31 +961,33 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     joint_3_relative = calculate_relative_position(joint_3_values)
     joint_4_relative = calculate_relative_position(joint_4_values)
     
-    plt.figure(figsize=(12, 8))
-    plt.subplot(3, 1, 1)
-    plt.plot(time_values, joint_2_relative, label='Joint 2 Relative Position')
-    plt.ylabel('Degrees')
-    plt.xlabel('Time (s)')
-    plt.title('Relative Joint Position')
-    plt.grid(True)
-    plt.legend()
+    if show == 1:
+    
+        plt.figure(figsize=(12, 8))
+        plt.subplot(3, 1, 1)
+        plt.plot(time_values, joint_2_relative, label='Joint 2 Relative Position')
+        plt.ylabel('Degrees')
+        plt.xlabel('Time (s)')
+        plt.title('Relative Joint Position')
+        plt.grid(True)
+        plt.legend()
 
-    plt.subplot(3, 1, 2)
-    plt.plot(time_values, joint_3_relative, label='Joint 3 Relative Position')
-    plt.ylabel('Degrees')
-    plt.xlabel('Time (s)')
-    plt.grid(True)
-    plt.legend()
+        plt.subplot(3, 1, 2)
+        plt.plot(time_values, joint_3_relative, label='Joint 3 Relative Position')
+        plt.ylabel('Degrees')
+        plt.xlabel('Time (s)')
+        plt.grid(True)
+        plt.legend()
 
-    plt.subplot(3, 1, 3)
-    plt.plot(time_values, joint_4_relative, label='Joint 4 Relative Position')
-    plt.ylabel('Degrees')
-    plt.xlabel('Time (s)')
-    plt.grid(True)
-    plt.legend()
+        plt.subplot(3, 1, 3)
+        plt.plot(time_values, joint_4_relative, label='Joint 4 Relative Position')
+        plt.ylabel('Degrees')
+        plt.xlabel('Time (s)')
+        plt.grid(True)
+        plt.legend()
 
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
 
 
     def calculate_joint_displacement(joint_values):
@@ -1001,31 +1007,33 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     joint_3_displacement = calculate_joint_displacement(joint_3_values)
     joint_4_displacement = calculate_joint_displacement(joint_4_values)
     
-    plt.figure(figsize=(12, 8))
-    plt.subplot(3, 1, 1)
-    plt.plot(time_values - start_time, joint_2_displacement, label='Joint 2 Displacement')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Joint 2 Displacement')
-    plt.grid(True)
-    plt.legend()
-    plt.title('Joint Displacement Over Time')
+    if show == 1:
+    
+        plt.figure(figsize=(12, 8))
+        plt.subplot(3, 1, 1)
+        plt.plot(time_values - start_time, joint_2_displacement, label='Joint 2 Displacement')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Joint 2 Displacement')
+        plt.grid(True)
+        plt.legend()
+        plt.title('Joint Displacement Over Time')
 
-    plt.subplot(3, 1, 2)
-    plt.plot(time_values - start_time, joint_3_displacement, label='Joint 3 Displacement')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Joint 3 Displacement')
-    plt.grid(True)
-    plt.legend()
+        plt.subplot(3, 1, 2)
+        plt.plot(time_values - start_time, joint_3_displacement, label='Joint 3 Displacement')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Joint 3 Displacement')
+        plt.grid(True)
+        plt.legend()
 
-    plt.subplot(3, 1, 3)
-    plt.plot(time_values - start_time, joint_4_displacement, label='Joint 4 Displacement')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Joint 4 Displacement')
-    plt.grid(True)
-    plt.legend()
+        plt.subplot(3, 1, 3)
+        plt.plot(time_values - start_time, joint_4_displacement, label='Joint 4 Displacement')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Joint 4 Displacement')
+        plt.grid(True)
+        plt.legend()
 
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
     
     # Fungsi untuk menghitung kecepatan joint dalam RPM
     def calculate_joint_speed(displacement, interval):
@@ -1049,64 +1057,66 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     joint_3_speed_rpm = calculate_joint_speed(joint_3_displacement, interval)
     joint_4_speed_rpm = calculate_joint_speed(joint_4_displacement, interval)
     
+    if show == 1:
     # Plot kecepatan joint dalam RPM
-    plt.figure(figsize=(12, 8))
-    plt.subplot(3, 1, 1)
-    plt.plot(time_values - start_time, joint_2_speed_rpm, label='Joint 2 Speed (RPM)')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Speed (RPM)')
-    plt.grid(True)
-    plt.legend()
-    plt.title('Joint 2 Speed Over Time')
+        plt.figure(figsize=(12, 8))
+        plt.subplot(3, 1, 1)
+        plt.plot(time_values - start_time, joint_2_speed_rpm, label='Joint 2 Speed (RPM)')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Speed (RPM)')
+        plt.grid(True)
+        plt.legend()
+        plt.title('Joint 2 Speed Over Time')
 
-    plt.subplot(3, 1, 2)
-    plt.plot(time_values - start_time, joint_3_speed_rpm, label='Joint 3 Speed (RPM)')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Speed (RPM)')
-    plt.grid(True)
-    plt.legend()
+        plt.subplot(3, 1, 2)
+        plt.plot(time_values - start_time, joint_3_speed_rpm, label='Joint 3 Speed (RPM)')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Speed (RPM)')
+        plt.grid(True)
+        plt.legend()
 
-    plt.subplot(3, 1, 3)
-    plt.plot(time_values - start_time, joint_4_speed_rpm, label='Joint 4 Speed (RPM)')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Speed (RPM)')
-    plt.grid(True)
-    plt.legend()
+        plt.subplot(3, 1, 3)
+        plt.plot(time_values - start_time, joint_4_speed_rpm, label='Joint 4 Speed (RPM)')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Speed (RPM)')
+        plt.grid(True)
+        plt.legend()
 
-    plt.tight_layout()
-    plt.show()
-    
+        plt.tight_layout()
+        plt.show()
+        
     joint_2_relative_pulses = [stepper_degrees_to_pulses(d) if d is not None else None for d in joint_2_relative]
     joint_3_relative_pulses = [stepper_degrees_to_pulses(d) if d is not None else None for d in joint_3_relative]
     joint_4_relative_pulses = [stepper_degrees_to_pulses(d) if d is not None else None for d in joint_4_relative]
     
-    plt.figure(figsize=(12, 8))
-    plt.subplot(3, 1, 1)
-    plt.plot(time_values, joint_2_relative_pulses, label='Joint 2 Relative (Pulse)')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Pulse')
-    plt.title('Joint 2 Relative Position (Pulse)')
-    plt.grid(True)
-    plt.legend()
+    if show == 1:
+        plt.figure(figsize=(12, 8))
+        plt.subplot(3, 1, 1)
+        plt.plot(time_values, joint_2_relative_pulses, label='Joint 2 Relative (Pulse)')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Pulse')
+        plt.title('Joint 2 Relative Position (Pulse)')
+        plt.grid(True)
+        plt.legend()
 
-    plt.subplot(3, 1, 2)
-    plt.plot(time_values, joint_3_relative_pulses, label='Joint 3 Relative (Pulse)')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Pulse')
-    plt.title('Joint 3 Relative Position (Pulse)')
-    plt.grid(True)
-    plt.legend()
+        plt.subplot(3, 1, 2)
+        plt.plot(time_values, joint_3_relative_pulses, label='Joint 3 Relative (Pulse)')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Pulse')
+        plt.title('Joint 3 Relative Position (Pulse)')
+        plt.grid(True)
+        plt.legend()
 
-    plt.subplot(3, 1, 3)
-    plt.plot(time_values, joint_4_relative_pulses, label='Joint 4 Relative (Pulse)')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Pulse')
-    plt.title('Joint 4 Relative Position (Pulse)')
-    plt.grid(True)
-    plt.legend()
+        plt.subplot(3, 1, 3)
+        plt.plot(time_values, joint_4_relative_pulses, label='Joint 4 Relative (Pulse)')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Pulse')
+        plt.title('Joint 4 Relative Position (Pulse)')
+        plt.grid(True)
+        plt.legend()
 
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
     
     def stepper_rpm_to_pps(rpm):
         return int(rpm * (STEPPER_PPR / 60))
