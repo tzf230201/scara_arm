@@ -839,6 +839,7 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     tar_x, tar_y, tar_z, tar_yaw = tar_coor
     
     sp_angle(cur_joints, 100, "stepper_only")
+    time.sleep(0.2)
     
     start_coor = cur_x, cur_y, cur_z, cur_yaw
     end_coor = tar_x, tar_y, cur_z, tar_yaw
