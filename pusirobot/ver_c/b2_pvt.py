@@ -110,7 +110,7 @@ def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
     arrival_pulse = stepper_steps_to_pulses(wr_p)
     
     wr_p = stepper_pulses_to_steps(wr_p)
-    # wr_v = stepper_pulses_to_steps(abs(wr_v))
+    wr_v = abs(stepper_pulses_to_steps(wr_v))
     
     
     error_code = pvt_mode_write_pvt(node_id, wr_p, wr_v, wr_t)
