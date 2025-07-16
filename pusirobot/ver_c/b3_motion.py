@@ -1179,6 +1179,9 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
 
 def stepper_single_motor_pp_mode(id, tar_joint, travel_time,  selection):
     
+    if selection != "servo_only": 
+        init_single_motor_operation_mode(id, 4)
+    
     cur_joint = stepper_get_motor_position(id)
     tar_pulse = stepper_degrees_to_pulses(tar_joint)
     

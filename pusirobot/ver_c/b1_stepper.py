@@ -116,6 +116,9 @@ def init_operation_mode(mode):
         ensure_set_req_sdo(id, SET_1_BYTE, OD_STEPPER_OPERATION_MODE, 0x00, mode)
     #print(f"set operation mode to {mode}")
 
+def init_single_motor_operation_mode(id, mode):
+    ensure_set_req_sdo(id, SET_1_BYTE, OD_STEPPER_OPERATION_MODE, 0x00, mode)
+    
 def init_change_baudrate(baudrate_option):
     for id in [ID2, ID3, ID4]:
         ensure_set_req_sdo(id, SET_1_BYTE, OD_STEPPER_BAUD_RATE, 0x00, baudrate_option)
