@@ -128,6 +128,7 @@ def pvt_mode_init(group_id, pvt_type = PVT_1, pvt_max_point = 400, pvt_3_lower_l
     # time.sleep(2)
     init_operation_mode(PVT_MODE)
     init_change_group_id(group_id)
+    init_single_motor_change_group_id(ID4, 0x06)
     pvt_mode_set_pvt_max_point(pvt_max_point)
     pvt_mode_set_pvt_operation_mode(pvt_type)
     print(f"pvt init : pvt_mode {pvt_type+1}, max point {pvt_max_point}, pvt mode {pvt_type}")
