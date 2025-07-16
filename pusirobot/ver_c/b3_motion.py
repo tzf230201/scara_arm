@@ -233,12 +233,14 @@ def pp_angle(tar_joints, travel_time, selection):
     tar_pulse_3 = stepper_degrees_to_pulses(tar_joint_3)
     tar_pulse_4 = stepper_degrees_to_pulses(tar_joint_4)
     
-    print(f"tar_puse {tar_joint_2} {tar_joint_3} {tar_joint_4}")
+    
     
     delta_pulse_1 = servo_degrees_to_pulses(tar_joint_1 - cur_joint_1)
     delta_pulse_2 = stepper_degrees_to_pulses(tar_joint_2 - cur_joint_2)
     delta_pulse_3 = stepper_degrees_to_pulses(tar_joint_3 - cur_joint_3)
     delta_pulse_4 = stepper_degrees_to_pulses(tar_joint_4 - cur_joint_4)
+    
+    print(f"tar_puse {delta_pulse_2} {delta_pulse_3} {delta_pulse_4}")
     
     accel_decel_1, max_speed_1 = servo_accel_decel_calc(delta_pulse_1, travel_time)
     accel_decel_2, max_speed_2 = stepper_accel_decel_calc(delta_pulse_2, travel_time)
