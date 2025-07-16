@@ -1177,4 +1177,24 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     return 0
 
 
+def stepper_single_motor_pp_mode(id, tar_joint, travel_time,  selection):
+    
+    cur_joint = stepper_get_motor_position(id)
+    tar_pulse = stepper_degrees_to_pulses(tar_joint)
+    
+    delta_pulse = stepper_degrees_to_pulses(tar_joint - cur_joint)
+    accel_decel, max_speed = stepper_accel_decel_calc(delta_pulse, travel_time)
+    
+    if selection != "servo_only":  
+        max_speed = stepper_pulses_to_steps(max_speed)
+        accel_decel = stepper_pulses_to_steps(accel_decel)
+        pp_mode_single_motor_set_acceleration(id, accel_decel)
+        pp_mode_single_motor_set_deceleration(id, accel_decel)
+        pp_mode_single_motor_set_max_speed(id, max_speed)
+        pp_mode_single_motor_set_tar_pulse(id, tar_pulse)
+    
+    if selection != "servo_only":  
+        pp_mode_single_motor_start_absolute_motion(id)
+        # print(f"pp mode start absolute motion")
+
 

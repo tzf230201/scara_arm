@@ -47,6 +47,21 @@ def pp_mode_set_tar_pulse(tar_pulse_2, tar_pulse_3, tar_pulse_4):
     for id, pulse in zip([ID2, ID3, ID4], [tar_pulse_2, tar_pulse_3, tar_pulse_4]):
         set_sdo(id, SET_4_BYTE, OD_STEPPER_PP_MOTION_2, 0x04, pulse)
         
+def pp_mode_single_motor_set_tar_pulse(id, pulse):
+    set_sdo(id, SET_4_BYTE, OD_STEPPER_PP_MOTION_2, 0x04, pulse)
+        
+def pp_mode_single_motor_set_max_speed(id, max_speed):
+    set_sdo(id, SET_4_BYTE, OD_STEPPER_PP_MOTION_2, 0x03, max_speed)
+    
+def pp_mode_single_motor_set_acceleration(id, accel):
+    set_sdo(id, SET_4_BYTE, OD_STEPPER_PP_MOTION, 0x01, accel)
+            
+def pp_mode_single_motor_set_deceleration(id, decel):
+    set_sdo(id, SET_4_BYTE, OD_STEPPER_PP_MOTION, 0x02, decel)
+    
+def pp_mode_single_motor_start_absolute_motion(id):
+    set_sdo(id,SET_2_BYTE, OD_STEPPER_PP_MOTION_2, 0x01, 0x50)
+
 def pp_mode_start_absolute_motion():
     for id in [ID2, ID3, ID4]:
         # send_can_command(f"{id:03X}#2b2e600150000000")
