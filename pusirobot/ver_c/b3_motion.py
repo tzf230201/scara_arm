@@ -1163,9 +1163,9 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
         # if (vel != 0):
         pvt_mode_write_read(ID3, pos, vel, tim)
         
-    for pos, vel, tim in pvt_joint_4:
+    # for pos, vel, tim in pvt_joint_4:
         # if (vel != 0):
-        pvt_mode_write_read(ID4, pos, vel, tim)
+        # pvt_mode_write_read(ID4, pos, vel, tim)
                 
                 
     pvt_mode_read_pvt_3_depth()
