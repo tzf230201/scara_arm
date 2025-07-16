@@ -1107,22 +1107,59 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
 
     plt.tight_layout()
     plt.show()
+    
+    def stepper_rpm_to_pps(rpm):
+        return int(rpm * (STEPPER_PPR / 60))
+
+    joint_2_speed_pps = [stepper_rpm_to_pps(r) if r is not None else None for r in joint_2_speed_rpm]
+    joint_3_speed_pps = [stepper_rpm_to_pps(r) if r is not None else None for r in joint_3_speed_rpm]
+    joint_4_speed_pps = [stepper_rpm_to_pps(r) if r is not None else None for r in joint_4_speed_rpm]
 
         
-    def generate_pvt_points(relative_position, speed, interval_sec):
+    def generate_pvt_points_from_pulse_and_pps(position_pulse, speed_pps, interval_ms):
+        """
+        Buat PVT point dalam format (position, velocity, time)
+        - position_pulse: list posisi relatif dalam pulse
+        - speed_pps: list kecepatan dalam pulse per second
+        - interval_ms: waktu antar titik dalam milidetik
+        """
         pvt_points = []
-        for i in range(len(relative_position)):
-            if relative_position[i] is not None and speed[i] is not None:
-                p = relative_position[i]
-                v = speed[i]
-                t = interval_sec * 1000  # Convert to milliseconds
-                pvt_points.append((p, v, t))
+        for pos, vel in zip(position_pulse, speed_pps):
+            if pos is not None and vel is not None:
+                pvt_points.append((int(round(pos)), int(round(vel)), int(round(interval_ms))))
         return pvt_points
-    
-    pvt_joint2 = generate_pvt_points(joint_2_relative, joint_2_speed_rpm, interval)
-    pvt_joint3 = generate_pvt_points(joint_3_relative, joint_3_speed_rpm, interval)
-    pvt_joint4 = generate_pvt_points(joint_4_relative, joint_4_speed_rpm, interval)
 
+    interval_ms = pvt_time_interval  # langsung dalam ms, misalnya 25
+    pvt_joint_2 = generate_pvt_points_from_pulse_and_pps(joint_2_relative_pulses, joint_2_speed_pps, interval_ms)
+    pvt_joint_3 = generate_pvt_points_from_pulse_and_pps(joint_3_relative_pulses, joint_3_speed_pps, interval_ms)
+    pvt_joint_4 = generate_pvt_points_from_pulse_and_pps(joint_4_relative_pulses, joint_4_speed_pps, interval_ms)
+
+    global last_time, stop_watch, time_out
+    group_id = 0x05
+    tar_pulses = []
+    cur_pulses = []
+    node_ids = [ID1, ID2, ID3, ID4]
+    pvt_3_lower_limit = 60
+    pvt_3_upper_limit = 80
+
+    pvt_mode_init(group_id, PVT_3, 400, pvt_3_lower_limit, pvt_3_upper_limit)
+    
+    
+    for pos, vel, tim in pvt_joint_2:
+        pvt_mode_write_read(ID2, pos, vel, tim)
+        
+    for pos, vel, tim in pvt_joint_3:
+        pvt_mode_write_read(ID3, pos, vel, tim)
+        
+    for pos, vel, tim in pvt_joint_4:
+        pvt_mode_write_read(ID4, pos, vel, tim)
+                
+                
+    pvt_mode_read_pvt_3_depth()
+    # pvt_mode_start_pvt_step(group_id)
+    last_time = time.time()
+    stop_watch = last_time
+    time_out = travel_time / 1000
 
     return 0
 
