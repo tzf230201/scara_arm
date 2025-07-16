@@ -1071,5 +1071,56 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
 
     plt.tight_layout()
     plt.show()
+    
+    joint_2_relative_pulses = [stepper_degrees_to_pulses(d) if d is not None else None for d in joint_2_relative]
+    joint_3_relative_pulses = [stepper_degrees_to_pulses(d) if d is not None else None for d in joint_3_relative]
+    joint_4_relative_pulses = [stepper_degrees_to_pulses(d) if d is not None else None for d in joint_4_relative]
+    
+    plt.figure(figsize=(12, 8))
+    plt.subplot(3, 1, 1)
+    plt.plot(time_values, joint_2_relative_pulses, label='Joint 2 Relative (Pulse)')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Pulse')
+    plt.title('Joint 2 Relative Position (Pulse)')
+    plt.grid(True)
+    plt.legend()
+
+    plt.subplot(3, 1, 2)
+    plt.plot(time_values, joint_3_relative_pulses, label='Joint 3 Relative (Pulse)')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Pulse')
+    plt.title('Joint 3 Relative Position (Pulse)')
+    plt.grid(True)
+    plt.legend()
+
+    plt.subplot(3, 1, 3)
+    plt.plot(time_values, joint_4_relative_pulses, label='Joint 4 Relative (Pulse)')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Pulse')
+    plt.title('Joint 4 Relative Position (Pulse)')
+    plt.grid(True)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+        
+    def generate_pvt_points(relative_position, speed, interval_sec):
+        pvt_points = []
+        for i in range(len(relative_position)):
+            if relative_position[i] is not None and speed[i] is not None:
+                p = relative_position[i]
+                v = speed[i]
+                t = interval_sec * 1000  # Convert to milliseconds
+                pvt_points.append((p, v, t))
+        return pvt_points
+    
+    pvt_joint2 = generate_pvt_points(joint_2_relative, joint_2_speed_rpm, interval)
+    pvt_joint3 = generate_pvt_points(joint_3_relative, joint_3_speed_rpm, interval)
+    pvt_joint4 = generate_pvt_points(joint_4_relative, joint_4_speed_rpm, interval)
+
 
     return 0
+
+
+
