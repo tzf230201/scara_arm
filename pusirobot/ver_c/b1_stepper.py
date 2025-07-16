@@ -4,6 +4,7 @@ from b0_can import *
 OD_STEPPER_DEVICE_NAME = 0x1008
 OD_STEPPER_HARDWARE_VERSION = 0x1009
 OD_STEPPER_SOFTWARE_VERSION = 0x100A
+OD_STEPPER_PRODUCER_HEARTH_BEAT = 0x1017
 
 # Communication Configuration
 # need to reset power to enable (cansend can0 000#82<CAN_ID>)
@@ -280,3 +281,13 @@ def stepper_shutdown():
     init_torque_ring_enable(0)  
     init_set_max_current(0)
     reset_node()
+    
+def stepper_enable_heartbeat():
+    for id in [ID2, ID3, ID4]:
+        _, ret = set_req_sdo(id, SET_2_BYTE, OD_STEPPER_PRODUCER_HEARTH_BEAT, 0x00,  1000)  # 1000 ms heartbeat
+    print(f"Heartbeat enabled: {ret} ms")
+    
+def stepper_disable_heartbeat():
+    for id in [ID2, ID3, ID4]:
+        _, ret = set_req_sdo(id, SET_2_BYTE, OD_STEPPER_PRODUCER_HEARTH_BEAT, 0x00,  0)  # 1000 ms heartbeat
+    print(f"Heartbeat enabled: {ret} ms (disabled)")

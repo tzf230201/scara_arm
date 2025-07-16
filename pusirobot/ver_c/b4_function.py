@@ -24,6 +24,7 @@ def wake_up():
         print(f"stepper intialization")
         stepper_init()
         pp_mode_init()
+        stepper_disable_heartbeat()
     if selection != "stepper_only":
         print(f"servo intialization")
         servo_init(1)  # 7 is PVT mode, 1 is PP mode
