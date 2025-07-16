@@ -830,7 +830,7 @@ def sine_wave(current_time, start_time, travel_time, cur_pos, tar_pos):
 
 def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     
-    show = 1
+    show = 0
     
     cur_coor = forward_kinematics(cur_joints)
     tar_coor = forward_kinematics(tar_joints)
@@ -849,7 +849,7 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     
     trajectory = generate_coor_straight_trajectory(start_coor, end_coor, steps)
     
-    if show == 1:
+    if show == 0:
         # Plot the trajectory in one window
         plt.figure(figsize=(8, 6))
         plt.plot([point[0] for point in trajectory], [point[1] for point in trajectory], label='Trajectory')
