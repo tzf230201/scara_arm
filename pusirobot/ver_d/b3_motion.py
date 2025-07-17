@@ -1159,14 +1159,24 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
             f=1
             pvt_mode_write_read(ID2, pos, vel, tim)
     
+    for pos, vel, tim in pvt2_b:
+        if (vel != 0):
+            f=1
+            pvt_mode_write_read(ID2, pos, vel, tim)
+    
     if f==1:
         init_single_motor_change_group_id(ID2, group_id)
     else:
-        init_single_motor_change_group_id(ID2, 0x06)   
+        init_single_motor_change_group_id(ID2, 0x06)
+         
     
     f = 0
     print(f"m3")   
     for pos, vel, tim in pvt3_f:
+        if (vel != 0):
+            f=1
+            pvt_mode_write_read(ID3, pos, vel, tim)
+    for pos, vel, tim in pvt3_b:
         if (vel != 0):
             f=1
             pvt_mode_write_read(ID3, pos, vel, tim)
@@ -1178,6 +1188,10 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     f = 0
     print(f"m4")   
     for pos, vel, tim in pvt4_f:
+        if (vel != 0):
+            f=1
+            pvt_mode_write_read(ID4, pos, vel, tim)
+    for pos, vel, tim in pvt4_b:
         if (vel != 0):
             f=1
             pvt_mode_write_read(ID4, pos, vel, tim)
