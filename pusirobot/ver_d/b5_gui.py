@@ -102,14 +102,14 @@ def pvt_move():
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     # pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
     pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time)
-    _, _, _, tar_joint_4 = tar_joints
-    stepper_single_motor_pp_mode(ID4, tar_joint_4, travel_time, selection)
-    print(f"run motor 4 {tar_joint_4}")
+    # _, _, _, tar_joint_4 = tar_joints
+    # stepper_single_motor_pp_mode(ID4, tar_joint_4, travel_time, selection)
+    # print(f"run motor 4 {tar_joint_4}")
     # ret = pp_angle_servo(tar_joints, travel_time, selection)
     # if ret == 1:
     #     servo_execute()  # Execute the servo command to start the movement
-    group_id = 0x05
-    pvt_mode_start_pvt_step(group_id)
+    # group_id = 0x05
+    # pvt_mode_start_pvt_step(group_id)
     last_time = time.time()
 
 def pvt_circular():
