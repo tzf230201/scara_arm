@@ -835,7 +835,7 @@ def generate_straight_pvt_points(start_coor, end_coor, travel_time):
     # print(f"cur_coor: ({cur_x:.2f}, {cur_y:.2f}, {cur_z:.2f}, {cur_yaw:.2f})")
     # print(f"tar_coor: ({tar_x:.2f}, {tar_y:.2f}, {tar_z:.2f}, {tar_yaw:.2f})")
     # print(f"steps: {steps}")
-     if show == 1:
+    if show == 1:
         # Plot the trajectory in one window
         plt.figure(figsize=(8, 6))
         plt.plot([point[0] for point in trajectory], [point[1] for point in trajectory], label='Trajectory')
@@ -847,7 +847,7 @@ def generate_straight_pvt_points(start_coor, end_coor, travel_time):
         plt.grid(True)
         plt.legend()
         plt.show()
-    
+
     start_time = 0
     time_values = np.linspace(start_time, start_time + travel_time, steps)
     
