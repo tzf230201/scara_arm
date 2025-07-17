@@ -1160,24 +1160,39 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     #ww
     pvt_mode_init(group_id, PVT_3, 400, pvt_3_lower_limit, pvt_3_upper_limit)
     
+    f = 0
     print(f"m2")
     for pos, vel, tim in pvt_joint_2:
-        
         if (vel != 0):
+            f=1
             pvt_mode_write_read(ID2, pos, vel, tim)
     
+    if f==1:
+        init_single_motor_change_group_id(ID2, group_id)
+    else:
+        init_single_motor_change_group_id(ID4, 0x06)   
+    
+    f = 0
     print(f"m3")   
     for pos, vel, tim in pvt_joint_3:
-        
         if (vel != 0):
+            f=1
             pvt_mode_write_read(ID3, pos, vel, tim)
+    if f==1:
+        init_single_motor_change_group_id(ID3, group_id)
+    else:
+        init_single_motor_change_group_id(ID4, 0x06)   
      
+    f = 0
     print(f"m4")   
     for pos, vel, tim in pvt_joint_4:
-        
         if (vel != 0):
+            f=1
             pvt_mode_write_read(ID4, pos, vel, tim)
-                
+    if f==1:
+        init_single_motor_change_group_id(ID4, group_id)
+    else:
+        init_single_motor_change_group_id(ID4, 0x06)    
                 
     pvt_mode_read_pvt_3_depth()
     pvt_mode_start_pvt_step(group_id)
