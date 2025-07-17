@@ -828,33 +828,14 @@ def sine_wave(current_time, start_time, travel_time, cur_pos, tar_pos):
     output = cur_pos + (sin_value + 1) / 2 * (tar_pos - cur_pos)
     return output
 
-
-
-def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
-    
+def generate_straight_pvt_points(start_coor, end_coor, travel_time):
     show = 0
-    
-    cur_coor = forward_kinematics(cur_joints)
-    tar_coor = forward_kinematics(tar_joints)
-
-    cur_x, cur_y, cur_z, cur_yaw = cur_coor
-    tar_x, tar_y, tar_z, tar_yaw = tar_coor
-    # # 
-    # sp_angle(cur_joints, 500, "stepper_only")
-    # time.sleep(1)
-    
-    start_coor = cur_x, cur_y, cur_z, cur_yaw
-    end_coor = tar_x, tar_y, cur_z, tar_yaw
-
     steps = int(travel_time / pvt_time_interval)  # Make sure pvt_time_interval is defined
-
+    trajectory = generate_coor_straight_trajectory(start_coor, end_coor, steps)
     # print(f"cur_coor: ({cur_x:.2f}, {cur_y:.2f}, {cur_z:.2f}, {cur_yaw:.2f})")
     # print(f"tar_coor: ({tar_x:.2f}, {tar_y:.2f}, {tar_z:.2f}, {tar_yaw:.2f})")
     # print(f"steps: {steps}")
-    
-    trajectory = generate_coor_straight_trajectory(start_coor, end_coor, steps)
-    
-    if show == 1:
+     if show == 1:
         # Plot the trajectory in one window
         plt.figure(figsize=(8, 6))
         plt.plot([point[0] for point in trajectory], [point[1] for point in trajectory], label='Trajectory')
@@ -1148,7 +1129,11 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     pvt_joint_2 = generate_pvt_points_from_pulse_and_pps(joint_2_relative_pulses, joint_2_speed_pps, interval_ms)
     pvt_joint_3 = generate_pvt_points_from_pulse_and_pps(joint_3_relative_pulses, joint_3_speed_pps, interval_ms)
     pvt_joint_4 = generate_pvt_points_from_pulse_and_pps(joint_4_relative_pulses, joint_4_speed_pps, interval_ms)
+    
+    return pvt_joint_2, pvt_joint_3, pvt_joint_4
 
+
+def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     global last_time, stop_watch, time_out
     group_id = 0x05
     tar_pulses = []
@@ -1156,13 +1141,18 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     node_ids = [ID1, ID2, ID3, ID4]
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
+    
+    start_coor = forward_kinematics(cur_joints)
+    end_coor = forward_kinematics(tar_joints)
+    
+    pvt2_f, pvt3_f, pvt4_f = generate_straight_pvt_points(start_coor, end_coor, travel_time)
+    pvt2_b, pvt3_b, pvt4_b = generate_straight_pvt_points(end_coor, start_coor, travel_time)
 
-    #ww
     pvt_mode_init(group_id, PVT_3, 400, pvt_3_lower_limit, pvt_3_upper_limit)
     
     f = 0
     print(f"m2")
-    for pos, vel, tim in pvt_joint_2:
+    for pos, vel, tim in pvt2_f:
         if (vel != 0):
             f=1
             pvt_mode_write_read(ID2, pos, vel, tim)
@@ -1174,7 +1164,7 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     
     f = 0
     print(f"m3")   
-    for pos, vel, tim in pvt_joint_3:
+    for pos, vel, tim in pvt3_f:
         if (vel != 0):
             f=1
             pvt_mode_write_read(ID3, pos, vel, tim)
@@ -1185,7 +1175,7 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
      
     f = 0
     print(f"m4")   
-    for pos, vel, tim in pvt_joint_4:
+    for pos, vel, tim in pvt4_f:
         if (vel != 0):
             f=1
             pvt_mode_write_read(ID4, pos, vel, tim)
