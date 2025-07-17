@@ -1160,19 +1160,21 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     #ww
     pvt_mode_init(group_id, PVT_3, 400, pvt_3_lower_limit, pvt_3_upper_limit)
     
-    
+    print(f"m2")
     for pos, vel, tim in pvt_joint_2:
-        print(f"m2")
+        
         if (vel != 0):
             pvt_mode_write_read(ID2, pos, vel, tim)
-        
+    
+    print(f"m3")   
     for pos, vel, tim in pvt_joint_3:
-        print(f"m3")
+        
         if (vel != 0):
             pvt_mode_write_read(ID3, pos, vel, tim)
-        
+     
+    print(f"m4")   
     for pos, vel, tim in pvt_joint_4:
-        print(f"m4")
+        
         if (vel != 0):
             pvt_mode_write_read(ID4, pos, vel, tim)
                 
