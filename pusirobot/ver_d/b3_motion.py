@@ -40,10 +40,10 @@ def load_origin_from_config():
     print(f"{config_path}")
     
     default_config = {
-        "origin_1": 0,
-        "origin_2": 0,
-        "origin_3": 0,
-        "origin_4": 0
+         "origin_1": -2864476,
+        "origin_2": -807440,
+        "origin_3": -802157,
+        "origin_4": -792346
     }
     
     try:
