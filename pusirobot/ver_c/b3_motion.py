@@ -38,6 +38,8 @@ def load_origin_from_config():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(script_dir, "config_origin.json")
     
+    print("{config_path}")
+    
     default_config = {
         "origin_1": 0,
         "origin_2": 0,
