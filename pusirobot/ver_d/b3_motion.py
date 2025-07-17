@@ -1196,6 +1196,8 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
                 
     pvt_mode_read_pvt_3_depth()
     pvt_mode_start_pvt_step(group_id)
+    time.sleep(0.2)
+    pvt_mode_start_pvt_step(group_id)
     last_time = time.time()
     stop_watch = last_time
     time_out = travel_time / 1000
