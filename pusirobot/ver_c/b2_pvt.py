@@ -3,7 +3,7 @@ import math
 import numpy as np
 from b1_stepper import *
 
-pvt_time_interval = 10
+pvt_time_interval = 50
 
 PVT_1 = 0x00
 PVT_2 = 0x01
@@ -107,10 +107,10 @@ def pvt_mode_read_pvt(node_id):
 
 def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
 
+    arrival_pulse = stepper_steps_to_pulses(wr_p)
+    
     wr_p = stepper_pulses_to_steps(wr_p)
     wr_v = stepper_pulses_to_steps(wr_v)
-    
-    arrival_pulse = stepper_steps_to_pulses(wr_p)
     
     
     error_code = pvt_mode_write_pvt(node_id, wr_p, wr_v, wr_t)
@@ -123,14 +123,12 @@ def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
 
 ############################################ function #############################################################
 
-def pvt_mode_init(group_id, pvt_type = PVT_3, pvt_max_point = 400, pvt_3_lower_limit = 40, pvt_3_upper_limit = 80):
+def pvt_mode_init(group_id, pvt_type = PVT_1, pvt_max_point = 400, pvt_3_lower_limit = 40, pvt_3_upper_limit = 80):
     reset_node()
-    # reset_communication()
     time.sleep(3)
     init_operation_mode(PVT_MODE)
     init_change_group_id(group_id)
     init_single_motor_change_group_id(ID4, 0x06)
-    init_single_motor_change_group_id(ID3, 0x06)
     pvt_mode_set_pvt_max_point(pvt_max_point)
     pvt_mode_set_pvt_operation_mode(pvt_type)
     print(f"pvt init : pvt_mode {pvt_type+1}, max point {pvt_max_point}, pvt mode {pvt_type}")
