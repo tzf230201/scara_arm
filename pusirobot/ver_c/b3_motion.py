@@ -1162,7 +1162,7 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     # sp_angle(cur_joints, 500, "stepper_only")
     # time.sleep(1)
     
-    pvt_mode_init(group_id, PVT_3, 800, pvt_3_lower_limit, pvt_3_upper_limit)
+    pvt_mode_init(group_id, PVT_3, 400, pvt_3_lower_limit, pvt_3_upper_limit)
     
     
     for pos, vel, tim in pvta_2:
