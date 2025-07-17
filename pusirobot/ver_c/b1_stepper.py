@@ -68,7 +68,7 @@ OD_STEPPER_POWER_LOSS_BEHAVIOR = 0X6031
 
 STEPPER_MAX_CURRENT = 3000
 
-MICROSTEP = 64
+MICROSTEP = 128
 
 STEPPER_PPR = 4096
 STEPPER_RATIO = STEPPER_PPR / 360
@@ -162,7 +162,7 @@ def save_settings():
 def stall_on():
     for id in [ID2, ID3, ID4]:
         set_sdo(id, SET_1_BYTE, OD_STEPPER_STALL_SET, 0x00, 0x01)
-        _, ret = set_req_sdo(id, SET_2_BYTE, OD_STEPPER_STALL_LENGTH, 0x00, 32)
+        _, ret = set_req_sdo(id, SET_2_BYTE, OD_STEPPER_STALL_LENGTH, 0x00, 64)
     print(f"stall length set to {ret}")
     print(f"stall (open-loop) activated")
     save_settings()
