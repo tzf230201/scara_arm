@@ -1162,7 +1162,7 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     
     
     for pos, vel, tim in pvt_joint_2:
-        if (vel != 0)
+        if (vel != 0):
             pvt_mode_write_read(ID2, pos, vel, tim)
         
     for pos, vel, tim in pvt_joint_3:
