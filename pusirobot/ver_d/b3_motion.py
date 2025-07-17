@@ -1170,7 +1170,7 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     if f==1:
         init_single_motor_change_group_id(ID2, group_id)
     else:
-        init_single_motor_change_group_id(ID4, 0x06)   
+        init_single_motor_change_group_id(ID2, 0x06)   
     
     f = 0
     print(f"m3")   
@@ -1181,7 +1181,7 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     if f==1:
         init_single_motor_change_group_id(ID3, group_id)
     else:
-        init_single_motor_change_group_id(ID4, 0x06)   
+        init_single_motor_change_group_id(ID3, 0x06)   
      
     f = 0
     print(f"m4")   
