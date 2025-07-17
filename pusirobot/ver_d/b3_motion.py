@@ -832,6 +832,8 @@ def generate_straight_pvt_points(start_coor, end_coor, travel_time):
     show = 0
     steps = int(travel_time / pvt_time_interval)  # Make sure pvt_time_interval is defined
     trajectory = generate_coor_straight_trajectory(start_coor, end_coor, steps)
+    cur_x, cur_y, cur_z, cur_yaw = start_coor
+    tar_x, tar_y, tar_z, tar_yaw = end_coor
     # print(f"cur_coor: ({cur_x:.2f}, {cur_y:.2f}, {cur_z:.2f}, {cur_yaw:.2f})")
     # print(f"tar_coor: ({tar_x:.2f}, {tar_y:.2f}, {tar_z:.2f}, {tar_yaw:.2f})")
     # print(f"steps: {steps}")
