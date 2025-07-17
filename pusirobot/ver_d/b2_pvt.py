@@ -108,7 +108,7 @@ def pvt_mode_read_pvt(node_id):
 def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
   
     wr_p = stepper_pulses_to_steps(wr_p)
-    wr_v = abs(stepper_pulses_to_steps(wr_v))
+    wr_v = stepper_pulses_to_steps(wr_v)
     
     arrival_pulse = stepper_steps_to_pulses(wr_p)
     
