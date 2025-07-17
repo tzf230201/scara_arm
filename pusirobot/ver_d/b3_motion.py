@@ -1150,55 +1150,29 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     pvt2_f, pvt3_f, pvt4_f = generate_straight_pvt_points(start_coor, end_coor, travel_time)
     pvt2_b, pvt3_b, pvt4_b = generate_straight_pvt_points(end_coor, start_coor, travel_time)
 
-    pvt_mode_init(group_id, PVT_3, 400, pvt_3_lower_limit, pvt_3_upper_limit)
-    
-    f = 0
-    print(f"m2")
+    pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
+
     for pos, vel, tim in pvt2_f:
-        if (vel != 0):
-            f=1
-            pvt_mode_write_read(ID2, pos, vel, tim)
+        pvt_mode_write_read(ID2, pos, vel, tim)
     
     for pos, vel, tim in pvt2_b:
-        if (vel != 0):
-            f=1
-            pvt_mode_write_read(ID2, pos, vel, tim)
-    
-    if f==1:
-        init_single_motor_change_group_id(ID2, group_id)
-    else:
-        init_single_motor_change_group_id(ID2, 0x06)
-         
-    
-    f = 0
-    print(f"m3")   
+        pvt_mode_write_read(ID2, pos, vel, tim)
+
+       
     for pos, vel, tim in pvt3_f:
-        if (vel != 0):
-            f=1
-            pvt_mode_write_read(ID3, pos, vel, tim)
+        pvt_mode_write_read(ID3, pos, vel, tim)
     for pos, vel, tim in pvt3_b:
-        if (vel != 0):
-            f=1
-            pvt_mode_write_read(ID3, pos, vel, tim)
-    if f==1:
-        init_single_motor_change_group_id(ID3, group_id)
-    else:
-        init_single_motor_change_group_id(ID3, 0x06)   
+        pvt_mode_write_read(ID3, pos, vel, tim)
+        
      
-    f = 0
-    print(f"m4")   
     for pos, vel, tim in pvt4_f:
-        if (vel != 0):
-            f=1
-            pvt_mode_write_read(ID4, pos, vel, tim)
+        pvt_mode_write_read(ID4, pos, vel, tim)
     for pos, vel, tim in pvt4_b:
-        if (vel != 0):
-            f=1
-            pvt_mode_write_read(ID4, pos, vel, tim)
-    if f==1:
+        pvt_mode_write_read(ID4, pos, vel, tim)
+            
+        init_single_motor_change_group_id(ID2, group_id)
+        init_single_motor_change_group_id(ID3, group_id)
         init_single_motor_change_group_id(ID4, group_id)
-    else:
-        init_single_motor_change_group_id(ID4, 0x06)    
                 
     pvt_mode_read_pvt_3_depth()
     pvt_mode_start_pvt_step(group_id)
@@ -1233,3 +1207,52 @@ def stepper_single_motor_pp_mode(id, tar_joint, travel_time,  selection):
         # print(f"pp mode start absolute motion")
 
 
+
+
+    # f = 0
+    # print(f"m2")
+    # for pos, vel, tim in pvt2_f:
+    #     if (vel != 0):
+    #         f=1
+    #         pvt_mode_write_read(ID2, pos, vel, tim)
+    
+    # for pos, vel, tim in pvt2_b:
+    #     if (vel != 0):
+    #         f=1
+    #         pvt_mode_write_read(ID2, pos, vel, tim)
+    
+    # if f==1:
+    #     init_single_motor_change_group_id(ID2, group_id)
+    # else:
+    #     init_single_motor_change_group_id(ID2, 0x06)
+         
+    
+    # f = 0
+    # print(f"m3")   
+    # for pos, vel, tim in pvt3_f:
+    #     if (vel != 0):
+    #         f=1
+    #         pvt_mode_write_read(ID3, pos, vel, tim)
+    # for pos, vel, tim in pvt3_b:
+    #     if (vel != 0):
+    #         f=1
+    #         pvt_mode_write_read(ID3, pos, vel, tim)
+    # if f==1:
+    #     init_single_motor_change_group_id(ID3, group_id)
+    # else:
+    #     init_single_motor_change_group_id(ID3, 0x06)   
+     
+    # f = 0
+    # print(f"m4")   
+    # for pos, vel, tim in pvt4_f:
+    #     if (vel != 0):
+    #         f=1
+    #         pvt_mode_write_read(ID4, pos, vel, tim)
+    # for pos, vel, tim in pvt4_b:
+    #     if (vel != 0):
+    #         f=1
+    #         pvt_mode_write_read(ID4, pos, vel, tim)
+    # if f==1:
+    #     init_single_motor_change_group_id(ID4, group_id)
+    # else:
+    #     init_single_motor_change_group_id(ID4, 0x06)    
