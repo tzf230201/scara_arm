@@ -3,7 +3,7 @@ import math
 import numpy as np
 from b1_stepper import *
 
-pvt_time_interval = 50
+pvt_time_interval = 100
 
 PVT_1 = 0x00
 PVT_2 = 0x01
