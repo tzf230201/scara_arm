@@ -828,28 +828,20 @@ def sine_wave(current_time, start_time, travel_time, cur_pos, tar_pos):
     return output
 
 
-
-def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
-    
+def generate_straight_pvt_trajectory(cur_coor, tar_coor, travel_time):
     show = 0
     
-    cur_coor = forward_kinematics(cur_joints)
-    tar_coor = forward_kinematics(tar_joints)
-
     cur_x, cur_y, cur_z, cur_yaw = cur_coor
     tar_x, tar_y, tar_z, tar_yaw = tar_coor
-    # # 
-    # sp_angle(cur_joints, 500, "stepper_only")
-    # time.sleep(1)
     
     start_coor = cur_x, cur_y, cur_z, cur_yaw
     end_coor = tar_x, tar_y, cur_z, tar_yaw
-
-    steps = int(travel_time / pvt_time_interval)  # Make sure pvt_time_interval is defined
-
+    
     # print(f"cur_coor: ({cur_x:.2f}, {cur_y:.2f}, {cur_z:.2f}, {cur_yaw:.2f})")
     # print(f"tar_coor: ({tar_x:.2f}, {tar_y:.2f}, {tar_z:.2f}, {tar_yaw:.2f})")
     # print(f"steps: {steps}")
+    
+    steps = int(travel_time / pvt_time_interval)  # Make sure pvt_time_interval is defined
     
     trajectory = generate_coor_straight_trajectory(start_coor, end_coor, steps)
     
@@ -1148,6 +1140,9 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     pvt_joint_3 = generate_pvt_points_from_pulse_and_pps(joint_3_relative_pulses, joint_3_speed_pps, interval_ms)
     pvt_joint_4 = generate_pvt_points_from_pulse_and_pps(joint_4_relative_pulses, joint_4_speed_pps, interval_ms)
 
+    return pvt_joint_2, pvt_joint_3, pvt_joint_4
+    
+def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     global last_time, stop_watch, time_out
     group_id = 0x05
     tar_pulses = []
@@ -1155,16 +1150,32 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     node_ids = [ID1, ID2, ID3, ID4]
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
+    
+    
+    cur_coor = forward_kinematics(cur_joints)
+    tar_coor = forward_kinematics(tar_joints)
 
-    #ww
-    pvt_mode_init(group_id, PVT_3, 400, pvt_3_lower_limit, pvt_3_upper_limit)
+    pvta_2, pvta_3, pvta_4 = generate_straight_pvt_trajectory(cur_coor, tar_coor, travel_time)
+    pvtb_2, pvtb_3, pvtb_4 = generate_straight_pvt_trajectory(tar_coor, cur_coor, travel_time)
+    
+    # # 
+    # sp_angle(cur_joints, 500, "stepper_only")
+    # time.sleep(1)
+    
+    pvt_mode_init(group_id, PVT_3, 100, pvt_3_lower_limit, pvt_3_upper_limit)
     
     
-    for pos, vel, tim in pvt_joint_2:
+    for pos, vel, tim in pvta_2:
+        if (vel != 0):
+            pvt_mode_write_read(ID2, pos, vel, tim)
+    for pos, vel, tim in pvtb_2:
         if (vel != 0):
             pvt_mode_write_read(ID2, pos, vel, tim)
         
-    for pos, vel, tim in pvt_joint_3:
+    for pos, vel, tim in pvta_3:
+        if (vel != 0):
+            pvt_mode_write_read(ID3, pos, vel, tim)
+    for pos, vel, tim in pvtb_3:
         if (vel != 0):
             pvt_mode_write_read(ID3, pos, vel, tim)
         
