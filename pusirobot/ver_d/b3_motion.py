@@ -1015,14 +1015,15 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     return t, x, y, z, yaw, pvt_points
 
 def pvt_mode_try_pvt_5(selection):
-    cur_joints = get_cur_joints(selection)
+    # cur_joints = get_cur_joints(selection)
+    cur_joints = forward_kinematics([0,0,0,0])
     start = inverse_kinematics(cur_joints)
     
     targets = [
         ([166.82, -168, 0, 0], 1000),
-        # ([258, 0, 0, 0], 1000),
-        # ([107, 100, 0, 90], 1000),
-        # ([107, 224, 0, 90], 1000),
+        ([258, 0, 0, 0], 1000),
+        ([107, 100, 0, 90], 1000),
+        ([107, 224, 0, 90], 1000),
     ]
 
     t, x, y, z, yaw, pvt_points = generate_multi_straight_pvt_points(start, targets, dt=20)
