@@ -998,7 +998,7 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     cur_coor = start_coor
     
     # ==== HITUNG TRAJEKTORI CARTESIAN ====
-    t, x, y, z, yaw = generate_trajectory_triangle(cur_coor, list_tar_coor, dt=20)
+    t, x, y, z, yaw = generate_trajectory_triangle(cur_coor, list_tar_coor, dt)
 
     # ==== KONVERSI CARTESIAN → JOINT ====
     j1_traj, j2_traj, j3_traj, j4_traj = convert_cartesian_traj_to_joint_traj(x, y, z, yaw)
