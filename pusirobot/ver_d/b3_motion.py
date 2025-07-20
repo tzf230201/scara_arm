@@ -1016,7 +1016,7 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
 
 def pvt_mode_try_pvt_5(selection):
     # cur_joints = get_cur_joints(selection)
-    cur_joints = forward_kinematics([0,0,0,0])
+    cur_joints = [258,0,0,0]
     start = inverse_kinematics(cur_joints)
     
     targets = [
