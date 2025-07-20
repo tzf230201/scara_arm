@@ -1,11 +1,18 @@
 import signal
 import tkinter as tk
 import time
-from b4_function import wake_up, shutdown,get_encoder_position, set_origin, is_already_wake_up, set_motor_selection, get_motor_selection
+from b4_function import *
 from b3_motion import *
 from b1_servo import servo_execute
 from b2_pvt import pvt_mode_start_pvt_step
 import sys
+from kinematics_and_trajectory import (
+    generate_trajectory_triangle,
+    check_limit,
+    forward_kinematics,
+    inverse_kinematics,
+    convert_cartesian_traj_to_joint_traj
+)
 
 # class Tee:
 #     def __init__(self, file_name):
@@ -78,7 +85,8 @@ def pvt_joint():
     travel_time = get_travel_time()
     
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
-    pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time)
+    # pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time)
+    pvt_mode_try_pvt_5()
     # _, _, _, tar_joint_4 = tar_joints
     # stepper_single_motor_pp_mode(ID4, tar_joint_4, travel_time, selection)
     # print(f"run motor 4 {tar_joint_4}")

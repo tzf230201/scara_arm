@@ -6,6 +6,13 @@ from b3_motion import dancing, sp_angle, sp_coor, pvt_circular, pvt_mode_try_pvt
 from b1_servo import servo_get_motor_velocity, servo_get_status_word
 from b0_can import send_can_command
 import sys
+from kinematics_and_trajectory import (
+    generate_trajectory_triangle,
+    check_limit,
+    forward_kinematics,
+    inverse_kinematics,
+    convert_cartesian_traj_to_joint_traj
+)
 #ege
 # class Tee:
 #     def __init__(self, file_name):

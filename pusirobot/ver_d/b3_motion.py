@@ -10,6 +10,14 @@ import numpy as np
 import os
 import json
 
+from kinematics_and_trajectory import (
+    generate_trajectory_triangle,
+    check_limit,
+    forward_kinematics,
+    inverse_kinematics,
+    convert_cartesian_traj_to_joint_traj
+)
+
 def print_red(text):
     # ANSI escape code untuk warna merah
     RED = '\033[31m'  # Kode warna 256-color mode untuk merah
@@ -571,239 +579,6 @@ def pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction="CCW"):
     
 # ######################################### KINEMATICS ######################################### #
 
-def check_limit(tar_joints):
-    
-    tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
-    tar_joint_4 *= -1
-    #limit2 = 0 to 178 degree
-    #limit3 = -135 to 0 degree
-    #limit4 = 0 to 196 degree
-    
-    # if tar_joint_1 > (13004): # 6 may 2025
-    #     tar_joint_1 = 13004 # 6 may 2025
-    if tar_joint_1 > (3551*4): # 6 may 2025
-        tar_joint_1 = (3551*4) # 6 may 2025
-        print(f"tar_joint_1 greater than {tar_joint_1}")
-    elif tar_joint_1 < 0:
-        tar_joint_1 = 0
-        print(f"tar_joint_1 lower than {tar_joint_1}")
-    
-    if tar_joint_2 > (178 * 5):
-        tar_joint_2 = 178 * 5
-        print(f"tar_joint_2 greater than {tar_joint_2}")
-    elif tar_joint_2 < 0:
-        tar_joint_2 = 0
-        print(f"tar_joint_2 lower than {tar_joint_2}")
-        
-    if tar_joint_3 > (0 + tar_joint_2):
-        tar_joint_3 = (0 + tar_joint_2)
-        print(f"tar_joint_3 greater than {tar_joint_3}")
-    elif tar_joint_3 < ((-135 * 5) + tar_joint_2):
-        tar_joint_3 = (-135 * 5) + tar_joint_2
-        print(f"tar_joint_3 lower than {tar_joint_3}")
-        
-    if tar_joint_4 > ((196 * 5)+tar_joint_3):
-        tar_joint_4 = (196 * 5) + tar_joint_3
-        print(f"tar_joint_4 greater than {tar_joint_4}")
-    elif tar_joint_4 < (0 + tar_joint_3):
-        tar_joint_4 = 0 + tar_joint_3
-        print(f"tar_joint_4 lower than {tar_joint_4}")
-    
-    tar_joint_4 *= -1
-    
-    tar_joints = [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
-    
-    return tar_joints
-
-def inverse_kinematics(tar_coor):
-    x, y, z, yaw = tar_coor
-    # max area
-    L2 = 137.0
-    L3 = 121.0
-    L4 = 56.82
-    OFFSET_2 = -96.5
-    OFFSET_3 = 134
-    OFFSET_4 = -52.5
-    #ration joint = 5:1
-
-    distance = math.sqrt(x**2 + y**2)
-
-    if distance > (L2 + L3):
-        raise ValueError("out of boundary")
-
-    # joint_3
-    cos_theta3 = (x**2 + y**2 - L2**2 - L3**2) / (2 * L2 * L3)
-    theta3 = math.acos(cos_theta3)  #angle in radian
-
-    # joint_2
-    k1 = L2 + L3 * cos_theta3
-    k2 = L3 * math.sin(theta3)
-    theta2 = math.atan2(y, x) - math.atan2(k2, k1)
-
-    # rad to deg
-    theta2 = math.degrees(theta2)
-    theta3 = math.degrees(theta3)
-
-    joint_1 = z * (360/90)
-    joint_2 = (theta2-OFFSET_2)*5
-    joint_3 = (theta3-OFFSET_3)*5 + joint_2
-    joint_4 = (yaw-OFFSET_4)*5# + joint_3;
-        
-    joint_4 *= -1
-    
-    joints = [joint_1, joint_2, joint_3, joint_4]
-    joints = check_limit(joints)
-    
-    return joints
-
-# Forward kinematics function
-def forward_kinematics(cur_joints):
-    
-    cur_deg1, cur_deg2, cur_deg3, cur_deg4 = cur_joints
-    cur_deg4 *= -1.0
-    #x:258, y:0, c:0 = joint2:482.5, joint3:-187.5, joint4:262.5
-    L2 = 137.0
-    L3 = 121.0
-    L4 = 56.82
-    OFFSET_2 = -96.5
-    OFFSET_3 = 134.0
-    OFFSET_4 = -52.5
-    theta2_rad = math.radians((cur_deg2 / 5) + OFFSET_2)
-    theta3_rad = math.radians((cur_deg3 / 5) + OFFSET_3 - (cur_deg2 / 5))
-    x2 = L2 * math.cos(theta2_rad)
-    y2 = L2 * math.sin(theta2_rad)
-    x3 = x2 + L3 * math.cos(theta2_rad + theta3_rad)
-    y3 = y2 + L3 * math.sin(theta2_rad + theta3_rad)
-    z = (cur_deg1/360)*90
-    yaw = (cur_deg4 / 5) + OFFSET_4
-    
-    cur_coor = [x3, y3, z, yaw]  
-    return cur_coor
-
-# ######################################### DANCING ######################################### #
-
-def straight_line(travel_time):
-    sleep = (travel_time / 1000) + 0.1 # in seconds
-
-    
-    coor_1 = [258, 0, 0, 0]
-    coor_2 = [150, 0, 0, 0]
-        
-    for i in range(3):
-        sp_coor(coor_1, travel_time)
-        time.sleep(sleep)
-        sp_coor(coor_2, travel_time)
-        time.sleep(sleep)
-    
-def rectangular(travel_time):
-    sleep = (travel_time / 1000) + 0.1 # in seconds
-
-    
-    coor_1 = [210, 40, 0, 0]
-    coor_2 = [210, -40, 0, 0]
-    coor_3 = [130, -40, 0, 0]
-    coor_4 = [130, 40, 0, 0]
-    
-    for i in range(2):
-        sp_coor(coor_1, travel_time)
-        time.sleep(sleep)
-        sp_coor(coor_2, travel_time)
-        time.sleep(sleep)
-        sp_coor(coor_3, travel_time)
-        time.sleep(sleep)
-        sp_coor(coor_4, travel_time)
-        time.sleep(sleep)
-    
-    sp_coor(coor_1, travel_time)
-    time.sleep(sleep)
-
-        
-def home_position(travel_time):
-    sleep = (travel_time / 1000) + 0.1 # in seconds
-
-    
-    home_angles = [0, 0, 0, 0]
-    sp_angle(home_angles, travel_time)
-    time.sleep(sleep)
-
-		
-def shuttle_position(travel_time):
-    sleep = (travel_time / 1000)
-    
-    shuttle_coor = [166.82, -168, 0, 0]
-    sp_coor(shuttle_coor, travel_time)
-    time.sleep(sleep)
-
-def pre_past_shelf(travel_time):
-    sleep = (travel_time / 1000)
-    
-    pre_past_shelf_coor = [107, 100, 0, 90]
-    sp_coor(pre_past_shelf_coor, travel_time)
-    time.sleep(sleep)
-
-
-def pickup_from_shelf(travel_time):
-    sleep = (travel_time / 1000)
-    
-    pickup_from_shelf_coor = [107, 224, 0, 90]
-    sp_coor(pickup_from_shelf_coor, travel_time)
-    time.sleep(sleep)
-
-def place_onto_shelf(travel_time):
-    sleep = (travel_time / 1000)
-    
-    place_from_shelf_coor = [107, 197, 0, 90]
-    sp_coor(place_from_shelf_coor, travel_time)
-    time.sleep(sleep)
-
-        
-def dancing(travel_time):
-    sleep = (travel_time / 1000) + 0.1 # in seconds
-
-    straight_line(travel_time)
-    sp_coor([140, 0, 0, -20], travel_time)
-    time.sleep(sleep)
-    sp_coor([140, 0, 0, 90], travel_time)
-    time.sleep(sleep)
-    sp_coor([140, -168, 0, 0], travel_time)
-    time.sleep(sleep)
-    home_position(travel_time)
-    shuttle_position(travel_time)
-    home_position(travel_time)
-    shuttle_position(travel_time)
-    home_position(travel_time)
-    rectangular(travel_time)
-    sp_coor([130, 40, 0, 0], travel_time)
-    time.sleep(sleep)
-    sp_coor([130, 0, 0, 0], travel_time/2)
-    time.sleep(sleep/2)
-    
-    cur_pos = (130, 0)  # (x, y) posisi awal
-    center_pos = (170, 0)  # Pusat lingkaran
-    end_angle = 360  # Gerakan setengah lingkaran
-    circular_travel_time = 4  # dalam detik
-    circular_sleep = circular_travel_time + 0.1
-    direction = "CCW"  # Arah rotasi
-    
-    pvt_circular(cur_pos, center_pos, end_angle, circular_travel_time, direction)
-    time.sleep(circular_sleep*2)
-    time.sleep(sleep/2)
-    #
-    pre_past_shelf(travel_time)
-    pickup_from_shelf(travel_time)
-    pre_past_shelf(travel_time)
-    pickup_from_shelf(travel_time)
-    pre_past_shelf(travel_time)
-    
-    #
-    sp_coor([150, 0, 0, 0], travel_time)
-    time.sleep(sleep)
-    sp_coor([258, 0, 0, 90], travel_time)
-    time.sleep(sleep)
-    sp_coor([258, 0, 0, -90], travel_time)
-    time.sleep(sleep)
-    sp_coor([258, 0, 0, 0], travel_time)
-
 
 import matplotlib.pyplot as plt
 
@@ -1206,52 +981,52 @@ def stepper_single_motor_pp_mode(id, tar_joint, travel_time,  selection):
         # print(f"pp mode start absolute motion")
 
 
+def compute_relative_joint_trajectory(joint_list, base_value):
+    return [val - base_value for val in joint_list]
 
+def generate_pvt_points_from_relative(j_rel_list, dt_ms):
+    pvt = []
+    for i in range(1, len(j_rel_list[0])):
+        pos = [stepper_degrees_to_pulses(j[i]) for j in j_rel_list]
+        vel = [stepper_degrees_to_pulses((j[i] - j[i-1]) / (dt_ms / 1000)) for j in j_rel_list]
+        pvt.append([(int(pos[0]), int(vel[0])), (int(pos[1]), int(vel[1])),
+                    (int(pos[2]), int(vel[2])), (int(pos[3]), int(vel[3])), dt_ms])
+    return pvt
 
-    # f = 0
-    # print(f"m2")
-    # for pos, vel, tim in pvt2_f:
-    #     if (vel != 0):
-    #         f=1
-    #         pvt_mode_write_read(ID2, pos, vel, tim)
+def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
+    # 1. Generate Cartesian trajectory
+    t, x, y, z, yaw = generate_trajectory_triangle(start_coor, list_tar_coor, dt)
+
+    # 2. Convert to joint trajectory (absolute deg)
+    j1, j2, j3, j4 = convert_cartesian_traj_to_joint_traj(x, y, z, yaw)
+
+    # 3. Compute base joint (absolute)
+    base_joint = inverse_kinematics(start_coor)
+
+    # 4. Compute relative joint trajectory
+    j1_rel = compute_relative_joint_trajectory(j1, base_joint[0])
+    j2_rel = compute_relative_joint_trajectory(j2, base_joint[1])
+    j3_rel = compute_relative_joint_trajectory(j3, base_joint[2])
+    j4_rel = compute_relative_joint_trajectory(j4, base_joint[3])
+
+    # 5. Generate PVT points from relative joint deg
+    pvt_points = generate_pvt_points_from_relative([j1_rel, j2_rel, j3_rel, j4_rel], dt)
+
+    return t, x, y, z, yaw, pvt_points
+
+def pvt_mode_try_pvt_5():
+    cur_joints = get_cur_joints()
+    start = inverse_kinematics(cur_joints)
     
-    # for pos, vel, tim in pvt2_b:
-    #     if (vel != 0):
-    #         f=1
-    #         pvt_mode_write_read(ID2, pos, vel, tim)
-    
-    # if f==1:
-    #     init_single_motor_change_group_id(ID2, group_id)
-    # else:
-    #     init_single_motor_change_group_id(ID2, 0x06)
-         
-    
-    # f = 0
-    # print(f"m3")   
-    # for pos, vel, tim in pvt3_f:
-    #     if (vel != 0):
-    #         f=1
-    #         pvt_mode_write_read(ID3, pos, vel, tim)
-    # for pos, vel, tim in pvt3_b:
-    #     if (vel != 0):
-    #         f=1
-    #         pvt_mode_write_read(ID3, pos, vel, tim)
-    # if f==1:
-    #     init_single_motor_change_group_id(ID3, group_id)
-    # else:
-    #     init_single_motor_change_group_id(ID3, 0x06)   
-     
-    # f = 0
-    # print(f"m4")   
-    # for pos, vel, tim in pvt4_f:
-    #     if (vel != 0):
-    #         f=1
-    #         pvt_mode_write_read(ID4, pos, vel, tim)
-    # for pos, vel, tim in pvt4_b:
-    #     if (vel != 0):
-    #         f=1
-    #         pvt_mode_write_read(ID4, pos, vel, tim)
-    # if f==1:
-    #     init_single_motor_change_group_id(ID4, group_id)
-    # else:
-    #     init_single_motor_change_group_id(ID4, 0x06)    
+    targets = [
+        ([166.82, -168, 0, 0], 1000),
+        ([258, 0, 0, 0], 1000),
+        ([107, 100, 0, 90], 1000),
+        ([107, 224, 0, 90], 1000),
+    ]
+
+    t, x, y, z, yaw, pvt_points = generate_multi_straight_pvt_points(start, targets, dt=20)
+
+    print("=== Sample PVT ===")
+    for i, (j1, j2, j3, j4, tm) in enumerate(pvt_points[:5]):
+        print(f"[{i}] J1: {j1}, J2: {j2}, J3: {j3}, J4: {j4}, t: {tm} ms")
