@@ -1016,13 +1016,6 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
 
 def pvt_mode_try_pvt_5(selection):
 
-    # ==== KONFIGURASI STEP ====
-    STEPPER_PPR = 4096
-    STEPPER_RATIO = STEPPER_PPR / 360
-
-    def stepper_degrees_to_pulses(degrees):
-        return degrees * STEPPER_RATIO
-
     # ==== DATA AWAL ====
     cur_coor = [258, 0, 0, 0]  # [x, y, z, yaw] in mm and deg
     list_tar_coor = [
