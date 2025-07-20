@@ -1018,13 +1018,20 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     plot_xy_trajectory(x, y)
     # ==== PVT POINTS ====
     def generate_pvt_points(j1_rel, j2_rel, j3_rel, j4_rel, dt_ms):
-        pvt_points = []
+        dt_sec = dt_ms / 1000
+
+        pvt1, pvt2, pvt3, pvt4 = [], [], [], []
+
         for i in range(1, len(j1_rel)):
-            p = [stepper_degrees_to_pulses(j[i]) for j in [j1_rel, j2_rel, j3_rel, j4_rel]]
-            v = [stepper_degrees_to_pulses((j[i] - j[i-1]) / (dt_ms / 1000)) for j in [j1_rel, j2_rel, j3_rel, j4_rel]]
-            pvt_points.append([(int(p[0]), int(v[0])), (int(p[1]), int(v[1])), 
-                            (int(p[2]), int(v[2])), (int(p[3]), int(v[3])), dt_ms])
-        return pvt_points
+            joints = [j1_rel, j2_rel, j3_rel, j4_rel]
+            pvt_lists = [pvt1, pvt2, pvt3, pvt4]
+
+            for j, pvt_list in zip(joints, pvt_lists):
+                pos = int(stepper_degrees_to_pulses(j[i]))
+                vel = int(stepper_degrees_to_pulses((j[i] - j[i - 1]) / dt_sec))
+                pvt_list.append((pos, vel, dt_ms))
+
+        return pvt1, pvt2, pvt3, pvt4
     
     # Cetak PVT
     pvt_points = generate_pvt_points(j1_rel, j2_rel, j3_rel, j4_rel, dt_ms=20)
@@ -1043,14 +1050,36 @@ def pvt_mode_try_pvt_5(selection):
     
     start_coor = [258,0,0,0]
     
-    pvt_points = generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt=20)
+    pvt1_f, pvt2_f, pvt3_f, pvt4_f = generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt=20)
     
-    print("\n=== PVT Points ===")
-    for i, (j1, j2, j3, j4, t_ms) in enumerate(pvt_points):
-        print(f"[{i}] J1: pos={j1[0]}, vel={j1[1]} | "
-            f"J2: pos={j2[0]}, vel={j2[1]} | "
-            f"J3: pos={j3[0]}, vel={j3[1]} | "
-            f"J4: pos={j4[0]}, vel={j4[1]} | t={t_ms} ms")
+
+    global last_time, stop_watch, time_out
+    group_id = 0x05
+    tar_pulses = []
+    cur_pulses = []
+    node_ids = [ID1, ID2, ID3, ID4]
+    pvt_3_lower_limit = 60
+    pvt_3_upper_limit = 80
+    
+    pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
+
+    for pos, vel, tim in pvt2_f:
+        pvt_mode_write_read(ID2, pos, vel, tim)
+
+       
+    for pos, vel, tim in pvt3_f:
+        pvt_mode_write_read(ID3, pos, vel, tim)
+        
+     
+    for pos, vel, tim in pvt4_f:
+        pvt_mode_write_read(ID4, pos, vel, tim)
+            
+    init_single_motor_change_group_id(ID2, group_id)
+    init_single_motor_change_group_id(ID3, group_id)
+    init_single_motor_change_group_id(ID4, group_id)
+                
+    pvt_mode_read_pvt_3_depth()
+    # pvt_mode_start_pvt_step(group_id)
 
     
     
