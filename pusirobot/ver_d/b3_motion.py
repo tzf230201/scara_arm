@@ -1056,7 +1056,7 @@ def pvt_mode_try_pvt_5(selection):
     # start_coor = [258,0,0,0]
     start_coor = forward_kinematics([0,0,0,0])
     
-    pvt1_f, pvt2_f, pvt3_f, pvt4_f = generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt=20)
+    pvt1_f, pvt2_f, pvt3_f, pvt4_f = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
     
 
     global last_time, stop_watch, time_out
