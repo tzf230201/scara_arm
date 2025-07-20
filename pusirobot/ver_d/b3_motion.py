@@ -15,7 +15,8 @@ from kinematics_and_trajectory import (
     check_limit,
     forward_kinematics,
     inverse_kinematics,
-    convert_cartesian_traj_to_joint_traj
+    convert_cartesian_traj_to_joint_traj,
+    plot_xy_trajectory
 )
 
 def print_red(text):
@@ -1042,12 +1043,6 @@ def pvt_mode_try_pvt_5(selection):
     j3_rel = compute_relative_joint_trajectory(j3_traj, base_joint_deg[2])
     j4_rel = compute_relative_joint_trajectory(j4_traj, base_joint_deg[3])
 
-    # ==== KONVERSI RELATIVE JOINT DEG → PULSE ====
-    j1_rel_pulse = [stepper_degrees_to_pulses(val) for val in j1_rel]
-    j2_rel_pulse = [stepper_degrees_to_pulses(val) for val in j2_rel]
-    j3_rel_pulse = [stepper_degrees_to_pulses(val) for val in j3_rel]
-    j4_rel_pulse = [stepper_degrees_to_pulses(val) for val in j4_rel]
-
    
 
     # ==== PVT POINTS ====
@@ -1069,3 +1064,5 @@ def pvt_mode_try_pvt_5(selection):
             f"J2: pos={j2[0]}, vel={j2[1]} | "
             f"J3: pos={j3[0]}, vel={j3[1]} | "
             f"J4: pos={j4[0]}, vel={j4[1]} | t={t_ms} ms")
+    
+    plot_xy_trajectory(x, y)
