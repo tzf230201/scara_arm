@@ -101,7 +101,7 @@ def forward_kinematics(cur_joints):
     return [x3, y3, z, yaw]
 
 
-def triangle_profile(p0, p1, T, dt=20):
+def triangle_profile(p0, p1, T, dt):
     steps = int(T / dt)
     half = steps // 2
     a = 4 * (p1 - p0) / (T ** 2)
@@ -120,7 +120,7 @@ def triangle_profile(p0, p1, T, dt=20):
     return positions
 
 
-def generate_trajectory_triangle(cur_coor, list_tar_coor, dt=20):
+def generate_trajectory_triangle(cur_coor, list_tar_coor, dt):
     time_vals = []
     total_time = 0
     current = cur_coor
