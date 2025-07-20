@@ -1080,7 +1080,7 @@ def pvt_mode_try_pvt_5(selection):
     init_single_motor_change_group_id(ID4, group_id)
                 
     pvt_mode_read_pvt_3_depth()
-    # pvt_mode_start_pvt_step(group_id)
+    pvt_mode_start_pvt_step(group_id)
 
     
     
