@@ -1048,7 +1048,8 @@ def pvt_mode_try_pvt_5(selection):
         ([107, 224, 0, 90], 1000),
     ]
     
-    start_coor = [258,0,0,0]
+    # start_coor = [258,0,0,0]
+    start_coor = forward_kinematics([0,0,0,0])
     
     pvt1_f, pvt2_f, pvt3_f, pvt4_f = generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt=20)
     
