@@ -86,7 +86,7 @@ def pvt_joint():
     
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     # pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time)
-    pvt_mode_try_pvt_5()
+    pvt_mode_try_pvt_5(selection)
     # _, _, _, tar_joint_4 = tar_joints
     # stepper_single_motor_pp_mode(ID4, tar_joint_4, travel_time, selection)
     # print(f"run motor 4 {tar_joint_4}")
