@@ -55,9 +55,6 @@ def inverse_kinematics(tar_coor):
 
     # joint_3
     cos_theta3 = (x**2 + y**2 - L2**2 - L3**2) / (2 * L2 * L3)
-    cos_theta3 = min(1.0, max(-1.0, cos_theta3))  # clamp
-
-
     theta3 = math.acos(cos_theta3)  #angle in radian
 
     # joint_2
