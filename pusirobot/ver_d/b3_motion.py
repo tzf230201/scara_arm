@@ -1034,7 +1034,7 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
         return pvt1, pvt2, pvt3, pvt4
     
     # Cetak PVT
-    pvt_points = generate_pvt_points(j1_rel, j2_rel, j3_rel, j4_rel, dt_ms=20)
+    pvt_points = generate_pvt_points(j1_rel, j2_rel, j3_rel, j4_rel, dt)
     
     return pvt_points
 
@@ -1073,19 +1073,19 @@ def pvt_mode_try_pvt_5(selection):
         pvt_mode_write_read(ID2, pos, vel, tim)
 
        
-    for pos, vel, tim in pvt3_f:
-        pvt_mode_write_read(ID3, pos, vel, tim)
+    # for pos, vel, tim in pvt3_f:
+    #     pvt_mode_write_read(ID3, pos, vel, tim)
         
      
-    for pos, vel, tim in pvt4_f:
-        pvt_mode_write_read(ID4, pos, vel, tim)
+    # for pos, vel, tim in pvt4_f:
+    #     pvt_mode_write_read(ID4, pos, vel, tim)
             
     init_single_motor_change_group_id(ID2, group_id)
-    init_single_motor_change_group_id(ID3, group_id)
-    init_single_motor_change_group_id(ID4, group_id)
+    # init_single_motor_change_group_id(ID3, group_id)
+    # init_single_motor_change_group_id(ID4, group_id)
                 
     pvt_mode_read_pvt_3_depth()
-    pvt_mode_start_pvt_step(group_id)
+    # pvt_mode_start_pvt_step(group_id)
 
     
     
