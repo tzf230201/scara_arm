@@ -995,37 +995,8 @@ def generate_pvt_points_from_relative(j_rel_list, dt_ms):
     return pvt
 
 def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
-    # 1. Generate Cartesian trajectory
-    t, x, y, z, yaw = generate_trajectory_triangle(start_coor, list_tar_coor, dt)
-
-    # 2. Convert to joint trajectory (absolute deg)
-    j1, j2, j3, j4 = convert_cartesian_traj_to_joint_traj(x, y, z, yaw)
-
-    # 3. Compute base joint (absolute)
-    base_joint = inverse_kinematics(start_coor)
-
-    # 4. Compute relative joint trajectory
-    j1_rel = compute_relative_joint_trajectory(j1, base_joint[0])
-    j2_rel = compute_relative_joint_trajectory(j2, base_joint[1])
-    j3_rel = compute_relative_joint_trajectory(j3, base_joint[2])
-    j4_rel = compute_relative_joint_trajectory(j4, base_joint[3])
-
-    # 5. Generate PVT points from relative joint deg
-    pvt_points = generate_pvt_points_from_relative([j1_rel, j2_rel, j3_rel, j4_rel], dt)
-
-    return t, x, y, z, yaw, pvt_points
-
-def pvt_mode_try_pvt_5(selection):
-
-    # ==== DATA AWAL ====
-    cur_coor = [258, 0, 0, 0]  # [x, y, z, yaw] in mm and deg
-    list_tar_coor = [
-        ([166.82, -168, 0, 0], 1000),
-        ([258, 0, 0, 0], 1000),
-        ([107, 100, 0, 90], 1000),
-        ([107, 224, 0, 90], 1000),
-    ]
-
+    cur_coor = start_coor
+    
     # ==== HITUNG TRAJEKTORI CARTESIAN ====
     t, x, y, z, yaw = generate_trajectory_triangle(cur_coor, list_tar_coor, dt=20)
 
@@ -1044,7 +1015,7 @@ def pvt_mode_try_pvt_5(selection):
     j4_rel = compute_relative_joint_trajectory(j4_traj, base_joint_deg[3])
 
    
-
+    plot_xy_trajectory(x, y)
     # ==== PVT POINTS ====
     def generate_pvt_points(j1_rel, j2_rel, j3_rel, j4_rel, dt_ms):
         pvt_points = []
@@ -1054,15 +1025,37 @@ def pvt_mode_try_pvt_5(selection):
             pvt_points.append([(int(p[0]), int(v[0])), (int(p[1]), int(v[1])), 
                             (int(p[2]), int(v[2])), (int(p[3]), int(v[3])), dt_ms])
         return pvt_points
-
+    
     # Cetak PVT
     pvt_points = generate_pvt_points(j1_rel, j2_rel, j3_rel, j4_rel, dt_ms=20)
+    
+    return pvt_points
 
+    
+
+def pvt_mode_try_pvt_5(selection):
+    list_tar_coor = [
+        ([166.82, -168, 0, 0], 1000),
+        ([258, 0, 0, 0], 1000),
+        ([107, 100, 0, 90], 1000),
+        ([107, 224, 0, 90], 1000),
+    ]
+    
+    start_coor = [258,0,0,0]
+    
+    pvt_points = generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt=20)
+    
     print("\n=== PVT Points ===")
     for i, (j1, j2, j3, j4, t_ms) in enumerate(pvt_points):
         print(f"[{i}] J1: pos={j1[0]}, vel={j1[1]} | "
             f"J2: pos={j2[0]}, vel={j2[1]} | "
             f"J3: pos={j3[0]}, vel={j3[1]} | "
             f"J4: pos={j4[0]}, vel={j4[1]} | t={t_ms} ms")
+
     
-    plot_xy_trajectory(x, y)
+    
+    
+
+    
+    
+    
