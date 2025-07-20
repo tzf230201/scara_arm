@@ -1020,9 +1020,9 @@ def pvt_mode_try_pvt_5(selection):
     
     targets = [
         ([166.82, -168, 0, 0], 1000),
-        ([258, 0, 0, 0], 1000),
-        ([107, 100, 0, 90], 1000),
-        ([107, 224, 0, 90], 1000),
+        # ([258, 0, 0, 0], 1000),
+        # ([107, 100, 0, 90], 1000),
+        # ([107, 224, 0, 90], 1000),
     ]
 
     t, x, y, z, yaw, pvt_points = generate_multi_straight_pvt_points(start, targets, dt=20)
