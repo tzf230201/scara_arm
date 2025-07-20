@@ -1015,13 +1015,6 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     return t, x, y, z, yaw, pvt_points
 
 def pvt_mode_try_pvt_5(selection):
-    import matplotlib.pyplot as plt
-    from kinematics_and_trajectory import (
-        generate_trajectory_triangle,
-        forward_kinematics,
-        inverse_kinematics,
-        convert_cartesian_traj_to_joint_traj
-    )
 
     # ==== KONFIGURASI STEP ====
     STEPPER_PPR = 4096
