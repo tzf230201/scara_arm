@@ -1107,6 +1107,8 @@ def pvt_mode_try_pvt_5(selection):
                 
     pvt_mode_read_pvt_3_depth()
     pvt_mode_start_pvt_step(group_id)
+    next_id = servo_get_next_trajectory_segment_id()
+    print(f"next_id is {next_id}")
     # servo_execute()
 
     
