@@ -1017,7 +1017,7 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
    
     plot_xy_trajectory(x, y)
     # ==== PVT POINTS ====
-    def generate_pvt_points(j1_abs, j2_rel, j3_rel, j4_rel, dt_ms, origins):
+    def generate_pvt_points(j1_abs, j2_rel, j3_rel, j4_rel, dt_ms):
         
         origins = get_origins()
         dt_sec = dt_ms / 1000
