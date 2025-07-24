@@ -1014,6 +1014,7 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     def compute_relative_joint_trajectory(joint_list, base_value):
         return [val - base_value for val in joint_list]
     
+    j1_rel = compute_relative_joint_trajectory(j1_traj, base_joint_deg[1])
     j2_rel = compute_relative_joint_trajectory(j2_traj, base_joint_deg[1])
     j3_rel = compute_relative_joint_trajectory(j3_traj, base_joint_deg[2])
     j4_rel = compute_relative_joint_trajectory(j4_traj, base_joint_deg[3])
@@ -1021,34 +1022,35 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
    
     plot_xy_trajectory(x, y)
     # ==== PVT POINTS ====
-    def generate_pvt_points(j1_abs, j2_rel, j3_rel, j4_rel, dt_ms):
+    def generate_pvt_points(j1_abs, j1_rel, j2_rel, j3_rel, j4_rel, dt_ms):
         
         origins = get_origins()
+        
         dt_sec = dt_ms / 1000
 
         pvt1, pvt2, pvt3, pvt4 = [], [], [], []
 
-        for i in range(1, len(j1_abs)):
-            # === JOINT 1 (servo): posisi relatif + origin, kecepatan dari delta
+        for i in range(1, len(j1_rel)):
+            # === Joint 1 (servo): gunakan origin
             pos1 = int(servo_degrees_to_pulses(j1_abs[i]) + origins[0])
-            vel1 = int(servo_degrees_to_pulses((j1_abs[i] - j1_abs[i - 1]) / dt_sec))
+            vel1 = int(servo_degrees_to_pulses((j1_rel[i] - j1_rel[i - 1]) / dt_sec))
             pvt1.append((pos1, vel1, dt_ms))
 
-            # === JOINTS 2–4 (stepper): posisi relatif + origin, kecepatan
-            for j_idx, (j_rel, origin, pvt_list) in enumerate(zip(
+            # === Joint 2–4 (stepper): tanpa origin
+            for j_rel, pvt_list in zip(
                 [j2_rel, j3_rel, j4_rel],
-                [origins[1], origins[2], origins[3]],
                 [pvt2, pvt3, pvt4]
-            )):
-                pos = int(stepper_degrees_to_pulses(j_rel[i]) + origin)
+            ):
+                pos = int(stepper_degrees_to_pulses(j_rel[i]))
                 vel = int(stepper_degrees_to_pulses((j_rel[i] - j_rel[i - 1]) / dt_sec))
                 pvt_list.append((pos, vel, dt_ms))
 
         return pvt1, pvt2, pvt3, pvt4
 
+
     
     # Cetak PVT
-    pvt_points = generate_pvt_points(j1_traj, j2_rel, j3_rel, j4_rel, dt)
+    pvt_points = generate_pvt_points(j1_traj,j1_rel, j2_rel, j3_rel, j4_rel, dt)
     
     return pvt_points
 
