@@ -114,10 +114,10 @@ def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
     
     
     error_code = pvt_mode_write_pvt(node_id, wr_p, wr_v, wr_t)
-    if (error_code == NO_ERROR):
-        print(f"motor{node_id-0x600} pvt wr: {wr_p},{wr_v},{wr_t} will be: {arrival_pulse} -> OK")
-    else:
-        print(f"motor{node_id-0x600} pvt wr -> ERROR")
+    # if (error_code == NO_ERROR):
+    #     print(f"motor{node_id-0x600} pvt wr: {wr_p},{wr_v},{wr_t} will be: {arrival_pulse} -> OK")
+    # else:
+    #     print(f"motor{node_id-0x600} pvt wr -> ERROR")
 
 
 
