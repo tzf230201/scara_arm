@@ -1057,13 +1057,13 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
 def pvt_mode_try_pvt_5(selection):
     list_tar_coor = [
         ([166.82, -168, 90, 0], 2000),
-        ([258, 0, 90, 0], 2000),
+        ([258, 0, 180, 0], 2000),
         ([107, 100, 90, 90], 2000),
-        ([107, 224, 90, 90], 2000),
+        ([107, 224, 180, 90], 2000),
         ([107, 100, 90, 90], 2000),
-        ([107, 224, 90, 90], 2000),
+        ([107, 224, 180, 90], 2000),
         ([107, 100, 90, 90], 2000),
-        ([258, 0, 90, 0], 2000),
+        ([258, 0, 180, 0], 2000),
         ([166.82, -168, 90, 0], 2000),
     ]
 
@@ -1105,7 +1105,7 @@ def pvt_mode_try_pvt_5(selection):
                 
     pvt_mode_read_pvt_3_depth()
     pvt_mode_start_pvt_step(group_id)
-    # servo_execute()
+    servo_execute()
 
     
 def pvt_mode_try_pvt_6(selection):
