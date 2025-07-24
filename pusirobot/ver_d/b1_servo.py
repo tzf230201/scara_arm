@@ -248,6 +248,8 @@ def servo_set_interpolation_data(position, time, velocity):
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x01,  position)  # sub_index 1: position
     set_sdo(ID1, SET_1_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x02,  time)      # sub_index 2: time
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x03,  velocity)  # sub_index 3: velocity
+    
+    print(f"servo{ID1-0x600} pvt wr: {position},{velocity},{time}")
 
 def servo_get_buffer_free_count():
     """
