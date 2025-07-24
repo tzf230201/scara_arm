@@ -1107,7 +1107,7 @@ def pvt_mode_try_pvt_5(selection):
                 
     pvt_mode_read_pvt_3_depth()
     pvt_mode_start_pvt_step(group_id)
-    servo_execute()
+    # servo_execute()
 
     
 def pvt_mode_try_pvt_6(selection):
