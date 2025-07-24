@@ -995,6 +995,7 @@ def generate_pvt_points_from_relative(j_rel_list, dt_ms):
     return pvt
 
 def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
+    
     cur_coor = start_coor
     
     # ==== HITUNG TRAJEKTORI CARTESIAN ====
@@ -1017,6 +1018,8 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     plot_xy_trajectory(x, y)
     # ==== PVT POINTS ====
     def generate_pvt_points(j1_abs, j2_rel, j3_rel, j4_rel, dt_ms, origins):
+        
+        origins = get_origins()
         dt_sec = dt_ms / 1000
 
         pvt1, pvt2, pvt3, pvt4 = [], [], [], []
