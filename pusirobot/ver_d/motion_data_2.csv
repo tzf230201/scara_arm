@@ -1,7 +1,4 @@
 motion_type,travel_time,d1,d2,d3,d4
-pp_angle,2000,0,0,0,0
-pp_angle,2000,4,0,0,0
-pp_angle,2000,4,0,0,0
 pp_coor,2000,107,100,1,90
 pp_coor,2000,107,224,1,90
 pp_coor,2000,107,224,25,90

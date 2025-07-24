@@ -1008,8 +1008,7 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
 
     def compute_relative_joint_trajectory(joint_list, base_value):
         return [val - base_value for val in joint_list]
-
-    j1_rel = compute_relative_joint_trajectory(j1_traj, base_joint_deg[0])
+    
     j2_rel = compute_relative_joint_trajectory(j2_traj, base_joint_deg[1])
     j3_rel = compute_relative_joint_trajectory(j3_traj, base_joint_deg[2])
     j4_rel = compute_relative_joint_trajectory(j4_traj, base_joint_deg[3])
@@ -1017,24 +1016,32 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
    
     plot_xy_trajectory(x, y)
     # ==== PVT POINTS ====
-    def generate_pvt_points(j1_rel, j2_rel, j3_rel, j4_rel, dt_ms):
+    def generate_pvt_points(j1_abs, j2_rel, j3_rel, j4_rel, dt_ms, origins):
         dt_sec = dt_ms / 1000
 
         pvt1, pvt2, pvt3, pvt4 = [], [], [], []
 
-        for i in range(1, len(j1_rel)):
-            joints = [j1_rel, j2_rel, j3_rel, j4_rel]
-            pvt_lists = [pvt1, pvt2, pvt3, pvt4]
+        for i in range(1, len(j1_abs)):
+            # === JOINT 1 (servo): posisi relatif + origin, kecepatan dari delta
+            pos1 = int(servo_degrees_to_pulses(j1_abs[i]) + origins[0])
+            vel1 = int(servo_degrees_to_pulses((j1_abs[i] - j1_abs[i - 1]) / dt_sec))
+            pvt1.append((pos1, vel1, dt_ms))
 
-            for j, pvt_list in zip(joints, pvt_lists):
-                pos = int(stepper_degrees_to_pulses(j[i]))
-                vel = int(stepper_degrees_to_pulses((j[i] - j[i - 1]) / dt_sec))
+            # === JOINTS 2–4 (stepper): posisi relatif + origin, kecepatan
+            for j_idx, (j_rel, origin, pvt_list) in enumerate(zip(
+                [j2_rel, j3_rel, j4_rel],
+                [origins[1], origins[2], origins[3]],
+                [pvt2, pvt3, pvt4]
+            )):
+                pos = int(stepper_degrees_to_pulses(j_rel[i]) + origin)
+                vel = int(stepper_degrees_to_pulses((j_rel[i] - j_rel[i - 1]) / dt_sec))
                 pvt_list.append((pos, vel, dt_ms))
 
         return pvt1, pvt2, pvt3, pvt4
+
     
     # Cetak PVT
-    pvt_points = generate_pvt_points(j1_rel, j2_rel, j3_rel, j4_rel, dt)
+    pvt_points = generate_pvt_points(j1_traj, j2_rel, j3_rel, j4_rel, dt)
     
     return pvt_points
 
@@ -1042,22 +1049,18 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
 
 def pvt_mode_try_pvt_5(selection):
     list_tar_coor = [
-        ([166.82, -168, 0, 0], 2000),
-        ([258, 0, 0, 0], 2000),
-        ([107, 100, 0, 90], 2000),
-        ([107, 224, 0, 90], 2000),
-        ([107, 100, 0, 90], 2000),
-        ([107, 224, 0, 90], 2000),
-        ([107, 100, 0, 90], 2000),
-        ([258, 0, 0, 0], 2000),
-        ([166.82, -168, 0, 0], 2000),
+        ([166.82, -168, 90, 0], 1000),
+        ([258, 0, 180, 0], 1000),
+        ([107, 100, 90, 90], 1000),
+        ([107, 224, 180, 90], 1000),
     ]
-    
+
+
     # start_coor = [258,0,0,0]
     start_coor = forward_kinematics([0,0,0,0])
-    
+
     pvt1_f, pvt2_f, pvt3_f, pvt4_f = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
-    
+
 
     global last_time, stop_watch, time_out
     group_id = 0x05
@@ -1066,17 +1069,21 @@ def pvt_mode_try_pvt_5(selection):
     node_ids = [ID1, ID2, ID3, ID4]
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
-    
+
     pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
+    servo_init(7)
+
+    for pos, vel, tim in pvt1_f:
+        servo_set_interpolation_data(pos, tim, vel)
 
     for pos, vel, tim in pvt2_f:
         pvt_mode_write_read(ID2, pos, vel, tim)
 
-       
+        
     for pos, vel, tim in pvt3_f:
         pvt_mode_write_read(ID3, pos, vel, tim)
         
-     
+        
     for pos, vel, tim in pvt4_f:
         pvt_mode_write_read(ID4, pos, vel, tim)
             
@@ -1086,6 +1093,99 @@ def pvt_mode_try_pvt_5(selection):
                 
     pvt_mode_read_pvt_3_depth()
     pvt_mode_start_pvt_step(group_id)
+    # servo_execute()
+
+    
+def pvt_mode_try_pvt_6(selection):
+    print(f"trying servo's pvt")
+    
+    
+# list_tar_coor = [
+#     ([107, 100, 0, 90], 2000),
+#     ([107, 224, 0, 90], 2000),
+#     ([107, 224, 25, 90], 2000),
+#     ([107, 100, 25, 90], 2000),
+#     ([166.82, -168, 25, 0], 2000),
+#     ([166.82, -168, 3250, 0], 8000),
+#     ([166.82, -168, 91, 0], 8000),
+#     ([107, 100, 91, 90], 2000),
+#     ([107, 224, 91, 90], 2000),
+#     ([107, 224, 116, 90], 2000),
+#     ([107, 100, 116, 90], 2000),
+#     ([166.82, -168, 116, 0], 2000),
+#     ([166.82, -168, 3250, 0], 8000),
+#     ([166.82, -168, 181, 0], 8000),
+#     ([107, 100, 181, 90], 2000),
+#     ([107, 224, 181, 90], 2000),
+#     ([107, 224, 205, 90], 2000),
+#     ([107, 100, 205, 90], 2000),
+#     ([166.82, -168, 205, 0], 2000),
+#     ([166.82, -168, 3250, 0], 8000),
+#     ([166.82, -168, 271, 0], 8000),
+#     ([107, 100, 271, 90], 2000),
+#     ([107, 224, 271, 90], 2000),
+#     ([107, 224, 295, 90], 2000),
+#     ([107, 100, 295, 90], 2000),
+#     ([166.82, -168, 295, 0], 2000),
+#     ([166.82, -168, 3250, 0], 8000),
+#     ([166.82, -168, 361, 0], 8000),
+#     ([107, 100, 361, 90], 2000),
+#     ([107, 224, 361, 90], 2000),
+#     ([107, 224, 385, 90], 2000),
+#     ([107, 100, 385, 90], 2000),
+#     ([166.82, -168, 385, 0], 2000),
+#     ([166.82, -168, 3250, 0], 8000),
+#     ([166.82, -168, 451, 0], 8000),
+#     ([107, 100, 451, 90], 2000),
+#     ([107, 224, 451, 90], 2000),
+#     ([107, 224, 475, 90], 2000),
+#     ([107, 100, 475, 90], 2000),
+#     ([166.82, -168, 475, 0], 2000),
+#     ([166.82, -168, 3250, 0], 8000),
+#     ([166.82, -168, 541, 0], 8000),
+#     ([107, 100, 541, 90], 2000),
+#     ([107, 224, 541, 90], 2000),
+#     ([107, 224, 565, 90], 2000),
+#     ([107, 100, 565, 90], 2000),
+#     ([166.82, -168, 565, 0], 2000),
+#     ([166.82, -168, 3250, 0], 8000),
+#     ([166.82, -168, 631, 0], 8000),
+#     ([107, 100, 631, 90], 2000),
+#     ([107, 224, 631, 90], 2000),
+#     ([107, 224, 655, 90], 2000),
+#     ([107, 100, 655, 90], 2000),
+#     ([166.82, -168, 655, 0], 2000),
+#     ([166.82, -168, 3250, 0], 8000),
+#     ([166.82, -168, 721, 0], 8000),
+#     ([107, 100, 721, 90], 2000),
+#     ([107, 224, 721, 90], 2000),
+#     ([107, 224, 745, 90], 2000),
+#     ([107, 100, 745, 90], 2000),
+#     ([166.82, -168, 745, 0], 2000),
+#     ([166.82, -168, 3250, 0], 8000),
+#     ([166.82, -168, 811, 0], 8000),
+#     ([107, 100, 811, 90], 2000),
+#     ([107, 224, 811, 90], 2000),
+#     ([107, 224, 835, 90], 2000),
+#     ([107, 100, 835, 90], 2000),
+#     ([166.82, -168, 835, 0], 2000),
+#     ([166.82, -168, 3250, 0], 8000),
+#     ([166.82, -168, 991, 0], 8000),
+#     ([107, 100, 991, 90], 2000),
+#     ([107, 224, 991, 90], 2000),
+#     ([107, 224, 1015, 90], 2000),
+#     ([107, 100, 1015, 90], 2000),
+#     ([166.82, -168, 1015, 0], 2000),
+#     ([166.82, -168, 3250, 0], 8000),
+#     ([166.82, -168, 1081, 0], 8000),
+#     ([107, 100, 1081, 90], 2000),
+#     ([107, 224, 1081, 90], 2000),
+#     ([107, 224, 1105, 90], 2000),
+#     ([107, 100, 1105, 90], 2000),
+#     ([166.82, -168, 1105, 0], 2000),
+#     ([166.82, -168, 3250, 0], 8000),
+#     ([166.82, -168, 258, 0], 10000),
+    
 
     
     
