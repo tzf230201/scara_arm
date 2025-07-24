@@ -279,6 +279,7 @@ def pp_angle(tar_joints, travel_time, selection):
   
     
     if selection != "stepper_only":
+        servo_set_operation_mode(1)
         set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
         servo_set_profile_type(0x00)
         servo_set_acceleration(accel_decel_1)
