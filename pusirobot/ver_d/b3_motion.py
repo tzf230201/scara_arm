@@ -1033,7 +1033,7 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
         for i in range(1, len(j1_rel)):
             # === Joint 1 (servo): gunakan origin
             pos1 = int(servo_degrees_to_pulses(j1_abs[i]) + origins[0])
-            vel1 = int(servo_degrees_to_pulses((j1_rel[i] - j1_rel[i - 1]) / dt_sec))
+            vel1 = int(servo_degrees_to_pulses((j1_rel[i] - j1_rel[i - 1]) / dt_sec) * 10)
             pvt1.append((pos1, vel1, dt_ms))
 
             # === Joint 2–4 (stepper): tanpa origin
