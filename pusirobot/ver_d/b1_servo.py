@@ -271,6 +271,11 @@ def servo_get_next_trajectory_segment_id():
     print(f"Next trajectory segment ID: {next_id}")
     return next_id
 
+def servo_get_trajectory_buffer_status():
+    buffer_status = req_sdo(ID1, OD_SERVO_TRAJECTORY_BUFFER_STATUS, 0x00)
+    print(f"trajectory buffer status is: {buffer_status}")
+    return buffer_status
+
 # def servo_set_ip_segment_move_command(segment_id, position, time, velocity):
 #     """
 #     Set the IP segment move command for the servo.
@@ -298,7 +303,7 @@ def servo_pvt_position(cur_po, tar_pos, travel_time):
     # Send the command to start the movement
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_IP_SEGMENT_MOVE_COMMAND, 0x01,  0x01)  # Start the segment move command
     
-    
+
     
 def servo_execute():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)

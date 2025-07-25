@@ -1084,32 +1084,45 @@ def pvt_mode_try_pvt_5(selection):
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
 
-    pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
-    servo_init(7)
-
-    for pos, vel, tim in pvt1_f:
-        servo_set_interpolation_data(pos, tim, vel)
-
-    for pos, vel, tim in pvt2_f:
-        pvt_mode_write_read(ID2, pos, vel, tim)
 
         
-    for pos, vel, tim in pvt3_f:
-        pvt_mode_write_read(ID3, pos, vel, tim)
+    if selection != "stepper_only":
+        servo_init(7)
+        for pos, vel, tim in pvt1_f:
+            servo_set_interpolation_data(pos, tim, vel)
+
+    
+    if selection != "servo_only":
+        pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
         
+        for pos, vel, tim in pvt2_f:
+            pvt_mode_write_read(ID2, pos, vel, tim)
+
         
-    for pos, vel, tim in pvt4_f:
-        pvt_mode_write_read(ID4, pos, vel, tim)
+        for pos, vel, tim in pvt3_f:
+            pvt_mode_write_read(ID3, pos, vel, tim)
             
-    init_single_motor_change_group_id(ID2, group_id)
-    init_single_motor_change_group_id(ID3, group_id)
-    init_single_motor_change_group_id(ID4, group_id)
+            
+        for pos, vel, tim in pvt4_f:
+            pvt_mode_write_read(ID4, pos, vel, tim)
+    
                 
-    pvt_mode_read_pvt_3_depth()
-    pvt_mode_start_pvt_step(group_id)
-    servo_get_next_trajectory_segment_id()
-    servo_get_buffer_free_count()
-    # servo_execute()
+        
+    
+    if selection != "servo_only": 
+        pvt_mode_read_pvt_3_depth()
+        init_single_motor_change_group_id(ID2, group_id)
+        init_single_motor_change_group_id(ID3, group_id)
+        init_single_motor_change_group_id(ID4, group_id)
+                 
+        pvt_mode_start_pvt_step(group_id)   
+             
+    if selection != "stepper_only": 
+        # servo_execute()
+        print(f"execute servo")        
+    
+    
+    
 
     
 def pvt_mode_try_pvt_6(selection):
