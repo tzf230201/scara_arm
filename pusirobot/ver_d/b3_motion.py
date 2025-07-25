@@ -1119,6 +1119,9 @@ def pvt_mode_try_pvt_5(selection):
              
     if selection != "stepper_only": 
         # servo_execute()
+        servo_get_sub_mode()
+        servo_get_buffer_free_count()
+        servo_get_next_trajectory_segment_id()
         print(f"execute servo")        
     
     
