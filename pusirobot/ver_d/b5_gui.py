@@ -359,11 +359,19 @@ def start_dancing():
         
     root.after(10, routine)
 
+cur_time = 0
+tar_time = 0
+
+routine_interval = 100
+
 def routine():
     global motion_enable
     global motion_cnt
     global motion_size
     global motion_data
+    global pvt_cnt
+    global cur_time
+    global tar_time
     # print(f"enter routine")
     if is_already_wake_up():
 
@@ -378,17 +386,21 @@ def routine():
             d4 = entry['d4']
             
             
-            read_present_position()
-            # print_red(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
-            print(f"counter {motion_cnt + 2} of {motion_size}")
-            print_red(f"tar coor : x:{d1} mm, y:{d2} mm, z:{d3} mm, yaw:{d4}°")
-            motion_cnt += 1
-            execute_motion_data(entry)
+            if cur_time >= tar_time:
+                read_present_position()
+                # print_red(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
+                print(f"counter {motion_cnt + 2} of {motion_size}")
+                print_red(f"tar coor : x:{d1} mm, y:{d2} mm, z:{d3} mm, yaw:{d4}°")
+                motion_cnt += 1
+                execute_motion_data(entry)
+                cur_time = 0
+                tar_time = travel_time
             
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
             
-            root.after(int(travel_time + 0), routine)
+            root.after(int(routine_interval), routine)
+            cur_time += routine_interval
         else:
             stop()
     else:
