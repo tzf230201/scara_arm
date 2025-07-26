@@ -260,7 +260,7 @@ def execute_motion_data(entry):
     elif motion_type == 'sp_angle':
         sp_angle([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
     elif motion_type == 'pvt':
-        pp_coor([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
+        pp_coor([d1, d2, d3, d4], travel_time, selection="servo_only")
 
     # print(f"Executing: {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
 
