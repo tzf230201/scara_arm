@@ -259,6 +259,8 @@ def execute_motion_data(entry):
         sp_coor([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
     elif motion_type == 'sp_angle':
         sp_angle([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
+    elif motion_type == 'pvt':
+        pp_coor([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
 
     # print(f"Executing: {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
 
@@ -267,27 +269,91 @@ motion_enable = True
 motion_size = 0  # Initialize motion size
 motion_cnt = 0   
 motion_data = []
+pvt_cnt = 0
 
+def convert_csv_to_list_tar_coor(filepath):
+    list_tar_coor = []
+    with open(filepath, mode='r', newline='') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if row['motion_type'] == 'coor':
+                travel_time = int(row['travel_time'])
+                x = float(row['d1'])
+                y = float(row['d2'])
+                z = float(row['d3'])
+                yaw = float(row['d4'])
+                list_tar_coor.append(([x, y, z, yaw], travel_time))
+    return list_tar_coor
+    
 def start_dancing():
     global last_time
     global motion_enable
     global motion_cnt
     global motion_data
     global motion_size
-    
+    global pvt_cnt
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(script_dir, "motion_data_3_with_sp.csv")
+    filename = os.path.join(script_dir, "motion_data_4.csv")
     
     motion_data = read_motion_csv(filename)
     motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
     motion_cnt = 0  # Reset the counter
     motion_enable = True
-    
-    
-    # dancing2(tar_coor, travel_time, nor)
-    last_time = time.time()
-    # print(f"enter dancing2")
     print_motion_data(motion_data)  # DEBUG: Print all motion data
+    
+    
+    
+    start_coor = forward_kinematics([0,0,0,0])
+    list_tar_coor = convert_csv_to_list_tar_coor(filename)
+    pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
+
+
+    group_id = 0x05
+    pvt_3_lower_limit = 60
+    pvt_3_upper_limit = 80
+    
+    selection = get_motor_selection()
+
+    #init PVT mode
+    if selection != "stepper_only":
+        servo_init(7)
+    if selection != "servo_only":
+        pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
+        
+    
+    #write PVT points
+    for i in range(500):
+        if selection != "stepper_only":    
+            pos_1, vel_1, tim_1 = pvt_1[i]
+            servo_set_interpolation_data(pos_1, tim_1, vel_1)
+            
+        if selection != "servo_only":
+            pos_2, vel_2, tim_2 = pvt_2[i]
+            pos_3, vel_3, tim_3 = pvt_3[i]
+            pos_4, vel_4, tim_4 = pvt_4[i]
+            pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
+            pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)        
+            pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
+            
+        pvt_cnt = pvt_cnt + 1
+        
+    
+                
+        
+    
+    if selection != "servo_only": 
+        pvt_mode_read_pvt_3_depth()
+        for node_id in (ID2, ID3, ID4):
+            init_single_motor_change_group_id(node_id, group_id)
+        # pvt_mode_start_pvt_step(group_id)   
+             
+    if selection != "stepper_only": 
+        # servo_execute()
+        servo_get_sub_mode()
+        servo_get_buffer_free_count()
+        servo_get_next_trajectory_segment_id()
+        print(f"execute servo")        
+        
     root.after(500, routine)
 
 def routine():
