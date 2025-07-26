@@ -365,7 +365,7 @@ def start_dancing():
     #     print(f"execute servo")        
         
     # root.after(10, routine)
-    print(f"pvt1: {len(pvt1)}")
+    print(f"pvt1: {len(pvt_1)}")
 
 
 
