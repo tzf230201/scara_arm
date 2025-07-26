@@ -390,7 +390,7 @@ def routine():
     if is_already_wake_up():
         if motion_enable and motion_cnt < motion_size:
             root.after(int(routine_interval), routine)
-            cur_time = time.time() - last_time
+            cur_time = (time.time() - last_time) * 1000
             print(f"{cur_time}")
             if cur_time >= tar_time:
                 entry = motion_data[motion_cnt]
