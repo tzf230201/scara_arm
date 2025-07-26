@@ -305,7 +305,6 @@ def start_dancing():
     motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
     motion_cnt = 0  # Reset the counter
     motion_enable = True
-    cur_time = 0
     print_motion_data(motion_data)  # DEBUG: Print all motion data
     
     
@@ -411,7 +410,6 @@ def routine():
                 print_red(f"tar coor : x:{d1} mm, y:{d2} mm, z:{d3} mm, yaw:{d4}°")
                 motion_cnt += 1
                 execute_motion_data(entry)
-                cur_time = 0
                 
             
             # delta_time = time.time() - last_time
