@@ -391,6 +391,7 @@ def routine():
         if motion_enable and motion_cnt < motion_size:
             root.after(int(routine_interval), routine)
             cur_time = time.time() - last_time
+            print(f"{cur_time}")
             if cur_time >= tar_time:
                 entry = motion_data[motion_cnt]
                 motion_type = entry['motion_type']
