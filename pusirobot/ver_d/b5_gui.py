@@ -276,7 +276,7 @@ def convert_csv_to_list_tar_coor(filepath):
     with open(filepath, mode='r', newline='') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            if row['motion_type'] == 'coor':
+            if row['motion_type'] == 'pvt':
                 travel_time = int(row['travel_time'])
                 x = float(row['d1'])
                 y = float(row['d2'])
