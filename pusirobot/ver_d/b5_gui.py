@@ -299,7 +299,7 @@ def start_dancing():
     motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
     motion_cnt = 0  # Reset the counter
     motion_enable = True
-    print_motion_data(motion_data)  # DEBUG: Print all motion data
+    # print_motion_data(motion_data)  # DEBUG: Print all motion data
     
     
     
