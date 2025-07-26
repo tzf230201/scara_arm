@@ -409,7 +409,6 @@ def routine():
                 cur_time = 0
                 tar_time = travel_time
                 
-                
             cur_time += routine_interval
             
             # delta_time = time.time() - last_time
