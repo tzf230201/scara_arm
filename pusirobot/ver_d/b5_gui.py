@@ -367,6 +367,7 @@ def start_dancing():
     #     print(f"execute servo")        
         
     root.after(1, routine)
+    last_time = time.now()
     
 
 
