@@ -366,7 +366,7 @@ def start_dancing():
     #     servo_get_next_trajectory_segment_id()
     #     print(f"execute servo")        
         
-    # root.after(10, routine)
+    root.after(1, routine)
     
 
 
