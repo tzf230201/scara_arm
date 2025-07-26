@@ -306,7 +306,10 @@ def start_dancing():
     start_coor = forward_kinematics([0,0,0,0])
     list_tar_coor = convert_csv_to_list_tar_coor(filename)
     
-    print(f"{list_tar_coor}")
+    # print(f"{list_tar_coor}")
+    for i, (coord, time) in enumerate(list_tar_coor):
+        print(f"{i+1}. Coordinate: {coord}, Time: {time} ms")
+
     pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
 
 
