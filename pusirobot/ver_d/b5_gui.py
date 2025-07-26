@@ -376,17 +376,18 @@ def routine():
     if is_already_wake_up():
 
         if motion_enable and motion_cnt < motion_size:
-            entry = motion_data[motion_cnt]
-            motion_type = entry['motion_type']
-            # entry['travel_time'] = get_travel_time() #atur waktu
-            travel_time = entry['travel_time']
-            d1 = entry['d1']
-            d2 = entry['d2']
-            d3 = entry['d3']
-            d4 = entry['d4']
-            
-            
             if cur_time >= tar_time:
+                entry = motion_data[motion_cnt]
+                motion_type = entry['motion_type']
+                # entry['travel_time'] = get_travel_time() #atur waktu
+                travel_time = entry['travel_time']
+                d1 = entry['d1']
+                d2 = entry['d2']
+                d3 = entry['d3']
+                d4 = entry['d4']
+            
+            
+            
                 read_present_position()
                 # print_red(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
                 print(f"counter {motion_cnt + 2} of {motion_size}")
