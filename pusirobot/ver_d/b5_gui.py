@@ -372,10 +372,11 @@ def routine():
     global pvt_cnt
     global cur_time
     global tar_time
-    root.after(int(routine_interval), routine)
-    cur_time += routine_interval
+    
     # print(f"enter routine")
     if is_already_wake_up():
+        root.after(int(routine_interval), routine)
+        cur_time += routine_interval
 
         if motion_enable and motion_cnt < motion_size:
             if cur_time >= tar_time:
