@@ -305,6 +305,8 @@ def start_dancing():
     
     start_coor = forward_kinematics([0,0,0,0])
     list_tar_coor = convert_csv_to_list_tar_coor(filename)
+    
+    print(f"{list_tar_coor}")
     pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
 
 
@@ -322,7 +324,7 @@ def start_dancing():
         
     
     #write PVT points
-    for i in range(500):
+    for i in range(20):
         if selection != "stepper_only":    
             pos_1, vel_1, tim_1 = pvt_1[i]
             servo_set_interpolation_data(pos_1, tim_1, vel_1)
