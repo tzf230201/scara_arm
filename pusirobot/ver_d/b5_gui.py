@@ -284,7 +284,12 @@ def convert_csv_to_list_tar_coor(filepath):
                 yaw = float(row['d4'])
                 list_tar_coor.append(([x, y, z, yaw], travel_time))
     return list_tar_coor
-    
+
+cur_time = 0
+tar_time = 0
+
+routine_interval = 100
+
 def start_dancing():
     global last_time
     global motion_enable
@@ -292,6 +297,7 @@ def start_dancing():
     global motion_data
     global motion_size
     global pvt_cnt
+    global cur_time
     script_dir = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(script_dir, "motion_data_4.csv")
     
@@ -299,6 +305,7 @@ def start_dancing():
     motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
     motion_cnt = 0  # Reset the counter
     motion_enable = True
+    cur_time = 0
     print_motion_data(motion_data)  # DEBUG: Print all motion data
     
     
@@ -359,10 +366,7 @@ def start_dancing():
         
     root.after(10, routine)
 
-cur_time = 0
-tar_time = 0
 
-routine_interval = 100
 
 def routine():
     global motion_enable
