@@ -474,6 +474,15 @@ def read_present_position():
     
     # print(f"servo status (hex): {servo_status:08X}, servo velocity: {servo_vel}")
     
+    t1 = time.time()
+    pvt_mode_write_read(ID2, 1000, 100, 50)
+    pvt_mode_write_read(ID2, 1000, 100, 50)
+    pvt_mode_write_read(ID2, 1000, 100, 50)
+    pvt_mode_write_read(ID2, 1000, 100, 50)
+    pvt_mode_write_read(ID2, 1000, 100, 50)
+    t2 = time.time() - t1
+    print(f"total = {t2} s {t2*1000} ms")
+    
 # Menangani sinyal SIGINT (Ctrl + C)
 signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
 
