@@ -314,8 +314,8 @@ def start_dancing():
     list_tar_coor = convert_csv_to_list_tar_coor(filename)
     
     # print(f"{list_tar_coor}")
-    for i, (coord, time) in enumerate(list_tar_coor):
-        print(f"{i+1}. Coordinate: {coord}, Time: {time} ms")
+    for i, (coord, travel_time) in enumerate(list_tar_coor):
+        print(f"{i+1}. Coordinate: {coord}, Time: {travel_time} ms")
         
     print(f"check")
 
