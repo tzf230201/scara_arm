@@ -297,7 +297,7 @@ def start_dancing():
     global motion_data
     global motion_size
     global pvt_cnt
-    global cur_time
+    global tar_time
     script_dir = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(script_dir, "motion_data_4.csv")
     
