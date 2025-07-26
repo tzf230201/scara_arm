@@ -381,7 +381,7 @@ def routine():
     global cur_time
     global tar_time
     
-    read_present_position()
+    # read_present_position()
     
     # print(f"enter routine")
     if is_already_wake_up():
