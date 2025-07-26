@@ -321,6 +321,8 @@ def start_dancing():
 
     pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
 
+    pvt_1_size = len(pvt_1)
+    print(f"pvt1: {pvt_1_size}")
 
     group_id = 0x05
     pvt_3_lower_limit = 60
@@ -336,7 +338,7 @@ def start_dancing():
         
     
     #write PVT points
-    for i in range(450 - 1):
+    for i in range(pvt_1_size - 1):
         # if selection != "stepper_only":    
         #     pos_1, vel_1, tim_1 = pvt_1[i]
         #     servo_set_interpolation_data(pos_1, tim_1, vel_1)
@@ -365,7 +367,7 @@ def start_dancing():
     #     print(f"execute servo")        
         
     # root.after(10, routine)
-    print(f"pvt1: {len(pvt_1)}")
+    
 
 
 
