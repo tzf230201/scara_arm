@@ -380,6 +380,8 @@ def routine():
     global cur_time
     global tar_time
     
+    read_present_position()
+    
     # print(f"enter routine")
     if is_already_wake_up():
         if motion_enable and motion_cnt < motion_size:
@@ -461,8 +463,8 @@ def read_present_position():
     print_orange(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f}°")
     
     delta_time = time.time() - last_time
-    # print(f"time : {delta_time:.2f} seconds")
-    # print_orange(f"cur coor z:{cur_z:.1f} mm")
+    print(f"time : {delta_time:.2f} seconds")
+    print_orange(f"cur coor z:{cur_z:.1f} mm")
     
     # servo_vel = servo_get_motor_velocity(ID1)
     # servo_status = servo_get_status_word(ID1)
