@@ -365,6 +365,8 @@ tar_time = 0
 routine_interval = 100
 
 def routine():
+    root.after(int(routine_interval), routine)
+    cur_time += routine_interval
     global motion_enable
     global motion_cnt
     global motion_size
@@ -400,8 +402,7 @@ def routine():
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
             
-            root.after(int(routine_interval), routine)
-            cur_time += routine_interval
+            
         else:
             stop()
     else:
