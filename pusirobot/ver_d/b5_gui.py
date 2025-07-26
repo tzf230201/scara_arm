@@ -317,7 +317,6 @@ def start_dancing():
     for i, (coord, travel_time) in enumerate(list_tar_coor):
         print(f"{i+1}. Coordinate: {coord}, Time: {travel_time} ms")
         
-    print(f"check")
 
     pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
 
@@ -359,14 +358,19 @@ def start_dancing():
             init_single_motor_change_group_id(node_id, group_id)
         pvt_mode_start_pvt_step(group_id)   
              
-    # if selection != "stepper_only": 
-    #     # servo_execute()
+    if selection != "stepper_only":
+        entry = motion_data[motion_cnt]
+        travel_time = entry['travel_time']
+        motion_cnt += 1
+        tar_time += travel_time
+        execute_motion_data(entry)
+        # servo_execute()
     #     servo_get_sub_mode()
     #     servo_get_buffer_free_count()
     #     servo_get_next_trajectory_segment_id()
     #     print(f"execute servo")        
         
-    root.after(1, routine)
+    root.after(int(routine_interval), routine)
     last_time = time.time()
     
 
@@ -387,7 +391,7 @@ def routine():
     if is_already_wake_up():
         if motion_enable and motion_cnt < motion_size:
             root.after(int(routine_interval), routine)
-            
+            cur_time = time.time() - last_time
             if cur_time >= tar_time:
                 entry = motion_data[motion_cnt]
                 motion_type = entry['motion_type']
@@ -397,6 +401,7 @@ def routine():
                 d2 = entry['d2']
                 d3 = entry['d3']
                 d4 = entry['d4']
+                tar_time += travel_time
             
             
             
@@ -407,9 +412,7 @@ def routine():
                 motion_cnt += 1
                 execute_motion_data(entry)
                 cur_time = 0
-                tar_time = travel_time
                 
-            cur_time += routine_interval
             
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
