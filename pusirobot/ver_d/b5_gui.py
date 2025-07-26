@@ -309,6 +309,8 @@ def start_dancing():
     # print(f"{list_tar_coor}")
     for i, (coord, time) in enumerate(list_tar_coor):
         print(f"{i+1}. Coordinate: {coord}, Time: {time} ms")
+        
+    print(f"check")
 
     pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
 
