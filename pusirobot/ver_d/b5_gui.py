@@ -322,17 +322,17 @@ def start_dancing():
     selection = get_motor_selection()
 
     #init PVT mode
-    if selection != "stepper_only":
-        servo_init(7)
+    # if selection != "stepper_only":
+    #     servo_init(7)
     if selection != "servo_only":
         pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
         
     
     #write PVT points
-    for i in range(20):
-        if selection != "stepper_only":    
-            pos_1, vel_1, tim_1 = pvt_1[i]
-            servo_set_interpolation_data(pos_1, tim_1, vel_1)
+    for i in range(400):
+        # if selection != "stepper_only":    
+        #     pos_1, vel_1, tim_1 = pvt_1[i]
+        #     servo_set_interpolation_data(pos_1, tim_1, vel_1)
             
         if selection != "servo_only":
             pos_2, vel_2, tim_2 = pvt_2[i]
@@ -348,16 +348,16 @@ def start_dancing():
         pvt_mode_read_pvt_3_depth()
         for node_id in (ID2, ID3, ID4):
             init_single_motor_change_group_id(node_id, group_id)
-        # pvt_mode_start_pvt_step(group_id)   
+        pvt_mode_start_pvt_step(group_id)   
              
-    if selection != "stepper_only": 
-        # servo_execute()
-        servo_get_sub_mode()
-        servo_get_buffer_free_count()
-        servo_get_next_trajectory_segment_id()
-        print(f"execute servo")        
+    # if selection != "stepper_only": 
+    #     # servo_execute()
+    #     servo_get_sub_mode()
+    #     servo_get_buffer_free_count()
+    #     servo_get_next_trajectory_segment_id()
+    #     print(f"execute servo")        
         
-    root.after(500, routine)
+    root.after(10, routine)
 
 def routine():
     global motion_enable
