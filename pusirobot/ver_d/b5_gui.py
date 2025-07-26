@@ -365,8 +365,6 @@ tar_time = 0
 routine_interval = 100
 
 def routine():
-    root.after(int(routine_interval), routine)
-    cur_time += routine_interval
     global motion_enable
     global motion_cnt
     global motion_size
@@ -374,6 +372,8 @@ def routine():
     global pvt_cnt
     global cur_time
     global tar_time
+    root.after(int(routine_interval), routine)
+    cur_time += routine_interval
     # print(f"enter routine")
     if is_already_wake_up():
 
