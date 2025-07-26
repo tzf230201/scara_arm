@@ -387,7 +387,6 @@ def routine():
     if is_already_wake_up():
         if motion_enable and motion_cnt < motion_size:
             root.after(int(routine_interval), routine)
-            cur_time += routine_interval
             if cur_time >= tar_time:
                 entry = motion_data[motion_cnt]
                 motion_type = entry['motion_type']
@@ -408,6 +407,7 @@ def routine():
                 execute_motion_data(entry)
                 cur_time = 0
                 tar_time = travel_time
+                cur_time += routine_interval
             
             # delta_time = time.time() - last_time
             # print(f"time : {delta_time:.2f}")
