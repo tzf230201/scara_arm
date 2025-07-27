@@ -401,6 +401,7 @@ def routine():
     if is_already_wake_up():
         if motion_enable and motion_cnt < motion_size:
             root.after(int(routine_interval), routine)
+            
             if pvt_cnt <= max_pvt_index:
                 if selection != "servo_only":
                     for i in range(2):
@@ -412,6 +413,7 @@ def routine():
                         pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
                     
                         pvt_cnt = pvt_cnt + 1
+                        
             cur_time = (time.time() - last_time) * 1000
             # print(f"{cur_time}")
             if cur_time >= tar_time + 250:
@@ -434,11 +436,6 @@ def routine():
                 motion_cnt += 1
                 execute_motion_data(entry)
                 
-            
-            # delta_time = time.time() - last_time
-            # print(f"time : {delta_time:.2f}")
-            
-            
         else:
             stop()
     else:
