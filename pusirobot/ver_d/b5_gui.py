@@ -464,8 +464,12 @@ def routine():
 def stop():
     global motion_enable
     global motion_cnt
+    global pvt_cnt
+    global cur_pvt
     motion_enable = False
     motion_cnt = 0
+    pvt_cnt = 0
+    cur_pvt = 0
     print("stop")
     
 def homing():
