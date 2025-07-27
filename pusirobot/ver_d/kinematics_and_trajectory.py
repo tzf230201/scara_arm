@@ -5,9 +5,9 @@ def check_limit(tar_joints, source_info=""):
     tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
     tar_joint_4 *= -1
 
-    if tar_joint_1 > (3551 * 4):
+    if tar_joint_1 > (3510 * 4):
         print(f"[{source_info}] tar_joint_1 greater than {tar_joint_1}")
-        tar_joint_1 = (3551 * 4)
+        tar_joint_1 = (3510 * 4)
     elif tar_joint_1 < 0:
         print(f"[{source_info}] tar_joint_1 lower than {tar_joint_1}")
         tar_joint_1 = 0
