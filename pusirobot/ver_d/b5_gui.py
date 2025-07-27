@@ -290,6 +290,12 @@ tar_time = 0
 
 routine_interval = 100
 
+pvt_1 = []
+pvt_2 = []
+pvt_3 = []
+pvt_4 = []
+
+
 def start_dancing():
     global last_time
     global motion_enable
@@ -298,6 +304,7 @@ def start_dancing():
     global motion_size
     global pvt_cnt
     global tar_time
+    global pvt_1, pvt_2, pvt_3, pvt_4
     script_dir = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(script_dir, "motion_data_4.csv")
     
@@ -333,10 +340,11 @@ def start_dancing():
     #     servo_init(7)
     if selection != "servo_only":
         pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
-        
+    
+    
     
     #write PVT points
-    for i in range(pvt_1_size - 1):
+    for i in range(80):
         # if selection != "stepper_only":    
         #     pos_1, vel_1, tim_1 = pvt_1[i]
         #     servo_set_interpolation_data(pos_1, tim_1, vel_1)
@@ -385,11 +393,22 @@ def routine():
     global tar_time
     
     # read_present_position()
-    
+    selection = get_motor_selection()
     # print(f"enter routine")
     if is_already_wake_up():
         if motion_enable and motion_cnt < motion_size:
             root.after(int(routine_interval), routine)
+            
+            for i in range(2):
+                if selection != "servo_only":
+                    pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
+                    pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
+                    pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
+                    pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
+                    pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)        
+                    pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
+                    
+                pvt_cnt = pvt_cnt + 1
             cur_time = (time.time() - last_time) * 1000
             print(f"{cur_time}")
             if cur_time >= tar_time + 250:
