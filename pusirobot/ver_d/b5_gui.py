@@ -406,7 +406,7 @@ def routine():
             if selection != "servo_only":
                 for i in range(2):
                     print(pvt_cnt)
-                    if pvt_cnt <= max_pvt_index:
+                    if pvt_cnt < max_pvt_index:
                         pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
                         pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
                         pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
