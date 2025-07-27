@@ -417,7 +417,7 @@ def routine():
                         pvt_cnt = pvt_cnt + 1
                         
             cur_time = (time.time() - last_time) * 1000
-            print(f"cur time: {cur_time}, pvt cnt = {pvt_cnt}")
+            print(f"cur time: {cur_time}, pvt cnt = {pvt_cnt} / {pvt_cnt/20}")
             if cur_time >= tar_time + 250:
                 entry = motion_data[motion_cnt]
                 # motion_type = entry['motion_type']
