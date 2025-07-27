@@ -397,6 +397,7 @@ def routine():
     global cur_time
     global tar_time
     global max_pvt_index
+    global rest_pvt
     
     # read_present_position()
     selection = get_motor_selection()
