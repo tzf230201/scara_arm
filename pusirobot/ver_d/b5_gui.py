@@ -429,7 +429,7 @@ def routine():
             cur_time = (time.time() - last_time) * 1000
             # print(f"cur time: {cur_time:.2f}, pvt cnt = {pvt_cnt} / {(pvt_cnt/20):.2f} d={(pvt_cnt/20)-(cur_time/1000):.2f}")
             
-            print(f"pvt_cnt: {pvt_cnt}, cur_pvt: {cur_pvt}, depth {depth}")
+            # print(f"pvt_cnt: {pvt_cnt}, cur_pvt: {cur_pvt}, depth {depth}")
             
             if (depth == 0):
                 stop()
