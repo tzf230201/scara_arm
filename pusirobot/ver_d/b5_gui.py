@@ -411,7 +411,7 @@ def routine():
                         pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)        
                         pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
                     
-                pvt_cnt = pvt_cnt + 1
+                        pvt_cnt = pvt_cnt + 1
             cur_time = (time.time() - last_time) * 1000
             print(f"{cur_time}")
             if cur_time >= tar_time + 250:
