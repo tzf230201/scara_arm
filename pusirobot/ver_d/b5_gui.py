@@ -288,7 +288,7 @@ def convert_csv_to_list_tar_coor(filepath):
 cur_time = 0
 tar_time = 0
 
-routine_interval = 15
+routine_interval = 20
 
 pvt_1 = []
 pvt_2 = []
@@ -429,7 +429,7 @@ def routine():
             # cur_time = (time.time() - last_time) * 1000
             # print(f"cur time: {cur_time:.2f}, pvt cnt = {pvt_cnt} / {(pvt_cnt/20):.2f} d={(pvt_cnt/20)-(cur_time/1000):.2f}")
             
-            print(f"pvt_cnt: {pvt_cnt}, cur_pvt: {cur_pvt}, depth {depth}")
+            print(f"pvt_cnt: {pvt_cnt}, cur_pvt: {cur_pvt}, tar_pvt: {tar_pvt} depth {depth}")
             
             if (depth == 0):
                 stop()
