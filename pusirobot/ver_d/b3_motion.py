@@ -225,7 +225,7 @@ def pp_angle_servo(tar_joints, travel_time, selection):
             return 0
 
 def pp_angle(tar_joints, travel_time, selection):
-    print(f"masuk pp angle")
+    # print(f"masuk pp angle")
     origins = get_origins()
     
     if selection != "servo_only": 
@@ -309,7 +309,7 @@ def pp_coor(tar_coor, travel_time, selection):
     tar_joints = inverse_kinematics(tar_coor)
     tar_joints = check_limit(tar_joints)
     formatted_tar_joints = "°, ".join([f"{tar_joint:.2f}" for tar_joint in tar_joints]) #6 may 2025
-    print(f"tar joint = {formatted_tar_joints}°")
+    # print(f"tar joint = {formatted_tar_joints}°")
     pp_angle(tar_joints, travel_time, selection)
     
     
