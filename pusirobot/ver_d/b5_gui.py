@@ -443,6 +443,7 @@ def routine():
                 # d4 = entry['d4']
                 tar_time += travel_time
                 tar_pvt = int(travel_time/pvt_time_interval)
+                print(f"tar pvt = {tar_pvt}")
                
             
             
