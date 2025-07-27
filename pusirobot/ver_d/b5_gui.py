@@ -328,7 +328,7 @@ def start_dancing():
 
     pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
 
-    max_pvt_index = len(pvt_1)
+    max_pvt_index = len(pvt_2)
     print(f"pvt1: {max_pvt_index}")
 
     group_id = 0x05
