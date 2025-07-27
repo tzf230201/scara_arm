@@ -349,7 +349,7 @@ def start_dancing():
     
     
     #write PVT points
-    for i in range(80):
+    for i in range(900):
         # if selection != "stepper_only":    
         #     pos_1, vel_1, tim_1 = pvt_1[i]
         #     servo_set_interpolation_data(pos_1, tim_1, vel_1)
