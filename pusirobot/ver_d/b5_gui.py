@@ -431,6 +431,9 @@ def routine():
             
             print(f"pvt_cnt: {pvt_cnt}, cur_pvt: {cur_pvt}, depth {depth}")
             
+            if (depth == 0):
+                stop()
+            
             
             if cur_pvt >= tar_pvt:
                 entry = motion_data[motion_cnt]
