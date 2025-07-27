@@ -288,7 +288,7 @@ def convert_csv_to_list_tar_coor(filepath):
 cur_time = 0
 tar_time = 0
 
-routine_interval = 100
+routine_interval = 25
 
 pvt_1 = []
 pvt_2 = []
@@ -296,7 +296,8 @@ pvt_3 = []
 pvt_4 = []
 
 max_pvt_index = 0
-rest_pvt = 0
+cur_pvt = 0
+tar_pvt = 0
 
 def start_dancing():
     global last_time
@@ -308,7 +309,8 @@ def start_dancing():
     global tar_time
     global pvt_1, pvt_2, pvt_3, pvt_4
     global max_pvt_index
-    global rest_pvt
+    global cur_pvt
+    global tar_pvt
     script_dir = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(script_dir, "motion_data_4.csv")
     
@@ -363,7 +365,6 @@ def start_dancing():
             
         pvt_cnt = pvt_cnt + 1
         
-    rest_pvt = pvt_cnt
     if selection != "servo_only": 
         pvt_mode_read_pvt_3_depth()
         for node_id in (ID2, ID3, ID4):
@@ -375,6 +376,7 @@ def start_dancing():
         travel_time = entry['travel_time']
         motion_cnt += 1
         tar_time += travel_time
+        tar_pvt = int(travel_time/pvt_time_interval)
         execute_motion_data(entry)
         # servo_execute()
     #     servo_get_sub_mode()
@@ -397,7 +399,8 @@ def routine():
     global cur_time
     global tar_time
     global max_pvt_index
-    global rest_pvt
+    global cur_pvt
+    global tar_pvt
     
     # read_present_position()
     selection = get_motor_selection()
@@ -408,7 +411,9 @@ def routine():
             
             
             if selection != "servo_only":
-                for i in range(2):
+                depth = read_pvt_3_depth(ID2)
+                if depth < 80:
+                # for i in range(2):
                     # print(pvt_cnt)
                     if pvt_cnt < max_pvt_index:
                         pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
@@ -419,16 +424,15 @@ def routine():
                         pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
                 
                         pvt_cnt = pvt_cnt + 1
-                        rest_pvt += 1
+                        cur_pvt += 1
                         
             cur_time = (time.time() - last_time) * 1000
-            rest_pvt -= 2
             # print(f"cur time: {cur_time:.2f}, pvt cnt = {pvt_cnt} / {(pvt_cnt/20):.2f} d={(pvt_cnt/20)-(cur_time/1000):.2f}")
-            depth = read_pvt_3_depth(ID2)
-            print(f"pvt_cnt: {pvt_cnt}, rest_pvt: {rest_pvt}, depth {depth}")
+            
+            print(f"pvt_cnt: {pvt_cnt}, cur_pvt: {cur_pvt}, depth {depth}")
             
             
-            if cur_time >= tar_time + 250:
+            if cur_pvt >= tar_pvt:
                 entry = motion_data[motion_cnt]
                 # motion_type = entry['motion_type']
                 # entry['travel_time'] = get_travel_time() #atur waktu
@@ -438,6 +442,8 @@ def routine():
                 # d3 = entry['d3']
                 # d4 = entry['d4']
                 tar_time += travel_time
+                tar_pvt = int(travel_time/pvt_time_interval)
+               
             
             
             
