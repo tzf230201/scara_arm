@@ -138,7 +138,6 @@ def pvt_circular():
     travel_time = 4  # dalam detik
     direction = "CCW"  # Arah rotasi
     
-    
     pvt_circular(cur_pos, center_pos, end_angle, travel_time, direction)
     last_time = time.time()
     
