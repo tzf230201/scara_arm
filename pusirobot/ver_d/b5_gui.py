@@ -85,16 +85,16 @@ def pvt_joint():
     travel_time = get_travel_time()
     
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
-    pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time)
-    # pvt_mode_try_pvt_5(selection)
-    _, _, _, tar_joint_4 = tar_joints
-    stepper_single_motor_pp_mode(ID4, tar_joint_4, travel_time, selection)
+    # pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time)
+    pvt_mode_try_pvt_5(selection)
+    # _, _, _, tar_joint_4 = tar_joints
+    # stepper_single_motor_pp_mode(ID4, tar_joint_4, travel_time, selection)
     # print(f"run motor 4 {tar_joint_4}")
     # ret = pp_angle_servo(tar_joints, travel_time, selection)
     # if ret == 1:
     #     servo_execute()  # Execute the servo command to start the movement
-    group_id = 0x05
-    pvt_mode_start_pvt_step(group_id)
+    # group_id = 0x05
+    # pvt_mode_start_pvt_step(group_id)
     last_time = time.time()
 
 def pvt_move():
@@ -110,14 +110,14 @@ def pvt_move():
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     # pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
     pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time)
-    _, _, _, tar_joint_4 = tar_joints
-    stepper_single_motor_pp_mode(ID4, tar_joint_4, travel_time, selection)
+    # _, _, _, tar_joint_4 = tar_joints
+    # stepper_single_motor_pp_mode(ID4, tar_joint_4, travel_time, selection)
     # print(f"run motor 4 {tar_joint_4}")
     # ret = pp_angle_servo(tar_joints, travel_time, selection)
     # if ret == 1:
     #     servo_execute()  # Execute the servo command to start the movement
-    group_id = 0x05
-    pvt_mode_start_pvt_step(group_id)
+    # group_id = 0x05
+    # pvt_mode_start_pvt_step(group_id)
     last_time = time.time()
 
 def pvt_circular():
@@ -426,10 +426,10 @@ def routine():
                         pvt_cnt = pvt_cnt + 1
                         cur_pvt += 1
                         
-            # cur_time = (time.time() - last_time) * 1000
+            cur_time = (time.time() - last_time) * 1000
             # print(f"cur time: {cur_time:.2f}, pvt cnt = {pvt_cnt} / {(pvt_cnt/20):.2f} d={(pvt_cnt/20)-(cur_time/1000):.2f}")
             
-            # print(f"pvt_cnt: {pvt_cnt}, cur_pvt: {cur_pvt}, depth {depth}")
+            print(f"pvt_cnt: {pvt_cnt}, cur_pvt: {cur_pvt}, depth {depth}")
             
             if (depth == 0):
                 stop()
@@ -447,12 +447,12 @@ def routine():
                 tar_time += travel_time
                 tar_pvt = int(travel_time/pvt_time_interval)
                 cur_pvt = 0
-                # print(f"tar pvt = {tar_pvt}")
+                print(f"tar pvt = {tar_pvt}")
                
             
             
             
-                # read_present_position()
+                read_present_position()
                 # print_red(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
                 # print(f"counter {motion_cnt + 2} of {motion_size}")
                 # print_red(f"tar coor : x:{d1} mm, y:{d2} mm, z:{d3} mm, yaw:{d4}°")
