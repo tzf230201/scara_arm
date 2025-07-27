@@ -295,6 +295,7 @@ pvt_2 = []
 pvt_3 = []
 pvt_4 = []
 
+max_pvt_index = 0
 
 def start_dancing():
     global last_time
@@ -305,6 +306,7 @@ def start_dancing():
     global pvt_cnt
     global tar_time
     global pvt_1, pvt_2, pvt_3, pvt_4
+    global max_pvt_index
     script_dir = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(script_dir, "motion_data_4.csv")
     
@@ -326,8 +328,8 @@ def start_dancing():
 
     pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
 
-    pvt_1_size = len(pvt_1)
-    print(f"pvt1: {pvt_1_size}")
+    max_pvt_index = len(pvt_1)
+    print(f"pvt1: {max_pvt_index}")
 
     group_id = 0x05
     pvt_3_lower_limit = 60
@@ -391,6 +393,7 @@ def routine():
     global pvt_cnt
     global cur_time
     global tar_time
+    global max_pvt_index
     
     # read_present_position()
     selection = get_motor_selection()
@@ -398,15 +401,15 @@ def routine():
     if is_already_wake_up():
         if motion_enable and motion_cnt < motion_size:
             root.after(int(routine_interval), routine)
-            
-            for i in range(2):
+            if pvt_cnt <= max_pvt_index:
                 if selection != "servo_only":
-                    pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
-                    pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
-                    pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
-                    pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
-                    pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)        
-                    pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
+                    for i in range(2):
+                        pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
+                        pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
+                        pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
+                        pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
+                        pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)        
+                        pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
                     
                 pvt_cnt = pvt_cnt + 1
             cur_time = (time.time() - last_time) * 1000
