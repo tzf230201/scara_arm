@@ -287,7 +287,7 @@ def convert_csv_to_list_tar_coor(filepath):
 cur_time = 0
 tar_time = 0
 
-routine_interval = 15
+routine_interval = 20
 
 pvt_1 = []
 pvt_2 = []
@@ -349,7 +349,7 @@ def start_dancing():
     
     
     #write PVT points
-    for i in range(900):
+    for i in range(80):
         # if selection != "stepper_only":    
         #     pos_1, vel_1, tim_1 = pvt_1[i]
         #     servo_set_interpolation_data(pos_1, tim_1, vel_1)
