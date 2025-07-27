@@ -426,7 +426,7 @@ def routine():
                         pvt_cnt = pvt_cnt + 1
                         cur_pvt += 1
                         
-            cur_time = (time.time() - last_time) * 1000
+            # cur_time = (time.time() - last_time) * 1000
             # print(f"cur time: {cur_time:.2f}, pvt cnt = {pvt_cnt} / {(pvt_cnt/20):.2f} d={(pvt_cnt/20)-(cur_time/1000):.2f}")
             
             # print(f"pvt_cnt: {pvt_cnt}, cur_pvt: {cur_pvt}, depth {depth}")
@@ -447,12 +447,12 @@ def routine():
                 tar_time += travel_time
                 tar_pvt = int(travel_time/pvt_time_interval)
                 cur_pvt = 0
-                print(f"tar pvt = {tar_pvt}")
+                # print(f"tar pvt = {tar_pvt}")
                
             
             
             
-                read_present_position()
+                # read_present_position()
                 # print_red(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
                 # print(f"counter {motion_cnt + 2} of {motion_size}")
                 # print_red(f"tar coor : x:{d1} mm, y:{d2} mm, z:{d3} mm, yaw:{d4}°")
