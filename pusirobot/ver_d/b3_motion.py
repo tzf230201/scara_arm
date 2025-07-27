@@ -298,7 +298,7 @@ def pp_angle(tar_joints, travel_time, selection):
         # time.sleep(0.5)  # wait for servo to switch on
         max_accel_servo = 583000 # 582549
         if (accel_decel_1 <= max_accel_servo):
-            # print(f"done")
+            print(f"done")
             set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
             if (accel_decel_1 >= (max_accel_servo * 0.8)):
                 print_yellow(f"warning : almost reaching max acceleration")
@@ -934,25 +934,27 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
 
     for pos, vel, tim in pvt2_f:
         pvt_mode_write_read(ID2, pos, vel, tim)
-
+    # for pos, vel, tim in pvt2_b:
+    #     pvt_mode_write_read(ID2, pos, vel, tim)
 
        
     for pos, vel, tim in pvt3_f:
         pvt_mode_write_read(ID3, pos, vel, tim)
-
+    # for pos, vel, tim in pvt3_b:
+    #     pvt_mode_write_read(ID3, pos, vel, tim)
         
      
-    # for pos, vel, tim in pvt4_f:
-    #     pvt_mode_write_read(ID4, pos, vel, tim)
+    for pos, vel, tim in pvt4_f:
+        pvt_mode_write_read(ID4, pos, vel, tim)
     # for pos, vel, tim in pvt4_b:
     #     pvt_mode_write_read(ID4, pos, vel, tim)
             
         init_single_motor_change_group_id(ID2, group_id)
         init_single_motor_change_group_id(ID3, group_id)
-        # init_single_motor_change_group_id(ID4, group_id)
+        init_single_motor_change_group_id(ID4, group_id)
                 
     pvt_mode_read_pvt_3_depth()
-    # pvt_mode_start_pvt_step(group_id)
+    pvt_mode_start_pvt_step(group_id)
     last_time = time.time()
     stop_watch = last_time
     time_out = travel_time / 1000
@@ -1209,29 +1211,3 @@ def pvt_mode_try_pvt_5(selection):
 #     ([166.82, -168, 1105, 0], 2000),
 #     ([166.82, -168, 3250, 0], 8000),
 #     ([166.82, -168, 258, 0], 10000),
-    
-
-    
-    
-    
-
-    
-    
-    
-# pvt,2000,258,0,180,0
-# pvt,1000,258,0,180,0
-# pvt,2000,166.82,-168,90,0
-# pvt,2000,258,0,180,0
-# pvt,2000,107,100,90,92
-# pvt,2000,107,224,90,92
-# pvt,2000,107,224,116,92
-# pvt,2000,107,100,116,92
-# pvt,2000,107,224,116,92
-# pvt,2000,107,100,116,92
-# pvt,2000,166.82,-168,116,-10
-# pvt,2000,166.82,-168,116,-10
-# pvt,2000,258,0,180,0
-# pvt,1000,258,0,180,0
-# pvt,2000,166.82,-168,90,0
-# pvt,2000,166.82,-168,90,0
-# pvt,2000,166.82,-168,90,0
