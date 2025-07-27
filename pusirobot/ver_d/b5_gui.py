@@ -288,7 +288,7 @@ def convert_csv_to_list_tar_coor(filepath):
 cur_time = 0
 tar_time = 0
 
-routine_interval = 100
+routine_interval = 25
 
 pvt_1 = []
 pvt_2 = []
@@ -333,7 +333,7 @@ def start_dancing():
     pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
 
     max_pvt_index = len(pvt_2)
-    print(f"max pvt index: {max_pvt_index}")
+    print(f"pvt2: {max_pvt_index}")
 
     group_id = 0x05
     pvt_3_lower_limit = 60
@@ -429,7 +429,7 @@ def routine():
             # cur_time = (time.time() - last_time) * 1000
             # print(f"cur time: {cur_time:.2f}, pvt cnt = {pvt_cnt} / {(pvt_cnt/20):.2f} d={(pvt_cnt/20)-(cur_time/1000):.2f}")
             
-            print(f"pvt_cnt: {pvt_cnt}, cur_pvt: {cur_pvt}, tar_pvt: {tar_pvt} depth {depth} motion cnt {motion_cnt}, motion size {motion_size}")
+            # print(f"pvt_cnt: {pvt_cnt}, cur_pvt: {cur_pvt}, depth {depth}")
             
             if (depth == 0):
                 stop()
