@@ -392,7 +392,7 @@ def routine():
             root.after(int(routine_interval), routine)
             cur_time = (time.time() - last_time) * 1000
             print(f"{cur_time}")
-            if cur_time >= tar_time:
+            if cur_time >= tar_time + 100:
                 entry = motion_data[motion_cnt]
                 motion_type = entry['motion_type']
                 # entry['travel_time'] = get_travel_time() #atur waktu
