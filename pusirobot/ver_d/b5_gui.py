@@ -402,16 +402,16 @@ def routine():
         if motion_enable and motion_cnt < motion_size:
             root.after(int(routine_interval), routine)
             
-            if pvt_cnt <= max_pvt_index:
-                if selection != "servo_only":
-                    for i in range(2):
+            if selection != "servo_only":
+                for i in range(2):
+                    if pvt_cnt <= max_pvt_index:
                         pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
                         pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
                         pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
                         pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
                         pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)        
                         pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
-                    
+                
                         pvt_cnt = pvt_cnt + 1
                         
             cur_time = (time.time() - last_time) * 1000
