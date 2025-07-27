@@ -928,20 +928,18 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     end_coor = forward_kinematics(tar_joints)
     
     pvt2_f, pvt3_f, pvt4_f = generate_straight_pvt_points(start_coor, end_coor, travel_time)
-    pvt2_b, pvt3_b, pvt4_b = generate_straight_pvt_points(end_coor, start_coor, travel_time)
+    # pvt2_b, pvt3_b, pvt4_b = generate_straight_pvt_points(end_coor, start_coor, travel_time)
 
     pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
 
     for pos, vel, tim in pvt2_f:
         pvt_mode_write_read(ID2, pos, vel, tim)
-    for pos, vel, tim in pvt2_b:
-        pvt_mode_write_read(ID2, pos, vel, tim)
+
 
        
     for pos, vel, tim in pvt3_f:
         pvt_mode_write_read(ID3, pos, vel, tim)
-    for pos, vel, tim in pvt3_b:
-        pvt_mode_write_read(ID3, pos, vel, tim)
+
         
      
     # for pos, vel, tim in pvt4_f:
