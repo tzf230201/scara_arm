@@ -109,7 +109,7 @@ def init_set_max_current(max_current):
 def init_microstepping(sub_division):
     for id in [ID2, ID3, ID4]:
         ensure_set_req_sdo(id, SET_2_BYTE, OD_STEPPER_MICROSTEPPING, 0x00, sub_division)
-    print(f"microstep set to {sub_division}") 
+    # print(f"microstep set to {sub_division}") 
 
 def init_operation_mode(mode):
     for id in [ID2, ID3, ID4]:
