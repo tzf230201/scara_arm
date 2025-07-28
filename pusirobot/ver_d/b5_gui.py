@@ -437,8 +437,8 @@ def routine():
             
             print(depth)
             
-            if (depth == 0):
-                stop()
+            # if (depth == 0):
+            #     stop()
             
             
             if cur_pvt >= tar_pvt:
