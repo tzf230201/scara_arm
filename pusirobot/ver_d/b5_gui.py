@@ -376,6 +376,7 @@ def start_dancing():
         pvt_mode_read_pvt_3_depth()
         for node_id in (ID2, ID3, ID4):
             init_single_motor_change_group_id(node_id, group_id)
+        time.sleep(1)
         pvt_mode_start_pvt_step(group_id)   
              
     if selection != "stepper_only":
@@ -498,9 +499,9 @@ def homing():
     tar_joints = home_angle
     travel_time = get_travel_time()
     if selection != "stepper_only":
-        pp_angle(tar_joints, 4000, "servo_only")
+        pp_angle(tar_joints, 6000, "servo_only")
     if selection != "servo_only":
-        sp_angle(tar_joints, 6000, selection)
+        sp_angle(tar_joints, 4000, selection)
     
     
     
