@@ -472,7 +472,7 @@ def routine():
                 execute_motion_data(entry)
                 
         else:
-            stop()
+            start_dancing()
     else:
         print(f"Robot is not awake, cannot perform motion.")
 
@@ -486,7 +486,7 @@ def stop():
     pvt_cnt = 0
     cur_pvt = 0
     print("stop")
-    start_dancing()
+    # start_dancing()
     # homing()
     
 def homing():
