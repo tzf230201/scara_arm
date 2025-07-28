@@ -381,10 +381,10 @@ def start_dancing():
     if selection != "stepper_only":
         entry = motion_data[motion_cnt]
         travel_time = entry['travel_time']
-        motion_cnt += 1
         tar_time += travel_time
         tar_pvt = int(travel_time/pvt_time_interval)
         execute_motion_data(entry)
+        motion_cnt += 1
         # servo_execute()
     #     servo_get_sub_mode()
     #     servo_get_buffer_free_count()
