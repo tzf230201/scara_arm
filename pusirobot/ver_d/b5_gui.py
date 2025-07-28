@@ -293,7 +293,7 @@ def convert_csv_to_list_tar_coor(filepath):
 cur_time = 0
 tar_time = 0
 
-routine_interval = 40
+routine_interval = 25
 
 pvt_1 = []
 pvt_2 = []
@@ -423,7 +423,7 @@ def routine():
                 
                 
                 if selection != "servo_only":
-                    depth = read_pvt_3_depth(ID2)
+                    # depth = read_pvt_3_depth(ID2)
                     if depth < 80:
                     # for i in range(2):
                         # print(pvt_cnt)
