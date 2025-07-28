@@ -435,9 +435,9 @@ def routine():
                             cur_pvt += 1
                             
                 cur_time = (time.time() - last_time) * 1000
-                # print(f"cur time: {cur_time:.2f}, pvt cnt = {pvt_cnt} / {(pvt_cnt/20):.2f} d={(pvt_cnt/20)-(cur_time/1000):.2f}")
+                print(f"cur time: {cur_time:.2f}, tar_time: {tar_time:.2f}")
                 
-                print(depth)
+                # print(depth)
                 
                 change_motion = 0
                 
@@ -450,6 +450,7 @@ def routine():
                 
                 
                 if change_motion:
+                    print(f"change motion")
                     entry = motion_data[motion_cnt]
                     # motion_type = entry['motion_type']
                     # entry['travel_time'] = get_travel_time() #atur waktu
@@ -473,7 +474,8 @@ def routine():
                     motion_cnt += 1
                     execute_motion_data(entry)
             else:
-                start_dancing()
+                # start_dancing()
+                stop()
                 
         else:
             stop()
