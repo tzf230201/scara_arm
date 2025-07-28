@@ -325,9 +325,7 @@ def start_dancing():
     print_motion_data(motion_data)  # DEBUG: Print all motion data
     
     pp_coor(shuttle_coor,2000,"stepper_only")
-    time.sleep(2.5)
-    nid = 0x04
-    send_can_command(f"000#81{nid:02X}")
+    time.sleep(3)
     
     # start_coor = forward_kinematics(get_cur_joints("all"))
     start_coor = shuttle_coor
