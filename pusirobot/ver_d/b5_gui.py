@@ -111,7 +111,7 @@ def pvt_move():
     # print(f"tar joint = {tar_joints} degree")
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     # pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
-    # pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time)
+    pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time)
     # _, _, _, tar_joint_4 = tar_joints
     # stepper_single_motor_pp_mode(ID4, tar_joint_4, travel_time, selection)
     # print(f"run motor 4 {tar_joint_4}")
@@ -120,7 +120,7 @@ def pvt_move():
     #     servo_execute()  # Execute the servo command to start the movement
     # group_id = 0x05
     # pvt_mode_start_pvt_step(group_id)
-    pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time)
+    # pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time)
     last_time = time.time()
     t2 = time.time() - t1
     print(f"take time {t2*1000}")
