@@ -443,12 +443,12 @@ def routine():
                 
                 change_motion = 0
                 
-                # if (depth == 0):
-                if cur_time >= tar_time:
+                if (depth == 0):
+                    if cur_time >= tar_time:
+                            change_motion = 1
+                else:
+                    if cur_pvt >= tar_pvt:
                         change_motion = 1
-                # else:
-                #     if cur_pvt >= tar_pvt:
-                #         change_motion = 1
                 
                 
                 if change_motion:
@@ -465,14 +465,7 @@ def routine():
                     tar_pvt = int(travel_time/pvt_time_interval)
                     cur_pvt = 0
                     # print(f"tar pvt = {tar_pvt}")
-                
-                
-                
-                
-                    # read_present_position()
-                    # print_red(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
-                    # print(f"counter {motion_cnt + 2} of {motion_size}")
-                    # print_red(f"tar coor : x:{d1} mm, y:{d2} mm, z:{d3} mm, yaw:{d4}°")
+
                     motion_cnt += 1
                     execute_motion_data(entry)
             else:
