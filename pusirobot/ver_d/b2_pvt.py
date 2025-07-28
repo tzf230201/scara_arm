@@ -92,17 +92,17 @@ def pvt_mode_set_pvt_3_fifo_threshold_2(th2):
 
 def pvt_mode_write_pvt(node_id, pos, vel, tim):
 
-    error_code = ensure_set_req_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x11, pos)
-    error_code |= ensure_set_req_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x12, vel)
-    error_code |= ensure_set_req_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x13, tim)
-    error_code |= set_sdo(node_id, SET_1_BYTE, OD_STEPPER_PVT_MOTION, 0x01, 0x02)
-    
-    # error_code = set_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x11, pos)
-    # error_code |= set_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x12, vel)
-    # error_code |= set_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x13, tim)
+    # error_code = ensure_set_req_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x11, pos)
+    # error_code |= ensure_set_req_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x12, vel)
+    # error_code |= ensure_set_req_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x13, tim)
     # error_code |= set_sdo(node_id, SET_1_BYTE, OD_STEPPER_PVT_MOTION, 0x01, 0x02)
     
-    # error_code = 0
+    error_code = set_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x11, pos)
+    error_code |= set_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x12, vel)
+    error_code |= set_sdo(node_id, SET_4_BYTE, OD_STEPPER_PVT_MOTION, 0x13, tim)
+    error_code |= set_sdo(node_id, SET_1_BYTE, OD_STEPPER_PVT_MOTION, 0x01, 0x02)
+    
+    error_code = 0
     return error_code
 
 def pvt_mode_read_pvt(node_id):
