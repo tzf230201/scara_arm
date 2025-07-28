@@ -473,7 +473,11 @@ def routine():
                     last_time = time.time()
             else:
                 # start_dancing()
-                stop()
+                # stop()
+                depth = read_pvt_3_depth(ID2)
+                print(depth)
+                if (depth == 0):
+                    start_dancing()
                 
         else:
             stop()
