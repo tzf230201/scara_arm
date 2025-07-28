@@ -480,7 +480,7 @@ def stop():
     pvt_cnt = 0
     cur_pvt = 0
     print("stop")
-    homing()
+    # homing()
     
 def homing():
     global last_time
