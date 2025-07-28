@@ -1164,6 +1164,7 @@ def pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time):
     pvt_mode_read_index()
     pvt_mode_set_pvt_1_start(0)
     pvt_mode_set_pvt_1_end(pt_idx-1)
+    time.sleep(1)
     pvt_mode_start_pvt_step(group_id)
                 
     # pvt_mode_read_pvt_3_depth()
