@@ -265,7 +265,7 @@ def execute_motion_data(entry):
         sp_angle([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
     elif motion_type == 'pvt':
         pp_coor([d1, d2, d3, d4], travel_time, selection="servo_only")
-        tar_joints = forward_kinematics([d1, d2, d3, d4])
+        tar_joints = inverse_kinematics([d1, d2, d3, d4])
         _, _, _, tar_joint_4 = tar_joints
         stepper_single_motor_pp_mode(ID4, tar_joint_4, travel_time, get_motor_selection())
 
