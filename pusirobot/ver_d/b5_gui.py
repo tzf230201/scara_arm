@@ -423,7 +423,7 @@ def routine():
                 
                 
                 if selection != "servo_only":
-                    # depth = read_pvt_3_depth(ID2)
+                    depth = read_pvt_3_depth(ID2)
                     if depth < 80:
                     # for i in range(2):
                         # print(pvt_cnt)
