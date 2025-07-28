@@ -1017,7 +1017,7 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     j4_rel = compute_relative_joint_trajectory(j4_traj, base_joint_deg[3])
 
    
-    plot_xy_trajectory(x, y)
+    # plot_xy_trajectory(x, y)
     # ==== PVT POINTS ====
     def generate_pvt_points(j1_abs, j1_rel, j2_rel, j3_rel, j4_rel, dt_ms):
         
