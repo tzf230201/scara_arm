@@ -412,67 +412,70 @@ def routine():
     selection = get_motor_selection()
     # print(f"enter routine")
     if is_already_wake_up():
-        if motion_enable and motion_cnt < motion_size:
-            root.after(int(routine_interval), routine)
-            
-            
-            if selection != "servo_only":
-                depth = read_pvt_3_depth(ID2)
-                if depth < 80:
-                # for i in range(2):
-                    # print(pvt_cnt)
-                    if pvt_cnt < max_pvt_index:
-                        pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
-                        pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
-                        pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
-                        pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
-                        pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)        
-                        pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
+        if motion_enable:
+            if motion_cnt < motion_size:
+                root.after(int(routine_interval), routine)
                 
-                        pvt_cnt = pvt_cnt + 1
-                        cur_pvt += 1
-                        
-            cur_time = (time.time() - last_time) * 1000
-            # print(f"cur time: {cur_time:.2f}, pvt cnt = {pvt_cnt} / {(pvt_cnt/20):.2f} d={(pvt_cnt/20)-(cur_time/1000):.2f}")
-            
-            print(depth)
-            
-            change_motion = 0
-            
-            if (depth == 0):
-                if cur_time >= tar_time:
-                    change_motion = 1
-            else:
-                if cur_pvt >= tar_pvt:
-                    change_motion = 1
-            
-            
-            if change_motion:
-                entry = motion_data[motion_cnt]
-                # motion_type = entry['motion_type']
-                # entry['travel_time'] = get_travel_time() #atur waktu
-                travel_time = entry['travel_time']
-                # d1 = entry['d1']
-                # d2 = entry['d2']
-                # d3 = entry['d3']
-                # d4 = entry['d4']
-                tar_time += travel_time
-                tar_pvt = int(travel_time/pvt_time_interval)
-                cur_pvt = 0
-                # print(f"tar pvt = {tar_pvt}")
-               
-            
-            
-            
-                # read_present_position()
-                # print_red(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
-                # print(f"counter {motion_cnt + 2} of {motion_size}")
-                # print_red(f"tar coor : x:{d1} mm, y:{d2} mm, z:{d3} mm, yaw:{d4}°")
-                motion_cnt += 1
-                execute_motion_data(entry)
+                
+                if selection != "servo_only":
+                    depth = read_pvt_3_depth(ID2)
+                    if depth < 80:
+                    # for i in range(2):
+                        # print(pvt_cnt)
+                        if pvt_cnt < max_pvt_index:
+                            pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
+                            pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
+                            pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
+                            pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
+                            pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)        
+                            pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
+                    
+                            pvt_cnt = pvt_cnt + 1
+                            cur_pvt += 1
+                            
+                cur_time = (time.time() - last_time) * 1000
+                # print(f"cur time: {cur_time:.2f}, pvt cnt = {pvt_cnt} / {(pvt_cnt/20):.2f} d={(pvt_cnt/20)-(cur_time/1000):.2f}")
+                
+                print(depth)
+                
+                change_motion = 0
+                
+                if (depth == 0):
+                    if cur_time >= tar_time:
+                        change_motion = 1
+                else:
+                    if cur_pvt >= tar_pvt:
+                        change_motion = 1
+                
+                
+                if change_motion:
+                    entry = motion_data[motion_cnt]
+                    # motion_type = entry['motion_type']
+                    # entry['travel_time'] = get_travel_time() #atur waktu
+                    travel_time = entry['travel_time']
+                    # d1 = entry['d1']
+                    # d2 = entry['d2']
+                    # d3 = entry['d3']
+                    # d4 = entry['d4']
+                    tar_time += travel_time
+                    tar_pvt = int(travel_time/pvt_time_interval)
+                    cur_pvt = 0
+                    # print(f"tar pvt = {tar_pvt}")
+                
+                
+                
+                
+                    # read_present_position()
+                    # print_red(f"{motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
+                    # print(f"counter {motion_cnt + 2} of {motion_size}")
+                    # print_red(f"tar coor : x:{d1} mm, y:{d2} mm, z:{d3} mm, yaw:{d4}°")
+                    motion_cnt += 1
+                    execute_motion_data(entry)
+                else:
+                    start_dancing()
                 
         else:
-            start_dancing()
+            stop()
     else:
         print(f"Robot is not awake, cannot perform motion.")
 
