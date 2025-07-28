@@ -436,8 +436,8 @@ def routine():
                             pvt_cnt = pvt_cnt + 1
                             cur_pvt += 1
                             
-                # cur_time = (time.time() - last_time) * 1000
-                # print(f"cur time: {cur_time:.2f}, tar_time: {tar_time:.2f}")
+                cur_time = (time.time() - last_time) * 1000
+                print(f"cur time: {cur_time:.2f}, tar_time: {tar_time:.2f}")
                 
                 
                 print(depth)
