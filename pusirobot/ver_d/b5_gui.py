@@ -498,7 +498,7 @@ def homing():
     tar_joints = home_angle
     travel_time = get_travel_time()
     if selection != "stepper_only":
-        pp_angle(tar_joints, 6000, "servo_only")
+        pp_angle(tar_joints, 4000, "servo_only")
     if selection != "servo_only":
         sp_angle(tar_joints, 6000, selection)
     
