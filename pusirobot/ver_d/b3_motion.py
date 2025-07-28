@@ -1151,14 +1151,14 @@ def pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time):
     #     pvt_mode_write_read(ID3, pos, vel, tim)
         
      
-    # for pos, vel, tim in pvt4_f:
-        # pvt_mode_write_read(ID4, pos, vel, tim)
+    for pos, vel, tim in pvt4_f:
+        pvt_mode_write_read(ID4, pos, vel, tim)
     # for pos, vel, tim in pvt4_b:
     #     pvt_mode_write_read(ID4, pos, vel, tim)
             
     init_single_motor_change_group_id(ID2, group_id)
     init_single_motor_change_group_id(ID3, group_id)
-    # init_single_motor_change_group_id(ID4, group_id)
+    init_single_motor_change_group_id(ID4, group_id)
     
     pt_idx = len(pvt2_f)
     # pvt_mode_read_index()
@@ -1166,9 +1166,7 @@ def pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time):
     pvt_mode_set_pvt_1_end(pt_idx-1)
     # time.sleep(1)
     pvt_mode_start_pvt_step(group_id)
-                
-    # pvt_mode_read_pvt_3_depth()
-    # pvt_mode_start_pvt_step(group_id)
+
     last_time = time.time()
     stop_watch = last_time
     time_out = travel_time / 1000
