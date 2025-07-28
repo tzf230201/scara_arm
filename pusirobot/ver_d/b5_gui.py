@@ -432,16 +432,22 @@ def routine():
                         pvt_cnt = pvt_cnt + 1
                         cur_pvt += 1
                         
-            # cur_time = (time.time() - last_time) * 1000
+            cur_time = (time.time() - last_time) * 1000
             # print(f"cur time: {cur_time:.2f}, pvt cnt = {pvt_cnt} / {(pvt_cnt/20):.2f} d={(pvt_cnt/20)-(cur_time/1000):.2f}")
             
             print(depth)
             
-            # if (depth == 0):
-            #     stop()
+            change_motion = 0
+            
+            if (depth == 0):
+                if cur_time >= tar_time:
+                    change_motion = 1
+            else:
+                if cur_pvt >= tar_pvt:
+                    change_motion = 1
             
             
-            if cur_pvt >= tar_pvt:
+            if change_motion:
                 entry = motion_data[motion_cnt]
                 # motion_type = entry['motion_type']
                 # entry['travel_time'] = get_travel_time() #atur waktu
