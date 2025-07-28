@@ -304,6 +304,15 @@ max_pvt_index = 0
 cur_pvt = 0
 tar_pvt = 0
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+filename = os.path.join(script_dir, "motion_data_4.csv")
+motion_data = read_motion_csv(filename)
+motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
+list_tar_coor = convert_csv_to_list_tar_coor(filename)
+# start_coor = forward_kinematics(get_cur_joints("all"))
+start_coor = shuttle_coor
+pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
+    
 def start_dancing():
     global last_time
     global motion_enable
@@ -316,29 +325,16 @@ def start_dancing():
     global max_pvt_index
     global cur_pvt
     global tar_pvt
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(script_dir, "motion_data_4.csv")
     
-    motion_data = read_motion_csv(filename)
-    motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
+    
     motion_cnt = 0  # Reset the counter
     motion_enable = True
-    print_motion_data(motion_data)  # DEBUG: Print all motion data
+    # print_motion_data(motion_data)  # DEBUG: Print all motion data
+    
     
     sp_coor(shuttle_coor,2000,"stepper_only")
     time.sleep(2.5)
     
-    # start_coor = forward_kinematics(get_cur_joints("all"))
-    start_coor = shuttle_coor
-    list_tar_coor = convert_csv_to_list_tar_coor(filename)
-    
-    # print(f"{list_tar_coor}")
-    for i, (coord, travel_time) in enumerate(list_tar_coor):
-        print(f"{i+1}. Coordinate: {coord}, Time: {travel_time} ms")
-        
-
-    
-    pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
 
     max_pvt_index = len(pvt_2)
     print(f"max pvt index: {max_pvt_index}")
@@ -360,9 +356,6 @@ def start_dancing():
     
     #write PVT points
     for i in range(40):
-        # if selection != "stepper_only":    
-        #     pos_1, vel_1, tim_1 = pvt_1[i]
-        #     servo_set_interpolation_data(pos_1, tim_1, vel_1)
             
         if selection != "servo_only":
             pos_2, vel_2, tim_2 = pvt_2[i]
@@ -389,12 +382,7 @@ def start_dancing():
         tar_time = travel_time
         tar_pvt = int(travel_time/pvt_time_interval)
         execute_motion_data(entry)
-        # servo_execute()
-    #     servo_get_sub_mode()
-    #     servo_get_buffer_free_count()
-    #     servo_get_next_trajectory_segment_id()
-    #     print(f"execute servo")        
-        
+
     root.after(int(routine_interval), routine)
     last_time = time.time()
     
@@ -419,67 +407,44 @@ def routine():
     # print(f"enter routine")
     if is_already_wake_up():
         if motion_enable:
-            print(f"motion cnt: {motion_cnt} of {motion_size}")
-            if motion_cnt < motion_size:
-                root.after(int(routine_interval), routine)
-                
-                
-                if selection != "servo_only":
-                    depth = read_pvt_3_depth(ID3)
-                    if depth < 40:
-                    # for i in range(2):
-                        # print(pvt_cnt)
+            depth = read_pvt_3_depth(ID3)
+            if depth != 0:
+                print("lanjut")
+                if motion_cnt < motion_size:
+                    if (depth < 40):
                         if pvt_cnt < max_pvt_index:
                             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
                             pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
                             pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
                             pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)        
                     
-                            pvt_cnt = pvt_cnt + 1
+                            pvt_cnt += 1
                             cur_pvt += 1
-                            
-                cur_time = (time.time() - last_time) * 1000
-                print(f"cur time: {cur_time:.2f}, tar_time: {tar_time:.2f}")
-                
-                
-                print(depth)
-                
-                change_motion = 0
-                
-                if (depth == 0):
-                    # if cur_time >= tar_time:
-                    change_motion = 1
-                else:
+                    
+                    change_motion = 0
+                    
                     if cur_pvt >= tar_pvt:
                         change_motion = 1
-                
-                
-                if change_motion:
-                    print(f"change motion")
-                    entry = motion_data[motion_cnt]
-                    # motion_type = entry['motion_type']
-                    # entry['travel_time'] = get_travel_time() #atur waktu
-                    travel_time = entry['travel_time']
-                    # d1 = entry['d1']
-                    # d2 = entry['d2']
-                    # d3 = entry['d3']
-                    # d4 = entry['d4']
-                    tar_time = travel_time
-                    tar_pvt = int(travel_time/pvt_time_interval)
-                    cur_pvt = 0
-                    # print(f"tar pvt = {tar_pvt}")
+                            
+                    if change_motion:
+                        entry = motion_data[motion_cnt]
+                        # motion_type = entry['motion_type']
+                        # entry['travel_time'] = get_travel_time() #atur waktu
+                        travel_time = entry['travel_time']
+                        # d1 = entry['d1']
+                        # d2 = entry['d2']
+                        # d3 = entry['d3']
+                        # d4 = entry['d4']
+                        tar_time = travel_time
+                        tar_pvt = int(travel_time/pvt_time_interval)
+                        cur_pvt = 0
+                        # print(f"tar pvt = {tar_pvt}")
 
-                    motion_cnt += 1
-                    execute_motion_data(entry)
-                    last_time = time.time()
+                        motion_cnt += 1
+                        execute_motion_data(entry)
+                        last_time = time.time()
             else:
-                # start_dancing()
-                # stop()
-                depth = read_pvt_3_depth(ID2)
-                print(depth)
-                if (depth == 0):
-                    start_dancing()
-                
+                start_dancing()  
         else:
             stop()
     else:
@@ -495,8 +460,7 @@ def stop():
     pvt_cnt = 0
     cur_pvt = 0
     print("stop")
-    # start_dancing()
-    # homing()
+    homing()
     
 def homing():
     global last_time
