@@ -461,13 +461,14 @@ def routine():
                     # d2 = entry['d2']
                     # d3 = entry['d3']
                     # d4 = entry['d4']
-                    tar_time += travel_time
+                    tar_time = travel_time
                     tar_pvt = int(travel_time/pvt_time_interval)
                     cur_pvt = 0
                     # print(f"tar pvt = {tar_pvt}")
 
                     motion_cnt += 1
                     execute_motion_data(entry)
+                    last_time = time.time()
             else:
                 # start_dancing()
                 stop()
