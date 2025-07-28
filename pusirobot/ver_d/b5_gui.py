@@ -365,9 +365,10 @@ def start_dancing():
             pos_2, vel_2, tim_2 = pvt_2[i]
             pos_3, vel_3, tim_3 = pvt_3[i]
             pos_4, vel_4, tim_4 = pvt_4[i]
+            pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
             pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
             pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)        
-            pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
+            
             
         pvt_cnt = pvt_cnt + 1
         
