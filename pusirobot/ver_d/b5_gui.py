@@ -415,7 +415,7 @@ def routine():
     if is_already_wake_up():
         if motion_enable:
             print(f"motion cnt: {motion_cnt} of {motion_size}")
-            if motion_cnt <= motion_size:
+            if motion_cnt < motion_size:
                 root.after(int(routine_interval), routine)
                 
                 
