@@ -326,7 +326,7 @@ def start_dancing():
     
     pp_coor(shuttle_coor,2000,"stepper_only")
     time.sleep(2.5)
-    nid = ID4
+    nid = 0x04
     send_can_command(f"000#81{nid:02X}")
     
     # start_coor = forward_kinematics(get_cur_joints("all"))
