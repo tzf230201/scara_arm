@@ -108,7 +108,7 @@ def pvt_move():
     
     tar_joints = inverse_kinematics(tar_coor)
     tar_joints = check_limit(tar_joints)
-    print(f"tar joint = {tar_joints} degree")
+    # print(f"tar joint = {tar_joints} degree")
     # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
     # pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
     # pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time)
@@ -123,7 +123,7 @@ def pvt_move():
     pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time)
     last_time = time.time()
     t2 = time.time() - t1
-    print(f"{t2*1000}")
+    print(f"take time {t2*1000}")
 
 def pvt_circular():
     global last_time
