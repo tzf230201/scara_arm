@@ -277,8 +277,8 @@ def stepper_init():
     init_microstepping(MICROSTEP)
     init_set_accel_coef(1)
     init_set_decel_coef(1)
-    stall_on()
-    # stall_off()
+    # stall_on()
+    stall_off()
     # save_settings() #ini udah save dalam fungsi stall_on()
     # print(f"stepper_wake_up")
     
