@@ -486,7 +486,7 @@ def stop():
     pvt_cnt = 0
     cur_pvt = 0
     print("stop")
-    # start_dancing()
+    start_dancing()
     # homing()
     
 def homing():
