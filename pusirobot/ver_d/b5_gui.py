@@ -408,6 +408,7 @@ def routine():
     if is_already_wake_up():
         if motion_enable:
             depth = read_pvt_3_depth(ID3)
+            print(depth)
             if depth != 0:
                 print("lanjut")
                 if motion_cnt < motion_size:
