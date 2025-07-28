@@ -324,9 +324,9 @@ def start_dancing():
     motion_enable = True
     print_motion_data(motion_data)  # DEBUG: Print all motion data
     
+    pp_coor(shuttle_coor,2000,"stepper_only")
     
-    
-    start_coor = forward_kinematics([0,0,0,0])
+    start_coor = forward_kinematics(get_cur_joints)
     list_tar_coor = convert_csv_to_list_tar_coor(filename)
     
     # print(f"{list_tar_coor}")
@@ -354,7 +354,7 @@ def start_dancing():
     
     
     #write PVT points
-    for i in range(80):
+    for i in range(40):
         # if selection != "stepper_only":    
         #     pos_1, vel_1, tim_1 = pvt_1[i]
         #     servo_set_interpolation_data(pos_1, tim_1, vel_1)
@@ -416,7 +416,7 @@ def routine():
             
             if selection != "servo_only":
                 depth = read_pvt_3_depth(ID2)
-                if depth < 80:
+                if depth < 40:
                 # for i in range(2):
                     # print(pvt_cnt)
                     if pvt_cnt < max_pvt_index:
