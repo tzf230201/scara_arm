@@ -1124,7 +1124,58 @@ def pvt_mode_try_pvt_5(selection):
         servo_get_buffer_free_count()
         servo_get_next_trajectory_segment_id()
         print(f"execute servo")        
+
+def pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time):
+    global last_time, stop_watch, time_out
+    group_id = 0x05
+    tar_pulses = []
+    cur_pulses = []
+    node_ids = [ID1, ID2, ID3, ID4]
+    pvt_3_lower_limit = 60
+    pvt_3_upper_limit = 80
     
+    start_coor = forward_kinematics(cur_joints)
+    end_coor = forward_kinematics(tar_joints)
+    
+    pvt2_f, pvt3_f, pvt4_f = generate_straight_pvt_points(start_coor, end_coor, travel_time)
+    # pvt2_b, pvt3_b, pvt4_b = generate_straight_pvt_points(end_coor, start_coor, travel_time)
+
+    pvt_mode_init(group_id, PVT_1, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
+
+    for pos, vel, tim in pvt2_f:
+        pvt_mode_write_read(ID2, pos, vel, tim)
+    # for pos, vel, tim in pvt2_b:
+    #     pvt_mode_write_read(ID2, pos, vel, tim)
+
+       
+    for pos, vel, tim in pvt3_f:
+        pvt_mode_write_read(ID3, pos, vel, tim)
+    # for pos, vel, tim in pvt3_b:
+    #     pvt_mode_write_read(ID3, pos, vel, tim)
+        
+     
+    for pos, vel, tim in pvt4_f:
+        pvt_mode_write_read(ID4, pos, vel, tim)
+    # for pos, vel, tim in pvt4_b:
+    #     pvt_mode_write_read(ID4, pos, vel, tim)
+            
+        init_single_motor_change_group_id(ID2, group_id)
+        init_single_motor_change_group_id(ID3, group_id)
+        init_single_motor_change_group_id(ID4, group_id)
+    
+    pt_idx = len(pvt2_f)
+    pvt_mode_read_index()
+    pvt_mode_set_pvt_1_start(0)
+    pvt_mode_set_pvt_1_end(pt_idx-1)
+    pvt_mode_start_pvt_step(group_id)
+                
+    # pvt_mode_read_pvt_3_depth()
+    # pvt_mode_start_pvt_step(group_id)
+    last_time = time.time()
+    stop_watch = last_time
+    time_out = travel_time / 1000
+
+    return 0
    
 # list_tar_coor = [
 #     ([107, 100, 0, 90], 2000),
