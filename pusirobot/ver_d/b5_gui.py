@@ -326,6 +326,8 @@ def start_dancing():
     
     pp_coor(shuttle_coor,2000,"stepper_only")
     time.sleep(2.5)
+    nid = ID4
+    send_can_command(f"000#81{nid:02X}")
     
     # start_coor = forward_kinematics(get_cur_joints("all"))
     start_coor = shuttle_coor
@@ -471,8 +473,8 @@ def routine():
                     # print_red(f"tar coor : x:{d1} mm, y:{d2} mm, z:{d3} mm, yaw:{d4}°")
                     motion_cnt += 1
                     execute_motion_data(entry)
-                else:
-                    start_dancing()
+            else:
+                start_dancing()
                 
         else:
             stop()
