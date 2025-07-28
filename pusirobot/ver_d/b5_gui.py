@@ -119,7 +119,7 @@ def pvt_move():
     #     servo_execute()  # Execute the servo command to start the movement
     # group_id = 0x05
     # pvt_mode_start_pvt_step(group_id)
-     pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time)
+    pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time)
     last_time = time.time()
 
 def pvt_circular():
