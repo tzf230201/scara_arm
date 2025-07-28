@@ -1159,9 +1159,9 @@ def pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time):
     # for pos, vel, tim in pvt4_b:
     #     pvt_mode_write_read(ID4, pos, vel, tim)
             
-        init_single_motor_change_group_id(ID2, group_id)
-        init_single_motor_change_group_id(ID3, group_id)
-        init_single_motor_change_group_id(ID4, group_id)
+    init_single_motor_change_group_id(ID2, group_id)
+    init_single_motor_change_group_id(ID3, group_id)
+    init_single_motor_change_group_id(ID4, group_id)
     
     pt_idx = len(pvt2_f)
     pvt_mode_read_index()
