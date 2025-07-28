@@ -518,8 +518,8 @@ def read_present_position():
     cur_x, cur_y, cur_z, cur_yaw = cur_coor
     print_orange(f"cur coor : x:{cur_x:.1f} mm, y:{cur_y:.1f} mm, z:{cur_z:.1f} mm, yaw:{cur_yaw:.1f}°")
     
-    delta_time = time.time() - last_time
-    print(f"time : {delta_time:.2f} seconds")
+    # delta_time = time.time() - last_time
+    # print(f"time : {delta_time:.2f} seconds")
     # print_orange(f"cur coor z:{cur_z:.1f} mm")
     
     # servo_vel = servo_get_motor_velocity(ID1)
