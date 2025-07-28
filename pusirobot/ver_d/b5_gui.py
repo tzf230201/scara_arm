@@ -99,6 +99,7 @@ def pvt_joint():
     last_time = time.time()
 
 def pvt_move():
+    t1 = time.time()
     global last_time
     selection = get_motor_selection()
     cur_joints = get_cur_joints(selection)
@@ -121,6 +122,8 @@ def pvt_move():
     # pvt_mode_start_pvt_step(group_id)
     pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time)
     last_time = time.time()
+    t2 = time.time() - t1
+    print(t2*1000)
 
 def pvt_circular():
     global last_time
