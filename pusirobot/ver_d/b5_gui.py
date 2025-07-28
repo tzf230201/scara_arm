@@ -408,10 +408,10 @@ def routine():
     if is_already_wake_up():
         if motion_enable:
             depth = read_pvt_3_depth(ID3)
-            print(depth)
+            # print(depth)
             if depth != 0:
                 root.after(int(routine_interval), routine)
-                print("lanjut")
+                # print("lanjut")
                 if motion_cnt < motion_size:
                     if (depth < 40):
                         if pvt_cnt < max_pvt_index:
