@@ -337,10 +337,12 @@ def start_dancing():
         print(f"{i+1}. Coordinate: {coord}, Time: {travel_time} ms")
         
 
+    
     pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
 
     max_pvt_index = len(pvt_2)
     print(f"max pvt index: {max_pvt_index}")
+    pvt_cnt = 0
 
     group_id = 0x05
     pvt_3_lower_limit = 60
