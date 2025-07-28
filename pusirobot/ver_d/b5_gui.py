@@ -265,8 +265,9 @@ def execute_motion_data(entry):
         sp_angle([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
     elif motion_type == 'pvt':
         pp_coor([d1, d2, d3, d4], travel_time, selection="servo_only")
-
-    # print(f"Executing: {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
+        tar_joints = forward_kinematics([d1, d2, d3, d4])
+        _, _, _, tar_joint_4 = tar_joints
+        stepper_single_motor_pp_mode(ID4, tar_joint_4, travel_time, get_motor_selection())
 
 
 motion_enable = True
@@ -364,19 +365,19 @@ def start_dancing():
         if selection != "servo_only":
             pos_2, vel_2, tim_2 = pvt_2[i]
             pos_3, vel_3, tim_3 = pvt_3[i]
-            pos_4, vel_4, tim_4 = pvt_4[i]
-            pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)
+            # pos_4, vel_4, tim_4 = pvt_4[i]
             pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
-            pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)        
+            pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)     
+            # pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)   
             
             
         pvt_cnt = pvt_cnt + 1
         
     if selection != "servo_only": 
-        pvt_mode_read_pvt_3_depth()
-        for node_id in (ID2, ID3, ID4):
+        # pvt_mode_read_pvt_3_depth()
+        for node_id in (ID2, ID3):
             init_single_motor_change_group_id(node_id, group_id)
-        time.sleep(1)
+        # time.sleep(1)
         pvt_mode_start_pvt_step(group_id)   
              
     if selection != "stepper_only":
