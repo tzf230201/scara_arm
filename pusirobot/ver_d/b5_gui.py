@@ -359,7 +359,7 @@ def start_dancing():
     
     
     #write PVT points
-    for i in range(80):
+    for i in range(40):
         # if selection != "stepper_only":    
         #     pos_1, vel_1, tim_1 = pvt_1[i]
         #     servo_set_interpolation_data(pos_1, tim_1, vel_1)
@@ -426,7 +426,7 @@ def routine():
                 
                 if selection != "servo_only":
                     depth = read_pvt_3_depth(ID3)
-                    if depth < 80:
+                    if depth < 40:
                     # for i in range(2):
                         # print(pvt_cnt)
                         if pvt_cnt < max_pvt_index:
