@@ -325,6 +325,7 @@ def start_dancing():
     print_motion_data(motion_data)  # DEBUG: Print all motion data
     
     pp_coor(shuttle_coor,2000,"stepper_only")
+    time.sleep(2)
     
     start_coor = forward_kinematics(get_cur_joints)
     list_tar_coor = convert_csv_to_list_tar_coor(filename)
