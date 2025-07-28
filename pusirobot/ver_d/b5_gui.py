@@ -439,13 +439,13 @@ def routine():
                 # print(f"cur time: {cur_time:.2f}, tar_time: {tar_time:.2f}")
                 
                 
-                # print(depth)
+                print(depth)
                 
                 change_motion = 0
                 
                 if (depth == 0):
                     if cur_time >= tar_time:
-                            change_motion = 1
+                        change_motion = 1
                 else:
                     if cur_pvt >= tar_pvt:
                         change_motion = 1
