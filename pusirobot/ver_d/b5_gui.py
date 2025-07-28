@@ -410,6 +410,7 @@ def routine():
             depth = read_pvt_3_depth(ID3)
             print(depth)
             if depth != 0:
+                root.after(int(routine_interval), routine)
                 print("lanjut")
                 if motion_cnt < motion_size:
                     if (depth < 40):
