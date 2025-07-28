@@ -386,7 +386,7 @@ def start_dancing():
         entry = motion_data[motion_cnt]
         travel_time = entry['travel_time']
         motion_cnt += 1
-        tar_time += travel_time
+        tar_time = travel_time
         tar_pvt = int(travel_time/pvt_time_interval)
         execute_motion_data(entry)
         # servo_execute()
