@@ -123,7 +123,7 @@ def pvt_move():
     pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time)
     last_time = time.time()
     t2 = time.time() - t1
-    print(t2*1000)
+    print(f"{t2*1000}")
 
 def pvt_circular():
     global last_time
