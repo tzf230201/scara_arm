@@ -398,7 +398,8 @@ def start_dancing():
     
     selection = get_motor_selection()
     
-    sp_coor(shuttle_coor,2000,"stepper_only")
+    # sp_coor(shuttle_coor,2000,"stepper_only")
+    pp_coor(shuttle_coor, 2000, "stepper_only")
     tar_joints = inverse_kinematics([166.82, -168, 180, 0])
     ret = pp_angle_servo(tar_joints, 4000, selection)
     if ret == 1:
