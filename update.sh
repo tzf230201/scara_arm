@@ -3,7 +3,7 @@ if [ "$(whoami)" != "peter" ]; then
     git status
     git add .
     git status
-    git commit -m "new pvt testing" *
+    git commit -m "demo preparation for investor" *
     git push origin main
 else
     echo "pengguna 'peter', tidak dapat menjalankan script ini."
