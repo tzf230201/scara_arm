@@ -400,17 +400,17 @@ def start_dancing():
     
     sp_coor(shuttle_coor,2000,"stepper_only")
     time.sleep(2)
-    tar_joints = inverse_kinematics([166.82, -168, 180, 0])
-    ret = pp_angle_servo(tar_joints, 4000, selection)
-    if ret == 1:
-        servo_execute()  # Execute the servo command to start the movement
+    # tar_joints = inverse_kinematics([166.82, -168, 180, 0])
+    # ret = pp_angle_servo(tar_joints, 4000, selection)
+    # if ret == 1:
+    #     servo_execute()  # Execute the servo command to start the movement
 
-    time.sleep(4)
+    # time.sleep(4)
     
-    tar_joints = inverse_kinematics([166.82, -168, 114, 0])
-    ret = pp_angle_servo(tar_joints, 4000, selection)
-    if ret == 1:
-        servo_execute()  # Execute the servo command to start the movement
+    # tar_joints = inverse_kinematics([166.82, -168, 114, 0])
+    # ret = pp_angle_servo(tar_joints, 4000, selection)
+    # if ret == 1:
+    #     servo_execute()  # Execute the servo command to start the movement
         
     t1 = time.time()
     
@@ -461,6 +461,9 @@ def start_dancing():
     
     if selection != "servo_only": 
         pvt_mode_read_pvt_3_depth()
+        for node_id in (ID2, ID3, ID4):
+            init_single_motor_change_group_id(node_id, group_id)
+            
         for node_id in (ID2, ID3, ID4):
             init_single_motor_change_group_id(node_id, group_id)
         # time.sleep(1)
