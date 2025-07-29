@@ -38,6 +38,7 @@ def wake_up():
             
             time.sleep(0.2)
             servo_brake_off()
+            print(f"brake off")
             
     is_wake_up = True
     
