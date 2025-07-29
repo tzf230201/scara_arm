@@ -431,7 +431,7 @@ def start_dancing():
     group_id = 0x05
     
     if selection != "servo_only":
-        pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
+        pvt_mode_init(group_id, PVT_3, 400, pvt_3_lower_limit, pvt_3_upper_limit)
         
     
     
@@ -444,9 +444,11 @@ def start_dancing():
             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
             pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
             pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
+            if vel_4 != 0:
+                pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)   
             # pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
             # pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)     
-            pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)   
+           
             
             
         pvt_cnt = pvt_cnt + 1
