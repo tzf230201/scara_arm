@@ -445,10 +445,10 @@ def start_dancing():
     print(f"t2 adalah {t2 }, maka 4-t2 adalah ts = {ts} s, {int(ts*1000)} ms")
     
     tar_joints = inverse_kinematics([166.82, -168, 114, 0])
-    ret = pp_angle_servo(tar_joints, 2000, selection)
+    ret = pp_angle_servo(tar_joints, 4000, selection)
     if ret == 1:
         servo_execute()  # Execute the servo command to start the movement
-    time.sleep(2)
+    time.sleep(4)
     
     if selection != "servo_only": 
         # pvt_mode_read_pvt_3_depth()
