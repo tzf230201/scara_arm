@@ -433,33 +433,17 @@ def start_dancing():
     if selection != "servo_only":
         pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
         
-    #     for pos, vel, tim in pvt2_f:
-    #         pvt_mode_write_read(ID2, pos, vel, tim)
-
-        
-    #     for pos, vel, tim in pvt3_f:
-    #         pvt_mode_write_read(ID3, pos, vel, tim)
-            
-    #     for pos, vel, tim in pvt4_f:
-    #         pvt_mode_write_read(ID4, pos, vel, tim)
-            
-             
-    #     pvt_mode_read_pvt_3_depth()
-    #     init_single_motor_change_group_id(ID2, group_id)
-    #     init_single_motor_change_group_id(ID3, group_id)
-    #     init_single_motor_change_group_id(ID4, group_id)
-                 
-    #     pvt_mode_start_pvt_step(group_id) 
     
     
-    
+    pvt_cnt = 0
+    max_pvt_index = len(pvt_2)
     #write PVT points
     for i in range(40):
             
         if selection != "servo_only":
-            pos_2, vel_2, tim_2 = pvt_2[i]
-            pos_3, vel_3, tim_3 = pvt_3[i]
-            pos_4, vel_4, tim_4 = pvt_4[i]
+            pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
+            pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
+            pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
             pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
             pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)     
             pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)   
@@ -519,9 +503,10 @@ def routine():
             if depth != 0:
                 root.after(int(routine_interval), routine)
                 # print("lanjut")
-                print(f"motion_cnt: {motion_cnt} of {motion_size}")
+                # print(f"motion_cnt: {motion_cnt} of {motion_size}")
                 if motion_cnt < motion_size:
                     if (depth < 40):
+                        
                         if pvt_cnt < max_pvt_index:
                             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
                             pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
