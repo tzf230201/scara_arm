@@ -519,9 +519,11 @@ def routine():
                             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
                             pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
                             pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
+                            if vel_4 != 0:
+                                pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)  
                             # pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
                             # pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)     
-                            pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)      
+                            # pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)      
                     
                             pvt_cnt += 1
                             cur_pvt += 1
