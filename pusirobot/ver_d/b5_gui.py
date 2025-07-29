@@ -496,7 +496,7 @@ def start_dancing():
 
 
 def routine():
-    print(f"entering orutine")
+    # print(f"entering orutine")
     global motion_enable
     global motion_cnt
     global motion_size
@@ -515,7 +515,7 @@ def routine():
     if is_already_wake_up():
         if motion_enable:
             depth = read_pvt_3_depth(ID3)
-            # print(depth)
+            print(depth)
             if depth != 0:
                 root.after(int(routine_interval), routine)
                 # print("lanjut")
