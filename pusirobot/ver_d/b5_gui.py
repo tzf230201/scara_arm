@@ -401,7 +401,7 @@ def start_dancing():
     sp_coor(shuttle_coor,2000,"stepper_only")
     time.sleep(2)
     tar_joints = inverse_kinematics([166.82, -168, 180, 0])
-    ret = pp_angle_servo(tar_joints, 2000, selection)
+    ret = pp_angle_servo(tar_joints, 4000, selection)
     if ret == 1:
         servo_execute()  # Execute the servo command to start the movement
 
@@ -440,9 +440,10 @@ def start_dancing():
     
     t2 = (time.time() - t1)
     
-    ts = 2 - t2
+    ts = 4 - t2
     
     time.sleep(ts)
+    print(f"ts = {ts} s, {int(ts*1000)} ms")
     
     tar_joints = inverse_kinematics([166.82, -168, 114, 0])
     ret = pp_angle_servo(tar_joints, 2000, selection)
