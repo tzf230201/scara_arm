@@ -93,6 +93,11 @@ def servo_brake_on():
     
 def servo_brake_off():
     GPIO.output(2, GPIO.HIGH)
+
+def is_brake_on():
+    brake_off = GPIO.input(2)
+    return not(brake_off)
+
     
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(2, GPIO.OUT)

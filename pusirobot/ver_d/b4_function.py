@@ -30,8 +30,7 @@ def wake_up():
         print(f"servo intialization")
         servo_init(1)  # 7 is PVT mode, 1 is PP mode
         servo_disable_heartbeat()
-        is_brake_off = GPIO.input(2)
-        if is_brake_off == 0:
+        if is_brake_on():
             ret = pp_angle_servo(cur_joints, 100, "servo_only")
             if ret == 1:
                 servo_execute()  # Execute the servo command to start the movement
