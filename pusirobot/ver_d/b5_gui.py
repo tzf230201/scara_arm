@@ -333,7 +333,7 @@ def start_dancing():
     
     
     pp_coor(shuttle_coor,2000,"stepper_only")
-    time.sleep(2.5)
+    time.sleep(2)
     # sp_coor(shuttle_coor,500,"stepper_only")
     # time.sleep(0.5)
     
