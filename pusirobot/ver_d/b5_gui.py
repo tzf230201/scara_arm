@@ -321,7 +321,7 @@ def pre_start_dancing():
     list_tar_coor = [
         ([107, 125, 90, 90], 2000),
         ([107, 224, 90, 90], 2000),
-        ([107, 224, 115, 90], 2000),
+        ([107, 224, 115, 90], 1000),
         ([107, 125, 115, 90], 2000),
     ]
     tar_coor, travel_time = list_tar_coor[0]
@@ -358,7 +358,21 @@ def pre_start_dancing():
         init_single_motor_change_group_id(ID3, group_id)
         init_single_motor_change_group_id(ID4, group_id)
                  
-        pvt_mode_start_pvt_step(group_id)   
+        pvt_mode_start_pvt_step(group_id) 
+        
+        time.sleep(4)
+        
+        tar_coor, travel_time = list_tar_coor[2]
+        tar_joints = inverse_kinematics(tar_coor)
+        ret = pp_angle_servo(tar_joints, travel_time, selection)
+        if ret == 1:
+            servo_execute()  # Execute the servo command to start the movement
+            
+        time.sleep(3)
+        
+        start_dancing()
+            
+         
              
 
     
