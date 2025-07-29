@@ -324,7 +324,8 @@ def pre_start_dancing():
         ([107, 224, 115, 90], 2000),
         ([107, 125, 115, 90], 2000),
     ]
-    tar_joints, travel_time = list_tar_coor[0]
+    tar_coor, travel_time = list_tar_coor[0]
+    tar_joints = inverse_kinematics(tar_coor)
     ret = pp_angle_servo(tar_joints, travel_time, selection)
     if ret == 1:
         servo_execute()  # Execute the servo command to start the movement
