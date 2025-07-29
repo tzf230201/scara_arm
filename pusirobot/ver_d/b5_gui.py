@@ -455,8 +455,9 @@ def start_dancing():
     
     ts = 4 - t2
     
-    time.sleep(ts)
+    
     print(f"t2 adalah {t2 }, maka 4-t2 adalah ts = {ts} s, {int(ts*1000)} ms")
+    # time.sleep(ts)
     
     if selection != "servo_only": 
         pvt_mode_read_pvt_3_depth()
