@@ -166,11 +166,11 @@ def sp_angle(tar_joints, travel_time, selection):
         #in sp mode, speed is not pulse per second, but step per second
         speed_have_to_write = stepper_pulses_to_steps(speed)
         _,ret = sp_mode_set_speed(id, speed_have_to_write)
-        print(f"{id:03X} sp speed is {ret}")  
+        # print(f"{id:03X} sp speed is {ret}")  
     #set position
     for id, pulse in zip([ID2, ID3, ID4], [tar_pulses[1], tar_pulses[2], tar_pulses[3]]):
         _,ret = sp_mode_set_pulse(id, pulse)
-        print(f"{id:03X} sp position is {ret}")
+        # print(f"{id:03X} sp position is {ret}")
     
     sp_mode_start_motion(group_id)
     last_time = time.time()
