@@ -438,7 +438,7 @@ def start_dancing():
     pvt_cnt = 0
     max_pvt_index = len(pvt_2)
     #write PVT points
-    for i in range(80):
+    for i in range(40):
             
         if selection != "servo_only":
             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
@@ -464,7 +464,7 @@ def start_dancing():
         for node_id in (ID2, ID3, ID4):
             init_single_motor_change_group_id(node_id, group_id)
             
-        for node_id in (ID2, ID3, ID4):
+        for node_id in (ID4, ID3, ID2):
             init_single_motor_change_group_id(node_id, group_id)
         # time.sleep(1)
         pvt_mode_start_pvt_step(group_id)   
@@ -509,7 +509,7 @@ def routine():
                 # print("lanjut")
                 # print(f"motion_cnt: {motion_cnt} of {motion_size}")
                 if motion_cnt < motion_size:
-                    if (depth < 80):
+                    if (depth < 40):
                         
                         if pvt_cnt < max_pvt_index:
                             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
