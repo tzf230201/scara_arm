@@ -461,7 +461,7 @@ def start_dancing():
     
     if selection != "servo_only": 
         pvt_mode_read_pvt_3_depth()
-        for node_id in (ID2, ID3, ID4):
+        # for node_id in (ID2, ID3, ID4):
             # init_single_motor_change_group_id(node_id, group_id)
             
         for node_id in (ID4, ID3, ID2):
@@ -517,8 +517,8 @@ def routine():
                             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
                             pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
                             pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
-                            pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
-                            pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)     
+                            # pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
+                            # pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)     
                             pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)      
                     
                             pvt_cnt += 1
