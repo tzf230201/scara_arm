@@ -399,10 +399,12 @@ def start_dancing():
     
     sp_coor(shuttle_coor,2000,"stepper_only")
     time.sleep(2)
-    # sp_coor(shuttle_coor,500,"stepper_only")
-    # time.sleep(0.5)
-    
+    tar_joints = inverse_kinematics([166.82, -168, 180, 0])
+    ret = pp_angle_servo(tar_joints, 2000, selection)
+    if ret == 1:
+        servo_execute()  # Execute the servo command to start the movement
 
+    t1 = time.time()
     max_pvt_index = len(pvt_2)
     print(f"max pvt index: {max_pvt_index}")
     pvt_cnt = 0
@@ -434,7 +436,19 @@ def start_dancing():
             
             
         pvt_cnt = pvt_cnt + 1
-        
+    
+    t2 = (time.time() - t1)
+    
+    ts = 2 - t2
+    
+    time.sleep(ts)
+    
+    tar_joints = inverse_kinematics([166.82, -168, 114, 0])
+    ret = pp_angle_servo(tar_joints, 2000, selection)
+    if ret == 1:
+        servo_execute()  # Execute the servo command to start the movement
+    time.sleep(2)
+    
     if selection != "servo_only": 
         # pvt_mode_read_pvt_3_depth()
         for node_id in (ID2, ID3, ID4):
@@ -442,13 +456,13 @@ def start_dancing():
         # time.sleep(1)
         pvt_mode_start_pvt_step(group_id)   
              
-    if selection != "stepper_only":
-        entry = motion_data[motion_cnt]
-        travel_time = entry['travel_time']
-        motion_cnt += 1
-        tar_time = travel_time
-        tar_pvt = int(travel_time/pvt_time_interval)
-        execute_motion_data(entry)
+    # if selection != "stepper_only":
+    #     entry = motion_data[motion_cnt]
+    #     travel_time = entry['travel_time']
+    #     motion_cnt += 1
+    #     tar_time = travel_time
+    #     tar_pvt = int(travel_time/pvt_time_interval)
+    #     execute_motion_data(entry)
 
     root.after(int(routine_interval), routine)
     last_time = time.time()
