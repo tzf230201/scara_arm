@@ -310,6 +310,7 @@ def servo_execute():
     
     
 import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)
 GPIO.setup(2, GPIO.OUT)
 
 def servo_brake_on():
