@@ -400,17 +400,17 @@ def start_dancing():
     
     sp_coor(shuttle_coor,2000,"stepper_only")
     time.sleep(2)
-    # tar_joints = inverse_kinematics([166.82, -168, 180, 0])
-    # ret = pp_angle_servo(tar_joints, 4000, selection)
-    # if ret == 1:
-    #     servo_execute()  # Execute the servo command to start the movement
+    tar_joints = inverse_kinematics([166.82, -168, 180, 0])
+    ret = pp_angle_servo(tar_joints, 4000, selection)
+    if ret == 1:
+        servo_execute()  # Execute the servo command to start the movement
 
-    # time.sleep(4)
+    time.sleep(4)
     
-    # tar_joints = inverse_kinematics([166.82, -168, 114, 0])
-    # ret = pp_angle_servo(tar_joints, 4000, selection)
-    # if ret == 1:
-    #     servo_execute()  # Execute the servo command to start the movement
+    tar_joints = inverse_kinematics([166.82, -168, 114, 0])
+    ret = pp_angle_servo(tar_joints, 4000, selection)
+    if ret == 1:
+        servo_execute()  # Execute the servo command to start the movement
         
     t1 = time.time()
     
@@ -747,7 +747,7 @@ pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew"
 motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=start_dancing)
+dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=pre_start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 20
