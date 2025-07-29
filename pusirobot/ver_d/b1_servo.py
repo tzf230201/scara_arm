@@ -86,6 +86,16 @@ def servo_rps_to_pps(rps):
     return (int)((rps * SERVO_PPR) / 10)
 
 
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(2, GPIO.OUT)
+
+def servo_brake_on():
+    GPIO.output(2, GPIO.LOW)
+    
+def servo_brake_off():
+    GPIO.output(2, GPIO.HIGH)
+    
 
 def servo_get_motor_position(node_id):
     servo_position = req_sdo(node_id, OD_SERVO_POSITION_ACTUAL_VALUE, 0x00)
@@ -173,6 +183,8 @@ def servo_get_sub_mode():
     decode_sub_mode(sub_mode)
     
 def servo_shutdown():
+    servo_brake_on()
+    time.sleep(1)
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x06)
     send_can_command(f"000#8101")
     
@@ -180,6 +192,8 @@ def servo_shutdown():
 
 def servo_switch_on():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x07)
+    time.sleep(1)
+    servo_brake_off()
     
 def servo_set_operation_mode(operation_mode):
     set_sdo(ID1, SET_1_BYTE, OD_SERVO_MODE_OF_OPERATION, 0x00,  operation_mode)
@@ -309,12 +323,3 @@ def servo_execute():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
     
     
-import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(2, GPIO.OUT)
-
-def servo_brake_on():
-    GPIO.output(2, GPIO.LOW)
-    
-def servo_brake_off():
-    GPIO.output(2, GPIO.HIGH)
