@@ -531,6 +531,7 @@ def routine():
                     if cur_pvt >= tar_pvt:
                         change_motion = 1
                     
+                    print(f"pvt_cnt: {pvt_cnt}")
                     if pvt_cnt == 160:
                         tar_joints = inverse_kinematics([166.82, -168, 114, 0])
                         ret = pp_angle_servo(tar_joints, 1000, selection)
