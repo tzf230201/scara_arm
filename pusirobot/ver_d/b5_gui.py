@@ -308,11 +308,61 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 filename = os.path.join(script_dir, "motion_data_4.csv")
 motion_data = read_motion_csv(filename)
 motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
-list_tar_coor = convert_csv_to_list_tar_coor(filename)
+dancing_tar_coor = convert_csv_to_list_tar_coor(filename)
 # start_coor = forward_kinematics(get_cur_joints("all"))
 start_coor = shuttle_coor
-pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
+pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, dancing_tar_coor, pvt_time_interval)
+
+
+
+def pre_start_dancing():
+    selection = get_motor_selection()
     
+    list_tar_coor = [
+        ([107, 125, 90, 90], 2000),
+        ([107, 224, 90, 90], 2000),
+        ([107, 224, 115, 90], 2000),
+        ([107, 125, 115, 90], 2000),
+    ]
+    tar_joints, travel_time = list_tar_coor[0]
+    ret = pp_angle_servo(tar_joints, travel_time, selection)
+    if ret == 1:
+        servo_execute()  # Execute the servo command to start the movement
+        
+    time.sleep(int(travel_time/1000))
+        
+    start_coor = forward_kinematics([0,0,0,0])
+    
+    pvt1_f, pvt2_f, pvt3_f, pvt4_f = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
+    pvt_3_lower_limit = 60
+    pvt_3_upper_limit = 80
+    group_id = 0x05
+    
+    if selection != "servo_only":
+        pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
+        
+        for pos, vel, tim in pvt2_f:
+            pvt_mode_write_read(ID2, pos, vel, tim)
+
+        
+        for pos, vel, tim in pvt3_f:
+            pvt_mode_write_read(ID3, pos, vel, tim)
+            
+        for pos, vel, tim in pvt4_f:
+            pvt_mode_write_read(ID4, pos, vel, tim)
+            
+             
+        pvt_mode_read_pvt_3_depth()
+        init_single_motor_change_group_id(ID2, group_id)
+        init_single_motor_change_group_id(ID3, group_id)
+        init_single_motor_change_group_id(ID4, group_id)
+                 
+        pvt_mode_start_pvt_step(group_id)   
+             
+
+    
+
+
 def start_dancing():
     global last_time
     global motion_enable
@@ -644,7 +694,7 @@ pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew"
 motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=start_dancing)
+dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=pre_start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 20
