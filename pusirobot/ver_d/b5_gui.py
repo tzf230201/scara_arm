@@ -423,7 +423,7 @@ def start_dancing():
     
     
     
-    start_coor = forward_kinematics([0,0,0,0])
+    start_coor = shuttle_coor
     
     pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
     pvt_3_lower_limit = 60
