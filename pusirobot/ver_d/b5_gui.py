@@ -414,7 +414,7 @@ def start_dancing():
         
     t1 = time.time()
     
-    list_tar_coor = [
+    list_tar_coor_2 = [
         ([107, 125, 90, 90], 2000),
         ([107, 224, 90, 90], 2000),
         ([107, 224, 115, 90], 1000),
@@ -425,7 +425,7 @@ def start_dancing():
     
     start_coor = shuttle_coor
     
-    pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
+    pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor_2, pvt_time_interval)
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
     group_id = 0x05
@@ -470,7 +470,8 @@ def start_dancing():
         init_change_group_id(group_id)
         # time.sleep(1)
         
-        pvt_mode_start_pvt_step(group_id)
+        pvt_mode_start_pvt_step(0x02)
+        pvt_mode_start_pvt_step(0x03)
         # pvt_mode_start_pvt_step(0x04)
              
     if selection != "stepper_only":
