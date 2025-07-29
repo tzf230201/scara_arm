@@ -519,6 +519,7 @@ def routine():
             if depth != 0:
                 root.after(int(routine_interval), routine)
                 # print("lanjut")
+                print(f"motion_cnt: {motion_cnt} of {motion_size}")
                 if motion_cnt < motion_size:
                     if (depth < 40):
                         if pvt_cnt < max_pvt_index:
