@@ -496,6 +496,7 @@ def start_dancing():
 
 
 def routine():
+    print(f"entering orutine")
     global motion_enable
     global motion_cnt
     global motion_size
