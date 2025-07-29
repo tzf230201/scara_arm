@@ -334,7 +334,8 @@ def start_dancing():
     
     pp_coor(shuttle_coor,2000,"stepper_only")
     time.sleep(2)
-    sp_coor(shuttle_coor,100,"stepper_only")
+    sp_coor(shuttle_coor,500,"stepper_only")
+    time.sleep(0.5)
     
 
     max_pvt_index = len(pvt_2)
