@@ -396,6 +396,7 @@ def start_dancing():
     motion_enable = True
     # print_motion_data(motion_data)  # DEBUG: Print all motion data
     
+    selection = get_motor_selection()
     
     sp_coor(shuttle_coor,2000,"stepper_only")
     time.sleep(2)
