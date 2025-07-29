@@ -44,7 +44,7 @@ def shutdown():
         print(f"stepper shutdown")
     if selection != "stepper_only":
         servo_shutdown()
-        # print(f"servo not shutdown (for development purposes)")
+        print(f"servo shutdown, brake active")
     # stop_can()
     
 
