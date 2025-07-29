@@ -407,7 +407,7 @@ def start_dancing():
 
     time.sleep(4)
     
-    tar_joints = inverse_kinematics([166.82, -168, 114, 0])
+    tar_joints = inverse_kinematics([166.82, -168, 90, 0])
     ret = pp_angle_servo(tar_joints, 4000, selection)
     if ret == 1:
         servo_execute()  # Execute the servo command to start the movement
@@ -478,7 +478,7 @@ def start_dancing():
         motion_cnt += 1
         tar_time = travel_time
         tar_pvt = int(travel_time/pvt_time_interval)
-        # execute_motion_data(entry)
+        execute_motion_data(entry)
 
     root.after(int(routine_interval), routine)
     last_time = time.time()
