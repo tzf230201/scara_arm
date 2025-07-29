@@ -319,10 +319,10 @@ def pre_start_dancing():
     selection = get_motor_selection()
     
     list_tar_coor = [
-        ([107, 125, 90, 90], 2000),
-        ([107, 224, 90, 90], 2000),
-        ([107, 224, 115, 90], 1000),
-        ([107, 125, 115, 90], 2000),
+        ([107, 125, 90, 87], 2000),
+        ([107, 224, 90, 87], 2000),
+        ([107, 224, 115, 87], 1000),
+        ([107, 125, 115, 87], 2000),
     ]
     tar_coor, travel_time = list_tar_coor[0]
     tar_joints = inverse_kinematics(tar_coor)
@@ -414,10 +414,10 @@ def start_dancing():
     t1 = time.time()
     
     list_tar_coor_2 = [
-        ([107, 125, 90, 90], 2000),
-        ([107, 224, 90, 90], 2000),
-        ([107, 224, 115, 90], 1000),
-        ([107, 125, 115, 90], 2000),
+        ([107, 125, 90, 87], 2000),
+        ([107, 224, 90, 87], 2000),
+        ([107, 224, 115, 87], 1000),
+        ([107, 125, 115, 87], 2000),
     ]
     
     
@@ -530,7 +530,7 @@ def routine():
                     if cur_pvt >= tar_pvt:
                         change_motion = 1
                     
-                    print(f"pvt_cnt: {pvt_cnt}")
+                    # print(f"pvt_cnt: {pvt_cnt}")
                     if pvt_cnt == 120:
                         tar_joints = inverse_kinematics([166.82, -168, 114, 0])
                         ret = pp_angle_servo(tar_joints, 1000, selection)
