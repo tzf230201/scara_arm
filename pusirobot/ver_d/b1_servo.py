@@ -88,12 +88,14 @@ def servo_rps_to_pps(rps):
 
 import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(2, GPIO.OUT)
+
 
 def servo_brake_on():
+    GPIO.setup(2, GPIO.OUT)
     GPIO.output(2, GPIO.LOW)
     
 def servo_brake_off():
+    GPIO.setup(2, GPIO.OUT)
     GPIO.output(2, GPIO.HIGH)
     
 
