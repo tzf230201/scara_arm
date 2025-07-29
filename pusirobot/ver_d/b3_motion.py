@@ -227,6 +227,7 @@ def pp_angle_servo(tar_joints, travel_time, selection):
 def pp_angle(tar_joints, travel_time, selection):
     
     if is_brake_on():
+        print(f"please wake up first")
         return
     # print(f"masuk pp angle")
     origins = get_origins()
