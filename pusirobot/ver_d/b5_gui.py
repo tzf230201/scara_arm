@@ -414,7 +414,6 @@ def start_dancing():
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
     
-    selection = get_motor_selection()
 
     #init PVT mode
     # if selection != "stepper_only":
@@ -443,7 +442,7 @@ def start_dancing():
     ts = 4 - t2
     
     time.sleep(ts)
-    print(f"ts = {ts} s, {int(ts*1000)} ms")
+    print(f"t2 adalah {t2 }, maka 4-t2 adalah ts = {ts} s, {int(ts*1000)} ms")
     
     tar_joints = inverse_kinematics([166.82, -168, 114, 0])
     ret = pp_angle_servo(tar_joints, 2000, selection)
