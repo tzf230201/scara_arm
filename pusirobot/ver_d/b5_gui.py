@@ -405,7 +405,15 @@ def start_dancing():
     if ret == 1:
         servo_execute()  # Execute the servo command to start the movement
 
+    time.sleep(4)
+    
+    tar_joints = inverse_kinematics([166.82, -168, 114, 0])
+    ret = pp_angle_servo(tar_joints, 4000, selection)
+    if ret == 1:
+        servo_execute()  # Execute the servo command to start the movement
+        
     t1 = time.time()
+    
     max_pvt_index = len(pvt_2)
     print(f"max pvt index: {max_pvt_index}")
     pvt_cnt = 0
@@ -443,12 +451,6 @@ def start_dancing():
     
     time.sleep(ts)
     print(f"t2 adalah {t2 }, maka 4-t2 adalah ts = {ts} s, {int(ts*1000)} ms")
-    
-    tar_joints = inverse_kinematics([166.82, -168, 114, 0])
-    ret = pp_angle_servo(tar_joints, 4000, selection)
-    if ret == 1:
-        servo_execute()  # Execute the servo command to start the movement
-    time.sleep(4)
     
     if selection != "servo_only": 
         # pvt_mode_read_pvt_3_depth()
@@ -527,7 +529,7 @@ def routine():
                         # print(f"tar pvt = {tar_pvt}")
 
                         motion_cnt += 1
-                        execute_motion_data(entry)
+                        # execute_motion_data(entry)
                         last_time = time.time()
             else:
                 start_dancing()  
