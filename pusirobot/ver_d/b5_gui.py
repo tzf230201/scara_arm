@@ -459,7 +459,7 @@ def start_dancing():
     print(f"t2 adalah {t2 }, maka 4-t2 adalah ts = {ts} s, {int(ts*1000)} ms")
     
     if selection != "servo_only": 
-        # pvt_mode_read_pvt_3_depth()
+        pvt_mode_read_pvt_3_depth()
         for node_id in (ID2, ID3, ID4):
             init_single_motor_change_group_id(node_id, group_id)
         # time.sleep(1)
