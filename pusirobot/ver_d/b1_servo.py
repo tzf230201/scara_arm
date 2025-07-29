@@ -192,8 +192,7 @@ def servo_shutdown():
 
 def servo_switch_on():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x07)
-    time.sleep(1)
-    servo_brake_off()
+    
     
 def servo_set_operation_mode(operation_mode):
     set_sdo(ID1, SET_1_BYTE, OD_SERVO_MODE_OF_OPERATION, 0x00,  operation_mode)
@@ -215,6 +214,9 @@ def servo_init(OPERATION_MODE=1):
         print(f"ok, servo in oeprational mode")
     elif val == 0x05:
         print(f"servo is already in operational mode")
+    
+    time.sleep(1)
+    servo_brake_off()
     
     
     servo_set_operation_mode(OPERATION_MODE)
