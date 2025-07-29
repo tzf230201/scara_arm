@@ -214,13 +214,11 @@ def servo_init(OPERATION_MODE=1):
         print(f"ok, servo in oeprational mode")
     elif val == 0x05:
         print(f"servo is already in operational mode")
-    
-    time.sleep(1)
-    servo_brake_off()
-    
+        
     
     servo_set_operation_mode(OPERATION_MODE)
     servo_get_operation_mode()
+    
     if (OPERATION_MODE == 7):
         servo_set_interpolation_sub_mode(-2)
         servo_get_sub_mode()

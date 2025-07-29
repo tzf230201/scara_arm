@@ -20,6 +20,7 @@ def wake_up():
     global is_wake_up
     start_can()
     selection = get_motor_selection()
+    cur_joints = get_cur_joints(selection)
     if selection != "servo_only":
         print(f"stepper intialization")
         stepper_init()
@@ -29,6 +30,15 @@ def wake_up():
         print(f"servo intialization")
         servo_init(1)  # 7 is PVT mode, 1 is PP mode
         servo_disable_heartbeat()
+        is_brake_off = GPIO.input(2)
+        if is_brake_off == 0:
+            ret = pp_angle_servo(cur_joints, 100, "servo_only")
+            if ret == 1:
+                servo_execute()  # Execute the servo command to start the movement
+            
+            time.sleep(0.2)
+            servo_brake_off()
+            
     is_wake_up = True
     
 
