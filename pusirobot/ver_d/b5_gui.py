@@ -332,8 +332,8 @@ def start_dancing():
     # print_motion_data(motion_data)  # DEBUG: Print all motion data
     
     
-    sp_coor(shuttle_coor,2000,"stepper_only")
-    time.sleep(2)
+    pp_coor(shuttle_coor,2000,"stepper_only")
+    time.sleep(2.5)
     # sp_coor(shuttle_coor,500,"stepper_only")
     # time.sleep(0.5)
     
