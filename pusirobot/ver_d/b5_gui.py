@@ -546,7 +546,7 @@ def routine():
                         # print(f"tar pvt = {tar_pvt}")
 
                         motion_cnt += 1
-                        # execute_motion_data(entry)
+                        execute_motion_data(entry)
                         last_time = time.time()
             else:
                 start_dancing()  
