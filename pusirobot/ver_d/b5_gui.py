@@ -468,11 +468,15 @@ def start_dancing():
         # for node_id in (ID4, ID3, ID2):
         #     init_single_motor_change_group_id(node_id, group_id)
         init_change_group_id(group_id)
-        # time.sleep(1)
+        init_change_group_id(group_id)
+        init_change_group_id(group_id)
+        init_change_group_id(group_id)
+        time.sleep(1)
         
         pvt_mode_start_pvt_step(0x02)
         pvt_mode_start_pvt_step(0x03)
-        # pvt_mode_start_pvt_step(0x04)
+        pvt_mode_start_pvt_step(0x04)
+        pvt_mode_start_pvt_step(0x05)
              
     if selection != "stepper_only":
         entry = motion_data[motion_cnt]
