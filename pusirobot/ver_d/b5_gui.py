@@ -414,20 +414,42 @@ def start_dancing():
         
     t1 = time.time()
     
-    max_pvt_index = len(pvt_2)
-    print(f"max pvt index: {max_pvt_index}")
-    pvt_cnt = 0
-
-    group_id = 0x05
+    list_tar_coor = [
+        ([107, 125, 90, 90], 2000),
+        ([107, 224, 90, 90], 2000),
+        ([107, 224, 115, 90], 1000),
+        ([107, 125, 115, 90], 2000),
+    ]
+    
+    
+    
+    start_coor = forward_kinematics([0,0,0,0])
+    
+    pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
+    group_id = 0x05
     
-
-    #init PVT mode
-    # if selection != "stepper_only":
-    #     servo_init(7)
     if selection != "servo_only":
         pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
+        
+    #     for pos, vel, tim in pvt2_f:
+    #         pvt_mode_write_read(ID2, pos, vel, tim)
+
+        
+    #     for pos, vel, tim in pvt3_f:
+    #         pvt_mode_write_read(ID3, pos, vel, tim)
+            
+    #     for pos, vel, tim in pvt4_f:
+    #         pvt_mode_write_read(ID4, pos, vel, tim)
+            
+             
+    #     pvt_mode_read_pvt_3_depth()
+    #     init_single_motor_change_group_id(ID2, group_id)
+    #     init_single_motor_change_group_id(ID3, group_id)
+    #     init_single_motor_change_group_id(ID4, group_id)
+                 
+    #     pvt_mode_start_pvt_step(group_id) 
     
     
     
@@ -459,13 +481,13 @@ def start_dancing():
         # time.sleep(1)
         pvt_mode_start_pvt_step(group_id)   
              
-    # if selection != "stepper_only":
-    #     entry = motion_data[motion_cnt]
-    #     travel_time = entry['travel_time']
-    #     motion_cnt += 1
-    #     tar_time = travel_time
-    #     tar_pvt = int(travel_time/pvt_time_interval)
-    #     execute_motion_data(entry)
+    if selection != "stepper_only":
+        entry = motion_data[motion_cnt]
+        travel_time = entry['travel_time']
+        motion_cnt += 1
+        tar_time = travel_time
+        tar_pvt = int(travel_time/pvt_time_interval)
+        # execute_motion_data(entry)
 
     root.after(int(routine_interval), routine)
     last_time = time.time()
