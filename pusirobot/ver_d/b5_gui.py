@@ -326,7 +326,7 @@ def start_dancing():
     global cur_pvt
     global tar_pvt
     
-    
+    #qq
     motion_cnt = 0  # Reset the counter
     motion_enable = True
     # print_motion_data(motion_data)  # DEBUG: Print all motion data
@@ -403,7 +403,7 @@ def routine():
     global cur_pvt
     global tar_pvt
     global last_time
-    
+    #ww
     # read_present_position()
     selection = get_motor_selection()
     # print(f"enter routine")

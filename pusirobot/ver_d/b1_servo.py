@@ -307,3 +307,13 @@ def servo_pvt_position(cur_po, tar_pos, travel_time):
     
 def servo_execute():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
+    
+    
+import RPi.GPIO as GPIO
+GPIO.setup(2, GPIO.OUT)
+
+def servo_brake_on():
+    GPIO.output(2, GPIO.LOW)
+    
+def servo_brake_off():
+    GPIO.output(2, GPIO.HIGH)
