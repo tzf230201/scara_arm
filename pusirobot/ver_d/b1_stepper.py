@@ -156,15 +156,15 @@ def reset_communication():
 def save_settings():
     #save settings
     for id in [ID2, ID3, ID4]:
-        print(f"save settings for node {id:03X}")
+        # print(f"save settings for node {id:03X}")
         set_sdo(id, SET_1_BYTE, OD_STEPPER_SYSTEM_CONTROL, 0x00, 2)  
 
 def stall_on():
     for id in [ID2, ID3, ID4]:
         set_sdo(id, SET_1_BYTE, OD_STEPPER_STALL_SET, 0x00, 0x01)
         _, ret = set_req_sdo(id, SET_2_BYTE, OD_STEPPER_STALL_LENGTH, 0x00, 64)
-    print(f"stall length set to {ret}")
-    print(f"stall (open-loop) activated")
+    # print(f"stall length set to {ret}")
+    # print(f"stall (open-loop) activated")
     save_settings()
 
 def stall_off():
