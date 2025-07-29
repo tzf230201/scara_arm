@@ -741,7 +741,7 @@ pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew"
 motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=pre_start_dancing)
+dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 20
