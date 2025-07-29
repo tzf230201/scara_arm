@@ -423,9 +423,9 @@ def start_dancing():
     
     
     
-    # start_coor = shuttle_coor
+    start_coor = shuttle_coor
     
-    # pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor_2, pvt_time_interval)
+    pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor_2, pvt_time_interval)
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
     group_id = 0x05
@@ -467,12 +467,10 @@ def start_dancing():
             
         # for node_id in (ID4, ID3, ID2):
         #     init_single_motor_change_group_id(node_id, group_id)
-        init_change_group_id(group_id)
-        time.sleep(1)
-        
+        init_change_group_id(group_id)        
 
         pvt_mode_start_pvt_step(0x05)
-        time.sleep(0.2)
+        time.sleep(1)
              
     if selection != "stepper_only":
         entry = motion_data[motion_cnt]
