@@ -463,7 +463,7 @@ def start_dancing():
     # time.sleep(ts)
     
     if selection != "servo_only": 
-        pvt_mode_read_pvt_3_depth()
+        # pvt_mode_read_pvt_3_depth()
         # for node_id in (ID2, ID3, ID4):
             # init_single_motor_change_group_id(node_id, group_id)
             
