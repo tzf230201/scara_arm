@@ -1055,6 +1055,75 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     
     return pvt_points
 
+def generate_multi_straight_pvt_points_sine(start_coor, list_tar_coor, dt):
+    cur_coor = start_coor
+
+    # Semua joint
+    j1_all, j2_all, j3_all, j4_all = [], [], [], []
+
+    for tar_coor, travel_time in list_tar_coor:
+        steps = travel_time // dt
+        time_values = np.linspace(0, travel_time, steps)
+
+        cur_x, cur_y, cur_z, cur_yaw = cur_coor
+        tar_x, tar_y, tar_z, tar_yaw = tar_coor
+
+        def sine_wave(t, T, start, end):
+            angle = ((t / T) * 180) - 90
+            angle = np.clip(angle, -90, 90)
+            return start + (np.sin(np.radians(angle)) + 1) / 2 * (end - start)
+
+        x_vals = [sine_wave(t, travel_time, cur_x, tar_x) for t in time_values]
+        y_vals = [sine_wave(t, travel_time, cur_y, tar_y) for t in time_values]
+        z_vals = [sine_wave(t, travel_time, cur_z, tar_z) for t in time_values]
+        yaw_vals = [sine_wave(t, travel_time, cur_yaw, tar_yaw) for t in time_values]
+
+        for x, y, z, yaw in zip(x_vals, y_vals, z_vals, yaw_vals):
+            try:
+                j1, j2, j3, j4 = inverse_kinematics([x, y, z, yaw])
+                j1_all.append(j1)
+                j2_all.append(j2)
+                j3_all.append(j3)
+                j4_all.append(j4)
+            except:
+                # Skip if IK fails
+                pass
+
+        cur_coor = tar_coor  # update current for next loop
+
+    # === POSISI BASE JOINT UNTUK HITUNG POSISI RELATIF ===
+    base_joint_deg = inverse_kinematics(start_coor)
+
+    def compute_relative_joint_trajectory(joint_list, base_value):
+        return [val - base_value for val in joint_list]
+
+    j1_rel = compute_relative_joint_trajectory(j1_all, base_joint_deg[0])
+    j2_rel = compute_relative_joint_trajectory(j2_all, base_joint_deg[1])
+    j3_rel = compute_relative_joint_trajectory(j3_all, base_joint_deg[2])
+    j4_rel = compute_relative_joint_trajectory(j4_all, base_joint_deg[3])
+
+    # ==== PVT POINTS ====
+    def generate_pvt_points(j1_abs, j1_rel, j2_rel, j3_rel, j4_rel, dt_ms):
+        origins = get_origins()
+        dt_sec = dt_ms / 1000
+        pvt1, pvt2, pvt3, pvt4 = [], [], [], []
+
+        for i in range(1, len(j1_rel)):
+            pos1 = int(servo_degrees_to_pulses(j1_abs[i]) + origins[0])
+            vel1 = int(servo_degrees_to_pulses((j1_rel[i] - j1_rel[i - 1]) / dt_sec) * 10)
+            pvt1.append((pos1, vel1, dt_ms))
+
+            for j_rel, pvt_list in zip(
+                [j2_rel, j3_rel, j4_rel],
+                [pvt2, pvt3, pvt4]
+            ):
+                pos = int(stepper_degrees_to_pulses(j_rel[i]))
+                vel = int(stepper_degrees_to_pulses((j_rel[i] - j_rel[i - 1]) / dt_sec))
+                pvt_list.append((pos, vel, dt_ms))
+
+        return pvt1, pvt2, pvt3, pvt4
+
+    return generate_pvt_points(j1_all, j1_rel, j2_rel, j3_rel, j4_rel, dt)
 
 
 

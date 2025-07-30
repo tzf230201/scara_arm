@@ -336,7 +336,7 @@ def pre_start_dancing():
         
     start_coor = forward_kinematics([0,0,0,0])
     
-    pvt1_f, pvt2_f, pvt3_f, pvt4_f = generate_multi_straight_pvt_points(start_coor, list_tar_coor, pvt_time_interval)
+    pvt1_f, pvt2_f, pvt3_f, pvt4_f = generate_multi_straight_pvt_points_sine(start_coor, list_tar_coor, pvt_time_interval)
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
     group_id = 0x05
