@@ -324,7 +324,7 @@ def pre_start_dancing():
         ([107, 125, 90, 87], 2000),
         ([107, 220, 90, 87], 1000),
         ([107, 220, 115, 87], 1000),
-        ([107, 125, 115, 87], 2000),
+        ([107, 125, 115, 87], 1000),
     ]
     tar_coor, travel_time = list_tar_coor[0]
     tar_joints = inverse_kinematics(tar_coor)
