@@ -319,6 +319,7 @@ def pre_start_dancing():
     selection = get_motor_selection()
     
     list_tar_coor = [
+        ([150, 0, 90, 0], 2000),
         ([107, 125, 90, 87], 2000),
         ([107, 224, 90, 87], 2000),
         ([107, 224, 115, 87], 1000),
@@ -398,19 +399,19 @@ def start_dancing():
     
     selection = get_motor_selection()
     
-    # sp_coor(shuttle_coor,2000,"stepper_only")
-    pp_coor(shuttle_coor, 2000, "stepper_only")
+    sp_coor(shuttle_coor,2000,"stepper_only")
+    # pp_coor(shuttle_coor, 2000, "stepper_only")
     tar_joints = inverse_kinematics([166.82, -168, 180, 0])
-    # ret = pp_angle_servo(tar_joints, 4000, selection)
-    # if ret == 1:
-    #     servo_execute()  # Execute the servo command to start the movement
+    ret = pp_angle_servo(tar_joints, 4000, selection)
+    if ret == 1:
+        servo_execute()  # Execute the servo command to start the movement
 
     time.sleep(4)
     
-    # tar_joints = inverse_kinematics([166.82, -168, 90, 0])
-    # ret = pp_angle_servo(tar_joints, 4000, selection)
-    # if ret == 1:
-    #     servo_execute()  # Execute the servo command to start the movement
+    tar_joints = inverse_kinematics([166.82, -168, 90, 0])
+    ret = pp_angle_servo(tar_joints, 4000, selection)
+    if ret == 1:
+        servo_execute()  # Execute the servo command to start the movement
         
     t1 = time.time()
     
