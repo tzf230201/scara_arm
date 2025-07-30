@@ -319,7 +319,7 @@ def pre_start_dancing():
     selection = get_motor_selection()
     
     list_tar_coor = [
-        ([150, 40, 90, 30], 2000),
+        ([150, 40, 90, 30], 1000),
         ([107, 125, 90, 90], 2000),
         ([107, 224, 90, 90], 2000),
         ([107, 224, 115, 90], 1000),
@@ -376,7 +376,7 @@ def pre_start_dancing():
             
         time.sleep(3)
         
-        start_dancing()
+        # start_dancing()
             
          
              
