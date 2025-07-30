@@ -320,10 +320,10 @@ def pre_start_dancing():
     
     list_tar_coor = [
         ([150, 0, 90, 0], 2000),
-        ([107, 125, 90, 87], 2000),
-        ([107, 224, 90, 87], 2000),
-        ([107, 224, 115, 87], 1000),
-        ([107, 125, 115, 87], 2000),
+        ([107, 125, 90, 90], 2000),
+        ([107, 224, 90, 90], 2000),
+        ([107, 224, 115, 90], 1000),
+        ([107, 125, 115, 90], 2000),
     ]
     tar_coor, travel_time = list_tar_coor[0]
     tar_joints = inverse_kinematics(tar_coor)
@@ -342,7 +342,7 @@ def pre_start_dancing():
     group_id = 0x05
     
     if selection != "servo_only":
-        pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
+        pvt_mode_init(group_id, PVT_1, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
         
         for pos, vel, tim in pvt2_f:
             pvt_mode_write_read(ID2, pos, vel, tim)
@@ -355,12 +355,16 @@ def pre_start_dancing():
             pvt_mode_write_read(ID4, pos, vel, tim)
             
              
-        pvt_mode_read_pvt_3_depth()
-        init_single_motor_change_group_id(ID2, group_id)
-        init_single_motor_change_group_id(ID3, group_id)
-        init_single_motor_change_group_id(ID4, group_id)
+        # pvt_mode_read_pvt_3_depth()
+        init_change_group_id(group_id) 
                  
-        pvt_mode_start_pvt_step(group_id) 
+        # pvt_mode_start_pvt_step(group_id) 
+        pt_idx = len(pvt2_f)
+        # pvt_mode_read_index()
+        pvt_mode_set_pvt_1_start(0)
+        pvt_mode_set_pvt_1_end(pt_idx-1)
+        # time.sleep(1)
+        pvt_mode_start_pvt_step(group_id)
         
         time.sleep(6.2)
         
