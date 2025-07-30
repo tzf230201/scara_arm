@@ -332,6 +332,7 @@ def pre_start_dancing():
         servo_execute()  # Execute the servo command to start the movement
         
     time.sleep(int(travel_time/1000))
+    
         
     start_coor = forward_kinematics([0,0,0,0])
     
@@ -361,9 +362,9 @@ def pre_start_dancing():
                  
         pvt_mode_start_pvt_step(group_id) 
         
-        time.sleep(4)
+        time.sleep(6)
         
-        tar_coor, travel_time = list_tar_coor[2]
+        tar_coor, travel_time = list_tar_coor[3]
         tar_joints = inverse_kinematics(tar_coor)
         ret = pp_angle_servo(tar_joints, travel_time, selection)
         if ret == 1:
