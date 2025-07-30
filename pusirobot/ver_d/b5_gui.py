@@ -369,7 +369,7 @@ def pre_start_dancing():
         
         time.sleep(6)
         
-        tar_coor, travel_time = list_tar_coor[3]
+        tar_coor, travel_time = list_tar_coor[4]
         tar_joints = inverse_kinematics(tar_coor)
         ret = pp_angle_servo(tar_joints, travel_time, selection)
         if ret == 1:
