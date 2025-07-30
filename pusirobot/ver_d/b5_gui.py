@@ -320,10 +320,10 @@ def pre_start_dancing():
     
     list_tar_coor = [
         ([150, 0, 90, 0], 2000),
-        ([107, 125, 90, 87], 2000),
-        ([107, 224, 90, 87], 2000),
-        ([107, 224, 115, 87], 1000),
-        ([107, 125, 115, 87], 2000),
+        ([107, 125, 90, 90], 2000),
+        ([107, 224, 90, 90], 2000),
+        ([107, 224, 115, 90], 1000),
+        ([107, 125, 115, 90], 2000),
     ]
     tar_coor, travel_time = list_tar_coor[0]
     tar_joints = inverse_kinematics(tar_coor)
@@ -362,7 +362,7 @@ def pre_start_dancing():
                  
         pvt_mode_start_pvt_step(group_id) 
         
-        time.sleep(6)
+        time.sleep(6.2)
         
         tar_coor, travel_time = list_tar_coor[3]
         tar_joints = inverse_kinematics(tar_coor)
