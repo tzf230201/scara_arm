@@ -318,6 +318,8 @@ pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, danc
 def pre_start_dancing():
     selection = get_motor_selection()
     
+    sp_angle(home_angle,4000,selection)
+    
     list_tar_coor = [
         ([150, -100, 90, 0], 1000),
         ([150, 0, 90, 0], 1000),
@@ -579,13 +581,15 @@ def stop():
     pvt_cnt = 0
     cur_pvt = 0
     print("stop")
-    homing()
+    # homing()
     
 def homing():
     global last_time
     selection = get_motor_selection()
     tar_joints = home_angle
     travel_time = get_travel_time()
+    sp_coor(shuttle_coor,2000,"stepper_only")
+    time.sleep(2)
     if selection != "stepper_only":
         pp_angle(tar_joints, 6000, "servo_only")
     if selection != "servo_only":
