@@ -422,7 +422,7 @@ def start_dancing():
     t1 = time.time()
     
     list_tar_coor_2 = [
-        ([107, 125, 90, 87], 2000),
+        ([107, 125, 90, 87], 1000),
         ([107, 224, 90, 87], 500),
         ([107, 224, 115, 87], 1000),
         ([107, 125, 115, 87], 3000),
@@ -539,7 +539,7 @@ def routine():
                         change_motion = 1
                     
                     print(f"pvt_cnt: {pvt_cnt}")
-                    if pvt_cnt == 80:
+                    if pvt_cnt == 60:
                         tar_joints = inverse_kinematics([166.82, -168, 114, 0])
                         ret = pp_angle_servo(tar_joints, 1000, selection)
                         if ret == 1:
