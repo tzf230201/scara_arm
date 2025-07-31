@@ -686,25 +686,25 @@ shutdown_button = tk.Button(root, text="Shutdown", bg="maroon", fg="white", comm
 shutdown_button.grid(row=3, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 # baris 4 sampai 7
-tk.Label(root, text="angle 1 (degree):").grid(row=4, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_joint_1 = tk.Entry(root)
-entry_tar_joint_1.insert(0, "360")
-entry_tar_joint_1.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
+# tk.Label(root, text="angle 1 (degree):").grid(row=4, column=0, padx=5, pady=5, sticky="ew")
+# entry_tar_joint_1 = tk.Entry(root)
+# entry_tar_joint_1.insert(0, "360")
+# entry_tar_joint_1.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
 
-tk.Label(root, text="angle 2 (degree):").grid(row=5, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_joint_2 = tk.Entry(root)
-entry_tar_joint_2.insert(0, "730.68")#"482.5")
-entry_tar_joint_2.grid(row=5, column=1, padx=5, pady=5, sticky="ew")
+# tk.Label(root, text="angle 2 (degree):").grid(row=5, column=0, padx=5, pady=5, sticky="ew")
+# entry_tar_joint_2 = tk.Entry(root)
+# entry_tar_joint_2.insert(0, "730.68")#"482.5")
+# entry_tar_joint_2.grid(row=5, column=1, padx=5, pady=5, sticky="ew")
 
-tk.Label(root, text="angle 3 (degree):").grid(row=6, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_joint_3 = tk.Entry(root)
-entry_tar_joint_3.insert(0, "219.07")#"-187.5")
-entry_tar_joint_3.grid(row=6, column=1, padx=5, pady=5, sticky="ew")
+# tk.Label(root, text="angle 3 (degree):").grid(row=6, column=0, padx=5, pady=5, sticky="ew")
+# entry_tar_joint_3 = tk.Entry(root)
+# entry_tar_joint_3.insert(0, "219.07")#"-187.5")
+# entry_tar_joint_3.grid(row=6, column=1, padx=5, pady=5, sticky="ew")
 
-tk.Label(root, text="angle 4 (degree):").grid(row=7, column=0, padx=5, pady=5, sticky="ew")
-entry_tar_joint_4 = tk.Entry(root)
-entry_tar_joint_4.insert(0, "-712.50")#262.5
-entry_tar_joint_4.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
+# tk.Label(root, text="angle 4 (degree):").grid(row=7, column=0, padx=5, pady=5, sticky="ew")
+# entry_tar_joint_4 = tk.Entry(root)
+# entry_tar_joint_4.insert(0, "-712.50")#262.5
+# entry_tar_joint_4.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
 
 #baris 13
 # pvt_mode_init_button = tk.Button(root, text="PVT Mode Init", command=pvt_mode_init)
@@ -716,12 +716,12 @@ entry_tar_joint_4.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
 # sp_joint_button = tk.Button(root, text="SP try", command=sp_joint)
 # sp_joint_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-pvt_mode_button = tk.Button(root, text="PVT angle", command=pvt_joint)
-pvt_mode_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
+# pvt_mode_button = tk.Button(root, text="PVT angle", command=pvt_joint)
+# pvt_mode_button.grid(row=13, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
 
-pp_mode_button = tk.Button(root, text="PP angle", command=pp_joint)
-pp_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
+# pp_mode_button = tk.Button(root, text="PP angle", command=pp_joint)
+# pp_mode_button.grid(row=13, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 
 
