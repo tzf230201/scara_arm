@@ -37,46 +37,55 @@ def print_orange(text):
     RESET = '\033[0m'  # Untuk mengembalikan warna ke default
     print(f"{ORANGE}{text}{RESET}")
 
+import os
+import json
+import shutil
+
 def load_origin_from_config():
     """
     Load origin values from config_origin.json.
-    If file does not exist, create it with all zeros.
+    If file does not exist or is invalid, create it with default values.
     Returns a tuple (origin_1, origin_2, origin_3, origin_4).
     """
-    # Get the directory of the current script
     script_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(script_dir, "config_origin.json")
     print(f"{config_path}")
     
     default_config = {
-        "origin_1": -2864476, #-3306079
+        "origin_1": -2864476,
         "origin_2": -807440,
         "origin_3": -802157,
         "origin_4": -792346
     }
-    
+
+    if not os.path.exists(config_path):
+        with open(config_path, "w") as f:
+            json.dump(default_config, f, indent=4)
+        print("config_origin.json not found. Created new file with defaults.")
+        return tuple(default_config.values())
+
     try:
         with open(config_path, "r") as f:
             config_data = json.load(f)
-        
+
         origin_1 = config_data.get("origin_1", 0)
         origin_2 = config_data.get("origin_2", 0)
         origin_3 = config_data.get("origin_3", 0)
         origin_4 = config_data.get("origin_4", 0)
-        
+
         print(f"Loaded origins: {origin_1}, {origin_2}, {origin_3}, {origin_4}")
         return origin_1, origin_2, origin_3, origin_4
-    
-    except FileNotFoundError:
-        # File not found, create new file with defaults
+
+    except json.JSONDecodeError:
+        # Backup the invalid file
+        backup_path = config_path + ".backup_invalid"
+        shutil.copy(config_path, backup_path)
+        print(f"Invalid JSON format. Backup saved to {backup_path}. Rewriting with defaults.")
+        
         with open(config_path, "w") as f:
             json.dump(default_config, f, indent=4)
-        print(f"config_origin.json not found. Created new file with defaults.")
-        return 0, 0, 0, 0
-    
-    except json.JSONDecodeError:
-        print("Invalid JSON format in config_origin.json. Returning default (0,0,0,0).")
-        return 0, 0, 0, 0
+        return tuple(default_config.values())
+
 
 def save_origin_to_config(encoders):
     """
