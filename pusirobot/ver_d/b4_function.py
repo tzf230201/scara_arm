@@ -24,7 +24,7 @@ def wake_up():
     if selection != "servo_only":
         print(f"stepper intialization")
         stepper_init()
-        pp_mode_init()
+        # pp_mode_init()
         stepper_disable_heartbeat()
     if selection != "stepper_only":
         print(f"servo intialization")
