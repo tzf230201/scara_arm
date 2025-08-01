@@ -293,7 +293,7 @@ def convert_csv_to_list_tar_coor(filepath):
 cur_time = 0
 tar_time = 0
 
-routine_interval = 25
+routine_interval = 50
 
 pvt_1 = []
 pvt_2 = []
@@ -517,7 +517,7 @@ def routine():
     # print(f"enter routine")
     if is_already_wake_up():
         if motion_enable:
-            depth = read_pvt_3_depth(ID2)
+            depth = read_pvt_3_depth(ID3)
             # print(depth)
             if depth != 0:
                 root.after(int(routine_interval), routine)
