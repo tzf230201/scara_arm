@@ -439,7 +439,7 @@ def start_dancing():
     
     start_coor = shuttle_coor
     
-    pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor_2, pvt_time_interval)
+    pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points_sine(start_coor, list_tar_coor_2, pvt_time_interval)
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
     group_id = 0x05
