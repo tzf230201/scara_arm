@@ -410,6 +410,8 @@ def start_dancing():
     
     selection = get_motor_selection()
     
+    pp_coor(shuttle_coor, 2000, selection)
+    time.sleep(2.5)
     # sp_coor(shuttle_coor,2000,"stepper_only")
     # # pp_coor(shuttle_coor, 2000, "stepper_only")
     # tar_joints = inverse_kinematics([166.82, -168, 220, 0])
