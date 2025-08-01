@@ -95,7 +95,7 @@ def servo_brake_off():
     GPIO.output(17, GPIO.HIGH)
 
 def is_brake_on():
-    brake_off = GPIO.input(2)
+    brake_off = GPIO.input(17)
     return not(brake_off)
 
     
