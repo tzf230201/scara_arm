@@ -484,7 +484,7 @@ def start_dancing():
         init_change_group_id(group_id)        
 
         pvt_mode_start_pvt_step(0x05)
-        time.sleep(0.5)
+        time.sleep(0.3)
              
     if selection != "stepper_only":
         entry = motion_data[motion_cnt]
