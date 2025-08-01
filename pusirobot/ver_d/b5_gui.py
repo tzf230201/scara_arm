@@ -410,7 +410,7 @@ def start_dancing():
     
     selection = get_motor_selection()
     time.sleep(0.5)
-    pp_coor(shuttle_coor, 2000, selection)
+    pp_coor(shuttle_coor, 2000, "stepper_only")
     time.sleep(2.5)
     # sp_coor(shuttle_coor,2000,"stepper_only")
     # # pp_coor(shuttle_coor, 2000, "stepper_only")
