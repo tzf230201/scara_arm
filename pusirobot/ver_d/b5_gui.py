@@ -410,25 +410,25 @@ def start_dancing():
     
     selection = get_motor_selection()
     
-    sp_coor(shuttle_coor,2000,"stepper_only")
-    # pp_coor(shuttle_coor, 2000, "stepper_only")
-    tar_joints = inverse_kinematics([166.82, -168, 220, 0])
-    ret = pp_angle_servo(tar_joints, 4000, selection)
-    if ret == 1:
-        servo_execute()  # Execute the servo command to start the movement
+    # sp_coor(shuttle_coor,2000,"stepper_only")
+    # # pp_coor(shuttle_coor, 2000, "stepper_only")
+    # tar_joints = inverse_kinematics([166.82, -168, 220, 0])
+    # ret = pp_angle_servo(tar_joints, 4000, selection)
+    # if ret == 1:
+    #     servo_execute()  # Execute the servo command to start the movement
 
-    time.sleep(5)
+    # time.sleep(5)
     
-    tar_joints = inverse_kinematics([166.82, -168, 90, 0])
-    ret = pp_angle_servo(tar_joints, 4000, selection)
-    if ret == 1:
-        servo_execute()  # Execute the servo command to start the movement
+    # tar_joints = inverse_kinematics([166.82, -168, 90, 0])
+    # ret = pp_angle_servo(tar_joints, 4000, selection)
+    # if ret == 1:
+    #     servo_execute()  # Execute the servo command to start the movement
         
     t1 = time.time()
     
     list_tar_coor_2 = [
-        ([107, 50, 90, 87], 2000),
-        ([107, 160, 90, 87], 800),
+        ([107, 50, 90, 87], 1000),
+        ([107, 160, 90, 87], 500),
         ([107, 160, 115, 87], 1000),
         ([107, 50, 115, 87], 3000),
     ]
@@ -482,7 +482,7 @@ def start_dancing():
         init_change_group_id(group_id)        
 
         pvt_mode_start_pvt_step(0x05)
-        time.sleep(1)
+        time.sleep(0.3)
              
     if selection != "stepper_only":
         entry = motion_data[motion_cnt]
