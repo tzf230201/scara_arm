@@ -293,7 +293,7 @@ def convert_csv_to_list_tar_coor(filepath):
 cur_time = 0
 tar_time = 0
 
-routine_interval = 25
+routine_interval = 12
 
 pvt_1 = []
 pvt_2 = []
