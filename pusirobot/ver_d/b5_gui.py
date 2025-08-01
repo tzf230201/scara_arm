@@ -429,7 +429,7 @@ def start_dancing():
     t1 = time.time()
     
     list_tar_coor_2 = [
-        ([107, 50, 90, 87], 1000),
+        ([107, 50, 90, 87], 2000),
         ([107, 160, 90, 87], 500),
         ([107, 160, 115, 87], 1000),
         ([107, 50, 115, 87], 3000),
@@ -452,7 +452,7 @@ def start_dancing():
     pvt_cnt = 0
     max_pvt_index = len(pvt_2)
     #write PVT points
-    for i in range(40):
+    for i in range(80):
             
         if selection != "servo_only":
             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
@@ -526,7 +526,7 @@ def routine():
                 # print("lanjut")
                 # print(f"motion_cnt: {motion_cnt} of {motion_size}")
                 if motion_cnt < motion_size:
-                    if (depth < 40):
+                    if (depth < 80):
                         
                         if pvt_cnt < max_pvt_index:
                             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
@@ -546,7 +546,7 @@ def routine():
                         change_motion = 1
                     
                     print(f"pvt_cnt: {pvt_cnt}")
-                    if pvt_cnt == 70:
+                    if pvt_cnt == 120:
                         tar_joints = inverse_kinematics([166.82, -168, 114, 0])
                         ret = pp_angle_servo(tar_joints, 1000, selection)
                         if ret == 1:
