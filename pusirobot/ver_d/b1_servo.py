@@ -89,10 +89,10 @@ def servo_rps_to_pps(rps):
 import RPi.GPIO as GPIO
 
 def servo_brake_on():
-    GPIO.output(2, GPIO.LOW)
+    GPIO.output(17, GPIO.LOW)
     
 def servo_brake_off():
-    GPIO.output(2, GPIO.HIGH)
+    GPIO.output(17, GPIO.HIGH)
 
 def is_brake_on():
     brake_off = GPIO.input(2)
@@ -100,7 +100,7 @@ def is_brake_on():
 
     
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(2, GPIO.OUT)
+GPIO.setup(17, GPIO.OUT)
 servo_brake_on()
 
 
