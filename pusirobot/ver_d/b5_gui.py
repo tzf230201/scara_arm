@@ -452,7 +452,7 @@ def start_dancing():
     pvt_cnt = 0
     max_pvt_index = len(pvt_2)
     #write PVT points
-    for i in range(80):
+    for i in range(40):
             
         if selection != "servo_only":
             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
@@ -484,7 +484,7 @@ def start_dancing():
         init_change_group_id(group_id)        
 
         pvt_mode_start_pvt_step(0x05)
-        time.sleep(0.5)
+        time.sleep(0.6)
              
     if selection != "stepper_only":
         entry = motion_data[motion_cnt]
@@ -526,7 +526,7 @@ def routine():
                 # print("lanjut")
                 # print(f"motion_cnt: {motion_cnt} of {motion_size}")
                 if motion_cnt < motion_size:
-                    if (depth < 80):
+                    if (depth < 40):
                         
                         if pvt_cnt < max_pvt_index:
                             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
