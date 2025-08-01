@@ -318,7 +318,10 @@ pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, danc
 def pre_start_dancing():
     selection = get_motor_selection()
     
-    sp_angle(home_angle,4000,selection)
+    sp_coor(shuttle_coor,3000,selection)
+    time.sleep(3.1)
+    sp_angle(home_angle,3000,selection)
+    time.sleep(3.1)
     
     list_tar_coor = [
         ([150, -100, 90, 0], 1000),
