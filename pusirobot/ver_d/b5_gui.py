@@ -413,18 +413,18 @@ def start_dancing():
     # pp_coor(shuttle_coor, 2000, "stepper_only")
     # time.sleep(2.5)
     sp_coor(shuttle_coor,2000,"stepper_only")
-    # # pp_coor(shuttle_coor, 2000, "stepper_only")
-    # tar_joints = inverse_kinematics([166.82, -168, 220, 0])
-    # ret = pp_angle_servo(tar_joints, 4000, selection)
-    # if ret == 1:
-    #     servo_execute()  # Execute the servo command to start the movement
+    # pp_coor(shuttle_coor, 2000, "stepper_only")
+    tar_joints = inverse_kinematics([166.82, -168, 220, 0])
+    ret = pp_angle_servo(tar_joints, 4000, selection)
+    if ret == 1:
+        servo_execute()  # Execute the servo command to start the movement
 
     time.sleep(5)
     
-    # tar_joints = inverse_kinematics([166.82, -168, 90, 0])
-    # ret = pp_angle_servo(tar_joints, 4000, selection)
-    # if ret == 1:
-    #     servo_execute()  # Execute the servo command to start the movement
+    tar_joints = inverse_kinematics([166.82, -168, 90, 0])
+    ret = pp_angle_servo(tar_joints, 4000, selection)
+    if ret == 1:
+        servo_execute()  # Execute the servo command to start the movement
         
     t1 = time.time()
     
@@ -545,12 +545,12 @@ def routine():
                     if cur_pvt >= tar_pvt:
                         change_motion = 1
                     
-                    # print(f"pvt_cnt: {pvt_cnt}")
-                    # if pvt_cnt == 70:
-                    #     tar_joints = inverse_kinematics([166.82, -168, 114, 0])
-                    #     ret = pp_angle_servo(tar_joints, 1000, selection)
-                    #     if ret == 1:
-                    #         servo_execute()  # Execute the servo command to start the movement
+                    print(f"pvt_cnt: {pvt_cnt}")
+                    if pvt_cnt == 70:
+                        tar_joints = inverse_kinematics([166.82, -168, 114, 0])
+                        ret = pp_angle_servo(tar_joints, 1000, selection)
+                        if ret == 1:
+                            servo_execute()  # Execute the servo command to start the movement
                                                 
                     if change_motion:
                         entry = motion_data[motion_cnt]
