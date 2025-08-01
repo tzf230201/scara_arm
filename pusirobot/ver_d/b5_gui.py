@@ -520,7 +520,7 @@ def routine():
     if is_already_wake_up():
         if motion_enable:
             depth = read_pvt_3_depth(ID2)
-            # print(depth)
+            print(depth)
             if depth != 0:
                 root.after(int(routine_interval), routine)
                 # print("lanjut")
@@ -545,12 +545,12 @@ def routine():
                     if cur_pvt >= tar_pvt:
                         change_motion = 1
                     
-                    print(f"pvt_cnt: {pvt_cnt}")
-                    if pvt_cnt == 120:
-                        tar_joints = inverse_kinematics([166.82, -168, 114, 0])
-                        ret = pp_angle_servo(tar_joints, 1000, selection)
-                        if ret == 1:
-                            servo_execute()  # Execute the servo command to start the movement
+                    # print(f"pvt_cnt: {pvt_cnt}")
+                    # if pvt_cnt == 120:
+                    #     tar_joints = inverse_kinematics([166.82, -168, 114, 0])
+                    #     ret = pp_angle_servo(tar_joints, 1000, selection)
+                    #     if ret == 1:
+                    #         servo_execute()  # Execute the servo command to start the movement
                                                 
                     if change_motion:
                         entry = motion_data[motion_cnt]
