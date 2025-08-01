@@ -409,7 +409,7 @@ def start_dancing():
     # print_motion_data(motion_data)  # DEBUG: Print all motion data
     
     selection = get_motor_selection()
-    
+    time.sleep(0.5)
     pp_coor(shuttle_coor, 2000, selection)
     time.sleep(2.5)
     # sp_coor(shuttle_coor,2000,"stepper_only")
