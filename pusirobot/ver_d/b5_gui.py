@@ -429,7 +429,7 @@ def start_dancing():
     t1 = time.time()
     
     list_tar_coor_2 = [
-        ([107, 50, 90, 87], 2000),
+        ([107, 50, 90, 87], 1000),
         ([107, 160, 90, 87], 500),
         ([107, 160, 115, 87], 1000),
         ([107, 50, 115, 87], 3000),
@@ -484,7 +484,7 @@ def start_dancing():
         init_change_group_id(group_id)        
 
         pvt_mode_start_pvt_step(0x05)
-        time.sleep(0.6)
+        time.sleep(0.5)
              
     if selection != "stepper_only":
         entry = motion_data[motion_cnt]
