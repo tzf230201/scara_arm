@@ -419,7 +419,7 @@ def start_dancing():
     # if ret == 1:
     #     servo_execute()  # Execute the servo command to start the movement
 
-    # time.sleep(5)
+    time.sleep(5)
     
     # tar_joints = inverse_kinematics([166.82, -168, 90, 0])
     # ret = pp_angle_servo(tar_joints, 4000, selection)
