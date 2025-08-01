@@ -517,8 +517,8 @@ def routine():
     # print(f"enter routine")
     if is_already_wake_up():
         if motion_enable:
-            depth = read_pvt_3_depth(ID3)
-            # print(depth)
+            depth = read_pvt_3_depth(ID2)
+            print(depth)
             if depth != 0:
                 root.after(int(routine_interval), routine)
                 # print("lanjut")
