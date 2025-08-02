@@ -133,7 +133,7 @@ def pvt_mode_init(group_id, pvt_type = PVT_3, pvt_max_point = 400, pvt_3_lower_l
     reset_node()
     # stepper_shutdown()
     time.sleep(1)
-    stepper_init()
+    # stepper_init()
     init_operation_mode(PVT_MODE)
     
     # init_change_group_id(group_id)
