@@ -126,6 +126,7 @@ def init_change_baudrate(baudrate_option):
 def init_change_group_id(group_id):
     for id in [ID2, ID3, ID4]:
         ensure_set_req_sdo(id, SET_1_BYTE, OD_STEPPER_GROUP_ID, 0x00, group_id)
+        time.sleep(0.1)  # wait for the change to take effect
 
 def init_single_motor_change_group_id(id, group_id):
     ensure_set_req_sdo(id, SET_1_BYTE, OD_STEPPER_GROUP_ID, 0x00, group_id)
