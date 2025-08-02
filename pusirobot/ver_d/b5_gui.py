@@ -419,7 +419,7 @@ def start_dancing():
     # if ret == 1:
     #     servo_execute()  # Execute the servo command to start the movement
 
-    time.sleep(5)
+    time.sleep(3)
     
     # tar_joints = inverse_kinematics([166.82, -168, 90, 0])
     # ret = pp_angle_servo(tar_joints, 4000, selection)
@@ -452,7 +452,7 @@ def start_dancing():
     pvt_cnt = 0
     max_pvt_index = len(pvt_2)
     #write PVT points
-    for i in range(80):
+    for i in range(40):
             
         if selection != "servo_only":
             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
@@ -526,7 +526,7 @@ def routine():
                 # print("lanjut")
                 # print(f"motion_cnt: {motion_cnt} of {motion_size}")
                 if motion_cnt < motion_size:
-                    if (depth < 80):
+                    if (depth < 40):
                         
                         if pvt_cnt < max_pvt_index:
                             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
