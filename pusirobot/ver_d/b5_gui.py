@@ -445,7 +445,7 @@ def start_dancing():
     group_id = 0x05
     
     if selection != "servo_only":
-        pvt_mode_init(group_id, PVT_3, 400, pvt_3_lower_limit, pvt_3_upper_limit)
+        pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
         
     
     
@@ -472,7 +472,7 @@ def start_dancing():
     
     
     # print(f"t2 adalah {t2 }, maka 4-t2 adalah ts = {ts} s, {int(ts*1000)} ms")
-    time.sleep(2)
+    # time.sleep(1)
     
     if selection != "servo_only": 
         pvt_mode_read_pvt_3_depth()
