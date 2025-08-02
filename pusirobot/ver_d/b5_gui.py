@@ -484,7 +484,7 @@ def start_dancing():
         # init_change_group_id(group_id)        
 
         pvt_mode_start_pvt_step(group_id)
-        time.sleep(0.3)
+        time.sleep(0.5)
              
     if selection != "stepper_only":
         entry = motion_data[motion_cnt]
@@ -492,7 +492,7 @@ def start_dancing():
         motion_cnt += 1
         tar_time = travel_time
         tar_pvt = int(travel_time/pvt_time_interval)
-        # execute_motion_data(entry)
+        execute_motion_data(entry)
 
     root.after(int(routine_interval), routine)
     last_time = time.time()
