@@ -426,7 +426,7 @@ def start_dancing():
     # if ret == 1:
     #     servo_execute()  # Execute the servo command to start the movement
         
-    t1 = time.time()
+    # t1 = time.time()
     
     list_tar_coor_2 = [
         ([107, 50, 90, 87], 4000),
@@ -439,7 +439,7 @@ def start_dancing():
     
     start_coor = shuttle_coor
     
-    pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points_sine(start_coor, list_tar_coor_2, pvt_time_interval)
+    pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor_2, pvt_time_interval)
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 400
     group_id = 0x05
@@ -466,9 +466,9 @@ def start_dancing():
             
         pvt_cnt = pvt_cnt + 1
     
-    t2 = (time.time() - t1)
+    # t2 = (time.time() - t1)
     
-    ts = 4 - t2
+    # ts = 4 - t2
     
     
     # print(f"t2 adalah {t2 }, maka 4-t2 adalah ts = {ts} s, {int(ts*1000)} ms")
@@ -479,7 +479,7 @@ def start_dancing():
         # for node_id in (ID2, ID3, ID4):
             # init_single_motor_change_group_id(node_id, group_id)
             
-        for node_id in (ID3, ID2):
+        for node_id in (ID2, ID3):
             init_single_motor_change_group_id(node_id, group_id)
         # init_change_group_id(group_id)        
 
