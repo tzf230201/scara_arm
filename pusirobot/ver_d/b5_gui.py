@@ -264,10 +264,10 @@ def execute_motion_data(entry):
     elif motion_type == 'sp_angle':
         sp_angle([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
     elif motion_type == 'pvt':
-        pp_coor([d1, d2, d3, d4], travel_time, selection="servo_only")
-        # tar_joints = inverse_kinematics([d1, d2, d3, d4])
-        # _, _, _, tar_joint_4 = tar_joints
-        # stepper_single_motor_pp_mode(ID4, tar_joint_4, 1000, get_motor_selection())
+        # pp_coor([d1, d2, d3, d4], travel_time, selection="servo_only")
+        tar_joints = inverse_kinematics([d1, d2, d3, d4])
+        _, _, _, tar_joint_4 = tar_joints
+        stepper_single_motor_pp_mode(ID4, tar_joint_4, 1000, get_motor_selection())
 
 
 motion_enable = True
@@ -457,12 +457,12 @@ def start_dancing():
         if selection != "servo_only":
             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
             pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
-            pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
+            # pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
             print(i)
             if i != 0:
                 pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
                 pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)   
-                pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)     
+                # pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)     
            
             
             
@@ -486,7 +486,6 @@ def start_dancing():
         init_change_group_id(group_id)        
 
         pvt_mode_start_pvt_step(group_id)
-        pvt_mode_start_pvt_step(group_id)
         time.sleep(0.5)
              
     if selection != "stepper_only":
@@ -495,7 +494,7 @@ def start_dancing():
         motion_cnt += 1
         tar_time = travel_time
         tar_pvt = int(travel_time/pvt_time_interval)
-        # execute_motion_data(entry)
+        execute_motion_data(entry)
 
     root.after(int(routine_interval), routine)
     last_time = time.time()
@@ -534,11 +533,11 @@ def routine():
                         if pvt_cnt < max_pvt_index:
                             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
                             pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
-                            pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
+                            # pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
                              
                             pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
                             pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)     
-                            pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)      
+                            # pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)      
                     
                             pvt_cnt += 1
                             cur_pvt += 1
