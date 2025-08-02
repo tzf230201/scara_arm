@@ -177,6 +177,18 @@ def stall_off():
 
 
 ######################################## STATUS ######################################
+def stepper_get_operation_mode(node_id):
+    operation_mode = req_sdo(node_id, OD_STEPPER_OPERATION_MODE, 0x00)
+    if operation_mode == SP_MODE:
+        print(f"Node {node_id:03X} is in SP mode")
+    elif operation_mode == PVT_MODE:
+        print(f"Node {node_id:03X} is in PVT mode")
+    elif operation_mode == PP_MODE:
+        print(f"Node {node_id:03X} is in PP mode")
+    else:
+        print(f"Node {node_id:03X} has an unknown operation mode: {operation_mode}")
+    return operation_mode
+
 def stepper_get_error_status(node_id):
     error_status = req_sdo(node_id, OD_STEPPER_ERROR_STATUS, 0x00)
     return error_status
