@@ -452,7 +452,7 @@ def start_dancing():
     pvt_cnt = 0
     max_pvt_index = len(pvt_2)
     #write PVT points
-    for i in range(40):
+    for i in range(max_pvt_index):
             
         if selection != "servo_only":
             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
@@ -494,7 +494,7 @@ def start_dancing():
         tar_pvt = int(travel_time/pvt_time_interval)
         execute_motion_data(entry)
 
-    root.after(int(routine_interval), routine)
+    # root.after(int(routine_interval), routine)
     last_time = time.time()
     
 
@@ -648,7 +648,7 @@ def read_present_position():
     # t2 = time.time() - t1
     # print(f"total = {t2} s {t2*1000} ms")
     # print_error_status()
-    print_controller_status()
+    # print_controller_status()
     
 # Menangani sinyal SIGINT (Ctrl + C)
 signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
