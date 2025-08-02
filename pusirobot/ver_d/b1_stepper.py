@@ -176,7 +176,11 @@ def stall_off():
     
 
 
-######################################## STATUS ######################################s
+######################################## STATUS ######################################
+def stepper_get_error_status(node_id):
+    error_status = req_sdo(node_id, OD_STEPPER_ERROR_STATUS, 0x00)
+    return error_status
+
 def stepper_get_controller_status(node_id):
     controller_status = req_sdo(node_id, OD_STEPPER_CONTROLLER_STATUS, 0x00)
     return controller_status
@@ -217,7 +221,36 @@ def read_pdo_1(request_id):
 
     return error_code, error_state, controller_status, motor_position
 
+def extract_error_status(error_status):
+    error_status = error_status & 0xFF
+    
+    is_TSD = ((error_status >> 0) & 0x01) == 0x01
+    is_AERR = ((error_status >> 1) & 0x01) == 0x01
+    is_BERR = ((error_status >> 2) & 0x01) == 0x01
+    is_AOC = ((error_status >> 3) & 0x01) == 0x01
+    is_BOC = ((error_status >> 4) & 0x01) == 0x01
+    is_UVLO = ((error_status >> 5) & 0x01) == 0x01
+    
 
+    return is_UVLO, is_BOC, is_AOC, is_BERR, is_AERR, is_TSD
+
+def print_error_status(error_status):
+    for node_id in [ID2, ID3, ID4]:
+        error_status = stepper_get_error_status(node_id)
+        is_UVLO, is_BOC, is_AOC, is_BERR, is_AERR, is_TSD = extract_error_status(error_status)
+        print(f"Node {node_id:03X} Error Status: {error_status:02X}")
+        if is_UVLO:
+            print(f"UVLO (Under Voltage Lock Out) error")
+        if is_BOC:
+            print(f"BOC (Bus Over Current) error")
+        if is_AOC:
+            print(f"AOC (Analog Over Current) error")
+        if is_BERR:
+            print(f"BERR (Bus Error) error")
+        if is_AERR:
+            print(f"AERR (Analog Error) error")
+        if is_TSD:
+            print(f"TSD (Thermal Shutdown) error")
 
 def extract_controller_status(controller_status):
     controller_status = controller_status & 0xFF
