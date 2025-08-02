@@ -796,4 +796,5 @@ root.protocol("WM_DELETE_WINDOW", signal_handler)
 # Memulai fungsi print_continuously saat aplikasi dimulai
 # root.after(500, routine)
 # Jalankan GUI
+wake_up()
 root.mainloop()
