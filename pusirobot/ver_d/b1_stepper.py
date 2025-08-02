@@ -234,7 +234,7 @@ def extract_error_status(error_status):
 
     return is_UVLO, is_BOC, is_AOC, is_BERR, is_AERR, is_TSD
 
-def print_error_status(error_status):
+def print_error_status():
     for node_id in [ID2, ID3, ID4]:
         error_status = stepper_get_error_status(node_id)
         is_UVLO, is_BOC, is_AOC, is_BERR, is_AERR, is_TSD = extract_error_status(error_status)
