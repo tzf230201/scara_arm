@@ -267,7 +267,7 @@ def execute_motion_data(entry):
         # pp_coor([d1, d2, d3, d4], travel_time, selection="servo_only")
         tar_joints = inverse_kinematics([d1, d2, d3, d4])
         _, _, _, tar_joint_4 = tar_joints
-        stepper_single_motor_pp_mode(ID4, tar_joint_4, 1000, get_motor_selection())
+        stepper_single_motor_pp_mode(ID4, tar_joint_4, 2000, get_motor_selection())
 
 
 motion_enable = True
@@ -492,7 +492,7 @@ def start_dancing():
         motion_cnt += 1
         tar_time = travel_time
         tar_pvt = int(travel_time/pvt_time_interval)
-        execute_motion_data(entry)
+        # execute_motion_data(entry)
 
     root.after(int(routine_interval), routine)
     last_time = time.time()
@@ -519,7 +519,7 @@ def routine():
     # print(f"enter routine")
     if is_already_wake_up():
         if motion_enable:
-            depth = read_pvt_3_depth(ID3)
+            depth = read_pvt_3_depth(ID2)
             print(depth)
             if depth != 0:
                 root.after(int(routine_interval), routine)
