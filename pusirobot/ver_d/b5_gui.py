@@ -429,10 +429,10 @@ def start_dancing():
     t1 = time.time()
     
     list_tar_coor_2 = [
-        ([107, 50, 90, 90], 2000),
-        ([107, 160, 90, 90], 500),
-        ([107, 160, 115, 90], 1000),
-        ([107, 50, 115, 90], 3000),
+        ([107, 50, 90, 87], 2000),
+        ([107, 160, 90, 87], 500),
+        ([107, 160, 115, 87], 1000),
+        ([107, 50, 115, 87], 3000),
     ]
     
     
@@ -441,7 +441,7 @@ def start_dancing():
     
     pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor_2, pvt_time_interval)
     pvt_3_lower_limit = 60
-    pvt_3_upper_limit = 80
+    pvt_3_upper_limit = 400
     group_id = 0x05
     
     if selection != "servo_only":
