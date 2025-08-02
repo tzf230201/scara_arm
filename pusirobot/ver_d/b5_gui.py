@@ -483,7 +483,8 @@ def start_dancing():
         #     init_single_motor_change_group_id(node_id, group_id)
         init_change_group_id(group_id)        
 
-        pvt_mode_start_pvt_step(0x05)
+        pvt_mode_start_pvt_step(group_id)
+        pvt_mode_start_pvt_step(group_id)
         time.sleep(0.5)
              
     if selection != "stepper_only":
