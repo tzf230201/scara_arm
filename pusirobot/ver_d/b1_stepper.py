@@ -263,6 +263,22 @@ def extract_controller_status(controller_status):
     
     return is_pvt_3_fifo_upper_limit, is_pvt_3_fifo_lower_limit, is_pvt_3_fifo_empty, is_busy, is_stall
 
+def print_controller_status():
+    for node_id in [ID2, ID3, ID4]:
+        controller_status = stepper_get_controller_status(node_id)
+        is_pvt_3_fifo_upper_limit, is_pvt_3_fifo_lower_limit, is_pvt_3_fifo_empty, is_busy, is_stall = extract_controller_status(controller_status)
+        print(f"Node {node_id:03X} Controller Status: {controller_status:02X}")
+        if is_stall:
+            print(f"Stall detected")
+        if is_busy:
+            print(f"Motor is busy")
+        if is_pvt_3_fifo_empty:
+            print(f"PVT 3 FIFO empty")
+        if is_pvt_3_fifo_lower_limit:
+            print(f"PVT 3 FIFO lower limit reached")
+        if is_pvt_3_fifo_upper_limit:
+            print(f"PVT 3 FIFO upper limit reached")
+
 stop_watch = 0
 time_out = 0
 is_motor_2_busy = True
