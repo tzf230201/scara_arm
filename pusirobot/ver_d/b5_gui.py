@@ -592,7 +592,7 @@ def start_dancing_2():
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 80
     
-    list_tar_coor_2 = [
+    list_tar_coor = [
         ([107, 50, 90, 87], 4000),
         ([107, 160, 90, 87], 2000),
         ([107, 160, 115, 87], 2000),
@@ -601,7 +601,7 @@ def start_dancing_2():
     
     start_coor = shuttle_coor
     
-    pvt2_f, pvt3_f, pvt4_f = gen_new_mpvtp(start_coor,  list_tar_coor_2, pvt_time_interval)
+    pvt2_f, pvt3_f, pvt4_f = gen_new_mpvtp(start_coor,  list_tar_coor, pvt_time_interval)
     
     pvt_mode_init(group_id, PVT_1, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
 
@@ -627,7 +627,7 @@ def start_dancing_2():
     init_single_motor_change_group_id(ID4, group_id)
     
     pt_idx = len(pvt2_f)
-    # pvt_mode_read_index()
+    pvt_mode_read_index()
     pvt_mode_set_pvt_1_start(0)
     pvt_mode_set_pvt_1_end(pt_idx-1)
     # time.sleep(1)
