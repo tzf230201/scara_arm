@@ -333,6 +333,7 @@ def read_sp_mode_arrival_status():
 
 
 def stepper_init():
+    reset_node()
     init_motor_enable(1)
     init_torque_ring_enable(1)
     init_set_max_current(STEPPER_MAX_CURRENT)
@@ -340,6 +341,7 @@ def stepper_init():
     init_set_accel_coef(1)
     init_set_decel_coef(1)
     stall_on()
+    
     # stall_off()
     # save_settings() #ini udah save dalam fungsi stall_on()
     # print(f"stepper_wake_up")
