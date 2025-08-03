@@ -334,32 +334,22 @@ def read_sp_mode_arrival_status():
 
 def stepper_init():
     init_motor_enable(1)
-    time.sleep(1)
     init_torque_ring_enable(1)
-    time.sleep(1)
     init_set_max_current(STEPPER_MAX_CURRENT)
-    time.sleep(1)
     init_microstepping(MICROSTEP)
-    time.sleep(1)
     init_set_accel_coef(1)
     init_set_decel_coef(1)
     stall_on()
-    time.sleep(1)
     # stall_off()
     # save_settings() #ini udah save dalam fungsi stall_on()
     # print(f"stepper_wake_up")
     
 def stepper_shutdown():
     emergency_stop_stepping()
-    time.sleep(1)
     init_motor_enable(0)  
-    time.sleep(1)
     init_torque_ring_enable(0)  
-    time.sleep(1)
     init_set_max_current(0)
-    time.sleep(1)
     reset_node()
-    time.sleep(1)
     
 def stepper_enable_heartbeat():
     for id in [ID2, ID3, ID4]:
