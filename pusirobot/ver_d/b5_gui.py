@@ -412,8 +412,8 @@ def start_dancing():
     # time.sleep(0.5)
     # pp_coor(shuttle_coor, 2000, "stepper_only")
     # time.sleep(2.5)
-    # sp_coor(shuttle_coor,2000,"stepper_only")
-    pp_coor(shuttle_coor, 2000, "stepper_only")
+    sp_coor(shuttle_coor,2000,"stepper_only")
+    # pp_coor(shuttle_coor, 2000, "stepper_only")
     # tar_joints = inverse_kinematics([166.82, -168, 220, 0])
     # ret = pp_angle_servo(tar_joints, 4000, selection)
     # if ret == 1:
@@ -429,10 +429,10 @@ def start_dancing():
     # t1 = time.time()
     
     list_tar_coor_2 = [
-        ([107, 50, 90, 87], 4000),
-        ([107, 160, 90, 87], 2000),
-        ([107, 160, 115, 87], 2000),
-        ([107, 50, 115, 87], 3000),
+        ([107, 125, 90, 87], 4000),
+        ([107, 224, 90, 87], 2000),
+        ([107, 224, 115, 87], 2000),
+        ([107, 125, 115, 87], 3000),
     ]
     
     
@@ -494,7 +494,7 @@ def start_dancing():
         motion_cnt += 1
         tar_time = travel_time
         tar_pvt = int(travel_time/pvt_time_interval)
-        # execute_motion_data(entry)
+        execute_motion_data(entry)
 
     # root.after(int(routine_interval), routine)
     last_time = time.time()
@@ -839,7 +839,7 @@ pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew"
 motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=start_dancing_2)
+dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 20
