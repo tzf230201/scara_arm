@@ -711,7 +711,7 @@ def sine_wave(current_time, start_time, travel_time, cur_pos, tar_pos):
     return output
 
 def gen_new_mpvtp(start_coor, coor_list, dt):
-    show = 1
+    show = 0
     # Calculate joint angles for each point in the trajectory
     joint_1_values = []
     joint_2_values = []

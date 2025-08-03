@@ -1,7 +1,8 @@
 import signal
 import tkinter as tk
 import time
-from b4_function import *
+from b0_can import *
+from b4_functions import *
 from b3_motion import *
 from b1_servo import servo_execute
 from b2_pvt import pvt_mode_start_pvt_step
@@ -597,6 +598,8 @@ def start_dancing_2():
     time.sleep(2.5)
     
     pvt_mode_init(group_id, PVT_1, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
+    
+    send_can_command(f"000#{group_id:02X}")
 
     for pos, vel, tim in pvt2_f:
         pvt_mode_write_read(ID2, pos, vel, tim)

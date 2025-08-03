@@ -334,6 +334,7 @@ def read_sp_mode_arrival_status():
 
 def stepper_init():
     reset_node()
+    time.sleep(1)  # wait for the node to reset
     init_motor_enable(1)
     init_torque_ring_enable(1)
     init_set_max_current(STEPPER_MAX_CURRENT)
