@@ -102,18 +102,6 @@ def pvt_move():
     
     tar_joints = inverse_kinematics(tar_coor)
     tar_joints = check_limit(tar_joints)
-    # print(f"tar joint = {tar_joints} degree")
-    # pvt_mode_try_pvt_1(cur_joints, tar_joints, travel_time)
-    # pvt_mode_try_pvt_3(cur_joints, tar_joints, travel_time)
-    # pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time)
-    # _, _, _, tar_joint_4 = tar_joints
-    # stepper_single_motor_pp_mode(ID4, tar_joint_4, travel_time, selection)
-    # print(f"run motor 4 {tar_joint_4}")
-    # ret = pp_angle_servo(tar_joints, travel_time, selection)
-    # if ret == 1:
-    #     servo_execute()  # Execute the servo command to start the movement
-    # group_id = 0x05
-    # pvt_mode_start_pvt_step(group_id)
     pvt_mode_try_pvt_6(cur_joints, tar_joints, travel_time)
     last_time = time.time()
     t2 = time.time() - t1
@@ -577,9 +565,7 @@ def start_dancing_2():
 
     global last_time, stop_watch, time_out
     group_id = 0x05
-    tar_pulses = []
-    cur_pulses = []
-    node_ids = [ID1, ID2, ID3, ID4]
+
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 900
     
@@ -617,9 +603,9 @@ def start_dancing_2():
     # for pos, vel, tim in pvt4_b:
     #     pvt_mode_write_read(ID4, pos, vel, tim)
             
-    init_single_motor_change_group_id(ID2, group_id)
-    init_single_motor_change_group_id(ID3, group_id)
-    init_single_motor_change_group_id(ID4, group_id)
+    # init_single_motor_change_group_id(ID2, group_id)
+    # init_single_motor_change_group_id(ID3, group_id)
+    # init_single_motor_change_group_id(ID4, group_id)
     
     pt_idx = len(pvt2_f)
     # pvt_mode_read_index()
