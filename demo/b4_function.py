@@ -24,22 +24,22 @@ def wake_up():
     if selection != "servo_only":
         print(f"stepper intialization")
         stepper_init()
-        # pp_mode_init()
+        pp_mode_init()
         stepper_disable_heartbeat()
-    if selection != "stepper_only":
-        print(f"servo intialization")
-        servo_init(1)  # 7 is PVT mode, 1 is PP mode
-        servo_disable_heartbeat()
-        if is_brake_on():
-            ret = pp_angle_servo(cur_joints, 500, "servo_only")
-            if ret == 1:
-                servo_execute()  # Execute the servo command to start the movement
+    # if selection != "stepper_only":
+    #     print(f"servo intialization")
+    #     servo_init(1)  # 7 is PVT mode, 1 is PP mode
+    #     servo_disable_heartbeat()
+    #     if is_brake_on():
+    #         ret = pp_angle_servo(cur_joints, 500, "servo_only")
+    #         if ret == 1:
+    #             servo_execute()  # Execute the servo command to start the movement
             
-            time.sleep(0.2)
-            servo_brake_off()
-            print(f"turned off brake")
-        else:
-            print(f"brake already off")
+    #         time.sleep(0.2)
+    #         servo_brake_off()
+    #         print(f"turned off brake")
+    #     else:
+    #         print(f"brake already off")
             
     is_wake_up = True
     
