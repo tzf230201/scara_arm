@@ -716,7 +716,7 @@ def read_present_position():
     # t2 = time.time() - t1
     # print(f"total = {t2} s {t2*1000} ms")
     print_error_status()
-    # print_controller_status()
+    print_controller_status()
     
 # Menangani sinyal SIGINT (Ctrl + C)
 signal.signal(signal.SIGINT, lambda signum, frame: signal_handler())
