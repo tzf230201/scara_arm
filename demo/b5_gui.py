@@ -213,7 +213,7 @@ def print_motion_data(motion_data):
         i += 1
 
 home_angle = [360, 0, 0, 0]  # home position in coor
-shuttle_coor = [166.82, -168, 90, 10]
+shuttle_coor = [166.82, -168, 90, -10]
 pre_past_shelf_coor = [107, 100, 90, 90]
 pickup_from_shelf_coor = [107, 224, 90, 90]
 place_onto_shelf_coor = [107, 197, 90, 90]
