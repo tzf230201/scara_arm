@@ -597,7 +597,7 @@ def start_dancing_2():
     pp_coor(shuttle_coor, 2000, "stepper_only")
     time.sleep(2.5)
     
-    pvt_mode_init(group_id, PVT_1, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
+    pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
     
     send_can_command(f"000#{group_id:02X}{0x02:02X}")
     time.sleep(0.5)
@@ -628,9 +628,9 @@ def start_dancing_2():
     init_single_motor_change_group_id(ID4, group_id)
     
     pt_idx = len(pvt2_f)
-    pvt_mode_read_index()
-    pvt_mode_set_pvt_1_start(0)
-    pvt_mode_set_pvt_1_end(pt_idx-1)
+    # pvt_mode_read_index()
+    # pvt_mode_set_pvt_1_start(0)
+    # pvt_mode_set_pvt_1_end(pt_idx-1)
     
     
     last_time = time.time()
