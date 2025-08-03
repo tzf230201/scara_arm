@@ -292,7 +292,7 @@ tar_pvt = 0
 # motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
 # dancing_tar_coor = convert_csv_to_list_tar_coor(filename)
 # start_coor = forward_kinematics(get_cur_joints("all"))
-start_coor = shuttle_coor
+# start_coor = shuttle_coor
 
 def pre_start_dancing():
     selection = get_motor_selection()
