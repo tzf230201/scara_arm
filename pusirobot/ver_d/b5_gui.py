@@ -604,7 +604,7 @@ def start_dancing_2():
     pvt2_f, pvt3_f, pvt4_f = gen_new_mpvtp(start_coor,  list_tar_coor, pvt_time_interval)
     
     pp_coor(shuttle_coor, 2000, "stepper_only")
-    time.sleep(3)
+    time.sleep(2.5)
     
     pvt_mode_init(group_id, PVT_1, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
 
@@ -620,8 +620,8 @@ def start_dancing_2():
     #     pvt_mode_write_read(ID3, pos, vel, tim)
         
      
-    # for pos, vel, tim in pvt4_f:
-    #     pvt_mode_write_read(ID4, pos, vel, tim)
+    for pos, vel, tim in pvt4_f:
+        pvt_mode_write_read(ID4, pos, vel, tim)
     # for pos, vel, tim in pvt4_b:
     #     pvt_mode_write_read(ID4, pos, vel, tim)
             
