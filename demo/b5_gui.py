@@ -599,7 +599,11 @@ def start_dancing_2():
     
     pvt_mode_init(group_id, PVT_1, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
     
-    send_can_command(f"000#{group_id:02X}")
+    send_can_command(f"000#{group_id:02X}{0x02:02X}")
+    time.sleep(0.5)
+    send_can_command(f"000#{group_id:02X}{0x03:02X}")
+    time.sleep(0.5)
+    send_can_command(f"000#{group_id:02X}{0x04:02X}")
     time.sleep(0.5)
 
     for pos, vel, tim in pvt2_f:
