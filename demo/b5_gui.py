@@ -290,7 +290,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 filename = os.path.join(script_dir, "motion_data_4.csv")
 motion_data = read_motion_csv(filename)
 motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
-dancing_tar_coor = convert_csv_to_list_tar_coor(filename)
+# dancing_tar_coor = convert_csv_to_list_tar_coor(filename)
 # start_coor = forward_kinematics(get_cur_joints("all"))
 start_coor = shuttle_coor
 
