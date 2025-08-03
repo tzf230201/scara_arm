@@ -695,34 +695,34 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
     n = len(joint_2_values)  # pastikan semua joint sama panjang
     time_values = start_time + np.arange(n) * pvt_time_interval  # sesuaikan satuan (ms atau s)
 
-    # Plot joint angles over time
-    plt.figure(figsize=(12, 8))
+    # # Plot joint angles over time
+    # plt.figure(figsize=(12, 8))
 
-    # Plot joint2, joint3, and joint4 over time
-    plt.subplot(3, 1, 1)
-    plt.plot(time_values - start_time, joint_2_values, label='Joint 2')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Joint 2 Angle')
-    plt.grid(True)
-    plt.legend()
-    plt.title('Joint Angles Over Time')
+    # # Plot joint2, joint3, and joint4 over time
+    # plt.subplot(3, 1, 1)
+    # plt.plot(time_values - start_time, joint_2_values, label='Joint 2')
+    # plt.xlabel('Time (ms)')
+    # plt.ylabel('Joint 2 Angle')
+    # plt.grid(True)
+    # plt.legend()
+    # plt.title('Joint Angles Over Time')
 
-    plt.subplot(3, 1, 2)
-    plt.plot(time_values - start_time, joint_3_values, label='Joint 3')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Joint 3 Angle')
-    plt.grid(True)
-    plt.legend()
+    # plt.subplot(3, 1, 2)
+    # plt.plot(time_values - start_time, joint_3_values, label='Joint 3')
+    # plt.xlabel('Time (ms)')
+    # plt.ylabel('Joint 3 Angle')
+    # plt.grid(True)
+    # plt.legend()
 
-    plt.subplot(3, 1, 3)
-    plt.plot(time_values - start_time, joint_4_values, label='Joint 4')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Joint 4 Angle')
-    plt.grid(True)
-    plt.legend()
+    # plt.subplot(3, 1, 3)
+    # plt.plot(time_values - start_time, joint_4_values, label='Joint 4')
+    # plt.xlabel('Time (ms)')
+    # plt.ylabel('Joint 4 Angle')
+    # plt.grid(True)
+    # plt.legend()
 
-    plt.tight_layout()
-    plt.show()
+    # plt.tight_layout()
+    # plt.show()
 
     def calculate_relative_position(joint_values):
         base = joint_values[0]
@@ -745,10 +745,10 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
         return displacement
     
     # Menghitung diferensial posisi untuk setiap joint
-    joint_1_displacement = calculate_joint_displacement(joint_1_relative)
-    joint_2_displacement = calculate_joint_displacement(joint_2_relative)
-    joint_3_displacement = calculate_joint_displacement(joint_3_relative)
-    joint_4_displacement = calculate_joint_displacement(joint_4_relative)
+    joint_1_displacement = calculate_joint_displacement(joint_1_values)
+    joint_2_displacement = calculate_joint_displacement(joint_2_values)
+    joint_3_displacement = calculate_joint_displacement(joint_3_values)
+    joint_4_displacement = calculate_joint_displacement(joint_4_values)
     
     # Fungsi untuk menghitung kecepatan joint dalam RPM
     def calculate_joint_speed(displacement, interval):
