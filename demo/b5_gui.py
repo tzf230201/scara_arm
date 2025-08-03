@@ -581,7 +581,7 @@ def start_dancing_2():
     cur_pulses = []
     node_ids = [ID1, ID2, ID3, ID4]
     pvt_3_lower_limit = 60
-    pvt_3_upper_limit = 80
+    pvt_3_upper_limit = 900
     
     list_tar_coor = [
         ([107, 125, 90, 90], 2000),
