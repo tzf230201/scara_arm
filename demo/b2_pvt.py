@@ -116,14 +116,14 @@ def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
     wr_p = stepper_pulses_to_steps(wr_p)
     wr_v = stepper_pulses_to_steps(wr_v)
     
-    # arrival_pulse = stepper_steps_to_pulses(wr_p)
+    arrival_pulse = stepper_steps_to_pulses(wr_p)
     
     
     error_code = pvt_mode_write_pvt(node_id, wr_p, wr_v, wr_t)
-    # if (error_code == NO_ERROR):
-    #     print(f"motor{node_id-0x600} pvt wr: {wr_p},{wr_v},{wr_t} will be: {arrival_pulse} -> OK")
-    # else:
-    #     print(f"motor{node_id-0x600} pvt wr -> ERROR")
+    if (error_code == NO_ERROR):
+        print(f"motor{node_id-0x600} pvt wr: {wr_p},{wr_v},{wr_t} will be: {arrival_pulse} -> OK")
+    else:
+        print(f"motor{node_id-0x600} pvt wr -> ERROR")
 
 
 
