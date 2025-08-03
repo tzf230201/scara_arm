@@ -719,7 +719,7 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
     joint_4_values = []  
     tar_coor, tar_time = coor_list[0]
     steps = int(tar_time / dt)
-    # trajectory_1 = generate_coor_straight_trajectory(start_coor, tar_coor, steps)
+    trajectory_1 = generate_coor_straight_trajectory(start_coor, tar_coor, steps)
     cur_x, cur_y, cur_z, cur_yaw = start_coor
     tar_x, tar_y, tar_z, tar_yaw = tar_coor
     
@@ -737,7 +737,7 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
         tar_coor, tar_time = coor_list[i]
         cur_coor, _ = coor_list[i - 1]
         steps = int(tar_time / dt)
-        # trajectory = generate_coor_straight_trajectory(cur_coor, tar_coor, steps)
+        trajectory = generate_coor_straight_trajectory(cur_coor, tar_coor, steps)
         cur_x, cur_y, cur_z, cur_yaw = cur_coor
         tar_x, tar_y, tar_z, tar_yaw = tar_coor
         start_time = 0
@@ -746,7 +746,7 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
         y_over_time = [sine_wave(t, start_time, tar_time, cur_y, tar_y) for t in time_values]
         z_over_time = [sine_wave(t, start_time, tar_time, cur_z, tar_z) for t in time_values]
         yaw_over_time = [sine_wave(t, start_time, tar_time, cur_yaw, tar_yaw) for t in time_values]
-
+        trajectory_1.extend(trajectory)
         trajectory_over_time.extend(list(zip(x_over_time, y_over_time, z_over_time, yaw_over_time)))
         
      
@@ -767,6 +767,19 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
     
     n = len(joint_2_values)  # pastikan semua joint sama panjang
     time_values = start_time + np.arange(n) * pvt_time_interval  # sesuaikan satuan (ms atau s)
+    
+    if show == 1:
+        # Plot the trajectory in one window
+        plt.figure(figsize=(8, 6))
+        plt.plot([point[0] for point in trajectory], [point[1] for point in trajectory], label='Trajectory')
+        plt.xlim(0, 258)
+        plt.ylim(-258, 258)
+        plt.xlabel('X Position')
+        plt.ylabel('Y Position')
+        plt.title('Generated Trajectory')
+        plt.grid(True)
+        plt.legend()
+        plt.show()
 
     if show == 1:
         # Plot joint angles over time
