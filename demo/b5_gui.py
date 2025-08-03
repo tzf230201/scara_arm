@@ -8,6 +8,8 @@ from b1_servo import servo_execute
 from b2_pvt import pvt_mode_start_pvt_step
 import sys
 
+from pusirobot.ver_b.b2_pvt import pvt_mode_write_read
+
 # class Tee:
 #     def __init__(self, file_name):
 #         self.console = sys.stdout  # Standard output (console)
@@ -587,13 +589,15 @@ def start_dancing_2():
 
     pvt_mode_reset_queue()
     for pos, vel, tim in pvt2_f:
-        pvt_mode_write_read(ID2, pos, vel, tim)
+        if vel != 0:
+            pvt_mode_write_read(ID2, pos, vel, tim)
     # for pos, vel, tim in pvt2_b:
     #     pvt_mode_write_read(ID2, pos, vel, tim)
 
        
     for pos, vel, tim in pvt3_f:
-        pvt_mode_write_read(ID3, pos, vel, tim)
+        if vel != 0:
+            pvt_mode_write_read(ID3, pos, vel, tim)
     # for pos, vel, tim in pvt3_b:
     #     pvt_mode_write_read(ID3, pos, vel, tim)
         
