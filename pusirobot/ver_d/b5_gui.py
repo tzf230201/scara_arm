@@ -715,7 +715,7 @@ def read_present_position():
     # pvt_mode_write_read(ID2, 6000, 100, 50)
     # t2 = time.time() - t1
     # print(f"total = {t2} s {t2*1000} ms")
-    # print_error_status()
+    print_error_status()
     # print_controller_status()
     
 # Menangani sinyal SIGINT (Ctrl + C)
