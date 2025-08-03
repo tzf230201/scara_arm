@@ -742,7 +742,7 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
         return speed_rpm
     
     # Interval waktu antara setiap langkah
-    interval = (time_values[1] - time_values[0]) / 1000  # Konversi dari ms ke detik
+    interval = dt / 1000  # Konversi dari ms ke detik
     
 
     # Menghitung kecepatan dalam RPM
