@@ -692,6 +692,9 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
             joint_3_values.append(None)
             joint_4_values.append(None)
     
+    n = len(joint_2_values)  # pastikan semua joint sama panjang
+    time_values = start_time + np.arange(n) * pvt_time_interval  # sesuaikan satuan (ms atau s)
+
     # Plot joint angles over time
     plt.figure(figsize=(12, 8))
 
