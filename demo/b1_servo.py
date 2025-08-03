@@ -99,9 +99,9 @@ def is_brake_on():
     return not(brake_off)
 
     
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.OUT)
-servo_brake_on()
+# GPIO.setmode(GPIO.BCM)
+# GPIO.setup(17, GPIO.OUT)
+# servo_brake_on()
 
 
 
