@@ -627,7 +627,7 @@ def start_dancing_2():
             
     init_single_motor_change_group_id(ID2, group_id)
     init_single_motor_change_group_id(ID3, group_id)
-    # init_single_motor_change_group_id(ID4, group_id)
+    init_single_motor_change_group_id(ID4, group_id)
     
     pt_idx = len(pvt2_f)
     pvt_mode_read_index()
@@ -640,9 +640,9 @@ def start_dancing_2():
     time_out = travel_time / 1000
     pvt_mode_start_pvt_step(group_id)
     time.sleep(0.5)
-    tar_joints = inverse_kinematics([107, 160, 90, 90])
-    _, _, _, tar_joint_4 = tar_joints
-    stepper_single_motor_pp_mode(ID4, tar_joint_4, 2000, get_motor_selection())
+    # tar_joints = inverse_kinematics([107, 160, 90, 90])
+    # _, _, _, tar_joint_4 = tar_joints
+    # stepper_single_motor_pp_mode(ID4, tar_joint_4, 2000, get_motor_selection())
     
 def stop():
     global motion_enable
