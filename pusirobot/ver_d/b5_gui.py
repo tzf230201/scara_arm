@@ -626,13 +626,18 @@ def start_dancing_2():
     #     pvt_mode_write_read(ID4, pos, vel, tim)
             
     init_single_motor_change_group_id(ID2, group_id)
+    time.sleep(1)
     init_single_motor_change_group_id(ID3, group_id)
+    time.sleep(1)
     # init_single_motor_change_group_id(ID4, group_id)
     
     pt_idx = len(pvt2_f)
     pvt_mode_read_index()
+    time.sleep(1)
     pvt_mode_set_pvt_1_start(0)
+    time.sleep(1)
     pvt_mode_set_pvt_1_end(pt_idx-1)
+    time.sleep(1)
     # time.sleep(1)
     
     
