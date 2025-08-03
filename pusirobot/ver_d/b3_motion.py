@@ -633,36 +633,14 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
     cur_x, cur_y, cur_z, cur_yaw = start_coor
     tar_x, tar_y, tar_z, tar_yaw = tar_coor
     
-    # start_time = 0
-    # time_values = np.linspace(start_time, start_time + tar_time, steps)
+    start_time = 0
+    time_values = np.linspace(start_time, start_time + tar_time, steps)
 
     # Calculate sine wave values for x and y positions
-    # x_over_time = [sine_wave(t, start_time, tar_time, cur_x, tar_x) for t in time_values]
-    # y_over_time = [sine_wave(t, start_time, tar_time, cur_y, tar_y) for t in time_values]
-    # z_over_time = [sine_wave(t, start_time, tar_time, cur_z, tar_z) for t in time_values]
-    # yaw_over_time = [sine_wave(t, start_time, tar_time, cur_yaw, tar_yaw) for t in time_values]
-    def triangle_profile(p0, p1, T, dt):
-        steps = int(T / dt)
-        half = steps // 2
-        a = 4 * (p1 - p0) / (T ** 2)
-
-        positions = []
-        for i in range(steps + 1):
-            t = i * dt
-            if i <= half:
-                pos = p0 + 0.5 * a * t**2
-            else:
-                t1 = t - T / 2
-                vmax = a * (T / 2)
-                pmid = p0 + 0.5 * a * (T / 2)**2
-                pos = pmid + vmax * t1 - 0.5 * a * t1**2
-            positions.append(pos)
-        return positions
-
-    x_over_time = triangle_profile(cur_x, tar_x, tar_time, dt)
-    y_over_time = triangle_profile(cur_y, tar_y, tar_time, dt)
-    z_over_time = triangle_profile(cur_z, tar_z, tar_time, dt)
-    yaw_over_time = triangle_profile(cur_yaw, tar_yaw, tar_time, dt)
+    x_over_time = [sine_wave(t, start_time, tar_time, cur_x, tar_x) for t in time_values]
+    y_over_time = [sine_wave(t, start_time, tar_time, cur_y, tar_y) for t in time_values]
+    z_over_time = [sine_wave(t, start_time, tar_time, cur_z, tar_z) for t in time_values]
+    yaw_over_time = [sine_wave(t, start_time, tar_time, cur_yaw, tar_yaw) for t in time_values]
 
     trajectory_over_time = list(zip(x_over_time, y_over_time, z_over_time, yaw_over_time))
     
@@ -675,11 +653,11 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
         cur_x, cur_y, cur_z, cur_yaw = cur_coor
         tar_x, tar_y, tar_z, tar_yaw = tar_coor
         start_time = 0
-        # time_values = np.linspace(start_time, start_time + tar_time, steps)
-        x_over_time = triangle_profile(cur_x, tar_x, tar_time, dt)
-        y_over_time = triangle_profile(cur_y, tar_y, tar_time, dt)
-        z_over_time = triangle_profile(cur_z, tar_z, tar_time, dt)
-        yaw_over_time = triangle_profile(cur_yaw, tar_yaw, tar_time, dt)
+        time_values = np.linspace(start_time, start_time + tar_time, steps)
+        x_over_time = [sine_wave(t, start_time, tar_time, cur_x, tar_x) for t in time_values]
+        y_over_time = [sine_wave(t, start_time, tar_time, cur_y, tar_y) for t in time_values]
+        z_over_time = [sine_wave(t, start_time, tar_time, cur_z, tar_z) for t in time_values]
+        yaw_over_time = [sine_wave(t, start_time, tar_time, cur_yaw, tar_yaw) for t in time_values]
 
         trajectory_over_time.extend(list(zip(x_over_time, y_over_time, z_over_time, yaw_over_time)))
         
@@ -742,7 +720,7 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
         return speed_rpm
     
     # Interval waktu antara setiap langkah
-    interval = dt / 1000  # Konversi dari ms ke detik
+    interval = (time_values[1] - time_values[0]) / 1000  # Konversi dari ms ke detik
     
 
     # Menghitung kecepatan dalam RPM
