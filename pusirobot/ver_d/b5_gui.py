@@ -635,15 +635,16 @@ def start_dancing_2():
     pvt_mode_set_pvt_1_end(pt_idx-1)
     # time.sleep(1)
     
-    tar_joints = inverse_kinematics([107, 50, 90, 90])
-    _, _, _, tar_joint_4 = tar_joints
-    stepper_single_motor_pp_mode(ID4, tar_joint_4, 2000, get_motor_selection())
+    
     last_time = time.time()
     stop_watch = last_time
     time_out = travel_time / 1000
     pvt_mode_start_pvt_step(group_id)
     time.sleep(0.5)
-
+    tar_joints = inverse_kinematics([107, 50, 90, 90])
+    _, _, _, tar_joint_4 = tar_joints
+    stepper_single_motor_pp_mode(ID4, tar_joint_4, 2000, get_motor_selection())
+    
 def stop():
     global motion_enable
     global motion_cnt
