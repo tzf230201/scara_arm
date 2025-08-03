@@ -141,8 +141,8 @@ def pvt_mode_init(group_id, pvt_type = PVT_3, pvt_max_point = 400, pvt_3_lower_l
     pvt_mode_set_pvt_max_point(pvt_max_point)
     pvt_mode_set_pvt_operation_mode(pvt_type)
     # print(f"pvt init : pvt_mode {pvt_type+1}, max point {pvt_max_point}, pvt mode {pvt_type}")
-    # pvt_mode_set_pvt_3_fifo_threshold_1(pvt_3_lower_limit)
-    # pvt_mode_set_pvt_3_fifo_threshold_2(pvt_3_upper_limit)
+    pvt_mode_set_pvt_3_fifo_threshold_1(pvt_3_lower_limit)
+    pvt_mode_set_pvt_3_fifo_threshold_2(pvt_3_upper_limit)
     # print(f"pvt init : lower_limit {pvt_3_lower_limit}, upper_limit {pvt_3_upper_limit}")
     
     
