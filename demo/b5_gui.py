@@ -2,7 +2,7 @@ import signal
 import tkinter as tk
 import time
 from b0_can import *
-from b4_functions import *
+from b4_function import *
 from b3_motion import *
 from b1_servo import servo_execute
 from b2_pvt import pvt_mode_start_pvt_step
