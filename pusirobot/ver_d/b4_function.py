@@ -31,7 +31,7 @@ def wake_up():
         servo_init(1)  # 7 is PVT mode, 1 is PP mode
         servo_disable_heartbeat()
         if is_brake_on():
-            ret = pp_angle_servo(cur_joints, 100, "servo_only")
+            ret = pp_angle_servo(cur_joints, 500, "servo_only")
             if ret == 1:
                 servo_execute()  # Execute the servo command to start the movement
             
