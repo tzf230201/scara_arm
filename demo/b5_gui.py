@@ -304,9 +304,6 @@ motion_size = len(motion_data)  # Set how many times to run based on the number 
 dancing_tar_coor = convert_csv_to_list_tar_coor(filename)
 # start_coor = forward_kinematics(get_cur_joints("all"))
 start_coor = shuttle_coor
-pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, dancing_tar_coor, pvt_time_interval)
-
-
 
 def pre_start_dancing():
     selection = get_motor_selection()
