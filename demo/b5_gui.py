@@ -599,7 +599,8 @@ def start_dancing_2():
         
      
     for pos, vel, tim in pvt4_f:
-        pvt_mode_write_read(ID4, pos, vel, tim)
+        if vel != 0:
+            pvt_mode_write_read(ID4, pos, vel, tim)
     # for pos, vel, tim in pvt4_b:
     #     pvt_mode_write_read(ID4, pos, vel, tim)
             
