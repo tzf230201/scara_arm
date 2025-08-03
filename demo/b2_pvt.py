@@ -132,8 +132,9 @@ def pvt_mode_write_read(node_id, wr_p, wr_v, wr_t):
 def pvt_mode_init(group_id, pvt_type = PVT_3, pvt_max_point = 400, pvt_3_lower_limit = 40, pvt_3_upper_limit = 80):
     # reset_node()
     stepper_shutdown()
-    stepper_init()
     time.sleep(1)
+    stepper_init()
+   
     init_operation_mode(PVT_MODE)
     
     init_change_group_id(group_id)
