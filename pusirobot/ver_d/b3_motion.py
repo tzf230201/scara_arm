@@ -691,6 +691,35 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
             joint_2_values.append(None) 
             joint_3_values.append(None)
             joint_4_values.append(None)
+    
+    # Plot joint angles over time
+    plt.figure(figsize=(12, 8))
+
+    # Plot joint2, joint3, and joint4 over time
+    plt.subplot(3, 1, 1)
+    plt.plot(time_values - start_time, joint_2_values, label='Joint 2')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('Joint 2 Angle')
+    plt.grid(True)
+    plt.legend()
+    plt.title('Joint Angles Over Time')
+
+    plt.subplot(3, 1, 2)
+    plt.plot(time_values - start_time, joint_3_values, label='Joint 3')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('Joint 3 Angle')
+    plt.grid(True)
+    plt.legend()
+
+    plt.subplot(3, 1, 3)
+    plt.plot(time_values - start_time, joint_4_values, label='Joint 4')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('Joint 4 Angle')
+    plt.grid(True)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
 
     def calculate_relative_position(joint_values):
         base = joint_values[0]
