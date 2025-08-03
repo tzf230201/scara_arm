@@ -722,28 +722,16 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
     # trajectory_1 = generate_coor_straight_trajectory(start_coor, tar_coor, steps)
     cur_x, cur_y, cur_z, cur_yaw = start_coor
     tar_x, tar_y, tar_z, tar_yaw = tar_coor
-    cur_joint = inverse_kinematics(start_coor)
-    tar_joint = inverse_kinematics(tar_coor)
-    cur_joint_1, cur_joint_2, cur_joint_3, cur_joint_4 = cur_joint
-    tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joint
     
     start_time = 0
     time_values = np.linspace(start_time, start_time + tar_time, steps)
 
-    # Calculate sine wave values for x and y positions
-    joint_1_over_time = [sine_wave(t, start_time, tar_time, cur_joint_1, tar_joint_1) for t in time_values]
-    joint_2_over_time = [sine_wave(t, start_time, tar_time, cur_joint_2, tar_joint_2) for t in time_values]
-    joint_3_over_time = [sine_wave(t, start_time, tar_time, cur_joint_3, tar_joint_3) for t in time_values]
-    joint_4_over_time = [sine_wave(t, start_time, tar_time, cur_joint_4, tar_joint_4) for t in time_values]
+    x_over_time = [sine_wave(t, start_time, tar_time, cur_x, tar_x) for t in time_values]
+    y_over_time = [sine_wave(t, start_time, tar_time, cur_y, tar_y) for t in time_values]
+    z_over_time = [sine_wave(t, start_time, tar_time, cur_z, tar_z) for t in time_values]
+    yaw_over_time = [sine_wave(t, start_time, tar_time, cur_yaw, tar_yaw) for t in time_values]
 
-    for (joint_1, joint_2, joint_3, joint_4) in zip(joint_1_over_time, joint_2_over_time, joint_3_over_time, joint_4_over_time):
-        joint_1, joint_2, joint_3, joint_4 = check_limit([joint_1, joint_2, joint_3, joint_4])
-        joint_1_values.append(joint_1)
-        joint_2_values.append(joint_2)
-        joint_3_values.append(joint_3)
-        joint_4_values.append(joint_4)
-    
-    trajectory_over_time = []
+    trajectory_over_time = list(zip(x_over_time, y_over_time, z_over_time, yaw_over_time))
 
     for i in range(1, len(coor_list)):
         tar_coor, tar_time = coor_list[i]
