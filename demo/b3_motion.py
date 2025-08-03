@@ -771,7 +771,7 @@ def gen_new_mpvtp(start_coor, coor_list, dt):
     if show == 1:
         # Plot the trajectory in one window
         plt.figure(figsize=(8, 6))
-        plt.plot([point[0] for point in trajectory], [point[1] for point in trajectory], label='Trajectory')
+        plt.plot([point[0] for point in trajectory_1], [point[1] for point in trajectory], label='Trajectory')
         plt.xlim(0, 258)
         plt.ylim(-258, 258)
         plt.xlabel('X Position')
