@@ -626,6 +626,142 @@ def sine_wave(current_time, start_time, travel_time, cur_pos, tar_pos):
     output = cur_pos + (sin_value + 1) / 2 * (tar_pos - cur_pos)
     return output
 
+def gen_new_mpvtp(start_coor, coor_list, dt):    
+    tar_coor, tar_time = coor_list[0]
+    steps = int(tar_time / dt)
+    # trajectory_1 = generate_coor_straight_trajectory(start_coor, tar_coor, steps)
+    cur_x, cur_y, cur_z, cur_yaw = start_coor
+    tar_x, tar_y, tar_z, tar_yaw = tar_coor
+    
+    start_time = 0
+    time_values = np.linspace(start_time, start_time + tar_time, steps)
+
+    # Calculate sine wave values for x and y positions
+    x_over_time = [sine_wave(t, start_time, tar_time, cur_x, tar_x) for t in time_values]
+    y_over_time = [sine_wave(t, start_time, tar_time, cur_y, tar_y) for t in time_values]
+    z_over_time = [sine_wave(t, start_time, tar_time, cur_z, tar_z) for t in time_values]
+    yaw_over_time = [sine_wave(t, start_time, tar_time, cur_yaw, tar_yaw) for t in time_values]
+
+    trajectory_over_time = list(zip(x_over_time, y_over_time, z_over_time, yaw_over_time))
+    
+
+    for i in range(1, len(coor_list)):
+        tar_coor, tar_time = coor_list[i]
+        cur_coor, _ = coor_list[i - 1]
+        steps = int(tar_time / dt)
+        # trajectory = generate_coor_straight_trajectory(cur_coor, tar_coor, steps)
+        cur_x, cur_y, cur_z, cur_yaw = cur_coor
+        tar_x, tar_y, tar_z, tar_yaw = tar_coor
+        start_time = 0
+        time_values = np.linspace(start_time, start_time + tar_time, steps)
+        x_over_time = [sine_wave(t, start_time, tar_time, cur_x, tar_x) for t in time_values]
+        y_over_time = [sine_wave(t, start_time, tar_time, cur_y, tar_y) for t in time_values]
+        z_over_time = [sine_wave(t, start_time, tar_time, cur_z, tar_z) for t in time_values]
+        yaw_over_time = [sine_wave(t, start_time, tar_time, cur_yaw, tar_yaw) for t in time_values]
+
+        trajectory_over_time.extend(list(zip(x_over_time, y_over_time, z_over_time, yaw_over_time)))
+        
+     # Calculate joint angles for each point in the trajectory
+    joint_1_values = []
+    joint_2_values = []
+    joint_3_values = []
+    joint_4_values = []
+
+    for (x, y, z, yaw) in trajectory_over_time:
+        try:
+            joint_1, joint_2, joint_3, joint_4 = inverse_kinematics([x, y, z, yaw])
+            joint_1_values.append(joint_1)
+            joint_2_values.append(joint_2)
+            joint_3_values.append(joint_3)
+            joint_4_values.append(joint_4)
+        except ValueError as e:
+            print(f"Error calculating inverse kinematics for (x={x}, y={y}, c={c}): {e}")
+            joint_1_values.append(None) # Use None to indicate out-of-bound values
+            joint_2_values.append(None) 
+            joint_3_values.append(None)
+            joint_4_values.append(None)
+
+    def calculate_relative_position(joint_values):
+        base = joint_values[0]
+        return [j - base if j is not None else None for j in joint_values]
+
+    joint_1_relative = calculate_relative_position(joint_1_values)
+    joint_2_relative = calculate_relative_position(joint_2_values)
+    joint_3_relative = calculate_relative_position(joint_3_values)
+    joint_4_relative = calculate_relative_position(joint_4_values)
+    
+    def calculate_joint_displacement(joint_values):
+        displacement = []
+        for i in range(1, len(joint_values)):
+            if joint_values[i] is not None and joint_values[i-1] is not None:
+                delta_position = joint_values[i] - joint_values[i-1]
+                displacement.append(delta_position)
+            else:
+                displacement.append(None)  # Jika ada nilai None, maka hasilnya None
+        displacement.insert(0, 0)  # Tidak ada pergerakan pada titik awal, jadi displacement awal adalah 0
+        return displacement
+    
+    # Menghitung diferensial posisi untuk setiap joint
+    joint_1_displacement = calculate_joint_displacement(joint_1_values)
+    joint_2_displacement = calculate_joint_displacement(joint_2_values)
+    joint_3_displacement = calculate_joint_displacement(joint_3_values)
+    joint_4_displacement = calculate_joint_displacement(joint_4_values)
+    
+    # Fungsi untuk menghitung kecepatan joint dalam RPM
+    def calculate_joint_speed(displacement, interval):
+        speed_rpm = []
+        for i in range(1, len(displacement)):
+            if displacement[i] is not None and displacement[i-1] is not None:
+                speed_dps = displacement[i] / interval
+                speed_rpm.append((speed_dps * 60) / 360)
+            else:
+                speed_rpm.append(None)  # Jika ada nilai None, maka hasilnya None
+        speed_rpm.insert(0, 0)  # Tidak ada kecepatan pada titik awal, jadi kecepatan awal adalah 0
+        return speed_rpm
+    
+    # Interval waktu antara setiap langkah
+    interval = (time_values[1] - time_values[0]) / 1000  # Konversi dari ms ke detik
+    
+
+    # Menghitung kecepatan dalam RPM
+    joint_1_speed_rpm = calculate_joint_speed(joint_1_displacement, interval)
+    joint_2_speed_rpm = calculate_joint_speed(joint_2_displacement, interval)
+    joint_3_speed_rpm = calculate_joint_speed(joint_3_displacement, interval)
+    joint_4_speed_rpm = calculate_joint_speed(joint_4_displacement, interval)
+    
+    joint_2_relative_pulses = [stepper_degrees_to_pulses(d) if d is not None else None for d in joint_2_relative]
+    joint_3_relative_pulses = [stepper_degrees_to_pulses(d) if d is not None else None for d in joint_3_relative]
+    joint_4_relative_pulses = [stepper_degrees_to_pulses(d) if d is not None else None for d in joint_4_relative]
+    
+    def stepper_rpm_to_pps(rpm):
+        return int(rpm * (STEPPER_PPR / 60))
+    
+    joint_2_speed_pps = [stepper_rpm_to_pps(r) if r is not None else None for r in joint_2_speed_rpm]
+    joint_3_speed_pps = [stepper_rpm_to_pps(r) if r is not None else None for r in joint_3_speed_rpm]
+    joint_4_speed_pps = [stepper_rpm_to_pps(r) if r is not None else None for r in joint_4_speed_rpm]
+    
+    def generate_pvt_points_from_pulse_and_pps(position_pulse, speed_pps, interval_ms):
+        """
+        Buat PVT point dalam format (position, velocity, time)
+        - position_pulse: list posisi relatif dalam pulse
+        - speed_pps: list kecepatan dalam pulse per second
+        - interval_ms: waktu antar titik dalam milidetik
+        """
+        pvt_points = []
+        for pos, vel in zip(position_pulse, speed_pps):
+            if pos is not None and vel is not None:
+                pvt_points.append((int(round(pos)), int(round(vel)), int(round(interval_ms))))
+        return pvt_points
+
+    interval_ms = pvt_time_interval  # langsung dalam ms, misalnya 25
+    pvt_joint_2 = generate_pvt_points_from_pulse_and_pps(joint_2_relative_pulses, joint_2_speed_pps, interval_ms)
+    pvt_joint_3 = generate_pvt_points_from_pulse_and_pps(joint_3_relative_pulses, joint_3_speed_pps, interval_ms)
+    pvt_joint_4 = generate_pvt_points_from_pulse_and_pps(joint_4_relative_pulses, joint_4_speed_pps, interval_ms)
+    
+    return pvt_joint_2, pvt_joint_3, pvt_joint_4
+    
+    
+
 def generate_straight_pvt_points(start_coor, end_coor, travel_time):
     show = 0
     steps = int(travel_time / pvt_time_interval)  # Make sure pvt_time_interval is defined

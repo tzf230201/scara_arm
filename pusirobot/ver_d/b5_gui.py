@@ -578,6 +578,65 @@ def routine():
     else:
         print(f"Robot is not awake, cannot perform motion.")
 
+def start_dancing_2():
+    selection = get_motor_selection()
+    cur_joints = get_cur_joints(selection)
+    tar_coor = get_tar_coor()
+    travel_time = get_travel_time()
+
+    global last_time, stop_watch, time_out
+    group_id = 0x05
+    tar_pulses = []
+    cur_pulses = []
+    node_ids = [ID1, ID2, ID3, ID4]
+    pvt_3_lower_limit = 60
+    pvt_3_upper_limit = 80
+    
+    list_tar_coor_2 = [
+        ([107, 50, 90, 87], 4000),
+        ([107, 160, 90, 87], 2000),
+        ([107, 160, 115, 87], 2000),
+        ([107, 50, 115, 87], 3000),
+    ]
+    
+    start_coor = shuttle_coor
+    
+    pvt2_f, pvt3_f, pvt4_f = gen_new_mpvtp(start_coor,  list_tar_coor_2, pvt_time_interval)
+    
+    pvt_mode_init(group_id, PVT_1, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
+
+    for pos, vel, tim in pvt2_f:
+        pvt_mode_write_read(ID2, pos, vel, tim)
+    # for pos, vel, tim in pvt2_b:
+    #     pvt_mode_write_read(ID2, pos, vel, tim)
+
+       
+    for pos, vel, tim in pvt3_f:
+        pvt_mode_write_read(ID3, pos, vel, tim)
+    # for pos, vel, tim in pvt3_b:
+    #     pvt_mode_write_read(ID3, pos, vel, tim)
+        
+     
+    for pos, vel, tim in pvt4_f:
+        pvt_mode_write_read(ID4, pos, vel, tim)
+    # for pos, vel, tim in pvt4_b:
+    #     pvt_mode_write_read(ID4, pos, vel, tim)
+            
+    init_single_motor_change_group_id(ID2, group_id)
+    init_single_motor_change_group_id(ID3, group_id)
+    init_single_motor_change_group_id(ID4, group_id)
+    
+    pt_idx = len(pvt2_f)
+    # pvt_mode_read_index()
+    pvt_mode_set_pvt_1_start(0)
+    pvt_mode_set_pvt_1_end(pt_idx-1)
+    # time.sleep(1)
+    pvt_mode_start_pvt_step(group_id)
+
+    last_time = time.time()
+    stop_watch = last_time
+    time_out = travel_time / 1000
+
 def stop():
     global motion_enable
     global motion_cnt
@@ -773,7 +832,7 @@ pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew"
 motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=start_dancing)
+dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=start_dancing_2)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 20
