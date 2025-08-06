@@ -440,7 +440,7 @@ def start_dancing():
     
     start_coor = shuttle_coor
     
-    pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor_2, pvt_time_interval)
+    pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points_sine(start_coor, list_tar_coor_2, pvt_time_interval)
     pvt_3_lower_limit = 60
     pvt_3_upper_limit = 400
     group_id = 0x05
@@ -472,7 +472,7 @@ def start_dancing():
     
     
     # print(f"t2 adalah {t2 }, maka 4-t2 adalah ts = {ts} s, {int(ts*1000)} ms")
-    # time.sleep(1)
+    time.sleep(1)
     
     if selection != "servo_only": 
         pvt_mode_read_pvt_3_depth()
