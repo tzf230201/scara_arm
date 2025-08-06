@@ -210,16 +210,10 @@ def single_motor_sp_angle(cur_joints, tar_joints, travel_time, selection):
     for tar_joint in tar_joints:
         tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
 
-    # Set speed
-    for id, speed in zip([ID4, ID4], [tar_speeds[3], tar_speeds[3]]):
-        #in sp mode, speed is not pulse per second, but step per second
-        speed_have_to_write = stepper_pulses_to_steps(speed)
-        _,ret = sp_mode_set_speed(id, speed_have_to_write)
-        # print(f"{id:03X} sp speed is {ret}")  
-    #set position
-    for id, pulse in zip([ID4, ID4], [tar_pulses[3], tar_pulses[3]]):
-        _,ret = sp_mode_set_pulse(id, pulse)
-        # print(f"{id:03X} sp position is {ret}")
+    speed_have_to_write = stepper_pulses_to_steps(tar_speeds[3])
+    _,ret = sp_mode_set_speed(ID4, speed_have_to_write)
+        
+    _,ret = sp_mode_set_pulse(ID4, tar_pulses[3])
     
     sp_mode_start_motion(group_id)
     last_time = time.time()
