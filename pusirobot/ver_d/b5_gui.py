@@ -420,6 +420,8 @@ def start_dancing():
 
     time.sleep(3)
     
+    read_present_position()
+    
     # tar_joints = inverse_kinematics([166.82, -168, 90, 0])
     # ret = pp_angle_servo(tar_joints, 4000, selection)
     # if ret == 1:
