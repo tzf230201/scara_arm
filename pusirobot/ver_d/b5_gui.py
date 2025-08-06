@@ -445,8 +445,8 @@ def start_dancing():
     
     if selection != "servo_only":
         pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
-        stepper_get_operation_mode(ID2)
-        stepper_get_operation_mode(ID3)
+        # stepper_get_operation_mode(ID2)
+        # stepper_get_operation_mode(ID3)
         
     
     
@@ -458,13 +458,10 @@ def start_dancing():
         if selection != "servo_only":
             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
             pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
-            # pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
+            pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
             pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
             pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)   
-                # pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)     
-           
-            
-            
+            pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)     
         pvt_cnt = pvt_cnt + 1
     
     # t2 = (time.time() - t1)
@@ -476,13 +473,9 @@ def start_dancing():
     # time.sleep(1)
     
     if selection != "servo_only": 
-        # pvt_mode_read_pvt_3_depth()
-        # for node_id in (ID2, ID3, ID4):
-            # init_single_motor_change_group_id(node_id, group_id)
-            
-        for node_id in (ID2, ID3):
-            init_single_motor_change_group_id(node_id, group_id)
-        # init_change_group_id(group_id)        
+        pvt_mode_read_pvt_3_depth()
+        for node_id in (ID2, ID3, ID4):
+            init_single_motor_change_group_id(node_id, group_id)    
 
         pvt_mode_start_pvt_step(group_id)
         time.sleep(0.5)
@@ -493,7 +486,7 @@ def start_dancing():
         motion_cnt += 1
         tar_time = travel_time
         tar_pvt = int(travel_time/pvt_time_interval)
-        execute_motion_data(entry)
+        # execute_motion_data(entry)
 
     # root.after(int(routine_interval), routine)
     last_time = time.time()
@@ -532,11 +525,11 @@ def routine():
                         if pvt_cnt < max_pvt_index:
                             pos_2, vel_2, tim_2 = pvt_2[pvt_cnt]
                             pos_3, vel_3, tim_3 = pvt_3[pvt_cnt]
-                            # pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
+                            pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
                              
                             pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
                             pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)     
-                            # pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)      
+                            pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)      
                     
                             pvt_cnt += 1
                             cur_pvt += 1
@@ -838,7 +831,7 @@ pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew"
 motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=pre_start_dancing)
+dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 20
