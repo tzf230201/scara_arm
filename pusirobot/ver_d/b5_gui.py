@@ -447,8 +447,6 @@ def start_dancing():
     
     if selection != "servo_only":
         pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
-        time.sleep(1)
-        pvt_mode_init(group_id, PVT_3, 1000, pvt_3_lower_limit, pvt_3_upper_limit)
         # stepper_get_operation_mode(ID2)
         # stepper_get_operation_mode(ID3)
         
@@ -465,7 +463,7 @@ def start_dancing():
             pos_4, vel_4, tim_4 = pvt_4[pvt_cnt]
             pvt_mode_write_read(ID2, pos_2, vel_2, tim_2)
             pvt_mode_write_read(ID3, pos_3, vel_3, tim_3)   
-            pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)     
+            # pvt_mode_write_read(ID4, pos_4, vel_4, tim_4)     
         pvt_cnt = pvt_cnt + 1
     
     # t2 = (time.time() - t1)
@@ -478,7 +476,7 @@ def start_dancing():
     
     if selection != "servo_only": 
         pvt_mode_read_pvt_3_depth()
-        for node_id in (ID2, ID3, ID4):
+        for node_id in (ID2, ID3):
             init_single_motor_change_group_id(node_id, group_id)    
 
         pvt_mode_start_pvt_step(group_id)
@@ -490,7 +488,7 @@ def start_dancing():
         motion_cnt += 1
         tar_time = travel_time
         tar_pvt = int(travel_time/pvt_time_interval)
-        # execute_motion_data(entry)
+        execute_motion_data(entry)
 
     # root.after(int(routine_interval), routine)
     last_time = time.time()
