@@ -190,6 +190,41 @@ def sp_angle(tar_joints, travel_time, selection):
     last_time = time.time()
     stop_watch = last_time
     time_out = travel_time
+
+
+def single_motor_sp_angle(cur_joints, tar_joints, travel_time, selection):
+
+    
+    travel_time_s = (travel_time / 1000)  # Convert milliseconds to seconds
+    global stop_watch, time_out, last_time
+    group_id = 6
+    init_single_motor_operation_mode(ID4, 0)
+    init_single_motor_change_group_id(ID4, group_id)
+    _,ret = set_req_sdo(ID4, SET_1_BYTE, OD_STEPPER_ACCEL_COEF, 0x00, 1)
+    _,ret = set_req_sdo(ID4, SET_1_BYTE, OD_STEPPER_DECEL_COEF, 0x00, 1)
+    
+    delta_joints = [tar - cur for tar, cur in zip(tar_joints, cur_joints)]
+    tar_speeds = [stepper_degrees_to_pulses(int(delta / travel_time_s)) for delta in delta_joints]
+    
+    tar_pulses = []
+    for tar_joint in tar_joints:
+        tar_pulses.append(stepper_degrees_to_pulses(tar_joint))
+
+    # Set speed
+    for id, speed in zip([ID4, ID4], [tar_speeds[3], tar_speeds[3]]):
+        #in sp mode, speed is not pulse per second, but step per second
+        speed_have_to_write = stepper_pulses_to_steps(speed)
+        _,ret = sp_mode_set_speed(id, speed_have_to_write)
+        # print(f"{id:03X} sp speed is {ret}")  
+    #set position
+    for id, pulse in zip([ID4, ID4], [tar_pulses[3], tar_pulses[3]]):
+        _,ret = sp_mode_set_pulse(id, pulse)
+        # print(f"{id:03X} sp position is {ret}")
+    
+    sp_mode_start_motion(group_id)
+    last_time = time.time()
+    stop_watch = last_time
+    time_out = travel_time
     
 def sp_coor(tar_coor, travel_time, selection):
     tar_joints = inverse_kinematics(tar_coor)
