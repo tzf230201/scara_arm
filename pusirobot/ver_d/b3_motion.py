@@ -158,9 +158,9 @@ from b2_sp import *
 
 def sp_angle(tar_joints, travel_time, selection):
     
-    if is_brake_on():
-        print(f"please wake up first")
-        return
+    # if is_brake_on():
+    #     print(f"please wake up first")
+    #     return
     
     travel_time_s = (travel_time / 1000)  # Convert milliseconds to seconds
     global stop_watch, time_out, last_time
@@ -240,9 +240,9 @@ def pp_angle_servo(tar_joints, travel_time, selection):
 
 def pp_angle(tar_joints, travel_time, selection):
     
-    if is_brake_on():
-        print(f"please wake up first")
-        return
+    # if is_brake_on():
+    #     print(f"please wake up first")
+    #     return
     # print(f"masuk pp angle")
     origins = get_origins()
     
