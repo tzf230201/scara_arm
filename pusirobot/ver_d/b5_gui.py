@@ -269,8 +269,8 @@ def execute_motion_data(entry):
         _, _, _, tar_joint_4 = tar_joints
         cur_joints = inverse_kinematics(shuttle_coor)
         _, _, _, cur_joint_4 = cur_joints
-        # stepper_single_motor_pp_mode(ID4, cur_joint_4, tar_joint_4, 500, get_motor_selection())
-        single_motor_sp_angle(cur_joints, tar_joints, 500, get_motor_selection())
+        stepper_single_motor_pp_mode(ID4, cur_joint_4, tar_joint_4, 500, get_motor_selection())
+        # single_motor_sp_angle(cur_joints, tar_joints, 500, get_motor_selection())
 
 
 motion_enable = True
