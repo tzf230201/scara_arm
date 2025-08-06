@@ -267,7 +267,7 @@ def execute_motion_data(entry):
         pp_coor([d1, d2, d3, d4], travel_time, selection="servo_only")
         tar_joints = inverse_kinematics([d1, d2, d3, d4])
         _, _, _, tar_joint_4 = tar_joints
-        stepper_single_motor_pp_mode(ID4, tar_joint_4, 500, get_motor_selection())
+        stepper_single_motor_pp_mode(ID4, 0, 87, 500, get_motor_selection())
 
 
 motion_enable = True

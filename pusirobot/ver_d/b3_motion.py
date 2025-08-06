@@ -1188,12 +1188,12 @@ def pvt_mode_try_pvt_4(cur_joints, tar_joints, travel_time):
     # stop_watch = last_time
     # time_out = travel_time / 1000
 
-def stepper_single_motor_pp_mode(id, tar_joint, travel_time,  selection):
+def stepper_single_motor_pp_mode(id, cur_joint, tar_joint, travel_time,  selection):
     
     if selection != "servo_only": 
         init_single_motor_operation_mode(id, 4)
     
-    cur_joint = stepper_get_motor_position(id)
+    # cur_joint = stepper_get_motor_position(id)
     tar_pulse = stepper_degrees_to_pulses(tar_joint)
     
     delta_pulse = stepper_degrees_to_pulses(tar_joint - cur_joint)
