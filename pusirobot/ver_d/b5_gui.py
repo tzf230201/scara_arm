@@ -269,7 +269,7 @@ def execute_motion_data(entry):
         _, _, _, tar_joint_4 = tar_joints
         cur_joints = inverse_kinematics(shuttle_coor)
         _, _, _, cur_joint_4 = cur_joints
-        stepper_single_motor_pp_mode(ID4, cur_joint_4, tar_joint_4, 250, get_motor_selection())
+        stepper_single_motor_pp_mode(ID4, cur_joint_4, tar_joint_4, 200, get_motor_selection())
 
 
 motion_enable = True
@@ -481,7 +481,8 @@ def start_dancing():
         for node_id in (ID2, ID3):
             init_single_motor_change_group_id(node_id, group_id)    
 
-        
+        pvt_mode_start_pvt_step(group_id)
+        time.sleep(0.5)
              
     if selection != "stepper_only":
         entry = motion_data[motion_cnt]
@@ -490,8 +491,6 @@ def start_dancing():
         tar_time = travel_time
         tar_pvt = int(travel_time/pvt_time_interval)
         execute_motion_data(entry)
-    pvt_mode_start_pvt_step(group_id)
-    time.sleep(0.5)
 
     root.after(int(routine_interval), routine)
     last_time = time.time()
