@@ -264,7 +264,7 @@ def execute_motion_data(entry):
     elif motion_type == 'sp_angle':
         sp_angle([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
     elif motion_type == 'pvt':
-        # pp_coor([d1, d2, d3, d4], travel_time, selection="servo_only")
+        pp_coor([d1, d2, d3, d4], travel_time, selection="servo_only")
         tar_joints = inverse_kinematics([d1, d2, d3, d4])
         _, _, _, tar_joint_4 = tar_joints
         stepper_single_motor_pp_mode(ID4, tar_joint_4, 2000, get_motor_selection())
@@ -542,11 +542,11 @@ def routine():
                         change_motion = 1
                     
                     # print(f"pvt_cnt: {pvt_cnt}")
-                    # if pvt_cnt == 120:
-                    #     tar_joints = inverse_kinematics([166.82, -168, 114, 0])
-                    #     ret = pp_angle_servo(tar_joints, 1000, selection)
-                    #     if ret == 1:
-                    #         servo_execute()  # Execute the servo command to start the movement
+                    if pvt_cnt == 120:
+                        tar_joints = inverse_kinematics([166.82, -168, 114, 0])
+                        ret = pp_angle_servo(tar_joints, 1000, selection)
+                        if ret == 1:
+                            servo_execute()  # Execute the servo command to start the movement
                                                 
                     if change_motion:
                         entry = motion_data[motion_cnt]
