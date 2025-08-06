@@ -488,7 +488,7 @@ def start_dancing():
         tar_pvt = int(travel_time/pvt_time_interval)
         # execute_motion_data(entry)
 
-    root.after(int(routine_interval), routine)
+    # root.after(int(routine_interval), routine)
     last_time = time.time()
     
 
