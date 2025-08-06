@@ -333,7 +333,7 @@ def read_sp_mode_arrival_status():
 
 
 def stepper_init():
-    # reset_node()
+    reset_node()
     init_motor_enable(1)
     init_torque_ring_enable(1)
     init_set_max_current(STEPPER_MAX_CURRENT)
@@ -351,7 +351,7 @@ def stepper_shutdown():
     init_motor_enable(0)  
     init_torque_ring_enable(0)  
     init_set_max_current(0)
-    reset_node()
+    # reset_node()
     
 def stepper_enable_heartbeat():
     for id in [ID2, ID3, ID4]:
