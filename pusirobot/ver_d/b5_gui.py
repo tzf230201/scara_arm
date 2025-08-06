@@ -320,6 +320,8 @@ def pre_start_dancing():
     
     homing()
     
+    time.sleep(7)
+    
     list_tar_coor = [
         ([150, -100, 90, 0], 1000),
         ([150, 0, 90, 0], 1000),
