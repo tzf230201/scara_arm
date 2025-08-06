@@ -264,13 +264,14 @@ def execute_motion_data(entry):
     elif motion_type == 'sp_angle':
         sp_angle([d1, d2, d3, d4], travel_time, selection=get_motor_selection())
     elif motion_type == 'pvt':
-        pp_coor([d1, d2, d3, d4], travel_time, selection="servo_only")
+        
         tar_joints = inverse_kinematics(pickup_from_shelf_coor)
         _, _, _, tar_joint_4 = tar_joints
         cur_joints = inverse_kinematics(shuttle_coor)
         _, _, _, cur_joint_4 = cur_joints
         stepper_single_motor_pp_mode(ID4, cur_joint_4, tar_joint_4, 500, get_motor_selection())
         # single_motor_sp_angle(cur_joints, tar_joints, 500, get_motor_selection())
+        pp_coor([d1, d2, d3, d4], travel_time, selection="servo_only")
 
 
 motion_enable = True
