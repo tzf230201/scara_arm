@@ -1,2 +1,2 @@
 ./get.sh
-python3 demo/b5_gui.py
+python3 pusirobot/ver_d/b5_gui.py
