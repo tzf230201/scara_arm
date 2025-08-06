@@ -318,10 +318,7 @@ pvt_1, pvt_2, pvt_3, pvt_4 = generate_multi_straight_pvt_points(start_coor, danc
 def pre_start_dancing():
     selection = get_motor_selection()
     
-    sp_coor(shuttle_coor,3000,selection)
-    time.sleep(3.1)
-    sp_angle(home_angle,3000,selection)
-    time.sleep(3.1)
+    homing()
     
     list_tar_coor = [
         ([150, -100, 90, 0], 1000),
@@ -839,7 +836,7 @@ pp_move_button.grid(row=18, column=1, columnspan=1, pady=10, padx=5, sticky="ew"
 motor_position_button = tk.Button(root, text="read position", bg="orange",fg="black", command=read_present_position)
 motor_position_button.grid(row=19, column=0, columnspan=1, pady=10, padx=5, sticky="ew")
 
-dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=start_dancing_2)
+dancing_button = tk.Button(root, text="dancing",bg="green",fg="black", command=pre_start_dancing)
 dancing_button.grid(row=19, column=1, columnspan=1, pady=10, padx=5, sticky="ew")
 
 #baris 20
