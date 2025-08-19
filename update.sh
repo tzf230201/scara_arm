@@ -3,8 +3,8 @@ if [ "$(whoami)" != "peter" ]; then
     git status
     git add .
     git status
-    git commit -m "demo preparation for investor" *
+    git commit -m "setup new motor (UI robot stepper & DMKE Servo)" *
     git push origin main
 else
-    echo "pengguna 'peter', tidak dapat menjalankan script ini."
+    echo "username 'peter', can't run this script."
 fi
