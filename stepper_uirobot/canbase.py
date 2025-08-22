@@ -1,49 +1,12 @@
 """
-canbase.py — SimpleCAN3.0 helper for UIM342AB (UIROBOT)
+canbase_patched.py — SimpleCAN3.0 helper for UIM342AB (UIROBOT)
 
-• SocketCAN (Linux) compatible helper to talk to UIM342AB stepper drives.
-• Implements the 29‑bit CAN‑ID encoding used by SimpleCAN3.0 and a small set of
-  high‑level commands: ping (ML), get/set Node ID (PP[7]), MO, JV, SP, PR, PA, BG, ST,
-  plus a few query helpers.
+This build adds:
+- Robust ACK matching (accept CW from CAN-ID low byte OR from data[0])
+- Debug flag to print TX/RX frames
+- CLI --debug option
 
-Tested conceptually against the "Manual_UIM342AB V5.71.pdf" instruction set summary:
-- PP 0x01, IC 0x06, IE 0x07, ML 0x0B, SN 0x0C, ER 0x0F,
-- MS 0x11, AC 0x19, DC 0x1A, SS 0x1B, SD 0x1C, JV 0x1D,
-- SP 0x1E, PR 0x1F, PA 0x20, BG 0x16, MO 0x15,
-- MP 0x22, PT 0x23, PV 0x24, QP 0x25, QV 0x26, QT 0x27, QF 0x29,
-- DV 0x2E, IL 0x34, TG 0x35, DI 0x37, RT 0x5A, SY 0x7E.
-
-Note on ACK:
-- Host should send CW|0x80 ("Need‑ACK") when available. Device replies with base CW.
-- Some commands (e.g., SY) are "No‑ACK" per manual and may not reply.
-
-Byte order:
-- Multi‑byte numeric payloads are little‑endian (LSB first) per examples in the manual.
-
-Usage examples (CLI):
-  # Ping (Model Info) ID 6, 7, 8
-  python canbase.py ping 6 7 8
-
-  # Read Node ID (PP[7]) from node 5
-  python canbase.py get-id 5
-
-  # Change Node ID from 5 → 8, then reboot
-  python canbase.py set-id 5 8
-
-  # Enable, jog 500 pps, apply (BG), then stop
-  python canbase.py mo 8 on
-  python canbase.py jv 8 500
-  python canbase.py bg 8
-  python canbase.py stop 8
-
-  # Move relative +3200 with SP=800 then BG
-  python canbase.py pr 8 3200
-  python canbase.py sp 8 800
-  python canbase.py bg 8
-
-Requirements:
-  pip install python-can
-  (And a configured SocketCAN interface, e.g., `sudo ip link set can0 up type can bitrate 500000`)
+Based on the original canbase.py created earlier.
 """
 from __future__ import annotations
 import argparse
@@ -134,32 +97,43 @@ def pack_u8(v: int) -> bytes:
 # Core class
 # -----------------------------
 class UIM342CAN:
-    def __init__(self, channel: str = 'can0', bitrate: Optional[int] = None):
+    def __init__(self, channel: str = 'can0', bitrate: Optional[int] = None, debug: bool = False):
         """Open a SocketCAN interface. Set `bitrate` externally via ip link.
         Example: sudo ip link set can0 up type can bitrate 500000
         """
-        # python-can uses 'socketcan' as interface type
         self.bus = can.interface.Bus(channel=channel, bustype='socketcan')
+        self.debug = debug
+        self.channel = channel
 
     # ---- Low-level send/recv ----
     def send(self, node_id: int, cw: int, data: bytes = b'', *, ask_ack: bool = True) -> None:
         tx_cw = need_ack(cw) if ask_ack else cw
         can_id = build_can_id(node_id, tx_cw)
         msg = can.Message(arbitration_id=can_id, is_extended_id=True, data=data)
+        if self.debug:
+            print(f"DBG TX id=0x{can_id:08X} cw=0x{tx_cw:02X} len={len(data)} data={data.hex(' ')}")
         self.bus.send(msg)
 
-    def recv_ack(self, base_cw: int, timeout: float = 0.3) -> Optional[can.Message]:
-        """Wait for a single ACK with base CW (no 0x80). Returns the message or None."""
+    def recv_ack(self, base_cw: int, timeout: float = 0.6) -> Optional[can.Message]:
+        """Wait for an ACK. Some firmware places CW in CAN-ID (low 8 bits),
+        others place CW in data[0]. Accept either; debug-print frames seen."""
+        want = base_cw & 0xFF
         t0 = time.time()
         while time.time() - t0 < timeout:
             msg = self.bus.recv(timeout=timeout)
             if not msg:
                 continue
-            if (msg.arbitration_id & 0xFF) == (base_cw & 0xFF):
+            low_id = msg.arbitration_id & 0xFF
+            data = bytes(msg.data)
+            if self.debug:
+                print(f"DBG RX id=0x{msg.arbitration_id:08X} len={len(data)} data={data.hex(' ')} low_id=0x{low_id:02X}")
+            if low_id == want:
+                return msg
+            if len(data) >= 1 and data[0] == want:
                 return msg
         return None
 
-    def transact(self, node_id: int, cw: int, data: bytes = b'', *, timeout: float = 0.3) -> Optional[can.Message]:
+    def transact(self, node_id: int, cw: int, data: bytes = b'', *, timeout: float = 0.6) -> Optional[can.Message]:
         """Send a command and wait for its ACK (when applicable)."""
         self.send(node_id, cw, data, ask_ack=True)
         if cw == CW["SY"]:
@@ -168,17 +142,23 @@ class UIM342CAN:
 
     # ---- High-level helpers ----
     def ping_ml(self, node_id: int) -> Optional[Tuple[int, bytes]]:
-        """Ping using ML (Model Info). Returns (cw, data) from ACK or None."""
-        ack = self.transact(node_id, CW["ML"], b"", timeout=0.5)
-        return (ack.arbitration_id & 0xFF, bytes(ack.data)) if ack else None
+        """Ping using ML (Model Info). Returns (cw, data) from ACK or None.
+        Accept CW from CAN-ID low byte or from data[0]."""
+        ack = self.transact(node_id, CW["ML"], b"", timeout=0.8)
+        if not ack:
+            return None
+        low_id = ack.arbitration_id & 0xFF
+        data = bytes(ack.data)
+        cw = data[0] if (len(data) >= 1) else low_id
+        return (cw, data)
 
     def get_sn(self, node_id: int) -> Optional[bytes]:
-        ack = self.transact(node_id, CW["SN"], b"", timeout=0.5)
+        ack = self.transact(node_id, CW["SN"], b"", timeout=0.8)
         return bytes(ack.data) if ack else None
 
     # PP[7] Node ID
     def get_node_id(self, node_id: int) -> Optional[int]:
-        ack = self.transact(node_id, CW["PP"], pack_u8(0x07), timeout=0.5)
+        ack = self.transact(node_id, CW["PP"], pack_u8(0x07), timeout=0.8)
         if not ack:
             return None
         data = bytes(ack.data)
@@ -191,7 +171,7 @@ class UIM342CAN:
         # Ensure motor off so params can be saved to EEPROM
         self.mo(current_id, False)
         # PP[7] = new_id
-        self.transact(current_id, CW["PP"], pack_u8(0x07) + pack_u8(new_id), timeout=0.5)
+        self.transact(current_id, CW["PP"], pack_u8(0x07) + pack_u8(new_id), timeout=0.8)
         # Reboot to take effect
         self.sy_reboot(current_id)
 
@@ -207,7 +187,7 @@ class UIM342CAN:
     def bg(self, node_id: int) -> None:
         self.transact(node_id, CW["BG"], b"")
 
-    # ST: stop (uses SD decel)
+    # ST/SD: stop (uses SD decel)
     def stop(self, node_id: int) -> None:
         self.transact(node_id, CW["SD"], b"")
 
@@ -238,22 +218,9 @@ class UIM342CAN:
     def sd(self, node_id: int, val: int) -> None:
         self.transact(node_id, CW["SD"], pack_s32(val))
 
-    # Queries
-    def ms0(self, node_id: int) -> Optional[bytes]:
-        ack = self.transact(node_id, CW["MS"], pack_u8(0x00))
-        return bytes(ack.data) if ack else None
-
-    def ms1(self, node_id: int) -> Optional[bytes]:
-        ack = self.transact(node_id, CW["MS"], pack_u8(0x01))
-        return bytes(ack.data) if ack else None
-
-    def dv(self, node_id: int, idx: int) -> Optional[bytes]:
-        ack = self.transact(node_id, CW["DV"], pack_u8(idx & 0xFF))
-        return bytes(ack.data) if ack else None
-
     # ------------- PVT/PT minimal helpers -------------
     def mp(self, node_id: int, idx: int, val: int) -> None:
-        # MP[i] get/set; here we only implement set (i,val) → 2 bytes
+        # MP[i] set (i, val) → 2 bytes
         self.transact(node_id, CW["MP"], pack_u8(idx) + pack_u8(val & 0xFF))
 
     def pv_set_start(self, node_id: int, start_row: int) -> None:
@@ -269,7 +236,6 @@ class UIM342CAN:
         self.transact(node_id, CW["QT"], pack_u16(row) + pack_u16(t_ms))
 
     def qf(self, node_id: int, row: int, t_ms: int, vel_pps: int, pos: int) -> None:
-        # QF packs row + T(1B) + V(4B) + P(4B); manual examples vary, we use 16-bit row then payload
         payload = pack_u16(row) + pack_u8(t_ms) + pack_s32(vel_pps) + pack_s32(pos)
         self.transact(node_id, CW["QF"], payload)
 
@@ -281,6 +247,7 @@ class UIM342CAN:
 def _cli():
     p = argparse.ArgumentParser(description="UIM342AB SimpleCAN3.0 helper")
     p.add_argument('--channel', default='can0', help='SocketCAN channel (default: can0)')
+    p.add_argument('--debug', action='store_true', help='Print TX/RX frames and relaxed ACK matching')
     sub = p.add_subparsers(dest='cmd', required=True)
 
     sp_ping = sub.add_parser('ping', help='Ping with ML (Model Info)')
@@ -321,7 +288,7 @@ def _cli():
 
     args = p.parse_args()
 
-    dev = UIM342CAN(channel=args.channel)
+    dev = UIM342CAN(channel=args.channel, debug=args.debug)
 
     if args.cmd == 'ping':
         for nid in args.ids:
