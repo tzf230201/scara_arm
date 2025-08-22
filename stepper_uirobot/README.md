@@ -1,37 +1,29 @@
-dia ada 3 macam id:
-- broadcast id = 0
-- group id
-- node id
-
-maksimal microstep adalah 128
-
-
 # canbase — UIM342AB SimpleCAN3.0 Helper
 
-Helper/utility untuk berkomunikasi dengan **UIROBOT UIM342AB** (servo stepper) lewat **SimpleCAN3.0** di atas **CAN 2.0B**. Berisi: encoder 29‑bit CAN‑ID, fungsi ping, baca/set Node ID, kontrol motor (MO/JV/SP/PR/PA/BG/STOP), serta contoh penggunaan via **CLI** dan **Python API**.
+A small helper/utility to talk to **UIROBOT UIM342AB** stepper drives over **SimpleCAN 3.0** on **CAN 2.0B**. It implements the 29‑bit CAN‑ID encoding, a minimal command set (ping, read/set Node ID, MO/JV/SP/PR/PA/BG/STOP), and both **CLI** and **Python API** examples.
 
-> **Catatan penting**
+> **Important notes**
 >
-> * UIM342AB **tidak memakai CANopen**. Protokolnya adalah **SimpleCAN3.0** (proprietary) dengan payload little‑endian.
-> * **Rentang Node ID valid: 5…126** (0 = global/broadcast; 1–4 reserved/producer).
+> * UIM342AB **does not use CANopen**. The protocol is **SimpleCAN 3.0** (proprietary), little‑endian payload.
+> * Valid **Node ID range is 5…126** (0 = global/broadcast; 1–4 reserved/producer).
 
 ---
 
-## 1) Prasyarat
+## 1) Prerequisites
 
-* Linux dengan **SocketCAN** (can-utils terinstal: `candump`, `cansend`, `cansniffer`).
-* Python 3.8+ dan **python-can**.
-* Jaringan CAN sudah benar (ground bersama, terminator **120 Ω** di kedua ujung bus, bitrate cocok).
+* Linux with **SocketCAN** (and `can-utils`: `candump`, `cansend`, `cansniffer`).
+* Python 3.8+ and **python-can**.
+* A working CAN network (common ground, **120 Ω** terminators at both ends, correct bitrate).
 
-### Instalasi python-can
+### Install python-can
 
 ```bash
 pip install python-can
 ```
 
-### Menyalakan SocketCAN
+### Bring up SocketCAN
 
-Ganti `500000` sesuai jaringanmu (125000/250000/500000/1000000).
+Adjust `500000` to your bus (125000/250000/500000/1000000):
 
 ```bash
 sudo ip link set can0 down || true
@@ -41,69 +33,69 @@ ip -details link show can0
 
 ---
 
-## 2) Pasang `canbase.py`
+## 2) Put `canbase.py` in your project
 
-Simpan file `canbase.py` (lihat di panel canvas) ke folder kerja. Cek bantuan:
+Save `canbase.py` (see the canvas) next to your code. Show help:
 
 ```bash
 python canbase.py -h
 ```
 
-Kamu akan melihat subcommand:
+You should see subcommands:
 
 ```
 ping, get-id, set-id, mo, jv, sp, pr, pa, bg, stop
 ```
 
-Tambahkan `--channel can1` kalau antarmuka kamu bukan `can0`.
+Use `--channel can1` if your interface is not `can0`.
 
 ---
 
 ## 3) Quick Start
 
-### 3.1 Cek balasan ("ping" aman, tanpa gerak)
+### 3.1 Safe "ping" (no motion)
 
-Buka terminal pemantau:
+Open a monitor in another terminal:
 
 ```bash
-candump can0    # atau: cansniffer can0
+candump can0    # or: cansniffer can0
 ```
 
-Kirim ping ke beberapa ID (Model Info / ML):
+Send ping (Model Info / ML) to a few IDs:
 
 ```bash
 python canbase.py ping 6 7 8
 ```
 
-Jika node hidup, kamu akan melihat ACK CW=0x0B dengan payload model/firmware.
+If the node is alive, you’ll see an ACK with **CW=0x0B** and model/firmware payload.
 
-### 3.2 Baca Node ID saat ini (PP\[7])
+### 3.2 Read current Node ID (PP\[7])
 
 ```bash
-# contoh dari node 5
+# example from node 5
 python canbase.py get-id 5
 ```
 
-### 3.3 Ganti Node ID (misal 5 → 8)
+### 3.3 Change Node ID (e.g., 5 → 8)
 
-> Disarankan **motor OFF** dahulu agar parameter tersimpan; `set-id` melakukan ini otomatis lalu reboot.
+> Recommended to turn the motor **OFF** so params can be saved; `set-id` does this automatically and reboots.
 
 ```bash
 python canbase.py set-id 5 8
-# kemudian verifikasi
+# verify on the new ID
 python canbase.py ping 8
 ```
 
 ---
 
-## 4) Kontrol Motor (aman & bertahap)
+## 4) Motor Control (safe & incremental)
 
-> Rekomendasi: mulai dari kecepatan kecil.
+> Start with small speeds.
 
-### 4.1 Enable/disable driver
+### 4.1 Enable/disable the driver
 
 ```bash
-python canbase.py mo 8 on   # enable driver (arus ON)
+python canbase.py mo 8 on   # enable (current ON)
 python canbase.py mo 8 off  # disable (freewheel)
 ```
 
@@ -111,37 +103,36 @@ python canbase.py mo 8 off  # disable (freewheel)
 
 ```bash
 python canbase.py jv 8 200  # set 200 pps
-python canbase.py bg 8      # apply & mulai jalan
-python canbase.py stop 8    # berhenti halus (pakai SD)
+python canbase.py bg 8      # apply & start
+python canbase.py stop 8    # smooth stop (uses SD)
 ```
 
 ### 4.3 PTP (position mode)
 
 ```bash
-# gerak relatif +3200 pulse
+# move +3200 pulses relative
 python canbase.py pr 8 3200
-# speed PTP 800 pps
+# PTP speed 800 pps
 python canbase.py sp 8 800
-# mulai
+# start
 python canbase.py bg 8
 ```
 
-> **Catatan:** Parameter gerak (JV/SP/PR/PA/AC/DC/…) **baru aktif** setelah `bg`.
+> **Note:** Motion parameters (JV/SP/PR/PA/AC/DC/…) **take effect after** `bg`.
 
 ---
 
-## 5) Python API (langsung di script)
+## 5) Python API (embed in your script)
 
 ```python
 from canbase import UIM342CAN
 
-# buka can0
 u = UIM342CAN(channel="can0")
 
 # ping (ML)
 print("Ping:", u.ping_ml(8))
 
-# baca Node ID (PP[7])
+# read Node ID (PP[7])
 print("NodeID:", u.get_node_id(8))
 
 # enable → jog 300 pps → apply → stop → disable
@@ -151,7 +142,7 @@ u.bg(8)
 u.stop(8)
 u.mo(8, False)
 
-# PTP: +3200 pulse @ 800 pps
+# PTP: +3200 pulses @ 800 pps
 u.pr(8, 3200)
 u.sp(8, 800)
 u.bg(8)
@@ -161,56 +152,56 @@ u.bg(8)
 
 ## 6) FAQ & Tips
 
-**Q: Kenapa Node ID minimal 5?**
-A: ID 0 dipakai global/broadcast, 1–4 reserved/producer. Untuk hindari tabrakan pola bit di 29‑bit CAN‑ID, node/consumer ditaruh di 5…126.
+**Why is the minimum Node ID 5?**
+ID 0 is global/broadcast; 1–4 are reserved/producer. To avoid bit‑pattern collisions in the 29‑bit CAN‑ID, consumer nodes live in 5…126.
 
-**Q: ACK itu apa?**
-Host mengirim **CW|0x80** (Need‑ACK). Device membalas dengan **CW dasar** (tanpa 0x80) dan data.
+**What is ACK?**
+The host sends **CW|0x80** (Need‑ACK). The device replies with the **base CW** (without 0x80) plus data.
 
-**Q: Endian payload?**
-Little‑endian (LSB dulu) untuk bilangan multi‑byte (contoh nilai 32‑bit).
+**Payload endianness?**
+Little‑endian (LSB first) for multi‑byte integers (e.g., 32‑bit).
 
-**Q: Bitrate?**
-Cocokkan dengan perangkat/gateway (umum: 250k/500k/1M). Ubah via `ip link`.
+**Bitrate?**
+Match your device/gateway (common: 250k/500k/1M). Change via `ip link`.
 
-**Q: Tidak ada balasan?**
-Cek: bitrate, kabel & polaritas, ground bersama, terminator 120 Ω, Node ID benar. Coba ping satu ID yang pasti (mis. 5 atau 8). Pakai `cansniffer` untuk melihat frame masuk.
-
----
-
-## 7) Keamanan & Best Practice
-
-* Jangan hot‑plug konektor CAN saat bertegangan.
-* Mulai dari kecepatan rendah; perhatikan mekanik bebas hambatan.
-* Gunakan **SD** (Stop Deceleration) agar berhenti halus.
-* Simpan parameter hanya saat **MO=0**; perubahan Node ID **aktif setelah reboot**.
+**No response?**
+Check bitrate, wiring & polarity, common ground, 120 Ω terminators, and correct Node ID. Try pinging a likely ID (e.g., 5 or 8). `cansniffer` helps visualize frames.
 
 ---
 
-## 8) Referensi CW (ringkas)
+## 7) Safety & Best Practices
+
+* Do not hot‑plug CAN connectors under power.
+* Start slow; ensure the mechanics are free of binding.
+* Prefer **SD** (Stop Deceleration) for gentle stops.
+* Save parameters only when **MO=0**; Node ID changes **take effect after reboot**.
+
+---
+
+## 8) Compact CW Reference
 
 * **ML** 0x0B (ping/model), **SN** 0x0C, **ER** 0x0F
 * **MO** 0x15, **BG** 0x16, **JV** 0x1D, **SP** 0x1E
 * **PR** 0x1F, **PA** 0x20, **AC** 0x19, **DC** 0x1A, **SD** 0x1C
 * **PP** 0x01 (PP\[7] = Node ID), **SY** 0x7E (reboot, no‑ACK)
 
-> Detail lengkap ada di manual **UIM342AB V5.71** (Instruction Set).
+> Full details in **Manual\_UIM342AB V5.71** (Instruction Set).
 
 ---
 
-## 9) Contoh satu-baris can‑utils (opsional)
+## 9) One‑liner can‑utils (optional)
 
-Ping ML (ID 8), langsung dengan can‑utils (tanpa Python):
+Ping ML (ID 8) without Python:
 
 ```bash
-# CW ML need‑ACK → 0x8B; untuk ID 8 CAN‑ID = 0x0440008B; DLC 0
+# ML need‑ACK → 0x8B; for Node ID 8 CAN‑ID = 0x0440008B; DLC 0
 cansend can0 0440008B#
 ```
 
-> Balasan akan tampak dengan CW 0x0B dan 8‑byte payload model/firmware.
+> The response will appear with **CW 0x0B** and an 8‑byte model/firmware payload.
 
 ---
 
-## 10) Lisensi
+## 10) License
 
-Gunakan bebas untuk proyekmu. Mohon sertakan kredit jika di-redistribusikan.
+Use freely in your projects. Please keep attribution if you redistribute.
