@@ -112,12 +112,12 @@ tk.Button(root, text="PVT Coor",  command=send_pvt_coor ).grid(row=12, column=1,
 # Row 13
 tk.Button(root, text="Read Position", bg="orange",
           command=lambda: send("read_position", motor=current_motor())).grid(row=13, column=0, sticky="ew")
-tk.Button(root, text="Homing", bg="cyan",
-          command=lambda: send("homing", motor=current_motor())).grid(row=13, column=1, sticky="ew")
+tk.Button(root, text="Dancing", bg="green", fg="white",
+          command=lambda: send("dancing", motor=current_motor())).grid(row=13, column=1, sticky="ew")
 
 # Row 14 — NEW: Dancing (left of Stop) & Stop
-tk.Button(root, text="Dancing",
-          command=lambda: send("dancing", motor=current_motor())).grid(row=14, column=0, sticky="ew")
+tk.Button(root, text="Homing", bg="cyan",
+          command=lambda: send("homing", motor=current_motor())).grid(row=14, column=0, sticky="ew")
 tk.Button(root, text="Stop", bg="red", fg="white",
           command=lambda: send("stop", motor=current_motor())).grid(row=14, column=1, sticky="ew")
 
