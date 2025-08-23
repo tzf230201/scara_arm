@@ -1,18 +1,45 @@
 """
-canbase_patched.py — SimpleCAN3.0 helper for UIM342AB (UIROBOT)
+canbase_merged.py — UIM342AB SimpleCAN3 driver + high-level adapter (single file)
 
-This build adds:
-- Robust ACK matching (accept CW from CAN-ID low byte OR from data[0])
-- Debug flag to print TX/RX frames
-- CLI --debug option
+- Based on your canbase_patched.py (python-can / SocketCAN)
+- Keeps low-level CW handling + ACK matching improvements
+- Adds high-level helpers: RT/RT16, QE get/set, MS (Acquire Motion Status),
+  and convenient read_position() that defaults to MS[0].
+- Expands CLI: ping, get-id, set-id, mo/jv/sp/pr/pa/bg/stop, rt, rt16, read-pos,
+  scan-rt, qe-get, qe-set, ms-read.
 
-Based on the original canbase.py created earlier.
+Usage examples:
+    # Ping multiple nodes (Model Info)
+    python canbase_merged.py --channel can0 ping 5 6 7
+
+    # Read node id (PP[7])
+    python canbase_merged.py --channel can0 get-id 6
+
+    # Read position via MS (default)
+    python canbase_merged.py --channel can0 read-pos 6
+
+    # Read position via RT index (if your firmware supports RT for position)
+    python canbase_merged.py --channel can0 read-pos 6 --via rt --idx 1
+
+    # Motor on/off, jog velocity, stop
+    python canbase_merged.py --channel can0 mo 6 on
+    python canbase_merged.py --channel can0 jv 6 2000
+    python canbase_merged.py --channel can0 stop 6
+
+Notes:
+- SocketCAN bitrate is configured externally, e.g.:
+    sudo ip link set can0 down
+    sudo ip link set can0 type can bitrate 1000000
+    sudo ip link set can0 up
+- For RT: "idx" depends on vendor mapping. You can set env POS_IDX, default 1.
+- SY (0x7E) is No-ACK per manual.
 """
 from __future__ import annotations
 import argparse
+import os
 import struct
 import time
-from typing import Iterable, Optional, Tuple
+from typing import Optional, Tuple
 
 import can
 
@@ -49,6 +76,7 @@ CW = {
     "IL": 0x34,
     "TG": 0x35,
     "DI": 0x37,
+    "QE": 0x3D,
     "RT": 0x5A,
     "SY": 0x7E,  # No-ACK per manual
 }
@@ -94,7 +122,7 @@ def pack_u8(v: int) -> bytes:
 
 
 # -----------------------------
-# Core class
+# Core class (+ high-level adapter merged)
 # -----------------------------
 class UIM342CAN:
     def __init__(self, channel: str = 'can0', bitrate: Optional[int] = None, debug: bool = False):
@@ -115,9 +143,11 @@ class UIM342CAN:
         self.bus.send(msg)
 
     def recv_ack(self, base_cw: int, timeout: float = 0.6) -> Optional[can.Message]:
-        """Wait for an ACK. Some firmware places CW in CAN-ID (low 8 bits),
-        others place CW in data[0]. Accept either; debug-print frames seen."""
+        """Wait for an ACK. Match CW via low 8-bit of CAN-ID OR data[0],
+        and also recognize error frames that reference our CW.
+        Accept both plain CW and CW|0x80 (ACK-bit set)."""
         want = base_cw & 0xFF
+        want_ack = (want | 0x80) & 0xFF
         t0 = time.time()
         while time.time() - t0 < timeout:
             msg = self.bus.recv(timeout=timeout)
@@ -126,10 +156,18 @@ class UIM342CAN:
             low_id = msg.arbitration_id & 0xFF
             data = bytes(msg.data)
             if self.debug:
-                print(f"DBG RX id=0x{msg.arbitration_id:08X} len={len(data)} data={data.hex(' ')} low_id=0x{low_id:02X}")
-            if low_id == want:
+                print(
+                    f"DBG RX id=0x{msg.arbitration_id:08X} len={len(data)} "
+                    f"data={data.hex(' ')} low_id=0x{low_id:02X}"
+                )
+            # 1) match via CAN-ID low byte
+            if low_id in (want, want_ack):
                 return msg
-            if len(data) >= 1 and data[0] == want:
+            # 2) match via payload byte-0 (echo CW)
+            if len(data) >= 1 and data[0] in (want, want_ack):
+                return msg
+            # 3) ERROR frame referencing our CW (data[0]==ER, data[3]==CW)
+            if len(data) >= 4 and data[0] == CW["ER"] and data[3] in (want, want_ack):
                 return msg
         return None
 
@@ -140,7 +178,7 @@ class UIM342CAN:
             return None  # No-ACK expected
         return self.recv_ack(cw, timeout=timeout)
 
-    # ---- High-level helpers ----
+    # ---- High-level helpers (existing & extended) ----
     def ping_ml(self, node_id: int) -> Optional[Tuple[int, bytes]]:
         """Ping using ML (Model Info). Returns (cw, data) from ACK or None.
         Accept CW from CAN-ID low byte or from data[0]."""
@@ -161,9 +199,19 @@ class UIM342CAN:
         ack = self.transact(node_id, CW["PP"], pack_u8(0x07), timeout=0.8)
         if not ack:
             return None
-        data = bytes(ack.data)
-        # Expect d0=index(0x07), d1=value
-        return data[1] if len(data) >= 2 and data[0] == 0x07 else None
+        d = bytes(ack.data)
+        # Pattern A: [idx, val]
+        if len(d) >= 2 and d[0] == 0x07:
+            return d[1]
+        # Pattern B: [CW-echo, idx, val]
+        if len(d) >= 3 and d[1] == 0x07:
+            return d[2]
+        # Pattern C: [val] only (fallback)
+        if len(d) >= 1 and 5 <= d[0] <= 126:
+            return d[0]
+        if self.debug:
+            print(f"get_node_id: unrecognized payload {d.hex(' ')}")
+        return None
 
     def set_node_id(self, current_id: int, new_id: int) -> None:
         if not (NODE_ID_MIN <= new_id <= NODE_ID_MAX):
@@ -239,13 +287,115 @@ class UIM342CAN:
         payload = pack_u16(row) + pack_u8(t_ms) + pack_s32(vel_pps) + pack_s32(pos)
         self.transact(node_id, CW["QF"], payload)
 
+    # -----------------------------
+    # RT helpers
+    # -----------------------------
+    def rt(self, node_id: int, idx: int, timeout: float = 0.6) -> bytes:
+        ack = self.transact(node_id, CW["RT"], pack_u8(idx), timeout=timeout)
+        if not ack:
+            raise TimeoutError("No ACK for RT")
+        d = bytes(ack.data)
+        # ERROR format: [0x0F, ec_lo, ec_hi, echo_cw, ...]
+        if len(d) >= 4 and d[0] == CW["ER"]:
+            err_le = int.from_bytes(d[1:3], 'little')
+            cw_echo = d[3]
+            raise RuntimeError(f"RT[{idx}] error 0x{err_le:04X} (ER for CW 0x{cw_echo:02X})")
+        return d
+
+    def rt16(self, node_id: int, idx: int, timeout: float = 0.6) -> bytes:
+        payload = struct.pack('<H', idx & 0xFFFF)
+        ack = self.transact(node_id, CW["RT"], payload, timeout=timeout)
+        if not ack:
+            raise TimeoutError("No ACK for RT16")
+        d = bytes(ack.data)
+        if len(d) >= 4 and d[0] == CW["ER"]:
+            err_le = int.from_bytes(d[1:3], 'little')
+            raise RuntimeError(f"RT16[{idx}] error 0x{err_le:04X}")
+        return d
+
+    # -----------------------------
+    # QE helpers (encoder parameters)
+    # -----------------------------
+    def qe_get(self, node_id: int, idx: int, timeout: float = 0.8) -> int:
+        ack = self.transact(node_id, CW["QE"], pack_u8(idx), timeout=timeout)
+        if not ack:
+            raise TimeoutError("No ACK for QE get")
+        d = bytes(ack.data)
+        # common patterns: [idx, lo, hi] or [CW-echo, idx, lo, hi]
+        if len(d) >= 3 and d[0] == idx:
+            return d[1] | (d[2] << 8)
+        if len(d) >= 4 and d[1] == idx:
+            return d[2] | (d[3] << 8)
+        raise ValueError(f"Unexpected QE-get payload: {d.hex(' ')}")
+
+    def qe_set(self, node_id: int, idx: int, value: int, timeout: float = 0.8) -> None:
+        payload = pack_u8(idx) + pack_u16(value)
+        ack = self.transact(node_id, CW["QE"], payload, timeout=timeout)
+        if not ack:
+            raise TimeoutError("No ACK for QE set")
+
+    # -----------------------------
+    # MS helpers (Acquire Motion Status)
+    # -----------------------------
+    @staticmethod
+    def _slice_payload(data: bytes, cw_expected: int, needed_len: int) -> bytes:
+        """Return the first `needed_len` bytes of the payload, handling optional CW echo at data[0]."""
+        if len(data) >= needed_len + 1 and data[0] in (cw_expected, (cw_expected | 0x80) & 0xFF):
+            return data[1 : 1 + needed_len]
+        if len(data) >= needed_len:
+            return data[0:needed_len]
+        raise ValueError(f"Unexpected payload length {len(data)} for CW 0x{cw_expected:02X}: {data.hex(' ')}")
+
+    def ms_read(self, node_id: int, idx: int = 0, timeout: float = 0.8) -> bytes:
+        ack = self.transact(node_id, CW["MS"], pack_u8(idx), timeout=timeout)
+        if not ack:
+            raise TimeoutError("No ACK for MS")
+        d = bytes(ack.data)
+        if len(d) >= 4 and d[0] == CW["ER"]:
+            err_le = int.from_bytes(d[1:3], 'little')
+            raise RuntimeError(f"MS[{idx}] error 0x{err_le:04X}")
+        # MS[0] expected to return 8 data bytes
+        return self._slice_payload(d, CW["MS"], 8)
+
+    def read_position_ms(self, node_id: int, idx: int = 0, timeout: float = 0.8) -> int:
+        """Read relative position using MS[idx] (default MS[0]).
+        According to manual, the 32-bit position is at bytes d4..d7 (little-endian)."""
+        b8 = self.ms_read(node_id, idx=idx, timeout=timeout)
+        pos = int.from_bytes(b8[4:8], 'little', signed=True)
+        return pos
+
+    # Unified convenience: default to MS; switch to RT via mode or env
+    def read_position(self, node_id: int, idx: Optional[int] = None, timeout: float = 0.8, via: str = 'ms') -> int:
+        if via.lower() == 'rt':
+            if idx is None:
+                idx = int(os.getenv("POS_IDX", "1"))
+            d = self.rt(node_id, idx, timeout=timeout)
+            # try decode int32 robustly
+            if len(d) >= 5 and d[0] == CW["RT"]:
+                raw = d[1:5]
+            elif len(d) >= 4:
+                raw = d[0:4]
+            else:
+                raise ValueError(f"Unexpected RT payload len={len(d)}: {d.hex(' ')}")
+            return struct.unpack('<i', raw)[0]
+        # default via MS[0]
+        return self.read_position_ms(node_id, idx=0, timeout=timeout)
+
+    # Alias for readability
+    def read_encoder(self, node_id: int, idx: Optional[int] = None, timeout: float = 0.8, via: str = 'ms') -> int:
+        return self.read_position(node_id, idx=idx, timeout=timeout, via=via)
+
+    # Placeholder: vendor-specific zeroing (origin) may require different CW/PP index
+    def set_origin_soft(self, node_id: int):
+        raise NotImplementedError("set_origin_soft requires vendor-specific object; not implemented")
+
 
 # -----------------------------
 # CLI
 # -----------------------------
 
 def _cli():
-    p = argparse.ArgumentParser(description="UIM342AB SimpleCAN3.0 helper")
+    p = argparse.ArgumentParser(description="UIM342AB SimpleCAN3.0 helper (merged)")
     p.add_argument('--channel', default='can0', help='SocketCAN channel (default: can0)')
     p.add_argument('--debug', action='store_true', help='Print TX/RX frames and relaxed ACK matching')
     sub = p.add_subparsers(dest='cmd', required=True)
@@ -285,6 +435,46 @@ def _cli():
 
     sp_stop = sub.add_parser('stop', help='Stop (SD deceleration)')
     sp_stop.add_argument('id', type=int)
+
+    # NEW: scan-rt (sweep index for RT)
+    sp_scan = sub.add_parser('scan-rt', help='Scan RT indices and show responses')
+    sp_scan.add_argument('id', type=int)
+    sp_scan.add_argument('--start', type=int, default=0)
+    sp_scan.add_argument('--end', type=int, default=31)
+
+    # NEW: RT + RT16 + read-pos/read-encoder
+    sp_rt = sub.add_parser('rt', help='Raw RT read with 1-byte index')
+    sp_rt.add_argument('id', type=int)
+    sp_rt.add_argument('--idx', type=int, required=True, help='RT index (0..255)')
+
+    sp_rt16 = sub.add_parser('rt16', help='Raw RT read with 2-byte index')
+    sp_rt16.add_argument('id', type=int)
+    sp_rt16.add_argument('--idx', type=int, required=True)
+
+    sp_rpos = sub.add_parser('read-pos', help='Read encoder position (default via MS[0])')
+    sp_rpos.add_argument('id', type=int)
+    sp_rpos.add_argument('--via', choices=['ms','rt'], default='ms', help='Select backend (ms|rt)')
+    sp_rpos.add_argument('--idx', type=int, default=None, help='RT index for position (when --via rt)')
+
+    sp_renc = sub.add_parser('read-encoder', help='Alias of read-pos')
+    sp_renc.add_argument('id', type=int)
+    sp_renc.add_argument('--via', choices=['ms','rt'], default='ms')
+    sp_renc.add_argument('--idx', type=int, default=None)
+
+    # MS raw read (debugging)
+    sp_ms = sub.add_parser('ms-read', help='Raw MS read (returns 8 data bytes)')
+    sp_ms.add_argument('id', type=int)
+    sp_ms.add_argument('--idx', type=int, default=0)
+
+    # QE get/set
+    sp_qeg = sub.add_parser('qe-get', help='QE[i] get (encoder parameters)')
+    sp_qeg.add_argument('id', type=int)
+    sp_qeg.add_argument('idx', type=int)
+
+    sp_qes = sub.add_parser('qe-set', help='QE[i] set (encoder parameters)')
+    sp_qes.add_argument('id', type=int)
+    sp_qes.add_argument('idx', type=int)
+    sp_qes.add_argument('value', type=int)
 
     args = p.parse_args()
 
@@ -334,6 +524,56 @@ def _cli():
     elif args.cmd == 'stop':
         dev.stop(args.id)
         print(f"STOP (SD) @ ID {args.id}")
+
+    elif args.cmd == 'rt':
+        data = dev.rt(args.id, args.idx)
+        print(f"RT[{args.idx}] @ ID {args.id} -> {data.hex(' ')}")
+
+    elif args.cmd == 'rt16':
+        data = dev.rt16(args.id, args.idx)
+        print(f"RT16[{args.idx}] @ ID {args.id} -> {data.hex(' ')}")
+
+    elif args.cmd in ('read-pos', 'read-encoder'):
+        pos = dev.read_position(args.id, idx=args.idx, via=args.via)
+        print(f"POS @ ID {args.id} -> {pos}")
+
+    elif args.cmd == 'scan-rt':
+        def _parse_i32(d: bytes) -> Optional[int]:
+            # robust parse: if payload starts with RT echo, skip it
+            if len(d) >= 5 and d[0] == CW["RT"]:
+                raw = d[1:5]
+            elif len(d) >= 4:
+                raw = d[0:4]
+            else:
+                return None
+            return int.from_bytes(raw, 'little', signed=True)
+
+        for i in range(args.start, args.end + 1):
+            try:
+                d = dev.rt(args.id, i)
+                val = _parse_i32(d)
+                if val is not None:
+                    print(f"idx {i:02d}: int32={val}  raw={d.hex(' ')}")
+                else:
+                    print(f"idx {i:02d}: raw={d.hex(' ')} (len={len(d)})")
+            except RuntimeError as e:
+                print(f"idx {i:02d}: {e}")
+            except TimeoutError:
+                print(f"idx {i:02d}: timeout")
+
+    elif args.cmd == 'ms-read':
+        b8 = dev.ms_read(args.id, idx=args.idx)
+        print(f"MS[{args.idx}] @ ID {args.id} -> {b8.hex(' ')}  (pos={int.from_bytes(b8[4:8],'little',signed=True)})")
+
+    elif args.cmd == 'qe-get':
+        val = dev.qe_get(args.id, args.idx)
+        print(f"QE[{args.idx}] @ ID {args.id} = {val}")
+
+    elif args.cmd == 'qe-set':
+        # safety: recommend motor off before persistent write
+        dev.mo(args.id, False)
+        dev.qe_set(args.id, args.idx, args.value)
+        print(f"QE[{args.idx}] @ ID {args.id} set to {args.value}")
 
 
 if __name__ == '__main__':
