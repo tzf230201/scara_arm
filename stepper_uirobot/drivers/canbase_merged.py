@@ -137,9 +137,10 @@ class UIM342CAN:
         self.bus.send(msg)
 
     def recv_ack(self, base_cw: int, timeout: float = 0.6) -> Optional[can.Message]:
-        """Wait for an ACK. Some firmware places CW in CAN-ID (low 8 bits),
-        others place CW in data[0]. Accept either; debug-print frames seen."""
+        """Wait for an ACK. Match CW di low byte CAN-ID atau di data[0],
+        terima juga varian 'ACKed' (CW|0x80)."""
         want = base_cw & 0xFF
+        want_ack = (want | 0x80) & 0xFF
         t0 = time.time()
         while time.time() - t0 < timeout:
             msg = self.bus.recv(timeout=timeout)
@@ -149,11 +150,14 @@ class UIM342CAN:
             data = bytes(msg.data)
             if self.debug:
                 print(f"DBG RX id=0x{msg.arbitration_id:08X} len={len(data)} data={data.hex(' ')} low_id=0x{low_id:02X}")
-            if low_id == want:
+            # match di CAN-ID low byte
+            if low_id == want or low_id == want_ack:
                 return msg
-            if len(data) >= 1 and data[0] == want:
+            # match di payload byte-0
+            if len(data) >= 1 and (data[0] == want or data[0] == want_ack):
                 return msg
         return None
+
 
     def transact(self, node_id: int, cw: int, data: bytes = b'', *, timeout: float = 0.6) -> Optional[can.Message]:
         """Send a command and wait for its ACK (when applicable)."""
@@ -183,9 +187,21 @@ class UIM342CAN:
         ack = self.transact(node_id, CW["PP"], pack_u8(0x07), timeout=0.8)
         if not ack:
             return None
-        data = bytes(ack.data)
-        # Expect d0=index(0x07), d1=value
-        return data[1] if len(data) >= 2 and data[0] == 0x07 else None
+        d = bytes(ack.data)
+        # Pola 1: [idx, val]
+        if len(d) >= 2 and d[0] == 0x07:
+            return d[1]
+        # Pola 2: [CW-echo, idx, val]
+        if len(d) >= 3 and d[1] == 0x07:
+            return d[2]
+        # Pola 3: [val] saja (fallback), valid kalau 5..126
+        if len(d) >= 1 and 5 <= d[0] <= 126:
+            return d[0]
+        # Tidak dikenali
+        if self.debug:
+            print(f"get_node_id: unrecognized payload {d.hex(' ')}")
+        return None
+
 
     def set_node_id(self, current_id: int, new_id: int) -> None:
         if not (NODE_ID_MIN <= new_id <= NODE_ID_MAX):
