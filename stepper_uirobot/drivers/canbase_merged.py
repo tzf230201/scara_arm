@@ -136,27 +136,29 @@ class UIM342CAN:
             print(f"DBG TX id=0x{can_id:08X} cw=0x{tx_cw:02X} len={len(data)} data={data.hex(' ')}")
         self.bus.send(msg)
 
-    def recv_ack(self, base_cw: int, timeout: float = 0.6) -> Optional[can.Message]:
-        """Wait for an ACK. Match CW di low byte CAN-ID atau di data[0],
-        terima juga varian 'ACKed' (CW|0x80)."""
-        want = base_cw & 0xFF
-        want_ack = (want | 0x80) & 0xFF
-        t0 = time.time()
-        while time.time() - t0 < timeout:
-            msg = self.bus.recv(timeout=timeout)
-            if not msg:
-                continue
-            low_id = msg.arbitration_id & 0xFF
-            data = bytes(msg.data)
-            if self.debug:
-                print(f"DBG RX id=0x{msg.arbitration_id:08X} len={len(data)} data={data.hex(' ')} low_id=0x{low_id:02X}")
-            # match di CAN-ID low byte
-            if low_id == want or low_id == want_ack:
-                return msg
-            # match di payload byte-0
-            if len(data) >= 1 and (data[0] == want or data[0] == want_ack):
-                return msg
-        return None
+def recv_ack(self, base_cw: int, timeout: float = 0.6) -> Optional[can.Message]:
+    want = base_cw & 0xFF
+    want_ack = (want | 0x80) & 0xFF  # terima juga CW|0x80 (mis. 0xDA utk RT)
+    t0 = time.time()
+    while time.time() - t0 < timeout:
+        msg = self.bus.recv(timeout=timeout)
+        if not msg:
+            continue
+        low_id = msg.arbitration_id & 0xFF
+        data = bytes(msg.data)
+        if self.debug:
+            print(f"DBG RX id=0x{msg.arbitration_id:08X} len={len(data)} data={data.hex(' ')} low_id=0x{low_id:02X}")
+        # 1) match lewat CAN-ID low byte
+        if low_id in (want, want_ack):
+            return msg
+        # 2) match lewat payload byte-0 (echo CW)
+        if len(data) >= 1 and data[0] in (want, want_ack):
+            return msg
+        # 3) match pola ERROR: data[0]==ER dan data[3] adalah CW yang kita minta
+        if len(data) >= 4 and data[0] == CW["ER"] and data[3] in (want, want_ack):
+            return msg
+    return None
+
 
 
     def transact(self, node_id: int, cw: int, data: bytes = b'', *, timeout: float = 0.6) -> Optional[can.Message]:
@@ -281,12 +283,17 @@ class UIM342CAN:
     # Added high-level adapter helpers (merged in)
     # -----------------------------
     def rt(self, node_id: int, idx: int, timeout: float = 0.6) -> bytes:
-        """Request data via RT[idx]. Return ACK payload bytes.
-        Parsing of CW in CAN-ID vs data[0] is handled by recv_ack()."""
         ack = self.transact(node_id, CW["RT"], pack_u8(idx), timeout=timeout)
         if not ack:
             raise TimeoutError("No ACK for RT")
-        return bytes(ack.data)
+        d = bytes(ack.data)
+        # jika ERROR, format yang terlihat: [0x0F, ec_low, ec_high, echo_cw, ...]
+        if len(d) >= 4 and d[0] == CW["ER"]:
+            err = d[1] | (d[2] << 8)
+            cw_echo = d[3]
+            raise RuntimeError(f"RT[{idx}] error 0x{err:04X} (ER for CW 0x{cw_echo:02X})")
+        return d
+
 
     def read_position(self, node_id: int, idx: Optional[int] = None, timeout: float = 0.6) -> int:
         """Read current encoder position (int32) via RT.
