@@ -3,23 +3,24 @@ import time
 import tkinter as tk
 import zmq
 
-# === Endpoint ===
-CMD_ENDPOINT = os.getenv("CMD_ENDPOINT", "tcp://127.0.0.1:5555")  # ubah kalau perlu
+# ===== Endpoint (samakan dengan receiver/main.py) =====
+CMD_ENDPOINT = os.getenv("CMD_ENDPOINT", "ipc:///tmp/motor_cmd")
 
-# === ZMQ PUB ===
+# ===== ZMQ PUB =====
 ctx = zmq.Context.instance()
-socket = ctx.socket(zmq.PUB)
-socket.setsockopt(zmq.SNDHWM, 1000)
-socket.bind(CMD_ENDPOINT)
+pub = ctx.socket(zmq.PUB)
+pub.setsockopt(zmq.SNDHWM, 1000)
+pub.bind(CMD_ENDPOINT)
 time.sleep(0.1)  # slow-joiner guard
 
 def send_command(cmd, extra=None):
     msg = {"command": cmd}
     if extra:
         msg.update(extra)
-    socket.send_json(msg)
+    pub.send_json(msg)
     print("Sent:", msg)
-    lbl_last.config(text=f"last cmd: {cmd}")
+    if 'lbl_last' in globals():
+        lbl_last.config(text=f"last cmd: {cmd}")
 
 # ===== GUI =====
 root = tk.Tk()
@@ -83,7 +84,7 @@ def send_pvt_coor():
     data = [float(e.get() or 0) for e in entries_coor]
     send_command("pvt_coor", {"coor": data, "time": int(entry_time.get() or 0)})
 
-# --- Buttons (FIX: no stray indent here) ---
+# --- Buttons ---
 tk_btns = [
     ("Wake Up",       {"row":10, "col":0, "opt":{"bg":"purple", "fg":"white"}}, lambda: send_command("wake_up")),
     ("Shutdown",      {"row":10, "col":1, "opt":{"bg":"maroon", "fg":"white"}}, lambda: send_command("shutdown")),
