@@ -127,13 +127,6 @@ tk.Button(root, text="Read Encoder",
 tk.Button(root, text="Set Origin",
           command=lambda: send("set_origin", motor=current_motor())).grid(row=15, column=1, sticky="ew")
 
-# Row 16-17 — Speed control
-spd_var = tk.StringVar(value="200")
-tk.Label(root, text="JV (pps):").grid(row=16, column=0, sticky='e')
-tk.Entry(root, textvariable=spd_var).grid(row=16, column=1, sticky='w')
-tk.Button(root, text="Set Speed",
-          command=lambda: send("set_speed", pps=f2(spd_var.get(), 0), motor=current_motor())).grid(row=17, column=0, columnspan=2, sticky='ew')
-
 # Status label
 lbl_last = tk.Label(root, text=f"endpoint: {CMD_ENDPOINT}")
 lbl_last.grid(row=18, column=0, columnspan=2, sticky='w')
