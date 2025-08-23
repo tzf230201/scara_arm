@@ -367,6 +367,11 @@ def _cli():
 
     sp_stop = sub.add_parser('stop', help='Stop (SD deceleration)')
     sp_stop.add_argument('id', type=int)
+    
+    sp_scan = sub.add_parser('scan-rt', help='Scan RT indices and show responses')
+    sp_scan.add_argument('id', type=int)
+    sp_scan.add_argument('--start', type=int, default=0)
+    sp_scan.add_argument('--end', type=int, default=31)
 
     # NEW: RT + read-pos/read-encoder
     sp_rt = sub.add_parser('rt', help='Raw RT read with 1-byte index')
@@ -437,6 +442,31 @@ def _cli():
     elif args.cmd in ('read-pos', 'read-encoder'):
         pos = dev.read_position(args.id, idx=args.idx)
         print(f"POS @ ID {args.id} -> {pos}")
+    elif args.cmd == 'scan-rt':
+        def _parse_i32(d: bytes) -> Optional[int]:
+            # robust parse: jika payload mulai dengan RT (0x5A), ambil 4 byte setelahnya
+            if len(d) >= 5 and d[0] == CW["RT"]:
+                raw = d[1:5]
+            elif len(d) >= 4:
+                raw = d[0:4]
+            else:
+                return None
+            return int.from_bytes(raw, 'little', signed=True)
+
+        for i in range(args.start, args.end + 1):
+            try:
+                d = dev.rt(args.id, i)
+                val = _parse_i32(d)
+                if val is not None:
+                    print(f"idx {i:02d}: int32={val}  raw={d.hex(' ')}")
+                else:
+                    print(f"idx {i:02d}: raw={d.hex(' ')} (len={len(d)})")
+            except RuntimeError as e:
+                # contoh: RT[i] error 0x3200 (ER for CW 0x5A)
+                print(f"idx {i:02d}: {e}")
+            except TimeoutError:
+                print(f"idx {i:02d}: timeout")
+
 
 
 if __name__ == '__main__':
