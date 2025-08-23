@@ -136,28 +136,29 @@ class UIM342CAN:
             print(f"DBG TX id=0x{can_id:08X} cw=0x{tx_cw:02X} len={len(data)} data={data.hex(' ')}")
         self.bus.send(msg)
 
-def recv_ack(self, base_cw: int, timeout: float = 0.6) -> Optional[can.Message]:
-    want = base_cw & 0xFF
-    want_ack = (want | 0x80) & 0xFF  # terima juga CW|0x80 (mis. 0xDA utk RT)
-    t0 = time.time()
-    while time.time() - t0 < timeout:
-        msg = self.bus.recv(timeout=timeout)
-        if not msg:
-            continue
-        low_id = msg.arbitration_id & 0xFF
-        data = bytes(msg.data)
-        if self.debug:
-            print(f"DBG RX id=0x{msg.arbitration_id:08X} len={len(data)} data={data.hex(' ')} low_id=0x{low_id:02X}")
-        # 1) match lewat CAN-ID low byte
-        if low_id in (want, want_ack):
-            return msg
-        # 2) match lewat payload byte-0 (echo CW)
-        if len(data) >= 1 and data[0] in (want, want_ack):
-            return msg
-        # 3) match pola ERROR: data[0]==ER dan data[3] adalah CW yang kita minta
-        if len(data) >= 4 and data[0] == CW["ER"] and data[3] in (want, want_ack):
-            return msg
-    return None
+    def recv_ack(self, base_cw: int, timeout: float = 0.6) -> Optional[can.Message]:    
+        want = base_cw & 0xFF
+        want_ack = (want | 0x80) & 0xFF  # terima juga CW|0x80 (mis. 0xDA utk RT)
+        t0 = time.time()
+        while time.time() - t0 < timeout:
+            msg = self.bus.recv(timeout=timeout)
+            if not msg:
+                continue
+            low_id = msg.arbitration_id & 0xFF
+            data = bytes(msg.data)
+            if self.debug:
+                print(f"DBG RX id=0x{msg.arbitration_id:08X} len={len(data)} "
+                      f"data={data.hex(' ')} low_id=0x{low_id:02X}")
+            # 1) match CAN-ID low byte
+            if low_id in (want, want_ack):
+                return msg
+            # 2) match payload byte-0 (echo CW)
+            if len(data) >= 1 and data[0] in (want, want_ack):
+                return msg
+            # 3) match pola ERROR: ER untuk CW kita (data[3] = CW/ACK-CW)
+            if len(data) >= 4 and data[0] == CW["ER"] and data[3] in (want, want_ack):
+                return msg
+        return None
 
 
 
