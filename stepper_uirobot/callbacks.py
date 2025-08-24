@@ -114,20 +114,36 @@ def pulses_to_deg(nid: int, pulses: int, origin_pulses: int) -> float:
     deg_per_pulse = 360.0 / (cpr * gear)
     return inv * (pulses - origin_pulses) * deg_per_pulse
 
+import math  # pastikan ada di header
+
+# Batas aman (override via env kalau perlu)
+SP_MIN_PPS = int(os.getenv("SP_MIN_PPS", "50"))
+SP_MAX_PPS = int(os.getenv("SP_MAX_PPS", "200000"))   # sesuaikan device kamu
+AC_MAX     = int(os.getenv("AC_MAX", "1000000"))      # pulses/s^2
+DC_MAX     = int(os.getenv("DC_MAX", "1000000"))
+
 def deg_to_pulses(nid: int, deg: float, origin_pulses: int) -> int:
-    """Konversi derajat -> pulses absolut (memperhitungkan origin & INV/GEAR/CPR)."""
+    """Derajat -> pulses absolut (memperhitungkan origin, INV/GEAR/CPR)."""
     cpr  = max(1, _cpr_for_id(nid))
     gear = max(1e-9, _gear_for_id(nid))
     inv  = -1.0 if _inv_for_id(nid) else 1.0
     pulses_per_deg = (cpr * gear) / 360.0
     return int(round(origin_pulses + inv * deg * pulses_per_deg))
 
-def _compute_pps(distance_pulses: int, time_ms: int | None, *, min_pps: int = 50) -> int:
-    """Hitung kecepatan pps supaya tiap axis tiba ~bersamaan dalam time_ms."""
-    if not time_ms or time_ms <= 0:
-        return max(min_pps, 1)
-    pps = math.ceil(abs(distance_pulses) / (time_ms / 1000.0))
-    return max(int(pps), min_pps)
+def _tri_profile_from_dist(dist_pulses: int, time_ms: int) -> tuple[int, int]:
+    """
+    Hitung (SP, AC/DC) untuk profil segitiga simetris dari jarak & waktu.
+    Keluaran: (pps_abs, acc_dec) sudah di-clamp.
+    """
+    D = abs(int(dist_pulses))
+    T = max(1e-3, (time_ms or 0) / 1000.0)  # s
+    v_peak = 2.0 * D / T                    # pps
+    a      = 4.0 * D / (T * T)              # pulses/s^2
+    # clamp
+    pps = int(max(SP_MIN_PPS, min(SP_MAX_PPS, math.ceil(v_peak))))
+    acc = int(min(AC_MAX, max(1, math.ceil(a))))
+    return pps, acc
+
 
 
 # ============================
@@ -173,11 +189,11 @@ def quit(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
 # ============================
 def pp_joint(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
     """
-    PTP Joint sinkron (semua start bareng, target selesai ~bareng):
-      - msg['joints']: list derajat [J1, J2, J3, ...]
-      - msg['time']  : durasi target (ms) untuk mencapai posisi itu
-    Mapping joint -> node: J1->ID6, J2->ID7, J3->ID8
-    Prosedur: (1) MO ON semua  (2) stage PA & SP semua  (3) BG semua (start serentak)
+    PTP Joint sinkron, profil **triangular** (simetris) agar finish bareng.
+      - msg['joints']: list derajat [J1, J2, J3]
+      - msg['time']  : durasi total (ms) capai target
+    Mapping: J1->ID6, J2->ID7, J3->ID8
+    Prosedur: MO ON → hitung target & profil → stage (PA, AC, DC, SP) semua → BG semua.
     """
     dev = _get_dev()
     ids_order = [6, 7, 8]
@@ -185,64 +201,64 @@ def pp_joint(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
     t_ms   = int(msg.get("time") or 0)
     origin = _origin_map(state)
 
-    # 0) pastikan motor ON agar BG tidak error
+    # 0) pastikan motor ON
     for nid in ids_order:
-        try:
-            dev.mo(nid, True)
-        except Exception as e:
-            print(f"[pp_joint] warn: MO on fail @ ID {nid}: {e}")
+        try: dev.mo(nid, True)
+        except Exception as e: print(f"[pp_joint] warn: MO on fail @ ID {nid}: {e}")
 
-    # 1) hitung target pulses & pps per-axis (agar finish ~bersamaan)
-    plan = []  # list of dict per axis
+    # 1) siapkan rencana tiap axis
+    plan = []
     for idx, nid in enumerate(ids_order):
-        if idx >= len(joints):
-            continue
+        if idx >= len(joints): continue
         try:
-            tgt_deg   = float(joints[idx])
+            tgt_deg = float(joints[idx])
         except Exception:
-            print(f"[pp_joint] skip ID {nid}: target deg invalid: {joints[idx]}")
+            print(f"[pp_joint] skip ID {nid}: invalid deg {joints[idx]!r}")
             continue
         try:
-            cur_pulse = dev.read_position(nid, via="pa")  # RAW sekarang
+            cur_p = dev.read_position(nid, via="pa")  # pulses sekarang (raw)
         except Exception as e:
-            print(f"[pp_joint] ID {nid} cannot read position: {e}")
+            print(f"[pp_joint] ID {nid} read pos fail: {e}")
             continue
-        tgt_pulse = deg_to_pulses(nid, tgt_deg, origin.get(nid, 0))
-        dist      = tgt_pulse - cur_pulse
-        pps       = _compute_pps(dist, t_ms, min_pps=50)
+        tgt_p = deg_to_pulses(nid, tgt_deg, origin.get(nid, 0))
+        dist  = tgt_p - cur_p
+        sp_pps, acc = _tri_profile_from_dist(dist, t_ms)
+
         plan.append({
-            "nid": nid, "tgt_deg": tgt_deg, "cur": cur_pulse,
-            "tgt": tgt_pulse, "dist": dist, "pps": pps
+            "nid": nid, "tgt_deg": tgt_deg, "cur": cur_p, "tgt": tgt_p,
+            "dist": dist, "pps": sp_pps, "acc": acc
         })
 
     if not plan:
         print("[pp_joint] no valid joints to move"); return
 
-    # 2) stage parameter ke SEMUA axis (tanpa BG dulu)
+    # 2) stage PA + AC/DC + SP (tanpa BG dulu) ke SEMUA axis
+    #    Catatan: kalau firmware kamu punya S-curve smoothing (SS),
+    #    pakai SS=0..kecil agar mendekati segitiga; SS besar => mendekati S-curve.
     for it in plan:
         nid = it["nid"]
         try:
-            # set target & speed; urutan bebas, yang penting BG terakhir
-            dev.pa(nid, it["tgt"])
-            dev.sp(nid, it["pps"])
+            dev.pa(nid, it["tgt"])    # target absolut (arah dari PA)
+            dev.ac(nid, it["acc"])    # accel simetris
+            dev.dc(nid, it["acc"])    # decel = accel
+            dev.sp(nid, it["pps"])    # peak speed (abs)
         except Exception as e:
             print(f"[pp_joint] stage fail @ ID {nid}: {e}")
 
-    # 3) BEGIN untuk SEMUA axis → start serentak (skew mikrodetik—praktis barengan)
+    # 3) BG SEMUA → start serentak
     for it in plan:
         nid = it["nid"]
-        try:
-            dev.bg(nid)
-        except Exception as e:
-            print(f"[pp_joint] BG fail @ ID {nid}: {e}")
+        try: dev.bg(nid)
+        except Exception as e: print(f"[pp_joint] BG fail @ ID {nid}: {e}")
 
     # 4) cache & log
     for it in plan:
         nid = it["nid"]
         _pos_cache_pulses(state)[nid] = it["tgt"]
         _pos_cache_deg(state)[nid]    = it["tgt_deg"]
-        print(f"[pp_joint] ID {nid}: tgt={it['tgt_deg']:.3f}° -> pulses {it['tgt']} "
-              f"(cur {it['cur']}, dist {it['dist']}, pps {it['pps']}, time {t_ms}ms)")
+        print(f"[pp_joint] ID {nid}: tgt={it['tgt_deg']:.3f}° → pulses {it['tgt']} "
+              f"(cur {it['cur']}, dist {it['dist']}, SP={it['pps']} pps, AC/DC={it['acc']} pps², T={t_ms} ms)")
+
 
 
 
