@@ -431,6 +431,42 @@ class UIM342CAN:
     def set_origin_soft(self, node_id: int):
         raise NotImplementedError("set_origin_soft requires vendor-specific object; not implemented")
 
+    def hw_origin(self, node_id: int) -> None:
+        """
+        Hardware origin (zero encoder) dengan mapping via environment:
+        - OG_CW_HEX: hex string CW OG (mis. '0x33'); kirim CW itu tanpa payload.
+        - OG_PP_IDX: index PP untuk origin (mis. '0x28'); set PP[idx] = 1.
+        Minimal salah satu harus diset. Raise RuntimeError kalau tidak ada mapping.
+        """
+        og_cw_hex = os.getenv("OG_CW_HEX", "").strip()
+        og_pp_idx = os.getenv("OG_PP_IDX", "").strip()
+
+        if og_cw_hex:
+            cw = int(og_cw_hex, 16)
+            ack = self.transact(node_id, cw, b"", timeout=0.8)
+            if not ack:
+                raise TimeoutError(f"No ACK for OG CW 0x{cw:02X}")
+            d = bytes(ack.data)
+            # gunakan helper bila ada:
+            if hasattr(self, "_raise_if_er"):
+                self._raise_if_er(d, f"OG(CW 0x{cw:02X})")
+            return
+
+        if og_pp_idx:
+            idx = int(og_pp_idx, 0)  # auto base 0x.. atau desimal
+            # PP[idx] = 1
+            payload = pack_u8(idx) + pack_u8(1)
+            ack = self.transact(node_id, CW["PP"], payload, timeout=0.8)
+            if not ack:
+                raise TimeoutError(f"No ACK for OG PP[{idx}]")
+            d = bytes(ack.data)
+            if hasattr(self, "_raise_if_er"):
+                self._raise_if_er(d, f"OG(PP[{idx}])")
+            return
+
+        raise RuntimeError("HW origin mapping not set. Define OG_CW_HEX or OG_PP_IDX.")
+
+
 
 # -----------------------------
 # CLI
@@ -537,6 +573,9 @@ def _cli():
     sp_qes.add_argument('id', type=int)
     sp_qes.add_argument('idx', type=int)
     sp_qes.add_argument('value', type=int)
+    
+    sp_og = sub.add_parser('og', help='Hardware origin zero (env: OG_CW_HEX or OG_PP_IDX)')
+    sp_og.add_argument('id', type=int)
 
     args = p.parse_args()
 
@@ -651,6 +690,9 @@ def _cli():
         dev.mo(args.id, False)
         dev.qe_set(args.id, args.idx, args.value)
         print(f"QE[{args.idx}] @ ID {args.id} set to {args.value}")
+    elif args.cmd == 'og':
+        dev.hw_origin(args.id)
+        print(f"OG @ ID {args.id} done")
 
 
 if __name__ == '__main__':

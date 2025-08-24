@@ -206,19 +206,31 @@ def read_encoder(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
 
 def set_origin(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
     """
-    Software origin = current PA pulses (per-ID).
-    If SAVE_ORIGIN=1, persists to ORIGIN_FILE.
+    Origin:
+      - Jika mapping OG hardware tersedia (OG_CW_HEX atau OG_PP_IDX), pakai HW origin.
+      - Jika tidak, fallback ke software origin (offset pulses).
     """
     ids = _select_ids(msg); dev = _get_dev()
     origin = _origin_map(state)
+
+    have_hw = bool(os.getenv("OG_CW_HEX") or os.getenv("OG_PP_IDX"))
+
     for nid in ids:
         try:
-            pulses = dev.read_position(nid, via="pa")
-            origin[nid] = int(pulses)
-            print(f"[set_origin] ID {nid} origin_pulses={origin[nid]}")
+            if have_hw:
+                dev.hw_origin(nid)
+                # setelah HW zero, kita anggap offset software = 0
+                origin[nid] = 0
+                print(f"[set_origin] (HW OG) done @ ID {nid}")
+            else:
+                pulses = dev.read_position(nid, via="pa")
+                origin[nid] = int(pulses)
+                print(f"[set_origin] (SW) ID {nid} origin_pulses={origin[nid]}")
         except Exception as e:
             print(f"[set_origin] ID {nid} ERROR: {e}")
+
     _save_origin(state)
+
 
 # ===== Export mapping =====
 HANDLERS = {
