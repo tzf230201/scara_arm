@@ -1,6 +1,7 @@
 # callbacks.py — ZMQ worker callbacks (single file)
-# - Fokus: wake_up, shutdown, stop, read_position (deg), read_encoder (deg), set_origin
-# - Driver: drivers.canbase_merged.UIM342CAN (PA-GET untuk baca posisi)
+# - read_position -> degrees (°)
+# - read_encoder / get_encoder -> raw pulses (int)
+# - set_origin -> software zero per-ID (optional persistence)
 from __future__ import annotations
 import os, json
 from pathlib import Path
@@ -20,10 +21,10 @@ STEPPER_IDS: List[int] = [6, 7, 8]
 CAN_CH   = os.getenv("CAN_CH", "can0")
 CAN_DEBUG = os.getenv("CAN_DEBUG", "0").lower() in ("1", "true", "yes")
 
-# Skala derajat
-DEFAULT_CPR   = int(os.getenv("CPR", "3200"))      # counts per rev (mis. 200*16)
-DEFAULT_GEAR  = float(os.getenv("GEAR", "1.0"))    # gear ratio total (output:input)
-DEFAULT_INV   = int(os.getenv("INV", "0"))         # 1 untuk balik arah
+# Scale for degrees
+DEFAULT_CPR   = int(os.getenv("CPR", "3200"))      # counts per revolution
+DEFAULT_GEAR  = float(os.getenv("GEAR", "1.0"))    # total gear ratio (output:input)
+DEFAULT_INV   = int(os.getenv("INV", "0"))         # 1 to invert sign
 
 # Origin persistence
 ORIGIN_FILE   = Path(os.path.expanduser(os.getenv("ORIGIN_FILE", "~/.uim342_origin.json")))
@@ -43,14 +44,9 @@ def _env_bool01(name: str, default: int) -> int:
     if v is None: return default
     return 1 if str(v).lower() in ("1","true","yes","on") else 0
 
-def _cpr_for_id(nid: int) -> int:
-    return _env_int(f"CPR_{nid}", DEFAULT_CPR)
-
-def _gear_for_id(nid: int) -> float:
-    return _env_float(f"GEAR_{nid}", DEFAULT_GEAR)
-
-def _inv_for_id(nid: int) -> int:
-    return _env_bool01(f"INV_{nid}", DEFAULT_INV)
+def _cpr_for_id(nid: int) -> int:   return _env_int(f"CPR_{nid}",  DEFAULT_CPR)
+def _gear_for_id(nid: int) -> float:return _env_float(f"GEAR_{nid}", DEFAULT_GEAR)
+def _inv_for_id(nid: int) -> int:   return _env_bool01(f"INV_{nid}", DEFAULT_INV)
 
 # ===== Lazy-open device =====
 _dev: UIM342CAN | None = None
@@ -63,9 +59,8 @@ def _get_dev() -> UIM342CAN:
         print(f"[callbacks] CAN opened @ {CAN_CH} debug={CAN_DEBUG}")
     return _dev
 
-# ===== State accessors =====
+# ===== Payload / State utils =====
 def _select_ids(payload: Dict[str, Any]) -> List[int]:
-    """Ambil target IDs dari payload ('ids' / 'motor_selection')."""
     if isinstance(payload.get("ids"), list):
         return [i for i in payload["ids"] if i in STEPPER_IDS]
     sel = str(payload.get("motor_selection") or payload.get("motor") or "all").lower()
@@ -85,15 +80,12 @@ def _pos_cache_deg(state: Dict[str, Any]) -> Dict[int, float]:
     return d
 
 def _origin_map(state: Dict[str, Any]) -> Dict[int, int]:
-    """Origin (offset pulses) per-ID. Muat dari file sekali bila ada."""
     d = state.get("origin")
     if not isinstance(d, dict):
         d = {}
-        # load from file if exists
         if ORIGIN_FILE.exists():
             try:
                 loaded = json.loads(ORIGIN_FILE.read_text())
-                # pastikan kunci int
                 for k, v in loaded.items():
                     try: d[int(k)] = int(v)
                     except: pass
@@ -115,12 +107,9 @@ def _save_origin(state: Dict[str, Any]) -> None:
 
 # ===== Conversion =====
 def pulses_to_deg(nid: int, pulses: int, origin_pulses: int) -> float:
-    # (pulses - origin) -> deg, per-ID CPR/GEAR/INV
     cpr  = max(1, _cpr_for_id(nid))
-    gear = max(1e-9, _gear_for_id(nid))  # avoid div0
+    gear = max(1e-9, _gear_for_id(nid))
     inv  = -1.0 if _inv_for_id(nid) else 1.0
-    # Sumbu keluaran (link) diasumsikan = motor/gear
-    # 360° per satu putaran output; putaran output = pulses/cpr/gear
     deg_per_pulse = 360.0 / (cpr * gear)
     return inv * (pulses - origin_pulses) * deg_per_pulse
 
@@ -128,48 +117,39 @@ def pulses_to_deg(nid: int, pulses: int, origin_pulses: int) -> float:
 # System handlers
 # ============================
 def wake_up(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
-    """MO ON untuk ID terpilih."""
     ids = _select_ids(msg); dev = _get_dev()
     for nid in ids:
         try:
-            dev.mo(nid, True)
-            print(f"[wake_up] MO on @ ID {nid}")
+            dev.mo(nid, True); print(f"[wake_up] MO on @ ID {nid}")
         except Exception as e:
             print(f"[wake_up] ID {nid} ERROR: {e}")
     state["motor_on"] = True
 
 def shutdown(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
-    """MO OFF untuk ID terpilih."""
     ids = _select_ids(msg); dev = _get_dev()
     for nid in ids:
         try:
-            dev.mo(nid, False)
-            print(f"[shutdown] MO off @ ID {nid}")
+            dev.mo(nid, False); print(f"[shutdown] MO off @ ID {nid}")
         except Exception as e:
             print(f"[shutdown] ID {nid} ERROR: {e}")
     state["motor_on"] = False
 
 def stop(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
-    """STOP (SD decel)."""
     ids = _select_ids(msg); dev = _get_dev()
     for nid in ids:
         try:
-            dev.stop(nid)
-            print(f"[stop] SD @ ID {nid}")
+            dev.stop(nid); print(f"[stop] SD @ ID {nid}")
         except Exception as e:
             print(f"[stop] ID {nid} ERROR: {e}")
 
 def homing(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
-    """Stub homing (belum implement)."""
     print(f"[homing] (stub) ids={_select_ids(msg)}")
 
 def dancing(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
-    """Stub dancing (belum implement)."""
     print(f"[dancing] (stub) ids={_select_ids(msg)}")
 
 def quit(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
-    state["running"] = False
-    print("[quit] stopping main loop")
+    state["running"] = False; print("[quit] stopping main loop")
 
 # ============================
 # Motion stubs (PP/PVT)
@@ -187,17 +167,17 @@ def pvt_coor(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
     print(f"[pvt_coor] (stub) coor={msg.get('coor')} time={msg.get('time')} ids={_select_ids(msg)}")
 
 # ============================
-# Sensors / position (DEGREES)
+# Sensors
 # ============================
 def read_position(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
     """
-    Baca absolute position via PA-GET (pulses) → konversi DEG sesuai CPR/GEAR/INV & origin.
-    Update state['last_pos_pulses'][id] dan state['last_pos_deg'][id].
+    Return DEGREES: PA-GET pulses -> deg using CPR/GEAR/INV and per-ID origin.
+    Updates state['last_pos_pulses'][id] and state['last_pos_deg'][id].
     """
     ids = _select_ids(msg); dev = _get_dev()
     cache_p = _pos_cache_pulses(state)
     cache_d = _pos_cache_deg(state)
-    origin   = _origin_map(state)
+    origin  = _origin_map(state)
 
     for nid in ids:
         try:
@@ -210,16 +190,27 @@ def read_position(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
             print(f"[read_position] ID {nid} ERROR: {e}")
 
 def read_encoder(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
-    """Alias ke read_position (deg)."""
-    read_position(msg, state)
+    """
+    Return RAW PULSES: PA-GET pulses (no conversion).
+    Updates state['last_pos_pulses'][id]. Does NOT touch last_pos_deg.
+    """
+    ids = _select_ids(msg); dev = _get_dev()
+    cache_p = _pos_cache_pulses(state)
+    for nid in ids:
+        try:
+            pulses = dev.read_position(nid, via="pa")
+            cache_p[nid] = pulses
+            print(f"[read_encoder] ID {nid} -> {pulses} pulses")
+        except Exception as e:
+            print(f"[read_encoder] ID {nid} ERROR: {e}")
 
 def set_origin(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
     """
-    Set software origin = posisi saat ini (per-ID). Disimpan ke file bila SAVE_ORIGIN=1.
+    Software origin = current PA pulses (per-ID).
+    If SAVE_ORIGIN=1, persists to ORIGIN_FILE.
     """
     ids = _select_ids(msg); dev = _get_dev()
     origin = _origin_map(state)
-
     for nid in ids:
         try:
             pulses = dev.read_position(nid, via="pa")
@@ -227,7 +218,6 @@ def set_origin(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
             print(f"[set_origin] ID {nid} origin_pulses={origin[nid]}")
         except Exception as e:
             print(f"[set_origin] ID {nid} ERROR: {e}")
-
     _save_origin(state)
 
 # ===== Export mapping =====
@@ -244,8 +234,9 @@ HANDLERS = {
     "pp_coor":       pp_coor,
     "pvt_joint":     pvt_joint,
     "pvt_coor":      pvt_coor,
-    # sensors (deg) + origin
-    "read_position": read_position,
-    "read_encoder":  read_encoder,
+    # sensors
+    "read_position": read_position,   # degrees
+    "read_encoder":  read_encoder,    # raw pulses
+    "get_encoder":   read_encoder,    # alias for compatibility
     "set_origin":    set_origin,
 }
