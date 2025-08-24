@@ -115,7 +115,7 @@ def pulses_to_deg(nid: int, pulses: int, origin_pulses: int) -> float:
     return inv * (pulses - origin_pulses) * deg_per_pulse
 
 def deg_to_pulses(nid: int, deg: float, origin_pulses: int) -> int:
-    """Konversi derajat -> pulses (absolut, termasuk origin & INV/GEAR/CPR)."""
+    """Konversi derajat -> pulses absolut (memperhitungkan origin & INV/GEAR/CPR)."""
     cpr  = max(1, _cpr_for_id(nid))
     gear = max(1e-9, _gear_for_id(nid))
     inv  = -1.0 if _inv_for_id(nid) else 1.0
@@ -123,7 +123,7 @@ def deg_to_pulses(nid: int, deg: float, origin_pulses: int) -> int:
     return int(round(origin_pulses + inv * deg * pulses_per_deg))
 
 def _compute_pps(distance_pulses: int, time_ms: int | None, *, min_pps: int = 50) -> int:
-    """Hitung kecepatan pps supaya sampai dalam time_ms (fallback min_pps)."""
+    """Hitung kecepatan pps supaya tiap axis tiba ~bersamaan dalam time_ms."""
     if not time_ms or time_ms <= 0:
         return max(min_pps, 1)
     pps = math.ceil(abs(distance_pulses) / (time_ms / 1000.0))
@@ -173,47 +173,77 @@ def quit(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
 # ============================
 def pp_joint(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
     """
-    PTP Joint (derajat → PA absolut):
-      - msg['joints'] : list derajat [J1, J2, J3, ...]
-      - msg['time']   : durasi gerak (ms) untuk tiap joint (kecepatan dihitung otomatis)
-      - mapping joint -> node: J1->ID6, J2->ID7, J3->ID8 (sisanya diabaikan)
-    Urutan: PA(target) -> SP(pps) -> BG
+    PTP Joint sinkron (semua start bareng, target selesai ~bareng):
+      - msg['joints']: list derajat [J1, J2, J3, ...]
+      - msg['time']  : durasi target (ms) untuk mencapai posisi itu
+    Mapping joint -> node: J1->ID6, J2->ID7, J3->ID8
+    Prosedur: (1) MO ON semua  (2) stage PA & SP semua  (3) BG semua (start serentak)
     """
     dev = _get_dev()
-    ids_order = [6, 7, 8]                         # tiga stepper
+    ids_order = [6, 7, 8]
     joints = msg.get("joints") or []
     t_ms   = int(msg.get("time") or 0)
     origin = _origin_map(state)
 
-    # pastikan MO ON biar BG gak error
+    # 0) pastikan motor ON agar BG tidak error
     for nid in ids_order:
         try:
             dev.mo(nid, True)
         except Exception as e:
             print(f"[pp_joint] warn: MO on fail @ ID {nid}: {e}")
 
+    # 1) hitung target pulses & pps per-axis (agar finish ~bersamaan)
+    plan = []  # list of dict per axis
     for idx, nid in enumerate(ids_order):
         if idx >= len(joints):
-            continue  # tidak ada target utk joint ini
+            continue
         try:
             tgt_deg   = float(joints[idx])
-            cur_pulse = dev.read_position(nid, via="pa")    # raw sekarang
-            tgt_pulse = deg_to_pulses(nid, tgt_deg, origin.get(nid, 0))
-            dist      = tgt_pulse - cur_pulse
-            pps       = _compute_pps(dist, t_ms, min_pps=50)
-
-            # Set target & speed, lalu eksekusi
-            dev.pa(nid, tgt_pulse)
-            dev.sp(nid, pps)
-            dev.bg(nid)
-
-            # cache & log
-            _pos_cache_pulses(state)[nid] = tgt_pulse
-            _pos_cache_deg(state)[nid]    = tgt_deg
-            print(f"[pp_joint] ID {nid}: tgt={tgt_deg:.3f}° -> pulses {tgt_pulse} "
-                  f"(cur {cur_pulse}, dist {dist}, pps {pps}, time {t_ms}ms)")
+        except Exception:
+            print(f"[pp_joint] skip ID {nid}: target deg invalid: {joints[idx]}")
+            continue
+        try:
+            cur_pulse = dev.read_position(nid, via="pa")  # RAW sekarang
         except Exception as e:
-            print(f"[pp_joint] ID {nid} ERROR: {e}")
+            print(f"[pp_joint] ID {nid} cannot read position: {e}")
+            continue
+        tgt_pulse = deg_to_pulses(nid, tgt_deg, origin.get(nid, 0))
+        dist      = tgt_pulse - cur_pulse
+        pps       = _compute_pps(dist, t_ms, min_pps=50)
+        plan.append({
+            "nid": nid, "tgt_deg": tgt_deg, "cur": cur_pulse,
+            "tgt": tgt_pulse, "dist": dist, "pps": pps
+        })
+
+    if not plan:
+        print("[pp_joint] no valid joints to move"); return
+
+    # 2) stage parameter ke SEMUA axis (tanpa BG dulu)
+    for it in plan:
+        nid = it["nid"]
+        try:
+            # set target & speed; urutan bebas, yang penting BG terakhir
+            dev.pa(nid, it["tgt"])
+            dev.sp(nid, it["pps"])
+        except Exception as e:
+            print(f"[pp_joint] stage fail @ ID {nid}: {e}")
+
+    # 3) BEGIN untuk SEMUA axis → start serentak (skew mikrodetik—praktis barengan)
+    for it in plan:
+        nid = it["nid"]
+        try:
+            dev.bg(nid)
+        except Exception as e:
+            print(f"[pp_joint] BG fail @ ID {nid}: {e}")
+
+    # 4) cache & log
+    for it in plan:
+        nid = it["nid"]
+        _pos_cache_pulses(state)[nid] = it["tgt"]
+        _pos_cache_deg(state)[nid]    = it["tgt_deg"]
+        print(f"[pp_joint] ID {nid}: tgt={it['tgt_deg']:.3f}° -> pulses {it['tgt']} "
+              f"(cur {it['cur']}, dist {it['dist']}, pps {it['pps']}, time {t_ms}ms)")
+
 
 
 def pp_coor(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
