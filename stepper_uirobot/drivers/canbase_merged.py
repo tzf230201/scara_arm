@@ -1,12 +1,11 @@
 """
 canbase_merged.py — UIM342AB SimpleCAN3 driver + high-level adapter (single file)
 
-- Based on your canbase_patched.py (python-can / SocketCAN)
-- Keeps low-level CW handling + ACK matching improvements
-- Adds high-level helpers: RT/RT16, QE get/set, MS (Acquire Motion Status),
-  and convenient read_position() that defaults to MS[0].
-- Expands CLI: ping, get-id, set-id, mo/jv/sp/pr/pa/bg/stop, rt, rt16, read-pos,
-  scan-rt, qe-get, qe-set, ms-read.
+- Robust ACK matching (accept CW in CAN-ID low byte, payload[0], and ER frames that reference our CW)
+- Low-level CW helpers + high-level adapters: RT/RT16, MS (status), QE (encoder params)
+- Unified read_position(): defaults to MS[0], optional via RT (if firmware supports)
+- CLI: ping, get-id, set-id, mo, jv, sp, pr, pa, ac, dc, ss, sd, bg, stop,
+       rt, rt16, scan-rt, read-pos, read-encoder, ms-read, qe-get, qe-set
 
 Usage examples:
     # Ping multiple nodes (Model Info)
@@ -21,10 +20,13 @@ Usage examples:
     # Read position via RT index (if your firmware supports RT for position)
     python canbase_merged.py --channel can0 read-pos 6 --via rt --idx 1
 
-    # Motor on/off, jog velocity, stop
-    python canbase_merged.py --channel can0 mo 6 on
-    python canbase_merged.py --channel can0 jv 6 2000
-    python canbase_merged.py --channel can0 stop 6
+    # Motion params + move
+    python canbase_merged.py --channel can0 ac 6 20000
+    python canbase_merged.py --channel can0 dc 6 20000
+    python canbase_merged.py --channel can0 ss 6 100
+    python canbase_merged.py --channel can0 sd 6 20000
+    python canbase_merged.py --channel can0 sp 6 1000
+    python canbase_merged.py --channel can0 pr 6 800; python canbase_merged.py --channel can0 bg 6
 
 Notes:
 - SocketCAN bitrate is configured externally, e.g.:
@@ -178,10 +180,16 @@ class UIM342CAN:
             return None  # No-ACK expected
         return self.recv_ack(cw, timeout=timeout)
 
+    # ---- Error helper ----
+    def _raise_if_er(self, d: bytes, name: str):
+        if len(d) >= 4 and d[0] == CW["ER"]:
+            err = int.from_bytes(d[1:3], 'little')
+            cw  = d[3]
+            raise RuntimeError(f"{name} error 0x{err:04X} (ER for CW 0x{cw:02X})")
+
     # ---- High-level helpers (existing & extended) ----
     def ping_ml(self, node_id: int) -> Optional[Tuple[int, bytes]]:
-        """Ping using ML (Model Info). Returns (cw, data) from ACK or None.
-        Accept CW from CAN-ID low byte or from data[0]."""
+        """Ping using ML (Model Info). Returns (cw, data) from ACK or None."""
         ack = self.transact(node_id, CW["ML"], b"", timeout=0.8)
         if not ack:
             return None
@@ -217,9 +225,13 @@ class UIM342CAN:
         if not (NODE_ID_MIN <= new_id <= NODE_ID_MAX):
             raise ValueError(f"new_id must be {NODE_ID_MIN}..{NODE_ID_MAX}")
         # Ensure motor off so params can be saved to EEPROM
-        self.mo(current_id, False)
+        ack = self.transact(current_id, CW["MO"], pack_u8(0x00), timeout=0.8)
+        if ack:
+            self._raise_if_er(bytes(ack.data), "MO")
         # PP[7] = new_id
-        self.transact(current_id, CW["PP"], pack_u8(0x07) + pack_u8(new_id), timeout=0.8)
+        ack = self.transact(current_id, CW["PP"], pack_u8(0x07) + pack_u8(new_id), timeout=0.8)
+        if ack:
+            self._raise_if_er(bytes(ack.data), "PP[7]")
         # Reboot to take effect
         self.sy_reboot(current_id)
 
@@ -229,63 +241,97 @@ class UIM342CAN:
 
     # MO: motor on/off
     def mo(self, node_id: int, enable: bool) -> None:
-        self.transact(node_id, CW["MO"], pack_u8(0x01 if enable else 0x00))
+        ack = self.transact(node_id, CW["MO"], pack_u8(0x01 if enable else 0x00))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "MO")
 
     # BG: begin/apply motion parameters
     def bg(self, node_id: int) -> None:
-        self.transact(node_id, CW["BG"], b"")
+        ack = self.transact(node_id, CW["BG"], b"")
+        if ack:
+            self._raise_if_er(bytes(ack.data), "BG")
 
     # ST/SD: stop (uses SD decel)
     def stop(self, node_id: int) -> None:
-        self.transact(node_id, CW["SD"], b"")
+        ack = self.transact(node_id, CW["SD"], b"")
+        if ack:
+            self._raise_if_er(bytes(ack.data), "STOP")
 
     # JV/SP: speed
     def jv(self, node_id: int, pps: int) -> None:
-        self.transact(node_id, CW["JV"], pack_s32(pps))
+        ack = self.transact(node_id, CW["JV"], pack_s32(pps))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "JV")
 
     def sp(self, node_id: int, pps: int) -> None:
-        self.transact(node_id, CW["SP"], pack_s32(pps))
+        ack = self.transact(node_id, CW["SP"], pack_s32(pps))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "SP")
 
     # PR/PA: position motions (pulse)
     def pr(self, node_id: int, pulses: int) -> None:
-        self.transact(node_id, CW["PR"], pack_s32(pulses))
+        ack = self.transact(node_id, CW["PR"], pack_s32(pulses))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "PR")
 
     def pa(self, node_id: int, pulses: int) -> None:
-        self.transact(node_id, CW["PA"], pack_s32(pulses))
+        ack = self.transact(node_id, CW["PA"], pack_s32(pulses))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "PA")
 
-    # AC/DC/SS/SD
+    # AC/DC/SS/SD params
     def ac(self, node_id: int, val: int) -> None:
-        self.transact(node_id, CW["AC"], pack_s32(val))
+        ack = self.transact(node_id, CW["AC"], pack_s32(val))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "AC")
 
     def dc(self, node_id: int, val: int) -> None:
-        self.transact(node_id, CW["DC"], pack_s32(val))
+        ack = self.transact(node_id, CW["DC"], pack_s32(val))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "DC")
 
     def ss(self, node_id: int, val: int) -> None:
-        self.transact(node_id, CW["SS"], pack_s32(val))
+        ack = self.transact(node_id, CW["SS"], pack_s32(val))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "SS")
 
     def sd(self, node_id: int, val: int) -> None:
-        self.transact(node_id, CW["SD"], pack_s32(val))
+        ack = self.transact(node_id, CW["SD"], pack_s32(val))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "SD")
 
     # ------------- PVT/PT minimal helpers -------------
     def mp(self, node_id: int, idx: int, val: int) -> None:
         # MP[i] set (i, val) → 2 bytes
-        self.transact(node_id, CW["MP"], pack_u8(idx) + pack_u8(val & 0xFF))
+        ack = self.transact(node_id, CW["MP"], pack_u8(idx) + pack_u8(val & 0xFF))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "MP")
 
     def pv_set_start(self, node_id: int, start_row: int) -> None:
-        self.transact(node_id, CW["PV"], pack_u16(start_row))
+        ack = self.transact(node_id, CW["PV"], pack_u16(start_row))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "PV")
 
     def qp(self, node_id: int, row: int, pos: int) -> None:
-        self.transact(node_id, CW["QP"], pack_u16(row) + pack_s32(pos))
+        ack = self.transact(node_id, CW["QP"], pack_u16(row) + pack_s32(pos))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "QP")
 
     def qv(self, node_id: int, row: int, vel_pps: int) -> None:
-        self.transact(node_id, CW["QV"], pack_u16(row) + pack_s32(vel_pps))
+        ack = self.transact(node_id, CW["QV"], pack_u16(row) + pack_s32(vel_pps))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "QV")
 
     def qt(self, node_id: int, row: int, t_ms: int) -> None:
-        self.transact(node_id, CW["QT"], pack_u16(row) + pack_u16(t_ms))
+        ack = self.transact(node_id, CW["QT"], pack_u16(row) + pack_u16(t_ms))
+        if ack:
+            self._raise_if_er(bytes(ack.data), "QT")
 
     def qf(self, node_id: int, row: int, t_ms: int, vel_pps: int, pos: int) -> None:
         payload = pack_u16(row) + pack_u8(t_ms) + pack_s32(vel_pps) + pack_s32(pos)
-        self.transact(node_id, CW["QF"], payload)
+        ack = self.transact(node_id, CW["QF"], payload)
+        if ack:
+            self._raise_if_er(bytes(ack.data), "QF")
 
     # -----------------------------
     # RT helpers
@@ -333,6 +379,7 @@ class UIM342CAN:
         ack = self.transact(node_id, CW["QE"], payload, timeout=timeout)
         if not ack:
             raise TimeoutError("No ACK for QE set")
+        self._raise_if_er(bytes(ack.data), "QE set")
 
     # -----------------------------
     # MS helpers (Acquire Motion Status)
@@ -358,8 +405,7 @@ class UIM342CAN:
         return self._slice_payload(d, CW["MS"], 8)
 
     def read_position_ms(self, node_id: int, idx: int = 0, timeout: float = 0.8) -> int:
-        """Read relative position using MS[idx] (default MS[0]).
-        According to manual, the 32-bit position is at bytes d4..d7 (little-endian)."""
+        """Read relative position using MS[idx] (default MS[0]). d4..d7 is int32 LE."""
         b8 = self.ms_read(node_id, idx=idx, timeout=timeout)
         pos = int.from_bytes(b8[4:8], 'little', signed=True)
         return pos
@@ -430,19 +476,36 @@ def _cli():
     sp_pa.add_argument('id', type=int)
     sp_pa.add_argument('pulses', type=int)
 
+    # Motion params
+    sp_ac = sub.add_parser('ac', help='Set acceleration (pps^2)')
+    sp_ac.add_argument('id', type=int)
+    sp_ac.add_argument('val', type=int)
+
+    sp_dc = sub.add_parser('dc', help='Set deceleration (pps^2)')
+    sp_dc.add_argument('id', type=int)
+    sp_dc.add_argument('val', type=int)
+
+    sp_ss = sub.add_parser('ss', help='Set start speed (pps)')
+    sp_ss.add_argument('id', type=int)
+    sp_ss.add_argument('val', type=int)
+
+    sp_sdp = sub.add_parser('sd', help='Set stop deceleration (pps^2)')
+    sp_sdp.add_argument('id', type=int)
+    sp_sdp.add_argument('val', type=int)
+
     sp_bg = sub.add_parser('bg', help='Begin/apply motion')
     sp_bg.add_argument('id', type=int)
 
     sp_stop = sub.add_parser('stop', help='Stop (SD deceleration)')
     sp_stop.add_argument('id', type=int)
 
-    # NEW: scan-rt (sweep index for RT)
+    # scan-rt (sweep index for RT)
     sp_scan = sub.add_parser('scan-rt', help='Scan RT indices and show responses')
     sp_scan.add_argument('id', type=int)
     sp_scan.add_argument('--start', type=int, default=0)
     sp_scan.add_argument('--end', type=int, default=31)
 
-    # NEW: RT + RT16 + read-pos/read-encoder
+    # RT + RT16 + read-pos/read-encoder
     sp_rt = sub.add_parser('rt', help='Raw RT read with 1-byte index')
     sp_rt.add_argument('id', type=int)
     sp_rt.add_argument('--idx', type=int, required=True, help='RT index (0..255)')
@@ -453,12 +516,12 @@ def _cli():
 
     sp_rpos = sub.add_parser('read-pos', help='Read encoder position (default via MS[0])')
     sp_rpos.add_argument('id', type=int)
-    sp_rpos.add_argument('--via', choices=['ms','rt'], default='ms', help='Select backend (ms|rt)')
+    sp_rpos.add_argument('--via', choices=['ms', 'rt'], default='ms', help='Select backend (ms|rt)')
     sp_rpos.add_argument('--idx', type=int, default=None, help='RT index for position (when --via rt)')
 
     sp_renc = sub.add_parser('read-encoder', help='Alias of read-pos')
     sp_renc.add_argument('id', type=int)
-    sp_renc.add_argument('--via', choices=['ms','rt'], default='ms')
+    sp_renc.add_argument('--via', choices=['ms', 'rt'], default='ms')
     sp_renc.add_argument('--idx', type=int, default=None)
 
     # MS raw read (debugging)
@@ -517,6 +580,22 @@ def _cli():
         dev.pa(args.id, args.pulses)
         print(f"PA @ ID {args.id} = {args.pulses} pulses")
 
+    elif args.cmd == 'ac':
+        dev.ac(args.id, args.val)
+        print(f"AC @ ID {args.id} = {args.val}")
+
+    elif args.cmd == 'dc':
+        dev.dc(args.id, args.val)
+        print(f"DC @ ID {args.id} = {args.val}")
+
+    elif args.cmd == 'ss':
+        dev.ss(args.id, args.val)
+        print(f"SS @ ID {args.id} = {args.val}")
+
+    elif args.cmd == 'sd':
+        dev.sd(args.id, args.val)
+        print(f"SD @ ID {args.id} = {args.val}")
+
     elif args.cmd == 'bg':
         dev.bg(args.id)
         print(f"BG @ ID {args.id}")
@@ -534,7 +613,7 @@ def _cli():
         print(f"RT16[{args.idx}] @ ID {args.id} -> {data.hex(' ')}")
 
     elif args.cmd in ('read-pos', 'read-encoder'):
-        pos = dev.read_position(args.id, idx=args.idx, via=args.via)
+        pos = dev.read_position(args.id, idx=getattr(args, 'idx', None), via=getattr(args, 'via', 'ms'))
         print(f"POS @ ID {args.id} -> {pos}")
 
     elif args.cmd == 'scan-rt':
