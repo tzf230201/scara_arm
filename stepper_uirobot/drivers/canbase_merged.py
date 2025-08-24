@@ -480,6 +480,30 @@ class UIM342CAN:
         else:
             raise ValueError(f"Unexpected MT[0] payload: {d.hex(' ')}")
         return val
+    
+    def mt_set_microstep(self, node_id: int, micro: int):
+        # valid: 1,2,4,8,16,32,64
+        if micro not in (1,2,4,8,16,32,64):
+            raise ValueError("micro must be one of 1/2/4/8/16/32/64")
+        # matikan driver supaya tersimpan ke EEPROM
+        self.mo(node_id, False)  # MO=0
+        # MT[0] = micro  (payload: d0=0x00, d1:d2=val)
+        payload = pack_u8(0x00) + pack_u16(micro)
+        ack = self.transact(node_id, CW["MT"], payload, timeout=0.8)
+        self._raise_if_er(bytes(ack.data), "MT[0]") if ack else None
+
+    def qe_set_cpr(self, node_id: int, cpr: int):
+        # QE[4] = CPR (payload: d0=0x04, d1:d2=cpr)
+        payload = pack_u8(0x04) + pack_u16(cpr)
+        ack = self.transact(node_id, CW["QE"], payload, timeout=0.8)
+        self._raise_if_er(bytes(ack.data), "QE[4]")
+
+    def qe_get_cpr(self, node_id: int) -> int:
+        # QE[4] GET
+        ack = self.transact(node_id, CW["QE"], pack_u8(0x04), timeout=0.8)
+        d = bytes(ack.data)
+        # pola ACK: d0=idx, d1:d2=value (lihat manual)
+        return int.from_bytes(d[2:4], "little", signed=False)
 
 
 
@@ -594,6 +618,17 @@ def _cli():
     
     sp_msget = sub.add_parser('microstep-get', help='Read micro-stepping (MT[0])')
     sp_msget.add_argument('id', type=int)
+    
+    sp_ms_set = sub.add_parser('microstep-set', help='Set micro-stepping MT[0]')
+    sp_ms_set.add_argument('id', type=int)
+    sp_ms_set.add_argument('value', type=int, choices=[1,2,4,8,16,32,64])
+
+    sp_qe_cpr_get = sub.add_parser('qe-cpr-get', help='Get QE[4] CPR')
+    sp_qe_cpr_get.add_argument('id', type=int)
+
+    sp_qe_cpr_set = sub.add_parser('qe-cpr-set', help='Set QE[4] CPR')
+    sp_qe_cpr_set.add_argument('id', type=int)
+    sp_qe_cpr_set.add_argument('cpr', type=int)
 
     args = p.parse_args()
 
@@ -714,6 +749,14 @@ def _cli():
     elif args.cmd == 'microstep-get':
         val = dev.mt_get_microstep(args.id)
         print(f"MT[0] (micro-step) @ ID {args.id} -> {val}")
+    elif args.cmd == 'microstep-set':
+        dev.mt_set_microstep(args.id, args.value)
+        print(f"MT[0] (micro-step) @ ID {args.id} = {args.value}")
+    elif args.cmd == 'qe-cpr-get':
+        print(f"QE[4] CPR @ ID {args.id} -> {dev.qe_get_cpr(args.id)}")
+    elif args.cmd == 'qe-cpr-set':
+        dev.qe_set_cpr(args.id, args.cpr)
+        print(f"QE[4] CPR @ ID {args.id} = {args.cpr}")
 
 
 if __name__ == '__main__':
