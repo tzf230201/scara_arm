@@ -82,6 +82,7 @@ CW = {
     "QE": 0x3D,
     "RT": 0x5A,
     "SY": 0x7E,  # No-ACK per manual
+    "MT": 0x10,
 }
 
 NODE_ID_MIN = 5
@@ -465,6 +466,20 @@ class UIM342CAN:
             return
 
         raise RuntimeError("HW origin mapping not set. Define OG_CW_HEX or OG_PP_IDX.")
+    
+    def mt_get_microstep(self, node_id: int) -> int:
+        ack = self.transact(node_id, CW["MT"], pack_u8(0x00), timeout=0.8)
+        if not ack:
+            raise TimeoutError("No ACK for MT[0]")
+        d = bytes(ack.data)
+        # pola robust (ACK bisa echo index di d0 atau ada byte CW di depan)
+        if len(d) >= 3 and d[0] == 0x00:
+            val = int.from_bytes(d[1:3], "little", signed=False)
+        elif len(d) >= 4 and d[1] == 0x00:
+            val = int.from_bytes(d[2:4], "little", signed=False)
+        else:
+            raise ValueError(f"Unexpected MT[0] payload: {d.hex(' ')}")
+        return val
 
 
 
@@ -576,6 +591,9 @@ def _cli():
     
     sp_og = sub.add_parser('og', help='Hardware origin zero (env: OG_CW_HEX or OG_PP_IDX)')
     sp_og.add_argument('id', type=int)
+    
+    sp_msget = sub.add_parser('microstep-get', help='Read micro-stepping (MT[0])')
+    sp_msget.add_argument('id', type=int)
 
     args = p.parse_args()
 
@@ -693,6 +711,9 @@ def _cli():
     elif args.cmd == 'og':
         dev.hw_origin(args.id)
         print(f"OG @ ID {args.id} done")
+    elif args.cmd == 'microstep-get':
+        val = dev.mt_get_microstep(args.id)
+        print(f"MT[0] (micro-step) @ ID {args.id} -> {val}")
 
 
 if __name__ == '__main__':
