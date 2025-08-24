@@ -29,6 +29,8 @@ state = {
     "pos_abs": 0.0,
     "speed": 0.0,
     "last_cmd_ts": time.time(),
+    # optional cache untuk posisi per-ID
+    "last_pos": {},  # {id: pos}
 }
 
 def control_step():
