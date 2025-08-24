@@ -6,6 +6,7 @@ from __future__ import annotations
 import os, json
 from pathlib import Path
 from typing import Dict, Any, List
+import math  # di header callbacks.py
 
 # ===== CAN driver =====
 try:
@@ -113,6 +114,22 @@ def pulses_to_deg(nid: int, pulses: int, origin_pulses: int) -> float:
     deg_per_pulse = 360.0 / (cpr * gear)
     return inv * (pulses - origin_pulses) * deg_per_pulse
 
+def deg_to_pulses(nid: int, deg: float, origin_pulses: int) -> int:
+    """Konversi derajat -> pulses (absolut, termasuk origin & INV/GEAR/CPR)."""
+    cpr  = max(1, _cpr_for_id(nid))
+    gear = max(1e-9, _gear_for_id(nid))
+    inv  = -1.0 if _inv_for_id(nid) else 1.0
+    pulses_per_deg = (cpr * gear) / 360.0
+    return int(round(origin_pulses + inv * deg * pulses_per_deg))
+
+def _compute_pps(distance_pulses: int, time_ms: int | None, *, min_pps: int = 50) -> int:
+    """Hitung kecepatan pps supaya sampai dalam time_ms (fallback min_pps)."""
+    if not time_ms or time_ms <= 0:
+        return max(min_pps, 1)
+    pps = math.ceil(abs(distance_pulses) / (time_ms / 1000.0))
+    return max(int(pps), min_pps)
+
+
 # ============================
 # System handlers
 # ============================
@@ -155,7 +172,49 @@ def quit(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
 # Motion stubs (PP/PVT)
 # ============================
 def pp_joint(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
-    print(f"[pp_joint] (stub) joints={msg.get('joints')} time={msg.get('time')} ids={_select_ids(msg)}")
+    """
+    PTP Joint (derajat → PA absolut):
+      - msg['joints'] : list derajat [J1, J2, J3, ...]
+      - msg['time']   : durasi gerak (ms) untuk tiap joint (kecepatan dihitung otomatis)
+      - mapping joint -> node: J1->ID6, J2->ID7, J3->ID8 (sisanya diabaikan)
+    Urutan: PA(target) -> SP(pps) -> BG
+    """
+    dev = _get_dev()
+    ids_order = [6, 7, 8]                         # tiga stepper
+    joints = msg.get("joints") or []
+    t_ms   = int(msg.get("time") or 0)
+    origin = _origin_map(state)
+
+    # pastikan MO ON biar BG gak error
+    for nid in ids_order:
+        try:
+            dev.mo(nid, True)
+        except Exception as e:
+            print(f"[pp_joint] warn: MO on fail @ ID {nid}: {e}")
+
+    for idx, nid in enumerate(ids_order):
+        if idx >= len(joints):
+            continue  # tidak ada target utk joint ini
+        try:
+            tgt_deg   = float(joints[idx])
+            cur_pulse = dev.read_position(nid, via="pa")    # raw sekarang
+            tgt_pulse = deg_to_pulses(nid, tgt_deg, origin.get(nid, 0))
+            dist      = tgt_pulse - cur_pulse
+            pps       = _compute_pps(dist, t_ms, min_pps=50)
+
+            # Set target & speed, lalu eksekusi
+            dev.pa(nid, tgt_pulse)
+            dev.sp(nid, pps)
+            dev.bg(nid)
+
+            # cache & log
+            _pos_cache_pulses(state)[nid] = tgt_pulse
+            _pos_cache_deg(state)[nid]    = tgt_deg
+            print(f"[pp_joint] ID {nid}: tgt={tgt_deg:.3f}° -> pulses {tgt_pulse} "
+                  f"(cur {cur_pulse}, dist {dist}, pps {pps}, time {t_ms}ms)")
+        except Exception as e:
+            print(f"[pp_joint] ID {nid} ERROR: {e}")
+
 
 def pp_coor(msg: Dict[str, Any], state: Dict[str, Any]) -> None:
     print(f"[pp_coor] (stub) coor={msg.get('coor')} time={msg.get('time')} ids={_select_ids(msg)}")
