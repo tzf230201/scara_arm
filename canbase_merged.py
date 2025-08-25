@@ -217,7 +217,7 @@ def simplecan3_write(id, cw, dl, data, ack=True):
 
 def simplecan3_read(request_id):
     error_code = NO_ERROR
-    response_id = 0x04 #0x04 is impossible
+    response_id = 0x04
     response = {
         "id": None,
         "cw": None,
@@ -232,15 +232,17 @@ def simplecan3_read(request_id):
             return error_code, response
 
         can_id = message.arbitration_id
+        # Ambil ID dari bits 24-30 (7 bits sesuai layout SimpleCAN3)
+        response_id = (can_id >> 24) & 0x7F
+
+        # debug print
+        print(f"[DEBUG] can_id=0x{can_id:X}, response_id={response_id}, data={list(message.data)}")
+
+        if response_id != request_id:
+            continue
+
         sid = (can_id >> 18) & 0x7FF
         eid = can_id & 0x3FFFF
-
-        # Extract device ID back from SID
-        response_id = (sid & 0x3F) >> 1
-        print(f"[DEBUG] can_id=0x{can_id:X}, sid=0x{sid:X}, eid=0x{eid:X}, response_id={response_id}, data={list(message.data)}")  # <-- Tambah ini
-
-
-        # Parse response
         cw = eid & 0xFF
         dl = len(message.data)
         data = list(message.data[:dl])
@@ -251,6 +253,7 @@ def simplecan3_read(request_id):
         response["data"] = data
 
     return error_code, response
+
 
 def simplecan3_write_read(request_id, cw, dl, data):
     """
