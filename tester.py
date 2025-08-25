@@ -134,13 +134,14 @@ print(f"Cut-in speed sekarang: {current}")
 jv = stepper_set_jv(6, -1000)
 print("JV set:", jv)
 
-stepper_begin_motion(6)
+# stepper_begin_motion(6)
 
+
+# time.sleep(2)
 # Get current JV
 jv_now = stepper_get_jv(6)
 print("JV now:", jv_now)
 
-# time.sleep(2)
 
 
 # # Get current JV
@@ -148,4 +149,18 @@ print("JV now:", jv_now)
 # print("JV now:", jv_now)
 
 stepper_stop_motion(6)
+
+
+sp_set = stepper_set_sp(6, 1000)
+print("SP set:", sp_set)
+
+sp_now = stepper_get_sp(6)
+print("SP now:", sp_now)
+
+pr_set = stepper_set_pr(6, 2000)
+print("PR set:", pr_set)
+
+pr_now = stepper_get_pr(6)
+print("PR now:", pr_now)
+
 

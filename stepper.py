@@ -500,3 +500,102 @@ def stepper_get_jv(node_id):
         return raw
     return None
 
+def stepper_set_sp(node_id, speed):
+    """
+    Set desired PTP speed (pulse/sec, signed int32).
+    Return nilai SP yang diset jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["SP"]
+    # 4-byte signed (little-endian)
+    speed = speed & 0xFFFFFFFF
+    speed_bytes = [
+        speed & 0xFF,
+        (speed >> 8) & 0xFF,
+        (speed >> 16) & 0xFF,
+        (speed >> 24) & 0xFF
+    ]
+    err, resp = simplecan3_write_read(node_id, cw, 4, speed_bytes)
+    # Balasan: data[0]=0x2E (DV), data[1]=0x02, data[2:6]=SP value
+    if err == 0 and resp["dl"] >= 6 and resp["data"][0] == MNEMONIC["DV"] and resp["data"][1] == 2:
+        raw = (
+            resp["data"][2] |
+            (resp["data"][3] << 8) |
+            (resp["data"][4] << 16) |
+            (resp["data"][5] << 24)
+        )
+        if raw >= 0x80000000:
+            raw -= 0x100000000
+        return raw
+    return None
+
+def stepper_get_sp(node_id):
+    """
+    Get current PTP speed (pulse/sec).
+    Return nilai SP (int, bisa negatif) jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["SP"]
+    err, resp = simplecan3_write_read(node_id, cw, 0, [])
+    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
+        # 4-byte signed (little-endian)
+        raw = (
+            resp["data"][1] |
+            (resp["data"][2] << 8) |
+            (resp["data"][3] << 16) |
+            (resp["data"][4] << 24)
+        )
+        if raw >= 0x80000000:
+            raw -= 0x100000000
+        return raw
+    return None
+
+def stepper_set_pr(node_id, position):
+    """
+    Set desired relative position (signed 32-bit, pulse).
+    Return nilai PR yang diset jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["PR"]
+    # 4-byte signed (little-endian)
+    position = position & 0xFFFFFFFF
+    pos_bytes = [
+        position & 0xFF,
+        (position >> 8) & 0xFF,
+        (position >> 16) & 0xFF,
+        (position >> 24) & 0xFF
+    ]
+    err, resp = simplecan3_write_read(node_id, cw, 4, pos_bytes)
+    # Balasan: data[0]=0x2E (DV), data[1]=0x03, data[2:6]=PR value
+    if err == 0 and resp["dl"] >= 6 and resp["data"][0] == MNEMONIC["DV"] and resp["data"][1] == 3:
+        raw = (
+            resp["data"][2] |
+            (resp["data"][3] << 8) |
+            (resp["data"][4] << 16) |
+            (resp["data"][5] << 24)
+        )
+        if raw >= 0x80000000:
+            raw -= 0x100000000
+        return raw
+    return None
+
+def stepper_get_pr(node_id):
+    """
+    Get current relative position (pulse).
+    Return nilai PR (int, bisa negatif) jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["PR"]
+    err, resp = simplecan3_write_read(node_id, cw, 0, [])
+    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
+        # 4-byte signed (little-endian)
+        raw = (
+            resp["data"][1] |
+            (resp["data"][2] << 8) |
+            (resp["data"][3] << 16) |
+            (resp["data"][4] << 24)
+        )
+        if raw >= 0x80000000:
+            raw -= 0x100000000
+        return raw
+    return None
+
+
+
+
