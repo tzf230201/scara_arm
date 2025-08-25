@@ -237,6 +237,7 @@ def simplecan3_read(request_id):
 
         # Extract device ID back from SID
         response_id = (sid & 0x3F) >> 1
+        print(f"[DEBUG] can_id=0x{can_id:X}, sid=0x{sid:X}, eid=0x{eid:X}, response_id={response_id}, data={list(message.data)}")  # <-- Tambah ini
 
 
         # Parse response
