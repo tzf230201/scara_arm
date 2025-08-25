@@ -141,3 +141,40 @@ def stepper_get_group_id(node_id):
     if err == 0 and resp["dl"] > 2 and resp["data"][1] == 8:
         return resp["data"][2]
     return None
+
+def stepper_get_ac_dc_unit(node_id):
+    """
+    Get Units for AC and DC (IC[4]): 0 = pulse/sec², 1 = millisecond
+    """
+    cw = MNEMONIC["IC"]
+    # GET: DL=1, data=[4]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [4])
+    if err == 0 and resp["dl"] > 2 and resp["data"][1] == 4:
+        # Data ada di resp["data"][2]: 0=pulse/sec², 1=ms
+        return resp["data"][2]
+    return None
+
+def stepper_set_using_close_loop(node_id, enable):
+    """
+    Set Using Closed-loop Control (IC[6]): 0 = Open loop, 1 = Closed loop
+    """
+    cw = MNEMONIC["IC"]
+    # SET: DL=3, data=[6, 0, 1] untuk enable closed loop
+    val = 1 if enable else 0
+    err, resp = simplecan3_write_read(node_id, cw, 3, [6, 0, val])
+    # Balasan: data[0]=6, data[1]=0, data[2]=val
+    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 6:
+        return resp["data"][2]
+    return None
+
+def stepper_get_using_close_loop(node_id):
+    """
+    Get Using Closed-loop Control (IC[6]): 0 = Open loop, 1 = Closed loop
+    """
+    cw = MNEMONIC["IC"]
+    # GET: DL=1, data=[6]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [6])
+    # Balasan: data[0]=6, data[1]=0, data[2]=val
+    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 6:
+        return resp["data"][2]
+    return None

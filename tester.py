@@ -31,3 +31,12 @@ if group_id is not None:
     print(f"Group ID Stepper 6: {group_id}")
 else:
     print("Gagal baca Group ID")
+    
+unit = stepper_get_ac_dc_unit(6)
+print(f"AC/DC Unit (IC[4]): {unit} ({'pulses/sec²' if unit == 0 else 'ms' if unit == 1 else 'unknown'})")
+
+# set_cl = stepper_set_using_close_loop(6, True)
+# print(f"Set Closed-loop: {set_cl}")
+
+get_cl = stepper_get_using_close_loop(6)
+print(f"Closed-loop: {get_cl} ({'Closed' if get_cl == 1 else 'Open' if get_cl == 0 else 'unknown'})")
