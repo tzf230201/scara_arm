@@ -260,10 +260,11 @@ def stepper_set_microstepping_resolution(node_id, resolution):
 def stepper_get_microstepping_resolution(node_id):
     cw = MNEMONIC["MT"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [0])
-    # Balasan: data[0]=0, data[1]=0, data[2:3]=resolution (little endian, uint16)
-    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 0:
+    # Balasan: data[0]=CW(16), data[1]=0 (index), data[2:3]=resolution
+    if err == 0 and resp["dl"] > 2 and resp["data"][1] == 0:
         return resp["data"][2] | (resp["data"][3] << 8)
     return None
+
 
 def stepper_set_working_current(node_id, current):
     cw = MNEMONIC["MT"]
@@ -280,10 +281,10 @@ def stepper_set_working_current(node_id, current):
 def stepper_get_working_current(node_id):
     cw = MNEMONIC["MT"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [1])
-    # Balasan: data[0]=1, data[1]=0, data[2:3]=current (0.1A units, little endian)
-    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 1:
+    # Balasan: data[0]=CW(16), data[1]=1 (index), data[2:3]=current
+    if err == 0 and resp["dl"] > 2 and resp["data"][1] == 1:
         raw = resp["data"][2] | (resp["data"][3] << 8)
-        return raw / 10.0   # (5.0 - 8.0 Amp, per datasheet)
+        return raw / 10.0
     return None
 
 def stepper_set_percentage_idle_current(node_id, percent):
@@ -298,7 +299,7 @@ def stepper_set_percentage_idle_current(node_id, percent):
 def stepper_get_percentage_idle_current(node_id):
     cw = MNEMONIC["MT"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [2])
-    # Balasan: data[0]=2, data[1]=0, data[2:3]=percentage (0..100)
-    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 2:
+    # Balasan: data[0]=CW(16), data[1]=2 (index), data[2:3]=percent
+    if err == 0 and resp["dl"] > 2 and resp["data"][1] == 2:
         return resp["data"][2] | (resp["data"][3] << 8)
     return None
