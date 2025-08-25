@@ -1,2 +1,2 @@
 ./get.sh
-python3 uirobot_stepper.py
+python3 tester.py
