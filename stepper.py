@@ -1,6 +1,6 @@
-# stepper_uirobot.py
+# stepper.py
 
-from canbase_merged import simplecan3_write_read
+from canbase import simplecan3_write_read
 
 # List mnemonic dan nilai Control Word (CW)
 MNEMONIC = {
@@ -61,6 +61,16 @@ def stepper_get_mo(node_id):
     return None                   # None jika error/timeout/format aneh
 
 def stepper_set_bitrate(node_id, bitrate_code):
+    """
+    Set bitrate stepper.
+    :param node_id: ID device sekarang
+    :param bitrate_code: kode bitrate (0-4)
+    :return: bitrate baru jika sukses, None jika gagal
+    
+    − Within a specific CAN network, Node IDs and Group IDs of all UIM devices should never be overlapped.
+    − Protocol Parameters will take effectiveness after reboot the UIM device.
+    − The set value will be saved to EEPROM only when MO=0; otherwise, it stays in RAM and is lost after power off.
+    """
     cw = MNEMONIC["PP"]
     err, resp = simplecan3_write_read(node_id, cw, 2, [5, bitrate_code])
     if err == 0 and resp["dl"] > 1 and resp["data"][0] == 5:
@@ -74,20 +84,16 @@ def stepper_get_bitrate(node_id):
         return resp["data"][2]   # 2 = 500Kbps
     return None
 
-BITRATE_MAP = {
-    0: "1000Kbps",
-    1: "800Kbps",
-    2: "500Kbps",
-    3: "250Kbps",
-    4: "125Kbps"
-}
-
 def stepper_set_node_id(node_id, new_node_id):
     """
     Set CAN Node ID stepper.
     :param node_id: node lama (ID device sekarang)
     :param new_node_id: node baru yang di-set (1-127)
     :return: node_id baru jika sukses, None jika gagal
+    
+    − Within a specific CAN network, Node IDs and Group IDs of all UIM devices should never be overlapped.
+    − Protocol Parameters will take effectiveness after reboot the UIM device.
+    − The set value will be saved to EEPROM only when MO=0; otherwise, it stays in RAM and is lost after power off.
     """
     cw = MNEMONIC["PP"]
     err, resp = simplecan3_write_read(node_id, cw, 2, [7, new_node_id])
@@ -113,6 +119,10 @@ def stepper_set_group_id(node_id, new_group_id):
     :param node_id: ID device sekarang
     :param new_group_id: group id baru (1-127)
     :return: group_id baru jika sukses, None jika gagal
+    
+    − Within a specific CAN network, Node IDs and Group IDs of all UIM devices should never be overlapped.
+    − Protocol Parameters will take effectiveness after reboot the UIM device.
+    − The set value will be saved to EEPROM only when MO=0; otherwise, it stays in RAM and is lost after power off.
     """
     cw = MNEMONIC["PP"]
     err, resp = simplecan3_write_read(node_id, cw, 2, [8, new_group_id])
@@ -131,28 +141,3 @@ def stepper_get_group_id(node_id):
     if err == 0 and resp["dl"] > 2 and resp["data"][1] == 8:
         return resp["data"][2]
     return None
-
-
-br = stepper_get_bitrate(6)
-if br is not None:
-    print(f"Bitrate Stepper 6: {BITRATE_MAP.get(br, 'Unknown')}")
-else:
-    print("Gagal baca bitrate")
-    
-mo = stepper_get_mo(6)
-if mo is not None:
-    print(f"Status Motor Stepper 6: {'ON' if mo == 1 else 'OFF'}")
-else:
-    print("Gagal baca status motor")
-    
-node_id = stepper_get_node_id(6)
-if node_id is not None:
-    print(f"Node ID Stepper 6: {node_id}")
-else:
-    print("Gagal baca Node ID")
-
-group_id = stepper_get_group_id(6)
-if group_id is not None:
-    print(f"Group ID Stepper 6: {group_id}")
-else:
-    print("Gagal baca Group ID")

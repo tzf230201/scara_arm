@@ -1,4 +1,3 @@
-
 import can
 import struct
 import getpass
