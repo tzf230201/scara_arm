@@ -140,10 +140,12 @@ stepper_begin_motion(6)
 jv_now = stepper_get_jv(6)
 print("JV now:", jv_now)
 
-time.sleep(2)
+# time.sleep(2)
 
 
-# Get current JV
-jv_now = stepper_get_jv(6)
-print("JV now:", jv_now)
+# # Get current JV
+# jv_now = stepper_get_jv(6)
+# print("JV now:", jv_now)
+
+stepper_stop_motion(6)
 
