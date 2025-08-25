@@ -185,41 +185,89 @@ def req_nmt(request_id):
     return error_code, value
             
     
-def simplecan3_write_sdo(id, cw, dl, data):
-    """
-    Kirim CAN frame ke UIM342 (SimpleCAN3.0) menggunakan bus global yang telah diinisialisasi.
+ACK_BIT = 0x80  # MSB pada CW = minta ACK
 
-    Parameters:
-        id   : int         -> Consumer ID (UIM342)
-        cw   : int         -> Control Word (e.g., 0x95)
-        dl   : int         -> Jumlah data byte (maks 8)
-        data : list[int]   -> Data array (misal: [0x01, 0x02, ...])
-    """
-    global bus
-    if bus is None:
-        print("[ERROR] CAN bus not initialized.")
-        return None
+def simplecan3_write(id, cw, dl, data, ack=True):
+    # Paksa ACK jika diminta
+    cw_out = (cw | ACK_BIT) if ack else (cw & 0x7F)
 
-    # Hitung SID dan EID
+    # Hitung SID/EID sesuai SimpleCAN3.0
     sid = ((id << 1) & 0x003F) | 0x0100
-    eid = (((id << 1) & 0x00C0) << 8) | (cw & 0xFF)
+    eid = (((id << 1) & 0x00C0) << 8) | (cw_out & 0xFF)
     can_id = (sid << 18) | eid
 
-    # Pastikan panjang data sesuai dengan DL
-    data_bytes = bytearray(data[:dl])
+    # Validasi/padding data
+    if not (0 <= dl <= 8):
+        raise ValueError("dl harus 0..8")
+    data_bytes = bytearray((data or [])[:dl])
     while len(data_bytes) < dl:
         data_bytes.append(0x00)
 
-    # Buat dan kirim pesan
     msg = can.Message(arbitration_id=can_id,
                       data=data_bytes,
                       is_extended_id=True)
 
     try:
         bus.send(msg)
-        print(f"[SENT] CAN-ID=0x{can_id:08X}, CW=0x{cw:02X}, DL={dl}, Data={list(data_bytes)}")
+        print(f"[SENT] CAN-ID=0x{can_id:08X}, CW=0x{cw_out:02X}, DL={dl}, Data={list(data_bytes)}")
+        return msg
     except can.CanError as e:
         print(f"[ERROR] Gagal kirim SimpleCAN3.0: {e}")
         return None
 
-    return msg
+def simplecan3_read(request_id):
+    error_code = NO_ERROR
+    response_id = 0x04 #0x04 is impossible
+    response = {
+        "id": None,
+        "cw": None,
+        "dl": 0,
+        "data": []
+    }
+
+    while (request_id != response_id):
+        message = bus.recv(RECV_WAIT)
+        if message is None:
+            error_code = TIMEOUT_ERROR
+            return error_code, response
+
+        can_id = message.arbitration_id
+        sid = (can_id >> 18) & 0x7FF
+        eid = can_id & 0x3FFFF
+
+        # Extract device ID back from SID
+        response_id = (sid & 0x3F) >> 1
+
+
+        # Parse response
+        cw = eid & 0xFF
+        dl = len(message.data)
+        data = list(message.data[:dl])
+
+        response["id"] = response_id
+        response["cw"] = cw
+        response["dl"] = dl
+        response["data"] = data
+
+    return error_code, response
+
+def simplecan3_write_read(request_id, cw, dl, data):
+    """
+    Kirim data ke UIM342 dan tunggu balasan menggunakan protokol SimpleCAN3.0.
+
+    Parameters:
+        request_id : int       -> ID device (misalnya 6)
+        cw         : int       -> Control Word
+        dl         : int       -> Data length (1–8)
+        data       : list[int] -> Data array (contoh: [0x01, 0x02])
+
+    Returns:
+        (error_code, response_dict)
+    """
+    # Kirim data
+    simplecan3_write(request_id, cw, dl, data, ack=True)
+
+    # Tunggu dan baca balasan
+    error_code, response = simplecan3_read(request_id)
+
+    return error_code, response

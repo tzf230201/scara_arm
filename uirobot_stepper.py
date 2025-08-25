@@ -1,33 +1,25 @@
-from canbase_merged import *
+# stepper_uirobot.py
 
-def simplecan3_ping(id, timeout=0.5):
+from canbase_merged import simplecan3_write_read, NO_ERROR
+
+def stepper_set_motor_on(node_id):
     """
-    Kirim command MO=1 dengan bit ACK aktif (CW=0x95 | 0x80), lalu tunggu balasan dari UIM342.
-    
-    Parameters:
-        id      : int → node ID target (misal 5)
-        timeout : float → waktu tunggu ACK (detik)
+    Aktifkan motor pada node_id (UIM342, SimpleCAN3).
     """
-    # CW untuk MO = 0x95 → tambahkan bit7 (ACK) jadi 0x95 | 0x80 = 0xD5
-    cw = 0x95 | 0x80
-    dl = 1
-    data = [0x01]  # Aktifkan motor
-
-    # Kirim perintah MO dengan ACK
-    simplecan3_write_sdo(id, cw, dl, data)
-
-    # Tunggu ACK dengan recv
-    response = bus.recv(timeout=timeout)
-    if response:
-        print(f"[ACK RECEIVED] CAN-ID: 0x{response.arbitration_id:08X}, DATA: {list(response.data)}")
-        return True
+    # MO=1 (Motor ON), CW=0x95, DL=1, data=[1]
+    err, resp = simplecan3_write_read(node_id, 0x95, 1, [1])
+    if err == NO_ERROR:
+        print(f"[ON] Motor pada ID {node_id} berhasil diaktifkan.")
     else:
-        print("[TIMEOUT] Tidak ada ACK dari node", id)
-        return False
-    
+        print(f"[ON] Gagal mengaktifkan motor ID {node_id}")
 
-success = simplecan3_ping(6)
-if success:
-    print("✅ UIM342 dengan ID 5 aktif dan merespons.")
-else:
-    print("❌ Tidak ada respon dari UIM342 ID 5.")
+def stepper_set_motor_off(node_id):
+    """
+    Nonaktifkan motor pada node_id (UIM342, SimpleCAN3).
+    """
+    # MO=0 (Motor OFF), CW=0x95, DL=1, data=[0]
+    err, resp = simplecan3_write_read(node_id, 0x95, 1, [0])
+    if err == NO_ERROR:
+        print(f"[OFF] Motor pada ID {node_id} berhasil dimatikan.")
+    else:
+        print(f"[OFF] Gagal mematikan motor ID {node_id}")
