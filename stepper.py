@@ -214,3 +214,34 @@ def stepper_get_ptp_finish_notification(node_id):
         return resp["data"][2]
     return None
 
+def stepper_clear_error_report(node_id):
+    """
+    Clear All Error Info (ER[0]=0).
+    Return True jika sukses, False jika gagal.
+    """
+    cw = MNEMONIC["ER"]
+    # SET: DL=2, data=[0, 0] (index 0, nilai 0)
+    err, resp = simplecan3_write_read(node_id, cw, 2, [0, 0])
+    # Balasan: data[0]=0 (index), data[1]=0 (no error), data[2]...=0 (reserve)
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 0 and resp["data"][1] == 0:
+        return True
+    return False
+
+
+def stepper_get_error_report(node_id):
+    """
+    Get the newest error info (ER[0]).
+    Return: dict berisi error code, CW terkait error, sub-index, dll, atau None jika gagal.
+    """
+    cw = MNEMONIC["ER"]
+    # GET: DL=1, data=[0] (index 0 = newest error)
+    err, resp = simplecan3_write_read(node_id, cw, 1, [0])
+    if err == 0 and resp["dl"] >= 6 and resp["data"][0] == 0:
+        return {
+            "error_code":   resp["data"][1],   # Data [d1]: error code
+            "cw_related":   resp["data"][2],   # Data [d2]: CW related to error
+            "sub_index":    resp["data"][3],   # Data [d3]: Sub-index
+            "reserve1":     resp["data"][4],   # Data [d4]: Reserve
+            "reserve2":     resp["data"][5],   # Data [d5]: Reserve
+        }
+    return None

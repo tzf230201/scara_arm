@@ -55,3 +55,34 @@ print(f"Closed-loop: {get_cl} ({'using Closed loop' if get_cl == 1 else 'using O
 stat = stepper_get_ptp_finish_notification(6)
 print(f"PTP finish notification status: {stat} ({'ENABLED' if stat == 1 else 'DISABLED' if stat == 0 else 'Unknown'})")
 
+
+ERROR_CODE_DESC = {
+    0x32: "Instruction Syntax error",
+    0x33: "Instruction Data error",
+    0x34: "Instruction Sub-Index error",
+    0x3C: "SD value is less than DC value",
+    0x3D: "Instruction not allowed when motor is running",
+    0x3E: "BG not allowed when motor driver is OFF",
+    0x3F: "BG not allowed during emergency stopping",
+    0x41: "OG not allowed when motor is running",
+}
+
+# if stepper_clear_error_report(6):
+#     print("Error report berhasil di-clear!")
+# else:
+#     print("Gagal clear error report.")
+
+errinfo = stepper_get_error_report(6)
+
+if errinfo is not None:
+    code = errinfo["error_code"]
+    cw   = errinfo["cw_related"]
+    idx  = errinfo["sub_index"]
+    desc = ERROR_CODE_DESC.get(code, f"Unknown error code 0x{code:02X}")
+
+    print(f"[Stepper Error Report]")
+    print(f"- Error Code : 0x{code:02X} ({desc})")
+    print(f"- Related CW : 0x{cw:02X}")
+    print(f"- Sub-Index  : 0x{idx:02X}")
+else:
+    print("Tidak ada error (atau gagal baca error report).")
