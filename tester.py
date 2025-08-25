@@ -99,13 +99,23 @@ else:
 
 ac = stepper_set_acceleration(6, 1000)
 if ac is not None:
-    print(f"Set acceleration berhasil: {ac} pulse/sec^2")
+    print(f"Set acceleration berhasil: {ac}")
 else:
     print("Gagal set acceleration")
 
 
 acc = stepper_get_acceleration(6)
 if acc is not None:
-    print(f"Acceleration sekarang: {acc} pulse/sec^2")
+    print(f"Acceleration sekarang: {acc}")
 else:
     print("Gagal membaca acceleration")
+    
+decel = stepper_set_deceleration(6, 1000)
+if decel is not None:
+    print(f"Set deceleration: {decel} pulse/sec^2")
+else:
+    print("Gagal set deceleration")
+
+cur = stepper_get_deceleration(6)
+print(f"Deceleration sekarang: {cur}")
+

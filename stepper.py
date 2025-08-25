@@ -366,3 +366,44 @@ def stepper_get_acceleration(node_id):
         return value
     return None
 
+def stepper_set_deceleration(node_id, decel):
+    """
+    Set deceleration (pulse/sec^2).
+    decel: int (0...2^32-1)
+    Return nilai yang diset jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["DC"]
+    decel_bytes = [
+        decel & 0xFF,
+        (decel >> 8) & 0xFF,
+        (decel >> 16) & 0xFF,
+        (decel >> 24) & 0xFF
+    ]
+    err, resp = simplecan3_write_read(node_id, cw, 4, decel_bytes)
+    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
+        value = (
+            resp["data"][1] |
+            (resp["data"][2] << 8) |
+            (resp["data"][3] << 16) |
+            (resp["data"][4] << 24)
+        )
+        return value
+    return None
+
+def stepper_get_deceleration(node_id):
+    """
+    Get deceleration (pulse/sec^2) dari stepper.
+    Return nilai deceleration (int) jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["DC"]
+    err, resp = simplecan3_write_read(node_id, cw, 0, [])
+    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
+        value = (
+            resp["data"][1] |
+            (resp["data"][2] << 8) |
+            (resp["data"][3] << 16) |
+            (resp["data"][4] << 24)
+        )
+        return value
+    return None
+
