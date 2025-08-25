@@ -82,6 +82,57 @@ BITRATE_MAP = {
     4: "125Kbps"
 }
 
+def stepper_set_node_id(node_id, new_node_id):
+    """
+    Set CAN Node ID stepper.
+    :param node_id: node lama (ID device sekarang)
+    :param new_node_id: node baru yang di-set (1-127)
+    :return: node_id baru jika sukses, None jika gagal
+    """
+    cw = MNEMONIC["PP"]
+    err, resp = simplecan3_write_read(node_id, cw, 2, [7, new_node_id])
+    if err == 0 and resp["dl"] > 1 and resp["data"][0] == 7:
+        return resp["data"][1]
+    return None
+
+def stepper_get_node_id(node_id):
+    """
+    Get CAN Node ID dari stepper.
+    :param node_id: ID device sekarang
+    :return: node_id (number) atau None jika gagal
+    """
+    cw = MNEMONIC["PP"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [7])
+    if err == 0 and resp["dl"] > 2 and resp["data"][1] == 7:
+        return resp["data"][2]
+    return None
+
+def stepper_set_group_id(node_id, new_group_id):
+    """
+    Set Group ID stepper.
+    :param node_id: ID device sekarang
+    :param new_group_id: group id baru (1-127)
+    :return: group_id baru jika sukses, None jika gagal
+    """
+    cw = MNEMONIC["PP"]
+    err, resp = simplecan3_write_read(node_id, cw, 2, [8, new_group_id])
+    if err == 0 and resp["dl"] > 1 and resp["data"][0] == 8:
+        return resp["data"][1]
+    return None
+
+def stepper_get_group_id(node_id):
+    """
+    Get Group ID dari stepper.
+    :param node_id: ID device sekarang
+    :return: group_id (number) atau None jika gagal
+    """
+    cw = MNEMONIC["PP"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [8])
+    if err == 0 and resp["dl"] > 2 and resp["data"][1] == 8:
+        return resp["data"][2]
+    return None
+
+
 br = stepper_get_bitrate(6)
 if br is not None:
     print(f"Bitrate Stepper 6: {BITRATE_MAP.get(br, 'Unknown')}")
@@ -93,3 +144,15 @@ if mo is not None:
     print(f"Status Motor Stepper 6: {'ON' if mo == 1 else 'OFF'}")
 else:
     print("Gagal baca status motor")
+    
+node_id = stepper_get_node_id(6)
+if node_id is not None:
+    print(f"Node ID Stepper 6: {node_id}")
+else:
+    print("Gagal baca Node ID")
+
+group_id = stepper_get_group_id(6)
+if group_id is not None:
+    print(f"Group ID Stepper 6: {group_id}")
+else:
+    print("Gagal baca Group ID")
