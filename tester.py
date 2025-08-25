@@ -14,12 +14,6 @@ if br is not None:
 else:
     print("Gagal baca bitrate")
     
-mo = stepper_get_mo(6)
-if mo is not None:
-    print(f"Status Motor Stepper 6: {'ON' if mo == 1 else 'OFF'}")
-else:
-    print("Gagal baca status motor")
-    
 node_id = stepper_get_node_id(6)
 if node_id is not None:
     print(f"Node ID Stepper 6: {node_id}")
@@ -96,4 +90,22 @@ print("Working current (A):", stepper_get_working_current(6))
 # print("Set idle %:", stepper_set_percentage_idle_current(6, 50))
 print("Idle %:", stepper_get_percentage_idle_current(6))
 
+mo = stepper_get_mo(6)
+if mo is not None:
+    print(f"Status Motor Stepper 6: {'ON' if mo == 1 else 'OFF'}")
+else:
+    print("Gagal baca status motor")
 
+
+ac = stepper_set_acceleration(6, 1000)
+if ac is not None:
+    print(f"Set acceleration berhasil: {ac} pulse/sec^2")
+else:
+    print("Gagal set acceleration")
+
+
+acc = stepper_get_acceleration(6)
+if acc is not None:
+    print(f"Acceleration sekarang: {acc} pulse/sec^2")
+else:
+    print("Gagal membaca acceleration")

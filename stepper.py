@@ -45,21 +45,6 @@ MNEMONIC = {
     "QF": 0x29,
     "PT": 0x23,
 }
-
-def stepper_set_mo(node_id, enable: int):
-    cw = MNEMONIC["MO"]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [1 if enable else 0])
-    if err == 0 and resp["dl"] > 0:
-        return resp["data"][0]
-    return None
-
-def stepper_get_mo(node_id):
-    cw = MNEMONIC["MO"]
-    err, resp = simplecan3_write_read(node_id, cw, 0, [])
-    if err == 0 and resp["dl"] > 1:
-        return resp["data"][1]    # data[1] = status (0=OFF, 1=ON)
-    return None                   # None jika error/timeout/format aneh
-
 def stepper_set_bitrate(node_id, bitrate_code):
     """
     Set bitrate stepper.
@@ -303,3 +288,81 @@ def stepper_get_percentage_idle_current(node_id):
     if err == 0 and resp["dl"] > 2 and resp["data"][1] == 2:
         return resp["data"][2] | (resp["data"][3] << 8)
     return None
+
+def stepper_set_mo(node_id, enable: int):
+    cw = MNEMONIC["MO"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [1 if enable else 0])
+    if err == 0 and resp["dl"] > 0:
+        return resp["data"][0]
+    return None
+
+def stepper_get_mo(node_id):
+    cw = MNEMONIC["MO"]
+    err, resp = simplecan3_write_read(node_id, cw, 0, [])
+    if err == 0 and resp["dl"] > 1:
+        return resp["data"][1]    # data[1] = status (0=OFF, 1=ON)
+    return None                   # None jika error/timeout/format aneh
+
+def stepper_begin_motion(node_id):
+    """
+    Kirim perintah Begin Motion (BG) ke stepper node_id.
+    Return True jika ACK diterima, False jika gagal.
+    """
+    cw = MNEMONIC["BG"]
+    # BG tidak perlu data (DL=0, data=[])
+    err, resp = simplecan3_write_read(node_id, cw, 0, [])
+    # Balasan: data[0]=CW(0x16), data[1:4]=don't care
+    if err == 0 and resp["dl"] >= 1 and resp["data"][0] == cw:
+        return True
+    return False
+
+def stepper_stop_motion(node_id):
+    """
+    Kirim perintah Stop Motion (ST) ke stepper node_id.
+    Return True jika ACK diterima, False jika gagal.
+    """
+    cw = MNEMONIC["ST"]
+    # Stop tidak perlu data (DL=0, data=[])
+    err, resp = simplecan3_write_read(node_id, cw, 0, [])
+    # Balasan: data[0]=CW(0x17), tidak ada data lain
+    if err == 0 and resp["dl"] >= 1 and resp["data"][0] == cw:
+        return True
+    return False
+
+def stepper_set_acceleration(node_id, accel):
+    """
+    Set acceleration (pulse/sec^2).
+    accel: int (0...2^32-1)
+    Return nilai yang diset jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["AC"]
+    # Ubah accel jadi 4 byte little-endian
+    acc_bytes = [accel & 0xFF, (accel >> 8) & 0xFF, (accel >> 16) & 0xFF, (accel >> 24) & 0xFF]
+    # Kirim data=[accel_lsb, accel, accel, accel_msb]
+    err, resp = simplecan3_write_read(node_id, cw, 4, acc_bytes)
+    # Balasan: data[0]=CW(0x19), data[1:4]=acknowledged value
+    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
+        value = (resp["data"][1] |
+                 (resp["data"][2] << 8) |
+                 (resp["data"][3] << 16) |
+                 (resp["data"][4] << 24))
+        return value
+    return None
+
+def stepper_get_acceleration(node_id):
+    """
+    Get acceleration (pulse/sec^2) dari stepper.
+    Return nilai acceleration (int) jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["AC"]
+    # GET: DL=0, data=[]
+    err, resp = simplecan3_write_read(node_id, cw, 0, [])
+    # Balasan: data[0]=CW(0x19), data[1:4]=acceleration value
+    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
+        value = (resp["data"][1] |
+                 (resp["data"][2] << 8) |
+                 (resp["data"][3] << 16) |
+                 (resp["data"][4] << 24))
+        return value
+    return None
+
