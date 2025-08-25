@@ -455,7 +455,6 @@ def stepper_set_jv(node_id, vel):
     Return nilai JV yang diset jika sukses, None jika gagal.
     """
     cw = MNEMONIC["JV"]
-    # 4-byte signed (little-endian)
     vel = vel & 0xFFFFFFFF
     vel_bytes = [
         vel & 0xFF,
@@ -464,18 +463,20 @@ def stepper_set_jv(node_id, vel):
         (vel >> 24) & 0xFF
     ]
     err, resp = simplecan3_write_read(node_id, cw, 4, vel_bytes)
-    # Balasan: data[0]=CW(0x1D), data[1:4]=echoed value (signed int32)
-    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
+    # Balasan: data[0]=0x2E (DV), data[1]=0x02, data[2:6]=JV value
+    if err == 0 and resp["dl"] >= 6 and resp["data"][0] == MNEMONIC["DV"] and resp["data"][1] == 2:
         raw = (
-            resp["data"][1] |
-            (resp["data"][2] << 8) |
-            (resp["data"][3] << 16) |
-            (resp["data"][4] << 24)
+            resp["data"][2] |
+            (resp["data"][3] << 8) |
+            (resp["data"][4] << 16) |
+            (resp["data"][5] << 24)
         )
         if raw >= 0x80000000:
             raw -= 0x100000000
         return raw
     return None
+
+
 
 
 def stepper_get_jv(node_id):
