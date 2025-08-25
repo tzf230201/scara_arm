@@ -46,21 +46,33 @@ MNEMONIC = {
     "PT": 0x23,
 }
 
-def set_mo(node_id, enable: int):
+def stepper_set_mo(node_id, enable: int):
     cw = MNEMONIC["MO"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [1 if enable else 0])
     if err == 0 and resp["dl"] > 0:
         return resp["data"][0]
     return None
 
-def get_mo(node_id):
+def stepper_get_mo(node_id):
     cw = MNEMONIC["MO"]
     err, resp = simplecan3_write_read(node_id, cw, 0, [])
     if err == 0 and resp["dl"] > 1:
         return resp["data"][1]    # data[1] = status (0=OFF, 1=ON)
     return None                   # None jika error/timeout/format aneh
 
+def stepper_get_bitrate(node_id):
+    cw = MNEMONIC["PP"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [5])
+    if err == 0 and resp["dl"] > 1 and resp["data"][0] == 5:
+        return resp["data"][1]
+    return None
 
-set_mo(6, 1)  # Contoh: Set motor driver ON untuk node ID 6
-status = get_mo(6)  # Contoh: Get status motor driver untuk node ID 6
+def stepper_set_bitrate(node_id, bitrate_code):
+    cw = MNEMONIC["PP"]
+    err, resp = simplecan3_write_read(node_id, cw, 2, [5, bitrate_code])
+    if err == 0 and resp["dl"] > 1 and resp["data"][0] == 5:
+        return resp["data"][1]
+    return None
+
+status = stepper_get_bitrate(6)  # Contoh: Get status motor driver untuk node ID 6
 print(f"Status motor driver untuk node ID 6: {status}")

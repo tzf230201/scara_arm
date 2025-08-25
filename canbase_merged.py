@@ -233,6 +233,7 @@ def simplecan3_read(request_id):
 
         can_id = message.arbitration_id
         # Ambil ID dari bits 24-30 (7 bits sesuai layout SimpleCAN3)
+        # pada sistem simplecan3,untuk melihat id mana yang menjawab, id responser terdapat pada producer id
         response_id = (can_id >> 24) & 0x7F
 
         # debug print
