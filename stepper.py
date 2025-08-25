@@ -597,5 +597,52 @@ def stepper_get_pr(node_id):
     return None
 
 
+def stepper_set_pa(node_id, position):
+    """
+    Set desired absolute position (signed 32-bit, pulse).
+    Return nilai PA yang diset jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["PA"]
+    # 4-byte signed (little-endian)
+    position = position & 0xFFFFFFFF
+    pos_bytes = [
+        position & 0xFF,
+        (position >> 8) & 0xFF,
+        (position >> 16) & 0xFF,
+        (position >> 24) & 0xFF
+    ]
+    err, resp = simplecan3_write_read(node_id, cw, 4, pos_bytes)
+    # Balasan: data[0]=0x2E (DV), data[1]=0x04, data[2:6]=PA value
+    if err == 0 and resp["dl"] >= 6 and resp["data"][0] == MNEMONIC["DV"] and resp["data"][1] == 4:
+        raw = (
+            resp["data"][2] |
+            (resp["data"][3] << 8) |
+            (resp["data"][4] << 16) |
+            (resp["data"][5] << 24)
+        )
+        if raw >= 0x80000000:
+            raw -= 0x100000000
+        return raw
+    return None
+
+def stepper_get_pa(node_id):
+    """
+    Get current absolute position (pulse).
+    Return nilai PA (int, bisa negatif) jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["PA"]
+    err, resp = simplecan3_write_read(node_id, cw, 0, [])
+    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
+        # 4-byte signed (little-endian)
+        raw = (
+            resp["data"][1] |
+            (resp["data"][2] << 8) |
+            (resp["data"][3] << 16) |
+            (resp["data"][4] << 24)
+        )
+        if raw >= 0x80000000:
+            raw -= 0x100000000
+        return raw
+    return None
 
 

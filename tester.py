@@ -163,4 +163,11 @@ print("PR set:", pr_set)
 pr_now = stepper_get_pr(6)
 print("PR now:", pr_now)
 
+pa_set = stepper_set_pa(6, 1500)
+print("PA set:", pa_set)
+
+pa_now = stepper_get_pa(6)
+print("PA now:", pa_now)
+
+
 
