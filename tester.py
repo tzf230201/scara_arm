@@ -1,4 +1,6 @@
 from stepper import *
+import time
+
 
 BITRATE_MAP = {
     0: "1000Kbps",
@@ -131,6 +133,15 @@ print(f"Cut-in speed sekarang: {current}")
 # Set JV ke -1000
 jv = stepper_set_jv(6, -1000)
 print("JV set:", jv)
+
+stepper_begin_motion(6)
+
+# Get current JV
+jv_now = stepper_get_jv(6)
+print("JV now:", jv_now)
+
+time.sleep(2)
+
 
 # Get current JV
 jv_now = stepper_get_jv(6)
