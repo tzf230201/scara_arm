@@ -245,3 +245,60 @@ def stepper_get_error_report(node_id):
             "reserve2":     resp["data"][5],   # Data [d5]: Reserve
         }
     return None
+
+def stepper_set_microstepping_resolution(node_id, resolution):
+    cw = MNEMONIC["MT"]
+    val_lo = resolution & 0xFF
+    val_hi = (resolution >> 8) & 0xFF
+    # SET: data=[0, 0, lo, hi]
+    err, resp = simplecan3_write_read(node_id, cw, 3, [0, val_lo, val_hi])
+    # Balasan: data[0]=0, data[1]=0, data[2:3]=resolution
+    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 0:
+        return resp["data"][2] | (resp["data"][3] << 8)
+    return None
+
+def stepper_get_microstepping_resolution(node_id):
+    cw = MNEMONIC["MT"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [0])
+    # Balasan: data[0]=0, data[1]=0, data[2:3]=resolution (little endian, uint16)
+    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 0:
+        return resp["data"][2] | (resp["data"][3] << 8)
+    return None
+
+def stepper_set_working_current(node_id, current):
+    cw = MNEMONIC["MT"]
+    raw = int(round(current * 10))  # Convert Ampere to 0.1A unit (eg. 2.8A -> 28)
+    val_lo = raw & 0xFF
+    val_hi = (raw >> 8) & 0xFF
+    # SET: data=[1, 0, lo, hi]
+    err, resp = simplecan3_write_read(node_id, cw, 3, [1, val_lo, val_hi])
+    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 1:
+        raw = resp["data"][2] | (resp["data"][3] << 8)
+        return raw / 10.0
+    return None
+
+def stepper_get_working_current(node_id):
+    cw = MNEMONIC["MT"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [1])
+    # Balasan: data[0]=1, data[1]=0, data[2:3]=current (0.1A units, little endian)
+    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 1:
+        raw = resp["data"][2] | (resp["data"][3] << 8)
+        return raw / 10.0   # (5.0 - 8.0 Amp, per datasheet)
+    return None
+
+def stepper_set_percentage_idle_current(node_id, percent):
+    cw = MNEMONIC["MT"]
+    val_lo = percent & 0xFF
+    val_hi = (percent >> 8) & 0xFF
+    err, resp = simplecan3_write_read(node_id, cw, 3, [2, val_lo, val_hi])
+    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 2:
+        return resp["data"][2] | (resp["data"][3] << 8)
+    return None
+
+def stepper_get_percentage_idle_current(node_id):
+    cw = MNEMONIC["MT"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [2])
+    # Balasan: data[0]=2, data[1]=0, data[2:3]=percentage (0..100)
+    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 2:
+        return resp["data"][2] | (resp["data"][3] << 8)
+    return None

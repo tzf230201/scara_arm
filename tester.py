@@ -86,3 +86,14 @@ if errinfo is not None:
     print(f"- Sub-Index  : 0x{idx:02X}")
 else:
     print("Tidak ada error (atau gagal baca error report).")
+
+# print("Set Microstepping:", stepper_set_microstepping_resolution(6, 16))
+print("Microstepping:", stepper_get_microstepping_resolution(6))
+
+# print("Set current:", stepper_set_working_current(6, 2.5))
+print("Working current (A):", stepper_get_working_current(6))
+
+# print("Set idle %:", stepper_set_percentage_idle_current(6, 50))
+print("Idle %:", stepper_get_percentage_idle_current(6))
+
+
