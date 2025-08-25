@@ -81,8 +81,8 @@ if errinfo is not None:
 else:
     print("Tidak ada error (atau gagal baca error report).")
 
-# print("Set Microstepping:", stepper_set_microstepping_resolution(6, 16))
-print("Microstepping:", stepper_get_microstepping_resolution(6))
+# print("Set Micro-stepping:", stepper_set_micro_stepping_resolution(6, 16))
+print("Micro-stepping:", stepper_get_micro_stepping_resolution(6))
 
 # print("Set current:", stepper_set_working_current(6, 2.5))
 print("Working current (A):", stepper_get_working_current(6))
@@ -112,10 +112,19 @@ else:
     
 decel = stepper_set_deceleration(6, 1000)
 if decel is not None:
-    print(f"Set deceleration: {decel} pulse/sec^2")
+    print(f"Set deceleration: {decel}")
 else:
     print("Gagal set deceleration")
 
 cur = stepper_get_deceleration(6)
 print(f"Deceleration sekarang: {cur}")
+
+speed = stepper_set_cut_in_speed(6, 1001)
+if speed is not None:
+    print(f"Set cut-in speed: {speed} pulse/sec^2")
+else:
+    print("Gagal set cut-in speed")
+
+current = stepper_get_cut_in_speed(6)
+print(f"Cut-in speed sekarang: {current}")
 

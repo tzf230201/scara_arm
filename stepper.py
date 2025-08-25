@@ -231,7 +231,7 @@ def stepper_get_error_report(node_id):
         }
     return None
 
-def stepper_set_microstepping_resolution(node_id, resolution):
+def stepper_set_micro_stepping_resolution(node_id, resolution):
     cw = MNEMONIC["MT"]
     val_lo = resolution & 0xFF
     val_hi = (resolution >> 8) & 0xFF
@@ -242,7 +242,7 @@ def stepper_set_microstepping_resolution(node_id, resolution):
         return resp["data"][2] | (resp["data"][3] << 8)
     return None
 
-def stepper_get_microstepping_resolution(node_id):
+def stepper_get_micro_stepping_resolution(node_id):
     cw = MNEMONIC["MT"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [0])
     # Balasan: data[0]=CW(16), data[1]=0 (index), data[2:3]=resolution
@@ -396,6 +396,48 @@ def stepper_get_deceleration(node_id):
     Return nilai deceleration (int) jika sukses, None jika gagal.
     """
     cw = MNEMONIC["DC"]
+    err, resp = simplecan3_write_read(node_id, cw, 0, [])
+    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
+        value = (
+            resp["data"][1] |
+            (resp["data"][2] << 8) |
+            (resp["data"][3] << 16) |
+            (resp["data"][4] << 24)
+        )
+        return value
+    return None
+
+def stepper_set_cut_in_speed(node_id, speed):
+    """
+    Set Cut-in Speed (pulse/sec^2).
+    speed: int (0...2^32-1)
+    Return nilai yang diset jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["SS"]
+    speed_bytes = [
+        speed & 0xFF,
+        (speed >> 8) & 0xFF,
+        (speed >> 16) & 0xFF,
+        (speed >> 24) & 0xFF
+    ]
+    err, resp = simplecan3_write_read(node_id, cw, 4, speed_bytes)
+    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
+        value = (
+            resp["data"][1] |
+            (resp["data"][2] << 8) |
+            (resp["data"][3] << 16) |
+            (resp["data"][4] << 24)
+        )
+        return value
+    return None
+
+
+def stepper_get_cut_in_speed(node_id):
+    """
+    Get Cut-in Speed (pulse/sec^2) dari stepper.
+    Return nilai cut-in speed (int) jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["SS"]
     err, resp = simplecan3_write_read(node_id, cw, 0, [])
     if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
         value = (
