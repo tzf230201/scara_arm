@@ -31,6 +31,12 @@ if group_id is not None:
     print(f"Group ID Stepper 6: {group_id}")
 else:
     print("Gagal baca Group ID")
+
+# result = stepper_set_ac_dc_unit(6, 1)
+# if result is not None:
+#     print(f"AC/DC Unit sekarang: {result} ({'ms' if result == 1 else 'pulses/sec²'})")
+# else:
+#     print("Gagal set AC/DC Unit")
     
 unit = stepper_get_ac_dc_unit(6)
 print(f"AC/DC Unit (IC[4]): {unit} ({'pulses/sec²' if unit == 0 else 'ms' if unit == 1 else 'unknown'})")

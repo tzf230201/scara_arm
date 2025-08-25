@@ -142,6 +142,21 @@ def stepper_get_group_id(node_id):
         return resp["data"][2]
     return None
 
+def stepper_set_ac_dc_unit(node_id, unit):
+    """
+    Set Units for AC and DC (IC[4]):
+    unit = 0 → pulse/sec²
+    unit = 1 → millisecond
+    """
+    cw = MNEMONIC["IC"]
+    # SET: DL=3, data=[4, 0, unit]
+    val = 1 if unit else 0
+    err, resp = simplecan3_write_read(node_id, cw, 3, [4, 0, val])
+    # Balasan: data[0]=4, data[1]=0, data[2]=val
+    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 4:
+        return resp["data"][2]
+    return None
+
 def stepper_get_ac_dc_unit(node_id):
     """
     Get Units for AC and DC (IC[4]): 0 = pulse/sec², 1 = millisecond
