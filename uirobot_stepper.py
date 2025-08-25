@@ -68,29 +68,11 @@ def stepper_set_bitrate(node_id, bitrate_code):
     return None
 
 def stepper_get_bitrate(node_id):
-    """
-    Get CAN bitrate dari stepper dan return string bitrate.
-    :param node_id: ID stepper (int)
-    :return: string bitrate, atau None jika gagal
-    """
-    
-    BITRATE_MAP = {
-    0: "1000Kbps",
-    1: "800Kbps",
-    2: "500Kbps",
-    3: "250Kbps",
-    4: "125Kbps"
-}
     cw = MNEMONIC["PP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [5])
     if err == 0 and resp["dl"] > 2 and resp["data"][1] == 5:
-        bitrate_code = resp["data"][2]
-        bitrate_str = BITRATE_MAP.get(bitrate_code, f"Unknown code: {bitrate_code}")
-        print(f"Bitrate Stepper {node_id}: {bitrate_str} (code={bitrate_code})")
-        return bitrate_str
-    print(f"Gagal membaca bitrate Stepper {node_id}")
+        return resp["data"][2]   # 2 = 500Kbps
     return None
-
 
 status = stepper_get_bitrate(6)  # Contoh: Get status motor driver untuk node ID 6
 print(f"Status motor driver untuk node ID 6: {status}")
