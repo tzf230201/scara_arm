@@ -128,3 +128,11 @@ else:
 current = stepper_get_cut_in_speed(6)
 print(f"Cut-in speed sekarang: {current}")
 
+# Set JV ke -1000
+jv = stepper_set_jv(6, -1000)
+print("JV set:", jv)
+
+# Get current JV
+jv_now = stepper_get_jv(6)
+print("JV now:", jv_now)
+

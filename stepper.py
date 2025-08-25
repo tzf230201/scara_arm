@@ -449,3 +449,53 @@ def stepper_get_cut_in_speed(node_id):
         return value
     return None
 
+def stepper_set_jv(node_id, vel):
+    """
+    Set desired Jog Velocity (pulse/sec, signed int32).
+    Return nilai JV yang diset jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["JV"]
+    # 4-byte signed (little-endian)
+    vel = vel & 0xFFFFFFFF
+    vel_bytes = [
+        vel & 0xFF,
+        (vel >> 8) & 0xFF,
+        (vel >> 16) & 0xFF,
+        (vel >> 24) & 0xFF
+    ]
+    err, resp = simplecan3_write_read(node_id, cw, 4, vel_bytes)
+    # Balasan: data[0]=CW(0x1D), data[1:4]=echoed value (signed int32)
+    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
+        raw = (
+            resp["data"][1] |
+            (resp["data"][2] << 8) |
+            (resp["data"][3] << 16) |
+            (resp["data"][4] << 24)
+        )
+        if raw >= 0x80000000:
+            raw -= 0x100000000
+        return raw
+    return None
+
+
+def stepper_get_jv(node_id):
+    """
+    Get current Jog Velocity (pulse/sec).
+    Return nilai JV (int, bisa negatif) jika sukses, None jika gagal.
+    """
+    cw = MNEMONIC["JV"]
+    err, resp = simplecan3_write_read(node_id, cw, 0, [])
+    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
+        # 4-byte signed (little-endian)
+        raw = (
+            resp["data"][1] |
+            (resp["data"][2] << 8) |
+            (resp["data"][3] << 16) |
+            (resp["data"][4] << 24)
+        )
+        # Signed convert
+        if raw >= 0x80000000:
+            raw -= 0x100000000
+        return raw
+    return None
+
