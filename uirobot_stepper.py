@@ -70,9 +70,10 @@ def stepper_get_bitrate(node_id):
 def stepper_set_bitrate(node_id, bitrate_code):
     cw = MNEMONIC["PP"]
     err, resp = simplecan3_write_read(node_id, cw, 2, [5, bitrate_code])
-    if err == 0 and resp["dl"] > 1 and resp["data"][0] == 5:
-        return resp["data"][1]
+    if err == 0 and resp["dl"] > 2 and resp["data"][1] == 5:
+        return resp["data"][2]   # 2 = 500Kbps
     return None
+
 
 status = stepper_get_bitrate(6)  # Contoh: Get status motor driver untuk node ID 6
 print(f"Status motor driver untuk node ID 6: {status}")
