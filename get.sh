@@ -8,5 +8,5 @@ if [ "$(whoami)" == "peter" ]; then
     # Melakukan pull untuk mendapatkan update terbaru dari repositori remote
     git pull
 else
-    echo "you are not 'peter', can't run this scripts"
+    echo "you are not 'peter', can't don't force pull"
 fi
