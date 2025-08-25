@@ -193,3 +193,28 @@ def stepper_get_using_close_loop(node_id):
     if err == 0 and resp["dl"] > 2 and resp["data"][0] == 6:
         return resp["data"][2]
     return None
+
+def stepper_set_ptp_finish_notification(node_id, enable):
+    """
+    Set PTP positioning finish notification (IE[3]): 0 = disable, 1 = enable
+    """
+    cw = MNEMONIC["IE"]
+    val = 1 if enable else 0
+    # DL=3, data=[3, 0, val]
+    err, resp = simplecan3_write_read(node_id, cw, 3, [3, 0, val])
+    # Balasan: data[0]=3, data[1]=0, data[2]=val
+    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 3:
+        return resp["data"][2]
+    return None
+
+def stepper_get_ptp_finish_notification(node_id):
+    """
+    Get PTP positioning finish notification status (IE[3]): 0 = disable, 1 = enable
+    """
+    cw = MNEMONIC["IE"]
+    # DL=1, data=[3]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [3])
+    # Balasan: data[0]=3, data[1]=0, data[2]=val
+    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 3:
+        return resp["data"][2]
+    return None

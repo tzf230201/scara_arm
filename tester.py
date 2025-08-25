@@ -46,3 +46,12 @@ print(f"AC/DC Unit (IC[4]): {unit} ({'unit pulses/sec²' if unit == 0 else 'unit
 
 get_cl = stepper_get_using_close_loop(6)
 print(f"Closed-loop: {get_cl} ({'using Closed loop' if get_cl == 1 else 'using Open loop' if get_cl == 0 else 'unknown'})")
+
+# # Enable PTP positioning finish notification
+# ret = stepper_set_ptp_finish_notification(6, 1)
+# print(f"PTP finish notification set to: {ret}")
+
+# Get PTP positioning finish notification status
+stat = stepper_get_ptp_finish_notification(6)
+print(f"PTP finish notification status: {stat} ({'ENABLED' if stat == 1 else 'DISABLED' if stat == 0 else 'Unknown'})")
+
