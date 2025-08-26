@@ -2,7 +2,7 @@
 from time import time
 from stepper import *
 
-def stepper_pulse_to_deg(pulse)
+# def stepper_pulse_to_deg(pulse)
 
 def wake_up(msg, state):
     print(f"[cb] Wake up: motor={msg.get('motor')}")  # Wake up/enable/prepare motors
