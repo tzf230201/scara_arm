@@ -343,3 +343,6 @@ if result:
     print(f"QF[{result['row']}] QV={result['qv']} pulses/s, QT={result['qt']} ms")
 else:
     print("QF read failed")
+    
+qp = stepper_pvt_get_position_row_n(6, 10)
+print("QP[10]:", qp)
