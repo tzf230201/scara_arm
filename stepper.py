@@ -963,3 +963,42 @@ def stepper_pvt_get_quick_feeding_row_n(node_id, row):
         return qt, qv, qp
     print(f"QF[{row}]: No/short response: {err}, {resp}")
     return None, None, None
+
+def stepper_pvt_set_pt_data_row_n(node_id, row, position):
+    """
+    Set PT Position value at row N.
+    - row: index (0...65535)
+    - position: signed 32bit (pulse)
+    """
+    cw = MNEMONIC["PT"]
+    # index: 2 byte, position: 4 byte (LSB), d6/d7 = 0
+    data = [
+        row & 0xFF,          # d0: index LSB
+        (row >> 8) & 0xFF,   # d1: index MSB
+        position & 0xFF,     # d2: position LSB
+        (position >> 8) & 0xFF,
+        (position >> 16) & 0xFF,
+        (position >> 24) & 0xFF,
+        0,                   # d6: don't care
+        0                    # d7: don't care
+    ]
+    err, resp = simplecan3_write_read(node_id, cw, 8, data)
+    return err == 0
+
+def stepper_pvt_get_pt_data_row_n(node_id, row):
+    """
+    Get PT Position value at row N.
+    Returns: (position [int]) or None
+    """
+    cw = MNEMONIC["PT"]
+    data = [
+        row & 0xFF,          # d0: index LSB
+        (row >> 8) & 0xFF    # d1: index MSB
+    ]
+    err, resp = simplecan3_write_read(node_id, cw, 2, data)
+    if err == 0 and resp and "data" in resp and len(resp["data"]) >= 6:
+        # d2-d5: position (signed 32bit, LSB first)
+        p = resp["data"]
+        position = int.from_bytes(p[2:6], byteorder='little', signed=True)
+        return position
+    return None

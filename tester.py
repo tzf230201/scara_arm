@@ -352,3 +352,11 @@ print(f"QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
 #     qv = stepper_pvt_get_velocity_row_n(6, n)
 #     qt = stepper_pvt_get_time_row_n(6, n)
 #     print(f"Row {n}: QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
+
+# Set position row 266 ke 100000 pulses
+ok = stepper_pvt_set_pt_data_row_n(node_id, 266, 100000)
+print(f"Set PT row 266 = 100000: {ok}")
+
+# Get position row 266
+pos = stepper_pvt_get_pt_data_row_n(node_id, 266)
+print(f"PT row 266 position: {pos}")
