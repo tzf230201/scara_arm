@@ -233,7 +233,7 @@ def stepper_get_error_report(node_id):
     return None
 
 def stepper_set_micro_stepping_resolution(node_id, res):
-    cw = MNEMONIC["MS"]
+    cw = MNEMONIC["MT"]
     err, resp = simplecan3_write_read(node_id, cw, 3, [0, res, 0])
     if err == 0 and resp and len(resp["data"]) >= 3:
         # Kalau hanya 1 byte resolusi, langsung return resp["data"][1]
