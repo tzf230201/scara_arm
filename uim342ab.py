@@ -91,37 +91,31 @@ def uim342ab_set_group_id(node_id, new_group_id):
     return None
 
 def uim342ab_get_ac_dc_unit(node_id):
-    index = 4  # IC[4]
     cw = MNEMONIC["IC"]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
-    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == index:
-        return (resp["data"][1] << 8) | resp["data"][2]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [4])
+    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == 4:
+        return struct.unpack("<H", bytes(resp["data"][1:3]))[0]  # 2-byte little-endian
     return None
 
 def uim342ab_set_ac_dc_unit(node_id, value):
-    index = 4  # IC[4]
     cw = MNEMONIC["IC"]
-    high = (value >> 8) & 0xFF
-    low = value & 0xFF
-    err, resp = simplecan3_write_read(node_id, cw, 3, [index, high, low])
-    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == index:
-        return (resp["data"][1] << 8) | resp["data"][2]
+    value_bytes = list(struct.pack("<H", value))
+    err, resp = simplecan3_write_read(node_id, cw, 3, [4] + value_bytes)
+    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == 4:
+        return struct.unpack("<H", bytes(resp["data"][1:3]))[0]
     return None
 
 def uim342ab_get_using_close_loop(node_id):
-    index = 6  # IC[6]
     cw = MNEMONIC["IC"]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
-    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == index:
-        return (resp["data"][1] << 8) | resp["data"][2]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [6])
+    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == 6:
+        return struct.unpack("<H", bytes(resp["data"][1:3]))[0]
     return None
 
 def uim342ab_set_using_close_loop(node_id, value):
-    index = 6  # IC[6]
     cw = MNEMONIC["IC"]
-    high = (value >> 8) & 0xFF
-    low = value & 0xFF
-    err, resp = simplecan3_write_read(node_id, cw, 3, [index, high, low])
-    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == index:
-        return (resp["data"][1] << 8) | resp["data"][2]
+    value_bytes = list(struct.pack("<H", value))
+    err, resp = simplecan3_write_read(node_id, cw, 3, [6] + value_bytes)
+    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == 6:
+        return struct.unpack("<H", bytes(resp["data"][1:3]))[0]
     return None
