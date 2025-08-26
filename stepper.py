@@ -762,7 +762,7 @@ def stepper_pvt_clear_queue(node_id):
     """Reset PVT Table (MP[0]=0)"""
     cw = MNEMONIC["MP"]
     # Set index 0 (queue), value 0 (clear)
-    err, resp = simplecan3_write_read(node_id, cw, 1, [1])
+    err, resp = simplecan3_write_read(node_id, cw, 3, [0, 0, 0])
     return err == 0
 
 def stepper_pvt_set_first_valid_row(node_id, value):
