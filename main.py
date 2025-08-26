@@ -38,7 +38,7 @@ def control_step():
     state["pos_abs"] += state["speed"] * Ts
     if not hasattr(control_step, "_acc"): control_step._acc = 0.0
     control_step._acc += Ts
-    if control_step._acc >= 1.0:
+    if control_step._acc >= 5.0:
         print(f"[hb] pos={state['pos_abs']:.1f} speed={state['speed']:.1f} motor_on={state['motor_on']}")
         control_step._acc = 0.0
 
