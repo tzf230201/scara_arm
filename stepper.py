@@ -1,6 +1,7 @@
 # stepper.py
 
 from canbase import simplecan3_write_read
+import struct
 
 # List mnemonic dan nilai Control Word (CW)
 MNEMONIC = {
@@ -871,10 +872,8 @@ def stepper_pvt_set_position_row_n(node_id, row_n, position):
 def stepper_pvt_get_position_row_n(node_id, n):
     cw = MNEMONIC["QP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [n])
-    # Print debug
     print(f"[DEBUG] Data={resp['data']}, len={len(resp['data'])}")
-    if err == 0 and len(resp["data"]) >= 5 and resp["data"][0] == n:
-        # QP value is little endian signed int: bytes 1:5
-        val = struct.unpack('<i', bytes(resp["data"][1:5]))[0]
+    if err == 0 and len(resp["data"]) >= 6 and resp["data"][1] == n:
+        val = struct.unpack('<i', bytes(resp["data"][2:6]))[0]
         return val
     return None

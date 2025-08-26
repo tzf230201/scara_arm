@@ -306,6 +306,11 @@ row = 5
 ok = stepper_pvt_set_position_row_n(node, row, -1000)
 print("Set QP[5] -1000:", ok)
 
-for i in range(8):
-    val = stepper_pvt_get_position_row_n(node, i)
-    print(f"QP[{i}]: {val}")
+    
+import struct
+d = [37, 0, 24, 252, 255, 255, 0, 0]
+print(struct.unpack('<i', bytes(d[2:6])))   # Output: (-1000,)
+
+for n in range(8):
+    qp = stepper_pvt_get_position_row_n(6, n)
+    print(f"QP[{n}]: {qp}")
