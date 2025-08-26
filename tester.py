@@ -343,12 +343,12 @@ queue_level = stepper_pvt_get_queue(6)
 print(f"Queue Level: {queue_level}")
 
 
-stepper_pvt_set_quick_feeding(6, qp=10000, qv=-1000, qt=50)
-# for n in range(8):
-qt, qv, qp = stepper_pvt_get_quick_feeding_row_n(6, 26)
-print(f"QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
+# stepper_pvt_set_quick_feeding(6, qp=10000, qv=-1000, qt=50)
+# # for n in range(8):
+# qt, qv, qp = stepper_pvt_get_quick_feeding_row_n(6, 26)
+# print(f"QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
 
-# qp = stepper_pvt_get_position_row_n(6, 10)
+# # qp = stepper_pvt_get_position_row_n(6, 10)
 # print("QP[10]:", qp)]
 
 # print(f"validasi")
