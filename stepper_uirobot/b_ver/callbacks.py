@@ -28,10 +28,11 @@ def pp_joint(msg, state):
     acc = int(max(acc, 1))
     print(f"PP Joint (TRIANGLE): pulses={pulses}, speed={v_max}, acc={acc}, time={t_ms}ms")
     for node_id, pos in zip(node_ids, pulses):
-        stepper_set_sp(node_id, v_max)
         stepper_set_ac(node_id, acc)
         stepper_set_dc(node_id, acc)
         stepper_set_pa(node_id, pos)
+        stepper_set_sp(node_id, v_max)
+        
     for node_id in node_ids:
         stepper_begin_motion(node_id)
 
