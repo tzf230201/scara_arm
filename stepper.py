@@ -232,15 +232,12 @@ def stepper_get_error_report(node_id):
         }
     return None
 
-def stepper_set_micro_stepping_resolution(node_id, resolution):
-    cw = MNEMONIC["MT"]
-    val_lo = resolution & 0xFF
-    val_hi = (resolution >> 8) & 0xFF
-    # SET: data=[0, 0, lo, hi]
-    err, resp = simplecan3_write_read(node_id, cw, 3, [0, val_lo, val_hi])
-    # Balasan: data[0]=0, data[1]=0, data[2:3]=resolution
-    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 0:
-        return resp["data"][2] | (resp["data"][3] << 8)
+def stepper_set_micro_stepping_resolution(node_id, res):
+    cw = MNEMONIC["MS"]
+    err, resp = simplecan3_write_read(node_id, cw, 3, [0, res, 0])
+    if err == 0 and resp and len(resp["data"]) >= 3:
+        # Kalau hanya 1 byte resolusi, langsung return resp["data"][1]
+        return resp["data"][1]
     return None
 
 def stepper_get_micro_stepping_resolution(node_id):
