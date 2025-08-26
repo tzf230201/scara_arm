@@ -306,6 +306,6 @@ row = 5
 ok = stepper_pvt_set_position_row_n(node, row, -1000)
 print("Set QP[5] -1000:", ok)
 
-# Get posisi row 5
-val = stepper_pvt_get_position_row_n(node, row)
-print("QP[5]:", val)
+for i in range(8):
+    val = stepper_pvt_get_position_row_n(node, i)
+    print(f"QP[{i}]: {val}")
