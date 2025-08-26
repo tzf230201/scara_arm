@@ -183,6 +183,15 @@ bl = stepper_get_bl(6)
 print("Backlash compensation:", bl)
 
 
+# Set JV ke -1000
+jv = stepper_set_jv(6, -1000)
+print("JV set:", jv)
+
+stepper_begin_motion(6)
+
+
+time.sleep(2)
+
 def decode_sf_d1(d1):
     return {
         "Mode":      "PTP" if d1 & 0b11 else "JOG", # bit0, bit1
@@ -227,5 +236,19 @@ if stepper_clear_sf(6):
     print("Status flags berhasil di-clear!")
 else:
     print("Gagal clear status flags")
+    
+    
+
+# Get current JV
+jv_now = stepper_get_jv(6)
+print("JV now:", jv_now)
+
+
+
+# # Get current JV
+# jv_now = stepper_get_jv(6)
+# print("JV now:", jv_now)
+
+stepper_stop_motion(6)
 
 
