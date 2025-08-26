@@ -141,25 +141,21 @@ def stepper_get_ac_dc_unit(node_id):
     return None
 
 def stepper_set_micro_stepping_resolution(node_id, res):
-    """
-    Set microstepping resolution.
-    :param node_id: Node ID motor
-    :param res: resolusi (misal 16, 32, dst)
-    :return: nilai setelah diset (int) jika sukses, None jika gagal
-    """
     cw = MNEMONIC["MT"]
-    # Kirim DL=3, data=[0, res, 0]
-    err, resp = simplecan3_write_read(node_id, cw, 3, [0, res, 0])
-    # Balasan: [16, 0, value, ...]
-    if err == 0 and resp and len(resp["data"]) >= 3 and resp["data"][1] == 0:
-        return resp["data"][2]
+    res_lo = res & 0xFF
+    res_hi = (res >> 8) & 0xFF
+    err, resp = simplecan3_write_read(node_id, cw, 3, [0, res_lo, res_hi])
+    if err == 0 and resp and resp["dl"] >= 3 and resp["data"][1] == 0:
+        value = resp["data"][2] | (resp["data"][3] << 8)
+        return value
     return None
 
 def stepper_get_micro_stepping_resolution(node_id):
     cw = MNEMONIC["MT"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [0])
-    if err == 0 and resp and len(resp["data"]) >= 3 and resp["data"][1] == 0:
-        return resp["data"][2]
+    if err == 0 and resp and resp["dl"] >= 4 and resp["data"][1] == 0:
+        value = resp["data"][2] | (resp["data"][3] << 8)
+        return value
     return None
 
 
