@@ -340,7 +340,7 @@ stepper_pvt_set_quick_feeding(6, qp=10000, qv=-1000, qt=50)
 
 for n in range(8):
     qt, qv, qp = stepper_pvt_get_quick_feeding_row_n(6, n)
-    print(f"QF[10] QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
+    print(f"QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
 
 # qp = stepper_pvt_get_position_row_n(6, 10)
 # print("QP[10]:", qp)]
