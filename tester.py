@@ -18,6 +18,7 @@ print_yellow(f"Group ID saat ini: {group_id}")
 
 
 uim342ab_set_ac_dc_unit(node, 0)
+print_yellow("Set AC/DC unit to 0 (pulses/s^2)")
 ac_dc = uim342ab_get_ac_dc_unit(node)
 unit = 'milliseconds' if ac_dc == 1 else 'pulses' if ac_dc == 0 else 'Unknown'
 print_yellow(f"AC/DC unit: {ac_dc} ({unit})")
