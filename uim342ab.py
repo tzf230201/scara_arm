@@ -45,77 +45,82 @@ MNEMONIC = {
     "PT": 0x23,
 }
 
-# === Bitrate ===
 def uim342ab_get_bitrate(node_id):
     cw = MNEMONIC["PP"]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [5])
-    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 5:
-        return resp["data"][1]  # 0:1000K, 1:800K, 2:500K, 3:250K, 4:125K
+    index = 5
+    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
+    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
+        return resp["data"][2]
     return None
 
-def uim342ab_set_bitrate(node_id, bitrate_code):
+
+def uim342ab_set_bitrate(node_id, value):
     cw = MNEMONIC["PP"]
-    err, resp = simplecan3_write_read(node_id, cw, 2, [5, bitrate_code])
-    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 5:
-        return resp["data"][1]
+    index = 5
+    err, resp = simplecan3_write_read(node_id, cw, 3, [index, value, 0])
+    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
+        return resp["data"][2]
     return None
 
-# === Node ID ===
+
 def uim342ab_get_node_id(node_id):
     cw = MNEMONIC["PP"]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [7])
-    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 7:
-        return resp["data"][1]
+    index = 7
+    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
+    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
+        return resp["data"][2]
     return None
 
-def uim342ab_set_node_id(node_id, new_node_id):
+
+def uim342ab_set_node_id(node_id, value):
     cw = MNEMONIC["PP"]
-    err, resp = simplecan3_write_read(node_id, cw, 2, [7, new_node_id])
-    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 7:
-        return resp["data"][1]
+    index = 7
+    err, resp = simplecan3_write_read(node_id, cw, 3, [index, value, 0])
+    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
+        return resp["data"][2]
     return None
 
-# === Group ID ===
+
 def uim342ab_get_group_id(node_id):
     cw = MNEMONIC["PP"]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [8])
-    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 8:
-        return resp["data"][1]
+    index = 8
+    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
+    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
+        return resp["data"][2]
     return None
 
-def uim342ab_set_group_id(node_id, new_group_id):
+
+def uim342ab_set_group_id(node_id, value):
     cw = MNEMONIC["PP"]
-    err, resp = simplecan3_write_read(node_id, cw, 2, [8, new_group_id])
-    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 8:
-        return resp["data"][1]
+    index = 8
+    err, resp = simplecan3_write_read(node_id, cw, 2, [index, value])
+    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
+        return resp["data"][2]
     return None
+
 
 def uim342ab_get_ac_dc_unit(node_id):
     cw = MNEMONIC["IC"]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [4])
-    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == 4:
-        return struct.unpack("<H", bytes(resp["data"][1:3]))[0]  # 2-byte little-endian
+    index = 4
+    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
+    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
+        return resp["data"][2]
     return None
+
 
 def uim342ab_set_ac_dc_unit(node_id, value):
     cw = MNEMONIC["IC"]
-    value_bytes = list(struct.pack("<H", value))
-    err, resp = simplecan3_write_read(node_id, cw, 3, [4] + value_bytes)
-    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == 4:
-        return struct.unpack("<H", bytes(resp["data"][1:3]))[0]
+    index = 4
+    err, resp = simplecan3_write_read(node_id, cw, 3, [index, value, 0])
+    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
+        return resp["data"][2]
     return None
+
 
 def uim342ab_get_using_close_loop(node_id):
     cw = MNEMONIC["IC"]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [6])
-    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == 6:
-        return struct.unpack("<H", bytes(resp["data"][1:3]))[0]
-    return None
-
-def uim342ab_set_using_close_loop(node_id, value):
-    cw = MNEMONIC["IC"]
-    value_bytes = list(struct.pack("<H", value))
-    err, resp = simplecan3_write_read(node_id, cw, 3, [6] + value_bytes)
-    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == 6:
-        return struct.unpack("<H", bytes(resp["data"][1:3]))[0]
+    index = 6
+    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
+    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
+        return resp["data"][2]  
     return None
