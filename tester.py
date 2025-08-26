@@ -169,5 +169,18 @@ print("PA set:", pa_set)
 pa_now = stepper_get_pa(6)
 print("PA now:", pa_now)
 
+# if stepper_set_origin(6):
+#     print("Origin set berhasil!")
+# else:
+#     print("Gagal set origin.")
+
+# Set backlash compensation ke 1000 pulse
+# ok = stepper_set_bl(6, 1000)
+# print("Set BL:", "OK" if ok else "Gagal")
+
+# Get backlash compensation
+bl = stepper_get_bl(6)
+print("Backlash compensation:", bl)
+
 
 

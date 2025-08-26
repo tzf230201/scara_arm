@@ -645,4 +645,44 @@ def stepper_get_pa(node_id):
         return raw
     return None
 
+def stepper_set_origin(node_id):
+    """
+    Set current position as origin (zero) by clearing the position counter.
+    Return True jika berhasil, False jika gagal.
+    """
+    cw = MNEMONIC["OG"]
+    err, resp = simplecan3_write_read(node_id, cw, 0, [])
+    # ACK: data kosong (dl==0), resp["cw"] harus OG
+    if err == 0 and resp["cw"] == cw:
+        return True
+    return False
+
+def stepper_set_bl(node_id, value):
+    """
+    Set backlash compensation (BL) dalam satuan pulse (0..65535).
+    value: int
+    Return True jika sukses, False jika gagal.
+    """
+    cw = MNEMONIC["BL"]
+    # Format data: 4 bytes, [value_lsb, value_msb, 0, 0]
+    value = int(value) & 0xFFFF
+    data = [value & 0xFF, (value >> 8) & 0xFF, 0, 0]
+    err, resp = simplecan3_write_read(node_id, cw, 4, data)
+    if err == 0 and resp["dl"] == 4:
+        return True
+    return False
+
+def stepper_get_bl(node_id):
+    """
+    Get backlash compensation value (BL) dalam satuan pulse.
+    Return int value, atau None jika gagal.
+    """
+    cw = MNEMONIC["BL"]
+    err, resp = simplecan3_write_read(node_id, cw, 0, [])
+    if err == 0 and resp["dl"] == 4:
+        # Value is in resp["data"][0:2] (little endian)
+        value = resp["data"][0] | (resp["data"][1] << 8)
+        return value
+    return None
+
 
