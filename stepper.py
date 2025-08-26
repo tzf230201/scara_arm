@@ -117,15 +117,10 @@ def stepper_set_group_id(node_id, new_group_id):
     return None
 
 def stepper_get_group_id(node_id):
-    """
-    Get Group ID dari stepper.
-    :param node_id: ID device sekarang
-    :return: group_id (number) atau None jika gagal
-    """
     cw = MNEMONIC["PP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [8])
-    if err == 0 and resp["dl"] > 2 and resp["data"][1] == 8:
-        return resp["data"][2]
+    if err == 0 and resp and resp["dl"] >= 2 and resp["data"][0] == 8:
+        return resp["data"][1]
     return None
 
 def stepper_set_ac_dc_unit(node_id, unit):
@@ -143,15 +138,11 @@ def stepper_set_ac_dc_unit(node_id, unit):
         return resp["data"][2]
     return None
 
-def stepper_get_ac_dc_unit(node_id):
-    """
-    Get Units for AC and DC (IC[4]): 0 = pulse/sec², 1 = millisecond
-    """
+def stepper_set_ac_dc_unit(node_id, unit):
     cw = MNEMONIC["IC"]
-    # GET: DL=1, data=[4]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [4])
-    if err == 0 and resp["dl"] > 2 and resp["data"][1] == 4:
-        # Data ada di resp["data"][2]: 0=pulse/sec², 1=ms
+    val = 1 if unit else 0
+    err, resp = simplecan3_write_read(node_id, cw, 3, [4, 0, val])
+    if err == 0 and resp and resp["dl"] >= 3 and resp["data"][0] == 4:
         return resp["data"][2]
     return None
 
