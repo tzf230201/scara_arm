@@ -688,9 +688,10 @@ def stepper_get_sf_pr(node_id):
     cw = MNEMONIC["MS"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [0])
     if err == 0 and resp["dl"] >= 8:
-        d1 = resp["data"][1]  # IO & mode
-        d2 = resp["data"][2]  # Status flag
-        pr = int.from_bytes(resp["data"][4:8], byteorder='little', signed=True)
+        d1 = resp["data"][2]
+        d2 = resp["data"][3]
+        pr_bytes = resp["data"][4:8]
+        pr = int.from_bytes(pr_bytes, byteorder='little', signed=True)
         return {"d1": d1, "d2": d2, "rel_pos": pr}
     return None
 
