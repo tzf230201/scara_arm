@@ -56,15 +56,15 @@ def init_stepper():
     stepper_set_all_micro_stepping()
     
     
-    print(f"validasi")
+    # print(f"validasi")
     
-    group_id = stepper_get_group_id(6)
-    print(f"Group ID for motor 6: {group_id}")
+    # group_id = stepper_get_group_id(6)
+    # print(f"Group ID for motor 6: {group_id}")
 
-    unit = stepper_get_ac_dc_unit(6)
-    print(f"AC/DC Unit for motor 6: {unit}")
+    # unit = stepper_get_ac_dc_unit(6)
+    # print(f"AC/DC Unit for motor 6: {unit}")
 
-    microstep = stepper_get_micro_stepping_resolution(6)
-    print(f"Microstepping for motor 6: {microstep}")
+    # microstep = stepper_get_micro_stepping_resolution(6)
+    # print(f"Microstepping for motor 6: {microstep}")
 
     stepper_set_all_motor_on()
