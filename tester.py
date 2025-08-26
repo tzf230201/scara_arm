@@ -338,17 +338,17 @@ import time
 stepper_pvt_clear_queue(6)
 stepper_pvt_set_quick_feeding(6, qp=10000, qv=-1000, qt=50)
 
-for n in range(8):
-    qt, qv, qp = stepper_pvt_get_quick_feeding_row_n(6, n)
-    print(f"QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
+# for n in range(8):
+qt, qv, qp = stepper_pvt_get_quick_feeding_row_n(6, 26)
+print(f"QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
 
 # qp = stepper_pvt_get_position_row_n(6, 10)
 # print("QP[10]:", qp)]
 
-print(f"validasi")
+# print(f"validasi")
 
-for n in range(50):
-    qp = stepper_pvt_get_position_row_n(6, n)
-    qv = stepper_pvt_get_velocity_row_n(6, n)
-    qt = stepper_pvt_get_time_row_n(6, n)
-    print(f"Row {n}: QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
+# for n in range(50):
+#     qp = stepper_pvt_get_position_row_n(6, n)
+#     qv = stepper_pvt_get_velocity_row_n(6, n)
+#     qt = stepper_pvt_get_time_row_n(6, n)
+#     print(f"Row {n}: QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
