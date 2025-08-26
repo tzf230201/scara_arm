@@ -116,8 +116,8 @@ def stepper_set_group_id(node_id, new_group_id):
 def stepper_get_group_id(node_id):
     cw = MNEMONIC["PP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [8])
-    if err == 0 and resp and len(resp["data"]) >= 2 and resp["data"][0] == 8:
-        return resp["data"][1]
+    if err == 0 and resp and len(resp["data"]) >= 3 and resp["data"][1] == 8:
+        return resp["data"][2]
     return None
 
 def stepper_set_ac_dc_unit(node_id, unit):
@@ -134,13 +134,32 @@ def stepper_set_ac_dc_unit(node_id, unit):
     return None
 
 def stepper_get_ac_dc_unit(node_id):
-    """
-    Get Units for AC and DC (IC[4]): 0 = pulse/sec², 1 = millisecond
-    """
     cw = MNEMONIC["IC"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [4])
-    if err == 0 and resp and len(resp["data"]) >= 2 and resp["data"][0] == 4:
-        return resp["data"][1]
+    if err == 0 and resp and len(resp["data"]) >= 3 and resp["data"][1] == 4:
+        return resp["data"][2]
+    return None
+
+def stepper_set_micro_stepping_resolution(node_id, res):
+    """
+    Set microstepping resolution.
+    :param node_id: Node ID motor
+    :param res: resolusi (misal 16, 32, dst)
+    :return: nilai setelah diset (int) jika sukses, None jika gagal
+    """
+    cw = MNEMONIC["MT"]
+    # Kirim DL=3, data=[0, res, 0]
+    err, resp = simplecan3_write_read(node_id, cw, 3, [0, res, 0])
+    # Balasan: [16, 0, value, ...]
+    if err == 0 and resp and len(resp["data"]) >= 3 and resp["data"][1] == 0:
+        return resp["data"][2]
+    return None
+
+def stepper_get_micro_stepping_resolution(node_id):
+    cw = MNEMONIC["MT"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [0])
+    if err == 0 and resp and len(resp["data"]) >= 3 and resp["data"][1] == 0:
+        return resp["data"][2]
     return None
 
 
