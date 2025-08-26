@@ -877,3 +877,32 @@ def stepper_pvt_get_position_row_n(node_id, n):
         val = struct.unpack('<i', bytes(resp["data"][2:6]))[0]
         return val
     return None
+
+def stepper_pvt_set_velocity_row_n(node_id, row, velocity):
+    """
+    Set velocity value at row N in PVT table.
+    - row: index (0..255)
+    - velocity: int32, pulses/sec (signed)
+    Returns True if success.
+    """
+    cw = MNEMONIC["QV"]
+    # Velocity to 4 bytes, little-endian signed
+    v_bytes = velocity.to_bytes(4, byteorder='little', signed=True)
+    data = [row] + list(v_bytes[:4])
+    err, resp = simplecan3_write_read(node_id, cw, 5, data)
+    return err == 0
+
+def stepper_pvt_get_velocity_row_n(node_id, row):
+    """
+    Get velocity value at row N in PVT table.
+    Returns signed int (velocity), or None if error.
+    """
+    cw = MNEMONIC["QV"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [row])
+    # resp['data']: [CW, index, d1, d2, d3, d4, ...]
+    if err == 0 and resp["dl"] >= 5 and resp["data"][0] == cw and resp["data"][1] == row:
+        # d4:d3:d2:d1 little-endian (resp['data'][2:6])
+        vel_bytes = bytes(resp["data"][2:6])
+        velocity = int.from_bytes(vel_bytes, byteorder='little', signed=True)
+        return velocity
+    return None
