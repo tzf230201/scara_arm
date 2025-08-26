@@ -23,3 +23,11 @@ print_yellow(f"AC/DC unit: {ac_dc} ({unit})")
 loop = uim342ab_get_using_close_loop(node)
 loop_mode = 'Closed-loop' if loop == 1 else 'Open-loop' if loop == 0 else 'Unknown'
 print_yellow(f"Closed-loop mode: {loop} ({loop_mode})")
+
+
+res = uim342ab_set_ptp_finish_notification(6, False)
+print_yellow(f"Set IE[8] → {res} ({'enable' if res==1 else 'disable' if res==0 else 'unknown'})")
+
+val = uim342ab_get_ptp_finish_notification(6)
+print_yellow(f"PTP finish notify (IE[8]) sekarang: {val} ({'enable' if val==1 else 'disable' if val==0 else 'unknown'})")
+

@@ -124,3 +124,33 @@ def uim342ab_get_using_close_loop(node_id):
     if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
         return resp["data"][2]  
     return None
+
+def uim342ab_get_ptp_finish_notification(node_id):
+    """
+    IE[8] get → 0: disable, 1: enable
+    ACK payload format (umumnya): [cmd, index, lo, hi, ...]
+    """
+    cw = MNEMONIC["IE"]
+    index = 8
+    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
+    if err == 0 and len(resp["data"]) >= 4 and resp["data"][1] == index:
+        lo, hi = resp["data"][2], resp["data"][3]
+        return (hi << 8) | lo   # return 0/1
+    return None
+
+
+def uim342ab_set_ptp_finish_notification(node_id, enable):
+    """
+    IE[8]=N set → N: 0 disable, 1 enable
+    Catatan datasheet: nilai disimpan ke EEPROM hanya jika MO=0,
+    kalau MO=1 nilai hanya di RAM dan hilang setelah power-off.
+    """
+    cw = MNEMONIC["IE"]
+    index = 8
+    val = 1 if enable else 0
+    lo, hi = (val & 0xFF), ((val >> 8) & 0xFF)
+    err, resp = simplecan3_write_read(node_id, cw, 3, [index, lo, hi])
+    if err == 0 and len(resp["data"]) >= 4 and resp["data"][1] == index:
+        rlo, rhi = resp["data"][2], resp["data"][3]
+        return (rhi << 8) | rlo   # 0/1 yang terkonfirmasi
+    return None
