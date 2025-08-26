@@ -232,7 +232,7 @@ def stepper_get_micro_stepping_resolution(node_id):
     # print("[DEBUG] err =", err)
     # print("[DEBUG] resp =", resp)
     if err == 0 and resp and resp["dl"] >= 3 and resp["data"][1] == 0:
-        print("[DEBUG] resp['data'][2] =", resp["data"][2])
+        #print("[DEBUG] resp['data'][2] =", resp["data"][2])
         return resp["data"][2]
     return None
 
