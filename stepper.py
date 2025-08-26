@@ -852,3 +852,31 @@ def stepper_pvt_get_next_available_writing_row(node_id):
     if err == 0 and len(resp["data"]) >= 4:
         return resp["data"][2] | (resp["data"][3] << 8)
     return None
+
+def stepper_pvt_set_position_row_n(node_id, row_n, position):
+    """
+    Set position value of row N in PVT table (QP[N]=position)
+    - row_n: index PVT row (0..255)
+    - position: signed 32 bit int (pulse)
+    """
+    cw = MNEMONIC["QP"]
+    # Data: [row_n, pos_LSB, pos_2, pos_3, pos_MSB]
+    pos_bytes = position.to_bytes(4, byteorder='little', signed=True)
+    data = [row_n] + list(pos_bytes)
+    err, resp = simplecan3_write_read(node_id, cw, 5, data)
+    if err == 0 and resp["dl"] >= 5:
+        return True
+    return False
+
+def stepper_pvt_get_position_row_n(node_id, row_n):
+    """
+    Get position value of row N in PVT table
+    - row_n: index PVT row (0..255)
+    - return: signed 32 bit int (pulse) or None
+    """
+    cw = MNEMONIC["QP"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [row_n])
+    if err == 0 and resp["dl"] >= 5 and resp["data"][0] == row_n:
+        pos = int.from_bytes(resp["data"][1:5], byteorder='little', signed=True)
+        return pos
+    return None

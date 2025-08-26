@@ -297,3 +297,15 @@ print(f"Queue Low Alert Value: {queue_low_alert}")
 
 next_writing_row = stepper_pvt_get_next_available_writing_row(node_id)
 print(f"Next Available Writing Row: {next_writing_row}")
+
+
+node = 6
+row = 5
+
+# Set posisi row 5 ke -1000 pulse
+ok = stepper_pvt_set_position_row_n(node, row, -1000)
+print("Set QP[5] -1000:", ok)
+
+# Get posisi row 5
+val = stepper_pvt_get_position_row_n(node, row)
+print("QP[5]:", val)
