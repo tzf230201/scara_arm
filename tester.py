@@ -83,7 +83,7 @@ import time
 # else:
 #     print("Tidak ada error (atau gagal baca error report).")
 
-# print("Set Micro-stepping:", stepper_set_micro_stepping_resolution(6, 16))
+print("Set Micro-stepping:", stepper_set_micro_stepping_resolution(6, 16))
 print("Micro-stepping:", stepper_get_micro_stepping_resolution(6))
 
 # # print("Set current:", stepper_set_working_current(6, 2.5))
