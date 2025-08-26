@@ -84,7 +84,7 @@ import time
 #     print("Tidak ada error (atau gagal baca error report).")
 
 # stepper_set_micro_stepping_resolution(6, 16)
-# print("Micro-stepping:", stepper_get_micro_stepping_resolution(6))
+print("Micro-stepping:", stepper_get_micro_stepping_resolution(6))
 
 # # print("Set current:", stepper_set_working_current(6, 2.5))
 # print("Working current (A):", stepper_get_working_current(6))
@@ -166,8 +166,8 @@ import time
 # pa_set = stepper_set_pa(6, 1500)
 # print("PA set:", pa_set)
 
-pa_now = stepper_get_pa(6)
-print("PA now:", pa_now)
+# pa_now = stepper_get_pa(6)
+# print("PA now:", pa_now)
 
 # # if stepper_set_origin(6):
 # #     print("Origin set berhasil!")
