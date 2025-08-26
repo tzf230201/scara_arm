@@ -351,3 +351,4 @@ for n in range(8):
     stepper_pvt_get_position_row_n(6, n)
     stepper_pvt_get_velocity_row_n(6, n)
     stepper_pvt_get_time_row_n(6, n)
+    print(f"Row {n} OK")
