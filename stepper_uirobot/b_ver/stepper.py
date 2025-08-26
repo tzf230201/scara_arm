@@ -153,9 +153,11 @@ def stepper_set_micro_stepping_resolution(node_id, res):
 def stepper_get_micro_stepping_resolution(node_id):
     cw = MNEMONIC["MT"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [0])
+    print("[DEBUG] Resp:", resp)
     if err == 0 and resp and resp["dl"] >= 4 and resp["data"][1] == 0:
-        print("RAW microstep response:", resp["data"])  # debug print
+        print("[DEBUG] RAW data:", resp["data"])
         value = resp["data"][2] | (resp["data"][3] << 8)
+        print("[DEBUG] value:", value)
         return value
     return None
 
