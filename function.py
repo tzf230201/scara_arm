@@ -7,7 +7,7 @@ STEPPER_DEG_PER_PULSE = (360.0 / STEPPER_CPR)
 
 
 def stepper_pulse_to_deg(pulse):
-    return pulse * STEPPER_DEG_PER_PULSE
+    return float(pulse * STEPPER_DEG_PER_PULSE)
 
     
 def stepper_get_all_enc():
