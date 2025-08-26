@@ -871,10 +871,10 @@ def stepper_pvt_set_position_row_n(node_id, row_n, position):
 def stepper_pvt_get_position_row_n(node_id, n):
     cw = MNEMONIC["QP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [n])
-    # print(f"[DEBUG GET QP] {resp['data']} len={resp['dl']}")
-    # Accept len 2+ (index, data0..data3), ignore the rest
+    # Print debug
+    print(f"[DEBUG] Data={resp['data']}, len={len(resp['data'])}")
     if err == 0 and len(resp["data"]) >= 5 and resp["data"][0] == n:
-        # Data [1:5] (little endian) is the position value
+        # QP value is little endian signed int: bytes 1:5
         val = struct.unpack('<i', bytes(resp["data"][1:5]))[0]
         return val
     return None
