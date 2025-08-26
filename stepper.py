@@ -234,20 +234,24 @@ def stepper_get_error_report(node_id):
 
 def stepper_set_micro_stepping_resolution(node_id, res):
     cw = MNEMONIC["MS"]
+    # Biasanya set: index=0, value, padding0
     err, resp = simplecan3_write_read(node_id, cw, 3, [0, res, 0])
-    if err == 0 and resp and len(resp["data"]) >= 3:
-        # Kalau hanya 1 byte resolusi, langsung return resp["data"][1]
+    if err == 0 and resp and len(resp["data"]) > 1:
+        # Biasanya return resp["data"][1] (value) atau combine [1],[2] kalau lebih dari 255
         return resp["data"][1]
+    else:
+        print(f"Micro-stepping SET short/invalid response: {resp['data'] if resp else None}")
     return None
 
 def stepper_get_micro_stepping_resolution(node_id):
-    cw = MNEMONIC["MT"]
+    cw = MNEMONIC["MS"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [0])
-    # Balasan: data[0]=CW(16), data[1]=0 (index), data[2:3]=resolution
-    if err == 0 and resp["dl"] > 2 and resp["data"][1] == 0:
-        return resp["data"][2] | (resp["data"][3] << 8)
+    if err == 0 and resp and len(resp["data"]) > 1:
+        # Bisa juga combine 2 byte kalau protokol bilang little-endian, tapi untuk kasusmu cukup 1 byte (data[1])
+        return resp["data"][1]
+    else:
+        print(f"Micro-stepping GET short/invalid response: {resp['data'] if resp else None}")
     return None
-
 
 def stepper_set_working_current(node_id, current):
     cw = MNEMONIC["MT"]
