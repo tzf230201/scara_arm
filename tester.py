@@ -183,14 +183,14 @@ bl = stepper_get_bl(6)
 print("Backlash compensation:", bl)
 
 
-# Set JV ke -1000
-jv = stepper_set_jv(6, -1000)
-print("JV set:", jv)
+# # Set JV ke -1000
+# jv = stepper_set_jv(6, -1000)
+# print("JV set:", jv)
 
-stepper_begin_motion(6)
+# stepper_begin_motion(6)
 
 
-time.sleep(2)
+# time.sleep(2)
 
 def decode_sf_d1(d1):
     return {
@@ -240,15 +240,12 @@ else:
     
 
 # Get current JV
-jv_now = stepper_get_jv(6)
-print("JV now:", jv_now)
-
-
-
-# # Get current JV
 # jv_now = stepper_get_jv(6)
 # print("JV now:", jv_now)
+# stepper_stop_motion(6)
 
-stepper_stop_motion(6)
-
-
+print("Motion mode:", stepper_get_motion_mode(node_id))      # 0=JOG, 1=PTP
+print("Desired motor current (A):", stepper_get_motor_current(node_id))
+print("Desired speed (pulses/sec):", stepper_get_desired_sp(node_id))
+print("Desired relative pos (pulses):", stepper_get_desired_pr(node_id))
+print("Desired absolute pos (pulses):", stepper_get_desired_pa(node_id))
