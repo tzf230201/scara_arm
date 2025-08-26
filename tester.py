@@ -83,8 +83,8 @@ import time
 # else:
 #     print("Tidak ada error (atau gagal baca error report).")
 
-# # print("Set Micro-stepping:", stepper_set_micro_stepping_resolution(6, 16))
-# print("Micro-stepping:", stepper_get_micro_stepping_resolution(6))
+print("Set Micro-stepping:", stepper_set_micro_stepping_resolution(6, 16))
+print("Micro-stepping:", stepper_get_micro_stepping_resolution(6))
 
 # # print("Set current:", stepper_set_working_current(6, 2.5))
 # print("Working current (A):", stepper_get_working_current(6))
@@ -336,11 +336,11 @@ import time
 # print(f"QT[5]: {qt5} ms")
 # stepper_set_mo(6, False)  # ON dulu
 
-sukses = stepper_pvt_clear_queue(6)
-print("PVT Table cleared:", sukses)   # True jika sukses
+# sukses = stepper_pvt_clear_queue(6)
+# print("PVT Table cleared:", sukses)   # True jika sukses
 
-queue_level = stepper_pvt_get_queue(6)
-print(f"Queue Level: {queue_level}")
+# queue_level = stepper_pvt_get_queue(6)
+# print(f"Queue Level: {queue_level}")
 
 
 # stepper_pvt_set_quick_feeding(6, qp=10000, qv=-1000, qt=50)
