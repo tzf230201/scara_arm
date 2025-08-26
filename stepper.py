@@ -991,14 +991,10 @@ def stepper_pvt_get_pt_data_row_n(node_id, row):
     Returns: (position [int]) or None
     """
     cw = MNEMONIC["PT"]
-    data = [
-        row & 0xFF,          # d0: index LSB
-        (row >> 8) & 0xFF    # d1: index MSB
-    ]
+    data = [row & 0xFF, (row >> 8) & 0xFF]
     err, resp = simplecan3_write_read(node_id, cw, 2, data)
-    if err == 0 and resp and "data" in resp and len(resp["data"]) >= 6:
-        # d2-d5: position (signed 32bit, LSB first)
+    if err == 0 and resp and "data" in resp and len(resp["data"]) >= 7:
         p = resp["data"]
-        position = int.from_bytes(p[2:6], byteorder='little', signed=True)
+        position = int.from_bytes(p[3:7], byteorder='little', signed=True)
         return position
     return None
