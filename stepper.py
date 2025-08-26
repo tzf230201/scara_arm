@@ -923,33 +923,25 @@ def stepper_pvt_get_time_row_n(node_id, row):
         return value
     return None
 
-def stepper_pvt_set_quick_feeding_row_n(node_id, row, qp, qv, qt):
+def stepper_pvt_set_quick_feeding(node_id, qp, qv, qt):
     """
-    Set QF[row]: Quick Feeding PVT data.
-    - row: indeks (0..255)
-    - qp: QP value (signed 32-bit, pulses)
-    - qv: QV value (signed 32-bit, pulses/sec)
-    - qt: QT value (unsigned 16-bit, ms)
+    Kirim satu segment Quick Feeding (PVT) ke driver.
+    - qp: Position (signed 32bit, pulses)
+    - qv: Velocity (signed 24bit, pulses/sec)
+    - qt: Time (unsigned 8bit, ms)
     """
-    # Format: [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1, QP_B2, QP_B3]
-    # Tapi pada datasheet hanya dikirim 8 byte: [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1, QP_B2, QP_B3]
-    # Sebenarnya, pada example datasheet, [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1, QP_B2, QP_B3]
-    # TAPI, hanya 8 byte yang dikirim: [row, QT_LSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1]
-    # Namun, dari gambar: 
-    # Example: [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1, QP_B2, QP_B3]
-    # 10 64 00 E8 03 00 00 10 27 00 00
-
-    # Prepare QV (signed 32-bit)
-    qv_bytes = int(qv).to_bytes(4, byteorder="little", signed=True)
-    qp_bytes = int(qp).to_bytes(4, byteorder="little", signed=True)
-    qt_bytes = int(qt).to_bytes(2, byteorder="little", signed=False)
-
-    # Compose 8 bytes: [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1, QP_B2, QP_B3]
-    # But CAN only allows 8 bytes; datasheet actually: [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB]
-    # Let's follow example SET: [row, QT_LSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1]
-    data = [row, qt_bytes[0], qt_bytes[1], qv_bytes[0], qv_bytes[1], qv_bytes[2], qv_bytes[3], qp_bytes[0]]
-
-    err, resp = simplecan3_write_read(node_id, 0x29, 8, data)
+    cw = 0x29  # QF
+    data = [
+        qt & 0xFF,                     # d0: QT (time)
+        qv & 0xFF,                     # d1: QV LSB
+        (qv >> 8) & 0xFF,              # d2: QV
+        (qv >> 16) & 0xFF,             # d3: QV MSB (signed!)
+        qp & 0xFF,                     # d4: QP LSB
+        (qp >> 8) & 0xFF,              # d5: QP
+        (qp >> 16) & 0xFF,             # d6: QP
+        (qp >> 24) & 0xFF,             # d7: QP MSB
+    ]
+    err, resp = simplecan3_write_read(node_id, cw, 8, data)
     return err == 0
 
 def stepper_pvt_get_quick_feeding_row_n(node_id, row_n):

@@ -335,14 +335,13 @@ print(f"QT[5]: {qt5} ms")
 qt5 = stepper_pvt_get_time_row_n(6, 0)
 print(f"QT[5]: {qt5} ms")
 
-# Set Quick Feeding untuk row 10: QP=10000, QV=-1000, QT=50ms
-stepper_pvt_set_quick_feeding_row_n(6, 10, 10000, -1000, 50)
+stepper_pvt_set_quick_feeding(6, qp=10000, qv=-1000, qt=50)
 
-result = stepper_pvt_get_quick_feeding_row_n(6, 10)
+result = stepper_pvt_get_quick_feeding_row_n(6, 0)
 if result:
     print(f"QF[{result['row']}] QV={result['qv']} pulses/s, QT={result['qt']} ms")
 else:
     print("QF read failed")
     
-qp = stepper_pvt_get_position_row_n(6, 10)
+qp = stepper_pvt_get_position_row_n(6, 0)
 print("QP[10]:", qp)
