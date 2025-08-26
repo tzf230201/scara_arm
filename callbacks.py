@@ -53,7 +53,10 @@ def read_position(msg, state):
     pa3 = stepper_get_pa(7)
     pa4 = stepper_get_pa(8)
 
-    print(f"[cb] Read Position: pa2={pa2} pa3={pa3} pa4={pa4}")
+    pa2_deg = stepper_pulse_to_deg(pa2)
+    pa3_deg = stepper_pulse_to_deg(pa3)
+    pa4_deg = stepper_pulse_to_deg(pa4)
+    print(f"[cb] pa = {pa2_deg}, {pa3_deg}, {pa4_deg} degree")
 
     # TODO: Implement read pos & maybe update state["pos_abs"]
 
@@ -77,10 +80,7 @@ def read_encoder(msg, state):
     pa3 = stepper_get_pa(7)
     pa4 = stepper_get_pa(8)
 
-    pa2_deg = stepper_pulse_to_deg(pa2)
-    pa3_deg = stepper_pulse_to_deg(pa3)
-    pa4_deg = stepper_pulse_to_deg(pa4)
-    print(f"[cb] pa = {pa2_deg}, {pa3_deg}, {pa4_deg} degree")
+    print(f"[cb] Read Position: pa2={pa2} pa3={pa3} pa4={pa4}")
     # TODO: Implement reading encoder value
 
 def set_origin(msg, state):
