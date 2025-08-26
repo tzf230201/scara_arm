@@ -343,4 +343,11 @@ for n in range(8):
     print(f"QF[10] QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
 
 # qp = stepper_pvt_get_position_row_n(6, 10)
-# print("QP[10]:", qp)
+# print("QP[10]:", qp)]
+
+print(f"validasi")
+
+for n in range(8):
+    stepper_pvt_get_position_row_n(6, n)
+    stepper_pvt_get_velocity_row_n(6, n)
+    stepper_pvt_get_time_row_n(6, n)
