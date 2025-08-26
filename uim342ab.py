@@ -154,3 +154,37 @@ def uim342ab_set_ptp_finish_notification(node_id, enable):
         rlo, rhi = resp["data"][2], resp["data"][3]
         return (rhi << 8) | rlo   # 0/1 yang terkonfirmasi
     return None
+
+def uim342ab_get_error_report(node_id, index: int = 0):
+    """
+    ER[i] GET
+      i = 0     → newest error info
+      i = 10..18→ history 1st..9th (newest→oldest)
+    Return dict: {"error_code", "cw_related", "sub_index", "raw"}
+    """
+    cw = MNEMONIC["ER"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
+    # Expect ACK data: [i, d1, d2, d3, d4, d5]
+    if err == 0 and len(resp["data"]) >= 6 and resp["data"][0] == index:
+        d = resp["data"]
+        return {
+            "error_code": d[1],   # per datasheet
+            "cw_related": d[2],   # CW related to error
+            "sub_index":  d[3],   # sub-index related
+            "raw":        d[:6],  # keep first 6 for inspection
+        }
+    return None
+
+
+def uim342ab_clear_error_report(node_id) -> bool:
+    """
+    ER[0] = 0  → Reset All Error Info
+    """
+    cw = MNEMONIC["ER"]
+    index = 0
+    value = 0
+    err, resp = simplecan3_write_read(node_id, cw, 2, [index, value])
+    # Expect ACK like: [0x00, 0, 0, 0, 0, 0]
+    if err == 0 and len(resp["data"]) >= 2 and resp["data"][0] == 0:
+        return True
+    return False
