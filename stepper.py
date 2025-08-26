@@ -753,8 +753,8 @@ def stepper_pvt_get_queue(node_id):
     """Get Current Queue Level (MP[0])"""
     cw = MNEMONIC["MP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [0])
-    if err == 0 and resp["dl"] >= 4 and resp["data"][0] == 0:
-        return resp["data"][2] | (resp["data"][3]<<8)
+    if err == 0 and len(resp["data"]) >= 4:
+        return resp["data"][2] | (resp["data"][3] << 8)
     return None
 
 def stepper_pvt_clear_queue(node_id):
@@ -777,8 +777,8 @@ def stepper_pvt_get_first_valid_row(node_id):
     """Get First Valid Row in PVT Table (MP[1])"""
     cw = MNEMONIC["MP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [1])
-    if err == 0 and resp["dl"] >= 4 and resp["data"][0] == 1:
-        return resp["data"][2] | (resp["data"][3]<<8)
+    if err == 0 and len(resp["data"]) >= 4:
+        return resp["data"][2] | (resp["data"][3] << 8)
     return None
 
 def stepper_pvt_set_last_valid_row(node_id, value):
@@ -793,8 +793,8 @@ def stepper_pvt_get_last_valid_row(node_id):
     """Get Last Valid Row in PVT Table (MP[2])"""
     cw = MNEMONIC["MP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [2])
-    if err == 0 and resp["dl"] >= 4 and resp["data"][0] == 2:
-        return resp["data"][2] | (resp["data"][3]<<8)
+    if err == 0 and len(resp["data"]) >= 4:
+        return resp["data"][2] | (resp["data"][3] << 8)
     return None
 
 def stepper_pvt_set_management_mode(node_id, mode):
@@ -804,11 +804,11 @@ def stepper_pvt_set_management_mode(node_id, mode):
     return err == 0
 
 def stepper_pvt_get_management_mode(node_id):
-    """Get PVT Data Management Mode (MP[3])"""
+    """Get PVT Data Management Mode (MP[3]): 0=FIFO, 1=Single, 2=Loop"""
     cw = MNEMONIC["MP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [3])
-    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == 3:
-        return resp["data"][1]
+    if err == 0 and len(resp["data"]) >= 3:
+        return resp["data"][2]  # HANYA 1 BYTE untuk mode
     return None
 
 def stepper_pvt_set_pt_time(node_id, mode):
@@ -821,8 +821,8 @@ def stepper_pvt_get_pt_time(node_id):
     """Get Time for PT Motion (MP[4])"""
     cw = MNEMONIC["MP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [4])
-    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == 4:
-        return resp["data"][1]
+    if err == 0 and len(resp["data"]) >= 3:
+        return resp["data"][2]
     return None
 
 def stepper_pvt_set_queue_low(node_id, value):
@@ -835,8 +835,8 @@ def stepper_pvt_get_queue_low(node_id):
     """Get Queue Low Alert Value (MP[5])"""
     cw = MNEMONIC["MP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [5])
-    if err == 0 and resp["dl"] >= 4 and resp["data"][0] == 5:
-        return resp["data"][2] | (resp["data"][3]<<8)
+    if err == 0 and len(resp["data"]) >= 4:
+        return resp["data"][2] | (resp["data"][3] << 8)
     return None
 
 def stepper_pvt_set_next_available_writing_row(node_id, value):
@@ -849,6 +849,6 @@ def stepper_pvt_get_next_available_writing_row(node_id):
     """Get Index of Next Available Writing Row (MP[6])"""
     cw = MNEMONIC["MP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [6])
-    if err == 0 and resp["dl"] >= 4 and resp["data"][0] == 6:
-        return resp["data"][2] | (resp["data"][3]<<8)
+    if err == 0 and len(resp["data"]) >= 4:
+        return resp["data"][2] | (resp["data"][3] << 8)
     return None
