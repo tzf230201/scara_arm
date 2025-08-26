@@ -324,9 +324,13 @@ vel = stepper_pvt_get_velocity_row_n(6, 0)
 print(f"QV05]: {vel} pulses/sec")
 
 
-# Set QT[6] = 100 ms
-stepper_pvt_set_time_row_n(6, 6, 100)
+# SET QT[5] = 100 ms
+ok = stepper_pvt_set_time_row_n(6, 5, 100)
+print(f"Set QT[5]=100 ms: {ok}")
 
-# Get QT[5]
+# GET QT[5]
 qt5 = stepper_pvt_get_time_row_n(6, 5)
+print(f"QT[5]: {qt5} ms")
+
+qt5 = stepper_pvt_get_time_row_n(6, 0)
 print(f"QT[5]: {qt5} ms")
