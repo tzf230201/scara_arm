@@ -337,7 +337,6 @@ print(f"QT[5]: {qt5} ms")
 
 stepper_pvt_set_quick_feeding(6, qp=10000, qv=-1000, qt=50)
 
-# Contoh penggunaan:
 qt, qv, qp = stepper_pvt_get_quick_feeding_row_n(5, 10)
 print(f"QF[10]  QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
     
