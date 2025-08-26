@@ -89,3 +89,39 @@ def uim342ab_set_group_id(node_id, new_group_id):
     if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 8:
         return resp["data"][1]
     return None
+
+def uim342ab_get_ac_dc_unit(node_id):
+    index = 4  # IC[4]
+    cw = MNEMONIC["IC"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
+    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == index:
+        return (resp["data"][1] << 8) | resp["data"][2]
+    return None
+
+def uim342ab_set_ac_dc_unit(node_id, value):
+    index = 4  # IC[4]
+    cw = MNEMONIC["IC"]
+    high = (value >> 8) & 0xFF
+    low = value & 0xFF
+    err, resp = simplecan3_write_read(node_id, cw, 3, [index, high, low])
+    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == index:
+        return (resp["data"][1] << 8) | resp["data"][2]
+    return None
+
+def uim342ab_get_using_close_loop(node_id):
+    index = 6  # IC[6]
+    cw = MNEMONIC["IC"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
+    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == index:
+        return (resp["data"][1] << 8) | resp["data"][2]
+    return None
+
+def uim342ab_set_using_close_loop(node_id, value):
+    index = 6  # IC[6]
+    cw = MNEMONIC["IC"]
+    high = (value >> 8) & 0xFF
+    low = value & 0xFF
+    err, resp = simplecan3_write_read(node_id, cw, 3, [index, high, low])
+    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == index:
+        return (resp["data"][1] << 8) | resp["data"][2]
+    return None
