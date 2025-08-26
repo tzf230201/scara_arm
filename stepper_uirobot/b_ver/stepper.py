@@ -106,21 +106,17 @@ def stepper_set_group_id(node_id, new_group_id):
     :param node_id: ID device sekarang
     :param new_group_id: group id baru (1-127)
     :return: group_id baru jika sukses, None jika gagal
-    
-    − Within a specific CAN network, Node IDs and Group IDs of all UIM devices should never be overlapped.
-    − Protocol Parameters will take effectiveness after reboot the UIM device.
-    − The set value will be saved to EEPROM only when MO=0; otherwise, it stays in RAM and is lost after power off.
     """
     cw = MNEMONIC["PP"]
     err, resp = simplecan3_write_read(node_id, cw, 2, [8, new_group_id])
-    if err == 0 and resp["dl"] > 1 and resp["data"][0] == 8:
+    if err == 0 and resp and len(resp["data"]) >= 2 and resp["data"][0] == 8:
         return resp["data"][1]
     return None
 
 def stepper_get_group_id(node_id):
     cw = MNEMONIC["PP"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [8])
-    if err == 0 and resp and resp["dl"] >= 2 and resp["data"][0] == 8:
+    if err == 0 and resp and len(resp["data"]) >= 2 and resp["data"][0] == 8:
         return resp["data"][1]
     return None
 
@@ -131,11 +127,9 @@ def stepper_set_ac_dc_unit(node_id, unit):
     unit = 1 → millisecond
     """
     cw = MNEMONIC["IC"]
-    # SET: DL=3, data=[4, 0, unit]
     val = 1 if unit else 0
     err, resp = simplecan3_write_read(node_id, cw, 3, [4, 0, val])
-    # Balasan: data[0]=4, data[1]=0, data[2]=val
-    if err == 0 and resp["dl"] > 2 and resp["data"][0] == 4:
+    if err == 0 and resp and len(resp["data"]) >= 3 and resp["data"][0] == 4:
         return resp["data"][2]
     return None
 
@@ -144,12 +138,11 @@ def stepper_get_ac_dc_unit(node_id):
     Get Units for AC and DC (IC[4]): 0 = pulse/sec², 1 = millisecond
     """
     cw = MNEMONIC["IC"]
-    # GET: DL=1, data=[4]
     err, resp = simplecan3_write_read(node_id, cw, 1, [4])
-    if err == 0 and resp and resp["dl"] >= 3 and resp["data"][0] == 4:
-        # Data ada di resp["data"][2]: 0=pulse/sec², 1=ms
-        return resp["data"][2]
+    if err == 0 and resp and len(resp["data"]) >= 2 and resp["data"][0] == 4:
+        return resp["data"][1]
     return None
+
 
 def stepper_set_using_close_loop(node_id, enable):
     """
