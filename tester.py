@@ -249,3 +249,51 @@ print("Desired motor current (A):", stepper_get_motor_current(6))
 print("Desired speed (pulses/sec):", stepper_get_desired_sp(6))
 print("Desired relative pos (pulses):", stepper_get_desired_pr(6))
 print("Desired absolute pos (pulses):", stepper_get_desired_pa(6))
+
+
+# sukses = stepper_pvt_clear_queue(6)
+# print("PVT Table cleared:", sukses)   # True jika sukses
+# # Set first valid row ke 2 (misal) untuk Node ID 6
+# sukses = stepper_pvt_set_first_valid_row(6, 2)
+# print("Set first valid row:", sukses)
+# # Set last valid row ke 32 untuk Node ID 6
+# sukses = stepper_pvt_set_last_valid_row(6, 32)
+# print("Set last valid row:", sukses)
+
+# # Set management mode ke FIFO (0)
+# sukses = stepper_pvt_set_management_mode(6, 0)
+# print("Set management mode:", sukses)
+
+# sukses = stepper_pvt_set_pt_time(6, 0)
+# print("Set PT time:", sukses)
+
+# # Set alert jika queue tinggal 4
+# sukses = stepper_pvt_set_queue_low(6, 4)
+# print("Set queue low value:", sukses)
+
+# # Set index row berikutnya ke 5
+# sukses = stepper_pvt_set_next_available_writing_row(6, 5)
+# print("Set next writing row:", sukses)
+
+node_id = 6
+
+queue_level = stepper_pvt_get_queue(node_id)
+print(f"Queue Level: {queue_level}")
+
+first_valid_row = stepper_pvt_get_first_valid_row(node_id)
+print(f"First Valid Row: {first_valid_row}")
+
+last_valid_row = stepper_pvt_get_last_valid_row(node_id)
+print(f"Last Valid Row: {last_valid_row}")
+
+management_mode = stepper_pvt_get_management_mode(node_id)
+print(f"Management Mode: {management_mode}  # 0=FIFO, 1=Single, 2=Loop")
+
+pt_time_mode = stepper_pvt_get_pt_time(node_id)
+print(f"PT Time Mode: {pt_time_mode}  # 0=PVT motion")
+
+queue_low_alert = stepper_pvt_get_queue_low(node_id)
+print(f"Queue Low Alert Value: {queue_low_alert}")
+
+next_writing_row = stepper_pvt_get_next_available_writing_row(node_id)
+print(f"Next Available Writing Row: {next_writing_row}")
