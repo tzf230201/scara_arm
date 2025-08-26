@@ -45,16 +45,47 @@ MNEMONIC = {
     "PT": 0x23,
 }
 
-def uim342ab_get_pp(node_id, index):
+# === Bitrate ===
+def uim342ab_get_bitrate(node_id):
     cw = MNEMONIC["PP"]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
-    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == index:
+    err, resp = simplecan3_write_read(node_id, cw, 1, [5])
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 5:
+        return resp["data"][1]  # 0:1000K, 1:800K, 2:500K, 3:250K, 4:125K
+    return None
+
+def uim342ab_set_bitrate(node_id, bitrate_code):
+    cw = MNEMONIC["PP"]
+    err, resp = simplecan3_write_read(node_id, cw, 2, [5, bitrate_code])
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 5:
         return resp["data"][1]
     return None
 
-def uim342ab_set_pp(node_id, index, value):
+# === Node ID ===
+def uim342ab_get_node_id(node_id):
     cw = MNEMONIC["PP"]
-    err, resp = simplecan3_write_read(node_id, cw, 2, [index, value])
-    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == index:
+    err, resp = simplecan3_write_read(node_id, cw, 1, [7])
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 7:
+        return resp["data"][1]
+    return None
+
+def uim342ab_set_node_id(node_id, new_node_id):
+    cw = MNEMONIC["PP"]
+    err, resp = simplecan3_write_read(node_id, cw, 2, [7, new_node_id])
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 7:
+        return resp["data"][1]
+    return None
+
+# === Group ID ===
+def uim342ab_get_group_id(node_id):
+    cw = MNEMONIC["PP"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [8])
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 8:
+        return resp["data"][1]
+    return None
+
+def uim342ab_set_group_id(node_id, new_group_id):
+    cw = MNEMONIC["PP"]
+    err, resp = simplecan3_write_read(node_id, cw, 2, [8, new_group_id])
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 8:
         return resp["data"][1]
     return None
