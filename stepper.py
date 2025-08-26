@@ -868,15 +868,13 @@ def stepper_pvt_set_position_row_n(node_id, row_n, position):
         return True
     return False
 
-def stepper_pvt_get_position_row_n(node_id, row_n):
-    """
-    Get position value of row N in PVT table
-    - row_n: index PVT row (0..255)
-    - return: signed 32 bit int (pulse) or None
-    """
+def stepper_pvt_get_position_row_n(node_id, n):
     cw = MNEMONIC["QP"]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [row_n])
-    if err == 0 and resp["dl"] >= 5 and resp["data"][0] == row_n:
-        pos = int.from_bytes(resp["data"][1:5], byteorder='little', signed=True)
-        return pos
+    err, resp = simplecan3_write_read(node_id, cw, 1, [n])
+    # print(f"[DEBUG GET QP] {resp['data']} len={resp['dl']}")
+    # Accept len 2+ (index, data0..data3), ignore the rest
+    if err == 0 and len(resp["data"]) >= 5 and resp["data"][0] == n:
+        # Data [1:5] (little endian) is the position value
+        val = struct.unpack('<i', bytes(resp["data"][1:5]))[0]
+        return val
     return None
