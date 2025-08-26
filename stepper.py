@@ -944,17 +944,24 @@ def stepper_pvt_set_quick_feeding(node_id, qp, qv, qt):
     err, resp = simplecan3_write_read(node_id, cw, 8, data)
     return err == 0
 
-def stepper_pvt_get_quick_feeding_row_n(node_id, row_n):
-    cw = 0xA9
-    dl = 1
-    data = [row_n]
-    err, resp = simplecan3_write_read(node_id, cw, dl, data)
-    if err == 0 and resp and resp["dl"] == 8:
-        d = resp["data"]
-        row = d[1]
-        qt = d[2] | (d[3]<<8)
-        qv = int.from_bytes(d[4:8], 'little', signed=True)
-        print(f"QF[{row}]  QV={qv} pulses/s, QT={qt} ms")
-        return {"row": row, "qv": qv, "qt": qt}
-    print("QF read failed")
-    return None
+def stepper_pvt_get_quick_feeding_row_n(node_id, row_index):
+    """
+    Membaca P/V/T value dari Quick Feeding row ke-n (QF[n]).
+    Return: (QT, QV, QP)
+    - QT: waktu (ms)          -> data[2]
+    - QV: velocity (pulses/s) -> data[4:2:-1] = data[4],data[3],data[2] (LSB first, signed 24 bit)
+    - QP: posisi (pulse)      -> data[8:4:-1] = data[7],data[6],data[5],data[4] (LSB first, signed 32 bit)
+    """
+    # Kirim request: CW=0xA9, DL=1, Data=[row_index]
+    resp = send_can(node_id, 0xA9, [row_index])
+    # Contoh resp = [0x29, row, QT, QV_L, QV_M, QV_H, QP_L, QP_M, QP_H, QP_U]
+    if resp is None or len(resp) < 8:
+        print("Response error or length < 8")
+        return None, None, None
+
+    QT = resp[2]  # QT = waktu (ms), unsigned 8-bit
+    # QV = velocity, signed 24-bit LSB first: d3:d2:d1
+    QV = int.from_bytes(resp[3:6], byteorder='little', signed=True)
+    # QP = position, signed 32-bit LSB first: d7:d6:d5:d4 (offset by +4)
+    QP = int.from_bytes(resp[6:10], byteorder='little', signed=True)
+    return QT, QV, QP
