@@ -910,13 +910,15 @@ def stepper_pvt_get_velocity_row_n(node_id, row):
 def stepper_pvt_set_time_row_n(node_id, row, t_ms):
     # row = N, t_ms = value (0..65535), CW=0xA7
     # Data=[row, t_ms_LSB, t_ms_MSB]
+    cw = MNEMONIC["QT"]
     data = [row, t_ms & 0xFF, (t_ms >> 8) & 0xFF]
-    err, resp = simplecan3_write_read(node_id, 0x27, 3, data)
+    err, resp = simplecan3_write_read(node_id, cw, 3, data)
     return err == 0
 
 def stepper_pvt_get_time_row_n(node_id, row):
     # CW=0xA7, DL=1, Data=[row]
-    err, resp = simplecan3_write_read(node_id, 0x27, 1, [row])
+    cw = MNEMONIC["QT"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [row])
     if err == 0 and resp and len(resp["data"]) >= 4:
         # resp["data"] = [0x27, row, LSB, MSB, ...]
         value = resp["data"][2] + (resp["data"][3] << 8)
@@ -930,7 +932,7 @@ def stepper_pvt_set_quick_feeding(node_id, qp, qv, qt):
     - qv: Velocity (signed 24bit, pulses/sec)
     - qt: Time (unsigned 8bit, ms)
     """
-    cw = 0x29  # QF
+    cw = MNEMONIC["QF"]
     data = [
         qt & 0xFF,                     # d0: QT (time)
         qv & 0xFF,                     # d1: QV LSB
@@ -944,15 +946,10 @@ def stepper_pvt_set_quick_feeding(node_id, qp, qv, qt):
     err, resp = simplecan3_write_read(node_id, cw, 8, data)
     return err == 0
 
-def stepper_pvt_get_quick_feeding_row_n(request_id, row_index):
-    cw = 0xA9
-    dl = 1
-    data = [row_index]
-    err, resp = simplecan3_write_read(request_id, cw, dl, data)
-    if err != 0 or not resp or resp["dl"] < 8:
-        print(f"QF[{row_index}]: No/short response: {err}, {resp}")
-        return None, None, None
-    QT = resp["data"][2]
-    QV = int.from_bytes(resp["data"][3:6], 'little', signed=True)
-    QP = int.from_bytes(resp["data"][6:10], 'little', signed=True) if len(resp["data"]) >= 10 else 0
-    return QT, QV, QP
+def stepper_pvt_get_quick_feeding_row_n(node_id, row):
+    # CW=0xA7, DL=1, Data=[row]
+    cw = MNEMONIC["QT"]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [row])
+    if err == 0 and resp and len(resp["data"]) >= 4:
+        return resp
+    return None
