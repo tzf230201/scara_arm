@@ -679,10 +679,10 @@ def stepper_get_bl(node_id):
     """
     cw = MNEMONIC["BL"]
     err, resp = simplecan3_write_read(node_id, cw, 0, [])
-    if err == 0 and len(resp["data"]) >= 2:
-        # Value is in resp["data"][0:2] (little endian)
-        value = resp["data"][0] | (resp["data"][1] << 8)
+    if err == 0 and len(resp["data"]) >= 3:
+        value = resp["data"][1] | (resp["data"][2] << 8)
         return value
     return None
+
 
 
