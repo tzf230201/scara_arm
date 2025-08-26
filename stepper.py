@@ -953,7 +953,7 @@ def stepper_pvt_get_quick_feeding_row_n(node_id, row_index):
     - QP: posisi (pulse)      -> data[8:4:-1] = data[7],data[6],data[5],data[4] (LSB first, signed 32 bit)
     """
     # Kirim request: CW=0xA9, DL=1, Data=[row_index]
-    resp = send_can(node_id, 0xA9, [row_index])
+    resp = simplecan3_write_read(node_id, 0xA9, [row_index])
     # Contoh resp = [0x29, row, QT, QV_L, QV_M, QV_H, QP_L, QP_M, QP_H, QP_U]
     if resp is None or len(resp) < 8:
         print("Response error or length < 8")
