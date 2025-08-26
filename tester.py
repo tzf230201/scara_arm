@@ -339,5 +339,5 @@ print(f"QT[5]: {qt5} ms")
 stepper_pvt_set_quick_feeding_row_n(6, 10, 10000, -1000, 50)
 
 # Baca Quick Feeding dari row 10
-qp, qv, qt = stepper_pvt_get_quick_feeding_row_n(6, 10)
+qp, qv, qt = stepper_pvt_get_quick_feeding_row_n(6, 0)
 print(f"QF[10]  QP={qp}, QV={qv}, QT={qt} ms")
