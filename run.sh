@@ -1,6 +1,6 @@
 ./get.sh
 if [ "$(whoami)" == "peter" ]; then
-    python3 tester.py
+    python3 main.py
 else
     echo "you are not 'peter', can't run"
 fi
