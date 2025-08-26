@@ -953,15 +953,12 @@ def stepper_pvt_set_quick_feeding_row_n(node_id, row, qp, qv, qt):
     return err == 0
 
 def stepper_pvt_get_quick_feeding_row_n(node_id, row):
-    """
-    Get QF[row]: Quick Feeding PVT data.
-    Returns tuple (qp, qv, qt) or None if error.
-    """
     err, resp = simplecan3_write_read(node_id, 0x29, 1, [row])
     if err == 0 and resp and "data" in resp and len(resp["data"]) >= 8:
-        # resp["data"] = [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, ...]
-        qt = resp["data"][1] + (resp["data"][2] << 8)
-        qv = int.from_bytes(resp["data"][3:7], byteorder="little", signed=True)
-        qp = int.from_bytes(resp["data"][7:11], byteorder="little", signed=True)
+        data = resp["data"]
+        qt = data[2] + (data[3] << 8)
+        qv = int.from_bytes(data[4:8], "little", signed=True)
+        # QP tidak tersedia, default 0
+        qp = 0
         return (qp, qv, qt)
     return None
