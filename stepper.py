@@ -684,5 +684,30 @@ def stepper_get_bl(node_id):
         return value
     return None
 
+def stepper_get_sf_pr(node_id):
+    cw = MNEMONIC["MS"]
+    # GET SF + PR: MS[0]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [0])
+    if err == 0 and resp["dl"] >= 8:
+        flags = resp["data"][1]
+        rel_pos = int.from_bytes(resp["data"][4:8], byteorder='little', signed=True)
+        return {"flags": flags, "rel_pos": rel_pos}
+    return None
+
+def stepper_get_sp_pa(node_id):
+    cw = MNEMONIC["MS"]
+    # GET SP + PA: MS[1]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [1])
+    if err == 0 and resp["dl"] >= 8:
+        speed = int.from_bytes(resp["data"][4:8], byteorder='little', signed=True)
+        return {"speed": speed}
+    return None
+
+def stepper_clear_sf(node_id):
+    cw = MNEMONIC["MS"]
+    # CLEAR SF: MS[0]=0, data [0,0]
+    err, resp = simplecan3_write_read(node_id, cw, 2, [0, 0])
+    return err == 0
+
 
 

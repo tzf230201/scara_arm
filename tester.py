@@ -182,5 +182,21 @@ print("PA now:", pa_now)
 bl = stepper_get_bl(6)
 print("Backlash compensation:", bl)
 
+res = stepper_get_sf_pr(6)
+if res:
+    print(f"Status Flags: 0x{res['flags']:02X}, Relative Position: {res['rel_pos']} pulses")
+else:
+    print("Gagal baca status flags/rel pos")
+
+res2 = stepper_get_sp_pa(6)
+if res2:
+    print(f"Current speed: {res2['speed']} pulses/sec")
+else:
+    print("Gagal baca speed/abs pos")
+
+if stepper_clear_sf(6):
+    print("Status flags berhasil di-clear!")
+else:
+    print("Gagal clear status flags")
 
 
