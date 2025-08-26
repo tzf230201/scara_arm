@@ -906,3 +906,30 @@ def stepper_pvt_get_velocity_row_n(node_id, row):
         velocity = int.from_bytes(vel_bytes, byteorder='little', signed=True)
         return velocity
     return None
+
+def stepper_pvt_set_time_row_n(node_id, row, t_ms):
+    """
+    Set PVT QT[row] = t_ms (5~255 ms).
+    """
+    cw = MNEMONIC["QT"]  # 0x27
+    # Data = [row, t_low, t_high]
+    t_ms = int(t_ms)
+    data = [row, t_ms & 0xFF, (t_ms >> 8) & 0xFF]
+    err, resp = simplecan3_write_read(node_id, cw, 3, data)
+    # ACK: data[0]==row and data[1:3] == t_ms
+    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == row:
+        t_ack = resp["data"][1] | (resp["data"][2]<<8)
+        return t_ack == t_ms
+    return False
+
+def stepper_pvt_get_time_row_n(node_id, row):
+    """
+    Get PVT QT[row] (returns ms as int).
+    """
+    cw = MNEMONIC["QT"]  # 0x27
+    err, resp = simplecan3_write_read(node_id, cw, 1, [row])
+    # resp["data"][0]=row, [1]=low, [2]=high
+    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == row:
+        t_ms = resp["data"][1] | (resp["data"][2]<<8)
+        return t_ms
+    return None

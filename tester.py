@@ -322,3 +322,11 @@ print(f"Set QV[6]=3: {success}")
 # Get velocity row 5
 vel = stepper_pvt_get_velocity_row_n(6, 0)
 print(f"QV05]: {vel} pulses/sec")
+
+
+# Set QT[6] = 100 ms
+stepper_pvt_set_time_row_n(6, 6, 100)
+
+# Get QT[5]
+qt5 = stepper_pvt_get_time_row_n(6, 0)
+print(f"QT[5]: {qt5} ms")
