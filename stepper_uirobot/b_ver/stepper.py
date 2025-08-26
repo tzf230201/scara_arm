@@ -140,23 +140,6 @@ def stepper_get_ac_dc_unit(node_id):
         return resp["data"][2]
     return None
 
-def stepper_set_micro_stepping_resolution(node_id, res):
-    cw = MNEMONIC["MT"]
-    res_lo = res & 0xFF
-    res_hi = (res >> 8) & 0xFF
-    err, resp = simplecan3_write_read(node_id, cw, 3, [0, res_lo, res_hi])
-    if err == 0 and resp and resp["dl"] >= 3 and resp["data"][1] == 0:
-        value = resp["data"][2] | (resp["data"][3] << 8)
-        return value
-    return None
-
-def stepper_get_micro_stepping_resolution(node_id):
-    cw = MNEMONIC["MT"]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [0])
-    #print("[DEBUG] resp =", resp)
-    if err == 0 and resp and resp["dl"] >= 3 and resp["data"][1] == 0:
-        return resp["data"][2]   # <-- JANGAN ambil data[1], HARUS data[2]!
-    return None
 
 def stepper_set_using_close_loop(node_id, enable):
     """
