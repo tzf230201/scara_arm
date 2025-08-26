@@ -315,7 +315,7 @@ def stepper_stop_motion(node_id):
         return True
     return False
 
-def stepper_set_acceleration(node_id, accel):
+def stepper_set_ac(node_id, accel):
     """
     Set acceleration (pulse/sec^2).
     accel: int (0...2^32-1)
@@ -335,7 +335,7 @@ def stepper_set_acceleration(node_id, accel):
         return value
     return None
 
-def stepper_get_acceleration(node_id):
+def stepper_get_ac(node_id):
     """
     Get acceleration (pulse/sec^2) dari stepper.
     Return nilai acceleration (int) jika sukses, None jika gagal.
@@ -352,7 +352,7 @@ def stepper_get_acceleration(node_id):
         return value
     return None
 
-def stepper_set_deceleration(node_id, decel):
+def stepper_set_dc(node_id, decel):
     """
     Set deceleration (pulse/sec^2).
     decel: int (0...2^32-1)
@@ -376,7 +376,7 @@ def stepper_set_deceleration(node_id, decel):
         return value
     return None
 
-def stepper_get_deceleration(node_id):
+def stepper_get_dc(node_id):
     """
     Get deceleration (pulse/sec^2) dari stepper.
     Return nilai deceleration (int) jika sukses, None jika gagal.
