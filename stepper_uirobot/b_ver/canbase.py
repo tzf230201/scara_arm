@@ -22,7 +22,7 @@ def stop_can():
 
 start_can()
 MAX_FAILED_CNT = 20
-RECV_WAIT = 0.5
+RECV_WAIT = 0.2
 
 
 # CAN-OPEN LIBRARY
