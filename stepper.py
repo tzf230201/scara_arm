@@ -621,8 +621,9 @@ def stepper_set_pa(node_id, position):
 def stepper_get_pa(node_id):
     cw = MNEMONIC["PA"]
     err, resp = simplecan3_write_read(node_id, cw, 0, [])
-    if err == 0 and resp["dl"] >= 5:
-        return int.from_bytes(resp["data"][1:5], "little", signed=True)
+    if err == 0 and resp["dl"] >= 4:
+        # Ambil semua 4 byte (driver kamu: data=[150, 29, 249, 255])
+        return int.from_bytes(resp["data"][:4], "little", signed=True)
     return None
 
 def stepper_set_origin(node_id):
