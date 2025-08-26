@@ -1,5 +1,9 @@
 from uim342ab import *
-from print_utils import print_yellow
+
+def print_yellow(text):
+    YELLOW = "\033[93m"
+    RESET = "\033[0m"
+    print(f"{YELLOW}{text}{RESET}")
 
 node = 6
 
