@@ -355,13 +355,13 @@ print(f"QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
 
 # Set position row 266 ke 100000 pulses
 
-print(f"v = [0, 0, 50, 0] hasilnya adalah:")
-v = [0, 0, 50, 0]
-print(int.from_bytes(v, byteorder='little', signed=True))  # Output: 3276800
+# print(f"v = [0, 0, 50, 0] hasilnya adalah:")
+# v = [0, 0, 50, 0]
+# print(int.from_bytes(v, byteorder='little', signed=True))  # Output: 3276800
 
-ok = stepper_pvt_set_pt_data_row_n(6, 266, 100000)
-print(f"Set PT row 266 = 100000: {ok}")
+# ok = stepper_pvt_set_pt_data_row_n(6, 266, 100000)
+# print(f"Set PT row 266 = 100000: {ok}")
 
-# Get position row 266
-pos = stepper_pvt_get_pt_data_row_n(6, 266)
-print(f"PT row 266 position: {pos}")
+# # Get position row 266
+# pos = stepper_pvt_get_pt_data_row_n(6, 266)
+# print(f"PT row 266 position: {pos}")
