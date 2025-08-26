@@ -54,7 +54,7 @@ node_id = 6
 current = uim342ab_get_ac_dc_unit(node_id)
 print(f"Current AC/DC unit (IC[4]): {current}")
 
-updated = uim342ab_set_ac_dc_unit(node_id, 1)  # 0: pulse/sec², 1: milliseconds
+updated = uim342ab_set_ac_dc_unit(node_id, 0)  # 0: pulse/sec², 1: milliseconds
 print(f"Updated AC/DC unit (IC[4]): {updated}")
 
 # Test get/set Using Closed-loop
