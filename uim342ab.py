@@ -1,4 +1,4 @@
-from .simplecan3 import simplecan3_write_read
+from simplecan3 import simplecan3_write_read
 import struct
 
 # List mnemonic dan nilai Control Word (CW)
