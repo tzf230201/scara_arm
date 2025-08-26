@@ -948,7 +948,7 @@ def stepper_pvt_set_quick_feeding(node_id, qp, qv, qt):
 
 def stepper_pvt_get_quick_feeding_row_n(node_id, row):
     # CW=0xA7, DL=1, Data=[row]
-    cw = MNEMONIC["QT"]
+    cw = MNEMONIC["QF"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [row])
     if err == 0 and resp and len(resp["data"]) >= 4:
         return resp
