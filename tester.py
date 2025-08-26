@@ -355,6 +355,7 @@ print(f"QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
 
 # Set position row 266 ke 100000 pulses
 
+print(f"v = [0, 0, 50, 0] hasilnya adalah:")
 v = [0, 0, 50, 0]
 print(int.from_bytes(v, byteorder='little', signed=True))  # Output: 3276800
 
