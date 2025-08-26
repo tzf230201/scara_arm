@@ -153,13 +153,10 @@ def stepper_set_micro_stepping_resolution(node_id, res):
 def stepper_get_micro_stepping_resolution(node_id):
     cw = MNEMONIC["MT"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [0])
-    print("[DEBUG] resp =", resp)
+    #print("[DEBUG] resp =", resp)
     if err == 0 and resp and resp["dl"] >= 3 and resp["data"][1] == 0:
         return resp["data"][2]   # <-- JANGAN ambil data[1], HARUS data[2]!
     return None
-
-
-
 
 def stepper_set_using_close_loop(node_id, enable):
     """
