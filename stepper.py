@@ -945,27 +945,14 @@ def stepper_pvt_set_quick_feeding(node_id, qp, qv, qt):
     return err == 0
 
 def stepper_pvt_get_quick_feeding_row_n(request_id, row_index):
-    """
-    Baca Quick Feeding PVT (QF[N]) untuk row ke-N
-    Return: (QT, QV, QP) atau (None, None, None) jika gagal
-    """
     cw = 0xA9
     dl = 1
     data = [row_index]
-
-    # Call your CAN function
-    resp = simplecan3_write_read(request_id, cw, dl, data)
-    if not resp or len(resp) < 8:
-        print(f"QF[{row_index}]: No/short response: {resp}")
+    err, resp = simplecan3_write_read(request_id, cw, dl, data)
+    if err != 0 or not resp or resp["dl"] < 8:
+        print(f"QF[{row_index}]: No/short response: {err}, {resp}")
         return None, None, None
-
-    # resp[2]: QT, resp[3:6]: QV (signed 24bit), resp[6:10]: QP (signed 32bit)
-    QT = resp[2]
-    QV = int.from_bytes(resp[3:6], 'little', signed=True)
-    # Cek apakah resp cukup panjang untuk QP
-    if len(resp) >= 10:
-        QP = int.from_bytes(resp[6:10], 'little', signed=True)
-    else:
-        # fallback (padding 0 jika cuma 8 byte)
-        QP = int.from_bytes(resp[6:8] + [0, 0], 'little', signed=True)
+    QT = resp["data"][2]
+    QV = int.from_bytes(resp["data"][3:6], 'little', signed=True)
+    QP = int.from_bytes(resp["data"][6:10], 'little', signed=True) if len(resp["data"]) >= 10 else 0
     return QT, QV, QP
