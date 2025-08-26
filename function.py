@@ -17,7 +17,7 @@ def stepper_get_all_enc():
     return pa2, pa3, pa4
 
 def stepper_get_all_angle():
-    pa2, pa3, pa4 = stepper_get_all_angle()
+    pa2, pa3, pa4 = stepper_get_all_enc()
     pa2_deg = stepper_pulse_to_deg(pa2)
     pa3_deg = stepper_pulse_to_deg(pa3)
     pa4_deg = stepper_pulse_to_deg(pa4)
