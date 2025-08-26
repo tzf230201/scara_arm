@@ -1,12 +1,17 @@
 # callbacks.py
 from time import time
+from stepper import *
+
+def stepper_pulse_to_deg(pulse)
 
 def wake_up(msg, state):
     print(f"[cb] Wake up: motor={msg.get('motor')}")  # Wake up/enable/prepare motors
+    stepper_set_mo(1)
     state['motor_on'] = True
 
 def shutdown(msg, state):
     print(f"[cb] Shutdown: motor={msg.get('motor')}")
+    stepper_set_mo(0)
     state['motor_on'] = False
 
 def pp_joint(msg, state):
@@ -34,7 +39,13 @@ def pvt_coor(msg, state):
     # TODO: Implement inverse kinematics/PVT
 
 def read_position(msg, state):
-    print(f"[cb] Read Position: motor={msg.get('motor')}")
+    # print(f"[cb] Read Position: motor={msg.get('motor')}")
+    pa2 = stepper_get_pa(6)
+    pa3 = stepper_get_pa(7)
+    pa4 = stepper_get_pa(8)
+
+    print(f"[cb] Read Position: pa2={pa2} pa3={pa3} pa4={pa4}")
+
     # TODO: Implement read pos & maybe update state["pos_abs"]
 
 def dancing(msg, state):
@@ -47,10 +58,17 @@ def homing(msg, state):
 
 def stop(msg, state):
     print(f"[cb] STOP (from GUI)")
+    stepper_stop_motion(6)
+    stepper_stop_motion(7)
+    stepper_stop_motion(8)
     state['running'] = False
 
 def read_encoder(msg, state):
-    print(f"[cb] Read Encoder: motor={msg.get('motor')}")
+    pa2 = stepper_get_pa(6)
+    pa3 = stepper_get_pa(7)
+    pa4 = stepper_get_pa(8)
+
+    print(f"[cb] Read Position: pa2={pa2} pa3={pa3} pa4={pa4}")
     # TODO: Implement reading encoder value
 
 def set_origin(msg, state):
