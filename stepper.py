@@ -922,3 +922,46 @@ def stepper_pvt_get_time_row_n(node_id, row):
         value = resp["data"][2] + (resp["data"][3] << 8)
         return value
     return None
+
+def stepper_pvt_set_quick_feeding_row_n(node_id, row, qp, qv, qt):
+    """
+    Set QF[row]: Quick Feeding PVT data.
+    - row: indeks (0..255)
+    - qp: QP value (signed 32-bit, pulses)
+    - qv: QV value (signed 32-bit, pulses/sec)
+    - qt: QT value (unsigned 16-bit, ms)
+    """
+    # Format: [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1, QP_B2, QP_B3]
+    # Tapi pada datasheet hanya dikirim 8 byte: [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1, QP_B2, QP_B3]
+    # Sebenarnya, pada example datasheet, [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1, QP_B2, QP_B3]
+    # TAPI, hanya 8 byte yang dikirim: [row, QT_LSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1]
+    # Namun, dari gambar: 
+    # Example: [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1, QP_B2, QP_B3]
+    # 10 64 00 E8 03 00 00 10 27 00 00
+
+    # Prepare QV (signed 32-bit)
+    qv_bytes = int(qv).to_bytes(4, byteorder="little", signed=True)
+    qp_bytes = int(qp).to_bytes(4, byteorder="little", signed=True)
+    qt_bytes = int(qt).to_bytes(2, byteorder="little", signed=False)
+
+    # Compose 8 bytes: [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1, QP_B2, QP_B3]
+    # But CAN only allows 8 bytes; datasheet actually: [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB]
+    # Let's follow example SET: [row, QT_LSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, QP_B1]
+    data = [row, qt_bytes[0], qt_bytes[1], qv_bytes[0], qv_bytes[1], qv_bytes[2], qv_bytes[3], qp_bytes[0]]
+
+    err, resp = simplecan3_write_read(node_id, 0x29, 8, data)
+    return err == 0
+
+def stepper_pvt_get_quick_feeding_row_n(node_id, row):
+    """
+    Get QF[row]: Quick Feeding PVT data.
+    Returns tuple (qp, qv, qt) or None if error.
+    """
+    err, resp = simplecan3_write_read(node_id, 0x29, 1, [row])
+    if err == 0 and resp and "data" in resp and len(resp["data"]) >= 8:
+        # resp["data"] = [row, QT_LSB, QT_MSB, QV_LSB, QV_B1, QV_B2, QV_B3, QP_LSB, ...]
+        qt = resp["data"][1] + (resp["data"][2] << 8)
+        qv = int.from_bytes(resp["data"][3:7], byteorder="little", signed=True)
+        qp = int.from_bytes(resp["data"][7:11], byteorder="little", signed=True)
+        return (qp, qv, qt)
+    return None
