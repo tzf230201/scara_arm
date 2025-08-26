@@ -243,9 +243,9 @@ def stepper_set_micro_stepping_resolution(node_id, res):
 def stepper_get_micro_stepping_resolution(node_id):
     cw = MNEMONIC["MT"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [0])
-    # Balasan: data[0]=CW(16), data[1]=0 (index), data[2:3]=resolution
-    if err == 0 and resp["dl"] > 2 and resp["data"][1] == 0:
-        return resp["data"][2] | (resp["data"][3] << 8)
+    # Balasan real: [0, 16, 0] → 16 microsteps?
+    if err == 0 and resp and resp["dl"] > 1:
+        return resp["data"][1]
     return None
 
 
