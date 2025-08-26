@@ -40,7 +40,7 @@ def pvt_coor(msg, state):
 def read_position(msg, state):
     # print(f"[cb] Read Position: motor={msg.get('motor')}")
     pa2_deg, pa3_deg, pa4_deg = stepper_get_all_angle()
-    print(f"[cb] Read Position: pa2={pa2_deg}, pa3={pa3_deg}, pa4={pa4_deg} degree")
+    # print(f"[cb] Read Position: pa2={pa2_deg}, pa3={pa3_deg}, pa4={pa4_deg} degree")
 
     # TODO: Implement read pos & maybe update state["pos_abs"]
 

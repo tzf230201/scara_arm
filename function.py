@@ -3,7 +3,7 @@ from stepper import *
 STEPPER_GROUP_ID = 10
 STEPPER_MICROSTEP = 128
 STEPPER_CPR = 200 * STEPPER_MICROSTEP # misal 3200 pulse/rev
-STEPPER_DEG_PER_PULSE = 360.0 / STEPPER_CPR
+STEPPER_DEG_PER_PULSE = (360.0 / STEPPER_CPR)
 
 
 def stepper_pulse_to_deg(pulse):
