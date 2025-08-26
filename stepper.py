@@ -945,23 +945,21 @@ def stepper_pvt_set_quick_feeding(node_id, qp, qv, qt):
     ]
     err, resp = simplecan3_write_read(node_id, cw, 8, data)
     return err == 0
+
+
 def stepper_pvt_get_quick_feeding_row_n(node_id, row):
     """
-    Membaca Quick Feeding Table (QF) pada baris ke-row (QF[row]) dari stepper node_id.
-    Format data balasan:
-      d0 = CW
-      d1 = index (row)
-      d2 = time (ms, 0..255)
-      d3-d5 = speed (24-bit, signed, little endian)
-      d6-d7 = position (16-bit, signed, little endian, kadang dummy)
-    Returns: (qt, qv, qp)
+    Membaca QF[row] pada stepper UIrobot.
+    Balasan: d0(CW), d1(time), d2-d4(speed, 24-bit signed), d5-d7(position, 24-bit signed)
     """
     cw = MNEMONIC["QF"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [row])
     if err == 0 and resp and len(resp["data"]) >= 8:
         data = resp["data"]
-        qt = data[2]  # Time in ms
-        qv = int.from_bytes(data[3:6], byteorder='little', signed=True)  # 24 bit signed
-        qp = int.from_bytes(data[6:8], byteorder='little', signed=True)  # 16 bit signed (hati2: bisa dummy/overflow)
+        qt = data[1]  # Time (ms)
+        qv = int.from_bytes(data[2:5], 'little', signed=True)  # Speed (pulses/s)
+        qp = int.from_bytes(data[5:8], 'little', signed=True)  # Position (pulses)
+        print(f"QF[{row}] QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
         return qt, qv, qp
+    print(f"QF[{row}]: No/short response: {err}, {resp}")
     return None, None, None
