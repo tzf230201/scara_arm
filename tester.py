@@ -338,6 +338,8 @@ print(f"QT[5]: {qt5} ms")
 # Set Quick Feeding untuk row 10: QP=10000, QV=-1000, QT=50ms
 stepper_pvt_set_quick_feeding_row_n(6, 10, 10000, -1000, 50)
 
-# Baca Quick Feeding dari row 10
-qp, qv, qt = stepper_pvt_get_quick_feeding_row_n(6, 10)
-print(f"QF[10]  QP={qp}, QV={qv}, QT={qt} ms")
+result = stepper_pvt_get_quick_feeding_row_n(6, 10)
+if result:
+    print(f"QF[{result['row']}] QV={result['qv']} pulses/s, QT={result['qt']} ms")
+else:
+    print("QF read failed")

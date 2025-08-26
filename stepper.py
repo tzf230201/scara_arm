@@ -959,8 +959,10 @@ def stepper_pvt_get_quick_feeding_row_n(node_id, row_n):
     err, resp = simplecan3_write_read(node_id, cw, dl, data)
     if err == 0 and resp and resp["dl"] == 8:
         d = resp["data"]
-        # d[1] = row, d[2:4]=QT (uint16, ms), d[4:8]=QV (int32, pulses/s)
+        row = d[1]
         qt = d[2] | (d[3]<<8)
         qv = int.from_bytes(d[4:8], 'little', signed=True)
-        return {"row": d[1], "qt": qt, "qv": qv}
+        print(f"QF[{row}]  QV={qv} pulses/s, QT={qt} ms")
+        return {"row": row, "qv": qv, "qt": qt}
+    print("QF read failed")
     return None
