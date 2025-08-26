@@ -945,11 +945,23 @@ def stepper_pvt_set_quick_feeding(node_id, qp, qv, qt):
     ]
     err, resp = simplecan3_write_read(node_id, cw, 8, data)
     return err == 0
-
 def stepper_pvt_get_quick_feeding_row_n(node_id, row):
-    # CW=0xA7, DL=1, Data=[row]
+    """
+    Membaca Quick Feeding Table (QF) pada baris ke-row (QF[row]) dari stepper node_id.
+    Format data balasan:
+      d0 = CW
+      d1 = index (row)
+      d2 = time (ms, 0..255)
+      d3-d5 = speed (24-bit, signed, little endian)
+      d6-d7 = position (16-bit, signed, little endian, kadang dummy)
+    Returns: (qt, qv, qp)
+    """
     cw = MNEMONIC["QF"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [row])
-    if err == 0 and resp and len(resp["data"]) >= 4:
-        return resp
-    return None
+    if err == 0 and resp and len(resp["data"]) >= 8:
+        data = resp["data"]
+        qt = data[2]  # Time in ms
+        qv = int.from_bytes(data[3:6], byteorder='little', signed=True)  # 24 bit signed
+        qp = int.from_bytes(data[6:8], byteorder='little', signed=True)  # 16 bit signed (hati2: bisa dummy/overflow)
+        return qt, qv, qp
+    return None, None, None
