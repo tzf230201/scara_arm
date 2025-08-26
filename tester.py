@@ -244,8 +244,8 @@ else:
 # print("JV now:", jv_now)
 # stepper_stop_motion(6)
 
-print("Motion mode:", stepper_get_motion_mode(node_id))      # 0=JOG, 1=PTP
-print("Desired motor current (A):", stepper_get_motor_current(node_id))
-print("Desired speed (pulses/sec):", stepper_get_desired_sp(node_id))
-print("Desired relative pos (pulses):", stepper_get_desired_pr(node_id))
-print("Desired absolute pos (pulses):", stepper_get_desired_pa(node_id))
+print("Motion mode:", stepper_get_motion_mode(6))      # 0=JOG, 1=PTP
+print("Desired motor current (A):", stepper_get_motor_current(6))
+print("Desired speed (pulses/sec):", stepper_get_desired_sp(6))
+print("Desired relative pos (pulses):", stepper_get_desired_pr(6))
+print("Desired absolute pos (pulses):", stepper_get_desired_pa(6))
