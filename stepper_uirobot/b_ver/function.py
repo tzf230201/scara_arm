@@ -2,14 +2,18 @@ from stepper import *
 
 STEPPER_GROUP_ID = 10
 STEPPER_MICROSTEP = 128
-STEPPER_CPR = 200 * STEPPER_MICROSTEP # misal 3200 pulse/rev
-STEPPER_DEG_PER_PULSE = (360.0 / STEPPER_CPR)
+STEPPER_CPR = 200 * STEPPER_MICROSTEP  # 200 step/rev x 128 microstep = 25600 pulse/rev
 
+# Satuan: degree/pulse dan pulse/degree
+STEPPER_DEG_PER_PULSE = 360.0 / STEPPER_CPR   # (ex: 0.0140625 deg/pulse)
+STEPPER_PULSE_PER_DEG = STEPPER_CPR / 360.0   # (ex: 71.111... pulse/deg)
 
 def stepper_pulse_to_deg(pulse):
-    return float(pulse * STEPPER_DEG_PER_PULSE)
+    return float(pulse) * STEPPER_DEG_PER_PULSE
 
-    
+def stepper_deg_to_pulse(deg):
+    return int(round(float(deg) * STEPPER_PULSE_PER_DEG))
+
 def stepper_get_all_enc():
     pa2 = stepper_get_pa(6)
     pa3 = stepper_get_pa(7)
