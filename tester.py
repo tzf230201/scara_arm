@@ -334,7 +334,7 @@ import time
 
 # qt5 = stepper_pvt_get_time_row_n(6, 0)
 # print(f"QT[5]: {qt5} ms")
-stepper_set_mo(6, False)  # ON dulu
+# stepper_set_mo(6, False)  # ON dulu
 
 sukses = stepper_pvt_clear_queue(6)
 print("PVT Table cleared:", sukses)   # True jika sukses
