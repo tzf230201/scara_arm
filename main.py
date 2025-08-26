@@ -38,7 +38,7 @@ def control_step():
     state["pos_abs"] += state["speed"] * Ts
     if not hasattr(control_step, "_acc"): control_step._acc = 0.0
     control_step._acc += Ts
-    if control_step._acc >= 5.0:
+    if control_step._acc >= 1.0:
         print(f"[hb] pos={state['pos_abs']:.1f} speed={state['speed']:.1f} motor_on={state['motor_on']}")
         control_step._acc = 0.0
 
@@ -63,7 +63,7 @@ if __name__ == "__main__":
                     print("[warn] unknown command:", msg)
 
             # 2) tugas periodik
-            control_step()
+            # control_step()
 
             # 3) pertahankan periode
             rate.sleep()
