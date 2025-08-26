@@ -45,146 +45,48 @@ MNEMONIC = {
     "PT": 0x23,
 }
 
+
+# === Bitrate ===
 def uim342ab_get_bitrate(node_id):
     cw = MNEMONIC["PP"]
-    index = 5
-    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
-    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
-        return resp["data"][2]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [5])
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 5:
+        return resp["data"][1]  # 0:1000K, 1:800K, 2:500K, 3:250K, 4:125K
     return None
 
-
-def uim342ab_set_bitrate(node_id, value):
+def uim342ab_set_bitrate(node_id, bitrate_code):
     cw = MNEMONIC["PP"]
-    index = 5
-    err, resp = simplecan3_write_read(node_id, cw, 3, [index, value, 0])
-    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
-        return resp["data"][2]
+    err, resp = simplecan3_write_read(node_id, cw, 2, [5, bitrate_code])
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 5:
+        return resp["data"][1]
     return None
 
-
+# === Node ID ===
 def uim342ab_get_node_id(node_id):
     cw = MNEMONIC["PP"]
-    index = 7
-    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
-    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
-        return resp["data"][2]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [7])
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 7:
+        return resp["data"][1]
     return None
 
-
-def uim342ab_set_node_id(node_id, value):
+def uim342ab_set_node_id(node_id, new_node_id):
     cw = MNEMONIC["PP"]
-    index = 7
-    err, resp = simplecan3_write_read(node_id, cw, 3, [index, value, 0])
-    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
-        return resp["data"][2]
+    err, resp = simplecan3_write_read(node_id, cw, 2, [7, new_node_id])
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 7:
+        return resp["data"][1]
     return None
 
-
+# === Group ID ===
 def uim342ab_get_group_id(node_id):
     cw = MNEMONIC["PP"]
-    index = 8
-    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
-    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
-        return resp["data"][2]
+    err, resp = simplecan3_write_read(node_id, cw, 1, [8])
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 8:
+        return resp["data"][1]
     return None
 
-
-def uim342ab_set_group_id(node_id, value):
+def uim342ab_set_group_id(node_id, new_group_id):
     cw = MNEMONIC["PP"]
-    index = 8
-    err, resp = simplecan3_write_read(node_id, cw, 2, [index, value])
-    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
-        return resp["data"][2]
+    err, resp = simplecan3_write_read(node_id, cw, 2, [8, new_group_id])
+    if err == 0 and resp["dl"] >= 2 and resp["data"][0] == 8:
+        return resp["data"][1]
     return None
-
-
-def uim342ab_get_ac_dc_unit(node_id):
-    cw = MNEMONIC["IC"]
-    index = 4
-    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
-    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
-        return resp["data"][2]
-    return None
-
-
-def uim342ab_set_ac_dc_unit(node_id, value):
-    cw = MNEMONIC["IC"]
-    index = 4
-    err, resp = simplecan3_write_read(node_id, cw, 3, [index, value, 0])
-    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
-        return resp["data"][2]
-    return None
-
-
-def uim342ab_get_using_close_loop(node_id):
-    cw = MNEMONIC["IC"]
-    index = 6
-    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
-    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == index:
-        return resp["data"][2]  
-    return None
-
-def uim342ab_get_ptp_finish_notification(node_id):
-    """
-    IE[8] get → 0: disable, 1: enable
-    ACK payload format (umumnya): [cmd, index, lo, hi, ...]
-    """
-    cw = MNEMONIC["IE"]
-    index = 8
-    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
-    if err == 0 and len(resp["data"]) >= 4 and resp["data"][1] == index:
-        lo, hi = resp["data"][2], resp["data"][3]
-        return (hi << 8) | lo   # return 0/1
-    return None
-
-
-def uim342ab_set_ptp_finish_notification(node_id, enable):
-    """
-    IE[8]=N set → N: 0 disable, 1 enable
-    Catatan datasheet: nilai disimpan ke EEPROM hanya jika MO=0,
-    kalau MO=1 nilai hanya di RAM dan hilang setelah power-off.
-    """
-    cw = MNEMONIC["IE"]
-    index = 8
-    val = 1 if enable else 0
-    lo, hi = (val & 0xFF), ((val >> 8) & 0xFF)
-    err, resp = simplecan3_write_read(node_id, cw, 3, [index, lo, hi])
-    if err == 0 and len(resp["data"]) >= 4 and resp["data"][1] == index:
-        rlo, rhi = resp["data"][2], resp["data"][3]
-        return (rhi << 8) | rlo   # 0/1 yang terkonfirmasi
-    return None
-
-def uim342ab_get_error_report(node_id, index: int = 0):
-    """
-    ER[i] GET
-      i = 0     → newest error info
-      i = 10..18→ history 1st..9th (newest→oldest)
-    Return dict: {"error_code", "cw_related", "sub_index", "raw"}
-    """
-    cw = MNEMONIC["ER"]
-    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
-    # Expect ACK data: [i, d1, d2, d3, d4, d5]
-    if err == 0 and len(resp["data"]) >= 6 and resp["data"][0] == index:
-        d = resp["data"]
-        return {
-            "error_code": d[1],   # per datasheet
-            "cw_related": d[2],   # CW related to error
-            "sub_index":  d[3],   # sub-index related
-            "raw":        d[:6],  # keep first 6 for inspection
-        }
-    return None
-
-
-def uim342ab_clear_error_report(node_id) -> bool:
-    """
-    ER[0] = 0  → Reset All Error Info
-    """
-    cw = MNEMONIC["ER"]
-    index = 0
-    value = 0
-    err, resp = simplecan3_write_read(node_id, cw, 2, [index, value])
-    # Expect ACK like: [0x00, 0, 0, 0, 0, 0]
-    if err == 0 and len(resp["data"]) >= 2 and resp["data"][0] == 0:
-        return True
-    return False
