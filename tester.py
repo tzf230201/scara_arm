@@ -335,11 +335,14 @@ import time
 # qt5 = stepper_pvt_get_time_row_n(6, 0)
 # print(f"QT[5]: {qt5} ms")
 
-stepper_pvt_clear_queue(6)
+sukses = stepper_pvt_clear_queue(6)
+print("PVT Table cleared:", sukses)   # True jika sukses
 
-stepper_pvt_get_queue(6)
+queue_level = stepper_pvt_get_queue(6)
+print(f"Queue Level: {queue_level}")
+
+
 stepper_pvt_set_quick_feeding(6, qp=10000, qv=-1000, qt=50)
-
 # for n in range(8):
 qt, qv, qp = stepper_pvt_get_quick_feeding_row_n(6, 26)
 print(f"QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
