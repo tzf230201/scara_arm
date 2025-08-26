@@ -619,23 +619,10 @@ def stepper_set_pa(node_id, position):
     return None
 
 def stepper_get_pa(node_id):
-    """
-    Get current absolute position (pulse).
-    Return nilai PA (int, bisa negatif) jika sukses, None jika gagal.
-    """
     cw = MNEMONIC["PA"]
     err, resp = simplecan3_write_read(node_id, cw, 0, [])
-    if err == 0 and resp["dl"] > 4 and resp["data"][0] == cw:
-        # 4-byte signed (little-endian)
-        raw = (
-            resp["data"][1] |
-            (resp["data"][2] << 8) |
-            (resp["data"][3] << 16) |
-            (resp["data"][4] << 24)
-        )
-        if raw >= 0x80000000:
-            raw -= 0x100000000
-        return raw
+    if err == 0 and resp["dl"] >= 5:
+        return int.from_bytes(resp["data"][1:5], "little", signed=True)
     return None
 
 def stepper_set_origin(node_id):
