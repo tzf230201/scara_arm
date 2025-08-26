@@ -700,10 +700,8 @@ def stepper_get_sp_pa(node_id):
     # GET SP + PA: MS[1]
     err, resp = simplecan3_write_read(node_id, cw, 1, [1])
     if err == 0 and resp["dl"] >= 8:
-        # Speed: 24-bit signed int from d1-d3
-        sp = int.from_bytes(resp["data"][1:4], byteorder='little', signed=True)
-        # Position Absolute: 32-bit signed int from d4-d7
-        pa = int.from_bytes(resp["data"][4:8], byteorder='little', signed=True)
+        sp = int.from_bytes(resp["data"][2:5], byteorder="little", signed=True)  # d2,d3,d4
+        pa = int.from_bytes(resp["data"][5:8], byteorder="little", signed=True)  # d5,d6,d7
         return {"speed": sp, "abs_pos": pa}
     return None
 
