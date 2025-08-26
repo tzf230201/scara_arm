@@ -718,39 +718,33 @@ def stepper_get_motion_mode(node_id):
         return resp["data"][2]  # 0=JOG, 1=PTP
     return None
 
-
 def stepper_get_motor_current(node_id):
-    # DV[1]: Get Desired motor current (0...80 = 0.0...8.0A, satuan 0.1A)
     cw = MNEMONIC["DV"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [1])
-    if err == 0 and resp["dl"] > 4 and resp["data"][0] == 1:
-        return resp["data"][1] * 0.1  # Data satuan 0.1A
+    if err == 0 and len(resp["data"]) >= 3 and resp["data"][1] == 1:
+        return resp["data"][2] * 0.1  # satuan 0.1A
     return None
 
 def stepper_get_desired_sp(node_id):
-    # DV[2]: Get Desired speed (signed 32bit, LSB first, pulses/sec)
     cw = MNEMONIC["DV"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [2])
-    if err == 0 and resp["dl"] > 4 and resp["data"][0] == 2:
-        sp = int.from_bytes(resp["data"][1:5], byteorder="little", signed=True)
+    if err == 0 and len(resp["data"]) >= 6 and resp["data"][1] == 2:
+        sp = int.from_bytes(resp["data"][2:6], byteorder="little", signed=True)
         return sp
     return None
 
 def stepper_get_desired_pr(node_id):
-    # DV[3]: Get Desired relative position (signed 32bit, LSB first, pulses)
     cw = MNEMONIC["DV"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [3])
-    if err == 0 and resp["dl"] > 4 and resp["data"][0] == 3:
-        pr = int.from_bytes(resp["data"][1:5], byteorder="little", signed=True)
+    if err == 0 and len(resp["data"]) >= 6 and resp["data"][1] == 3:
+        pr = int.from_bytes(resp["data"][2:6], byteorder="little", signed=True)
         return pr
     return None
 
 def stepper_get_desired_pa(node_id):
-    # DV[4]: Get Desired absolute position (signed 32bit, LSB first, pulses)
     cw = MNEMONIC["DV"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [4])
-    if err == 0 and resp["dl"] > 4 and resp["data"][0] == 4:
-        pa = int.from_bytes(resp["data"][1:5], byteorder="little", signed=True)
+    if err == 0 and len(resp["data"]) >= 6 and resp["data"][1] == 4:
+        pa = int.from_bytes(resp["data"][2:6], byteorder="little", signed=True)
         return pa
     return None
-
