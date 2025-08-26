@@ -348,7 +348,7 @@ for n in range(8):
 print(f"validasi")
 
 for n in range(8):
-    stepper_pvt_get_position_row_n(6, n)
-    stepper_pvt_get_velocity_row_n(6, n)
-    stepper_pvt_get_time_row_n(6, n)
-    print(f"Row {n} OK")
+    qp = stepper_pvt_get_position_row_n(6, n)
+    qv = stepper_pvt_get_velocity_row_n(6, n)
+    qt = stepper_pvt_get_time_row_n(6, n)
+    print(f"Row {n}: QT={qt} ms, QV={qv} pulses/s, QP={qp} pulses")
