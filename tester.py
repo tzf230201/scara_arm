@@ -182,15 +182,44 @@ print("PA now:", pa_now)
 bl = stepper_get_bl(6)
 print("Backlash compensation:", bl)
 
+
+def decode_sf_d1(d1):
+    return {
+        "Mode":      "PTP" if d1 & 0b11 else "JOG", # bit0, bit1
+        "SON":       bool((d1 >> 2) & 1),           # bit2
+        "IN1":       bool((d1 >> 3) & 1),           # bit3
+        "IN2":       bool((d1 >> 4) & 1),           # bit4
+        "IN3":       bool((d1 >> 5) & 1),           # bit5
+        "OP1":       bool((d1 >> 6) & 1),           # bit6
+    }
+
+def decode_sf_d2(d2):
+    return {
+        "STOP":  bool(d2 & (1 << 0)),
+        "PAIF":  bool(d2 & (1 << 1)),
+        "PSIF":  bool(d2 & (1 << 2)),
+        "TLIF":  bool(d2 & (1 << 3)),
+        "LOCK":  bool(d2 & (1 << 5)),
+        "ERR":   bool(d2 & (1 << 7)),
+    }
+    
 res = stepper_get_sf_pr(6)
 if res:
-    print(f"Status Flags: 0x{res['flags']:02X}, Relative Position: {res['rel_pos']} pulses")
+    io_mode = decode_sf_d1(res["d1"])
+    flags   = decode_sf_d2(res["d2"])
+    print(f"== IO & Mode ==")
+    for k, v in io_mode.items():
+        print(f"  {k}: {'ON' if v else 'OFF'}")
+    print(f"== Status Flag ==")
+    for k, v in flags.items():
+        print(f"  {k}: {'YES' if v else 'NO'}")
+    print(f"Current relative position: {res['rel_pos']} pulses")
 else:
-    print("Gagal baca status flags/rel pos")
+    print("Gagal baca status flags/relative position")
 
 res2 = stepper_get_sp_pa(6)
 if res2:
-    print(f"Current speed: {res2['speed']} pulses/sec")
+    print(f"Current speed: {res2['speed']} pulses/sec, Absolute position: {res2['abs_pos']} pulses")
 else:
     print("Gagal baca speed/abs pos")
 

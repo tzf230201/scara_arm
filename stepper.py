@@ -686,12 +686,12 @@ def stepper_get_bl(node_id):
 
 def stepper_get_sf_pr(node_id):
     cw = MNEMONIC["MS"]
-    # GET SF + PR: MS[0]
     err, resp = simplecan3_write_read(node_id, cw, 1, [0])
     if err == 0 and resp["dl"] >= 8:
-        flags = resp["data"][1]
-        rel_pos = int.from_bytes(resp["data"][4:8], byteorder='little', signed=True)
-        return {"flags": flags, "rel_pos": rel_pos}
+        d1 = resp["data"][1]  # IO & mode
+        d2 = resp["data"][2]  # Status flag
+        pr = int.from_bytes(resp["data"][4:8], byteorder='little', signed=True)
+        return {"d1": d1, "d2": d2, "rel_pos": pr}
     return None
 
 def stepper_get_sp_pa(node_id):
@@ -699,8 +699,11 @@ def stepper_get_sp_pa(node_id):
     # GET SP + PA: MS[1]
     err, resp = simplecan3_write_read(node_id, cw, 1, [1])
     if err == 0 and resp["dl"] >= 8:
-        speed = int.from_bytes(resp["data"][4:8], byteorder='little', signed=True)
-        return {"speed": speed}
+        # Speed: 24-bit signed int from d1-d3
+        sp = int.from_bytes(resp["data"][1:4], byteorder='little', signed=True)
+        # Position Absolute: 32-bit signed int from d4-d7
+        pa = int.from_bytes(resp["data"][4:8], byteorder='little', signed=True)
+        return {"speed": sp, "abs_pos": pa}
     return None
 
 def stepper_clear_sf(node_id):
