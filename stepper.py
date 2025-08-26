@@ -712,12 +712,10 @@ def stepper_clear_sf(node_id):
     return err == 0
 
 def stepper_get_motion_mode(node_id):
-    # DV[0]: Get Current motion mode (0: JOG, 1: PTP)
     cw = MNEMONIC["DV"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [0])
-    if err == 0 and resp["dl"] > 4 and resp["data"][0] == 0:
-        # d1 = 0 berarti motion mode
-        return resp["data"][1]
+    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == 0:
+        return resp["data"][2]  # 0=JOG, 1=PTP
     return None
 
 def stepper_get_motor_current(node_id):
