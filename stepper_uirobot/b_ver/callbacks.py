@@ -13,7 +13,7 @@ def shutdown(msg, state):
     stepper_set_all_motor_off()
     state['motor_on'] = False
 
-def pp_joint_triangle(msg, state):
+def pp_joint(msg, state):
     joints = msg.get("joints", [0, 0, 0])
     t_ms = msg.get("time", 1000)
     node_ids = [6, 7, 8]
