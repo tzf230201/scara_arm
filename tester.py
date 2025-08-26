@@ -320,5 +320,5 @@ success = stepper_pvt_set_velocity_row_n(6, 6, 3)
 print(f"Set QV[6]=3: {success}")
 
 # Get velocity row 5
-vel = stepper_pvt_get_velocity_row_n(6, 5)
-print(f"QV[5]: {vel} pulses/sec")
+vel = stepper_pvt_get_velocity_row_n(6, 0)
+print(f"QV05]: {vel} pulses/sec")
