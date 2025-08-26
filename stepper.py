@@ -908,28 +908,17 @@ def stepper_pvt_get_velocity_row_n(node_id, row):
     return None
 
 def stepper_pvt_set_time_row_n(node_id, row, t_ms):
-    """
-    Set PVT QT[row] = t_ms (5~255 ms).
-    """
-    cw = MNEMONIC["QT"]  # 0x27
-    # Data = [row, t_low, t_high]
-    t_ms = int(t_ms)
+    # row = N, t_ms = value (0..65535), CW=0xA7
+    # Data=[row, t_ms_LSB, t_ms_MSB]
     data = [row, t_ms & 0xFF, (t_ms >> 8) & 0xFF]
-    err, resp = simplecan3_write_read(node_id, cw, 3, data)
-    # ACK: data[0]==row and data[1:3] == t_ms
-    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == row:
-        t_ack = resp["data"][1] | (resp["data"][2]<<8)
-        return t_ack == t_ms
-    return False
+    err, resp = simplecan3_write_read(node_id, 0x27, 3, data)
+    return err == 0
 
 def stepper_pvt_get_time_row_n(node_id, row):
-    """
-    Get PVT QT[row] (returns ms as int).
-    """
-    cw = MNEMONIC["QT"]  # 0x27
-    err, resp = simplecan3_write_read(node_id, cw, 1, [row])
-    # resp["data"][0]=row, [1]=low, [2]=high
-    if err == 0 and resp["dl"] >= 3 and resp["data"][0] == row:
-        t_ms = resp["data"][1] | (resp["data"][2]<<8)
-        return t_ms
+    # CW=0xA7, DL=1, Data=[row]
+    err, resp = simplecan3_write_read(node_id, 0x27, 1, [row])
+    if err == 0 and resp and len(resp["data"]) >= 4:
+        # resp["data"] = [0x27, row, LSB, MSB, ...]
+        value = resp["data"][2] + (resp["data"][3] << 8)
+        return value
     return None
