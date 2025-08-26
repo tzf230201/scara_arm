@@ -336,6 +336,8 @@ import time
 # print(f"QT[5]: {qt5} ms")
 
 stepper_pvt_clear_queue(6)
+
+stepper_pvt_get_queue(6)
 stepper_pvt_set_quick_feeding(6, qp=10000, qv=-1000, qt=50)
 
 # for n in range(8):
