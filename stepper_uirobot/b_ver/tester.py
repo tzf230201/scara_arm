@@ -89,7 +89,9 @@ import time
 # print(f"PTP Finish Notification (motor 6): {ret}")
 
 # print("Set current:", stepper_set_working_current(6, 0.5))
-# print("Working current (A):", stepper_get_working_current(6))
+print("Working current (A) 6:", stepper_get_working_current(6))
+print("Working current (A) 7:", stepper_get_working_current(7))
+print("Working current (A) 8:", stepper_get_working_current(8))
 
 # # print("Set idle %:", stepper_set_percentage_idle_current(6, 50))
 # print("Idle %:", stepper_get_percentage_idle_current(6))
@@ -128,16 +130,16 @@ import time
 #     print(f"Set cut-in speed: {speed} pulse/sec^2")
 # else:
 #     print("Gagal set cut-in speed")
-stepper_set_cut_in_speed(6, 3)
-stepper_set_cut_in_speed(7, 3)
-stepper_set_cut_in_speed(8, 3)
+# stepper_set_cut_in_speed(6, 3)
+# stepper_set_cut_in_speed(7, 3)
+# stepper_set_cut_in_speed(8, 3)
 
-current = stepper_get_cut_in_speed(6)
-print(f"Cut-in speed sekarang 6 : {current}")
-current = stepper_get_cut_in_speed(7)
-print(f"Cut-in speed sekarang 7 : {current}")
-current = stepper_get_cut_in_speed(8)
-print(f"Cut-in speed sekarang 8 : {current}")
+# current = stepper_get_cut_in_speed(6)
+# print(f"Cut-in speed sekarang 6 : {current}")
+# current = stepper_get_cut_in_speed(7)
+# print(f"Cut-in speed sekarang 7 : {current}")
+# current = stepper_get_cut_in_speed(8)
+# print(f"Cut-in speed sekarang 8 : {current}")
 
 
 # stepper_set_polarity(6, 0)
