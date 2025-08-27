@@ -237,7 +237,7 @@ def simplecan3_read(request_id, request_cw):
         response_id = (can_id >> 24) & 0x7F
 
         # debug print
-        print(f"[DEBUG] CAN-ID=0x{can_id:X}, response_cw={response_id}, data={list(message.data)}")
+        #print(f"[DEBUG] CAN-ID=0x{can_id:X}, response_cw={response_id}, data={list(message.data)}")
 
         # if response_id != request_id:
         #     continue
