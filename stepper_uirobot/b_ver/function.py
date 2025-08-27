@@ -18,7 +18,6 @@ def stepper_get_all_enc():
     pa2 = stepper_get_pa(6)
     pa3 = stepper_get_pa(7)
     pa4 = stepper_get_pa(8)
-    print(f"[DEBUG] Pulse: pa2={pa2}, pa3={pa3}, pa4={pa4}")
     return pa2, pa3, pa4
 
 def stepper_get_all_angle():
