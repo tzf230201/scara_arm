@@ -223,4 +223,4 @@ def arm_pvt_init():
 
     stepper_pvt_start_motion(6, 0)
     
-    print(f"Initial PVT queue: {row} rows")
+    # print(f"Initial PVT queue: {row} rows")
