@@ -245,6 +245,7 @@ def simplecan3_read(request_id, request_cw):
         sid = (can_id >> 18) & 0x7FF
         eid = can_id & 0x3FFFF
         cw = eid & 0xFF
+        response_cw = cw & 0x7F  # Hapus bit ACK
         dl = len(message.data)
         data = list(message.data[:dl])
 
