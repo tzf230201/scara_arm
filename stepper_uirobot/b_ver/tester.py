@@ -89,9 +89,9 @@ import time
 # print(f"PTP Finish Notification (motor 6): {ret}")
 
 # print("Set current:", stepper_set_working_current(6, 0.5))
-print("Working current (A) 6:", stepper_get_working_current(6))
-print("Working current (A) 7:", stepper_get_working_current(7))
-print("Working current (A) 8:", stepper_get_working_current(8))
+# print("Working current (A) 6:", stepper_get_working_current(6))
+# print("Working current (A) 7:", stepper_get_working_current(7))
+# print("Working current (A) 8:", stepper_get_working_current(8))
 
 # # print("Set idle %:", stepper_set_percentage_idle_current(6, 50))
 # print("Idle %:", stepper_get_percentage_idle_current(6))
@@ -146,12 +146,12 @@ print("Working current (A) 8:", stepper_get_working_current(8))
 # stepper_set_polarity(7, 0)
 # stepper_set_polarity(8, 0)
 
-ret = stepper_get_polarity(6)
-print(f"Polaritas sekarang 6 : {ret}")
-ret = stepper_get_polarity(7)
-print(f"Polaritas sekarang 7 : {ret}")
-ret = stepper_get_polarity(8)
-print(f"Polaritas sekarang 8 : {ret}")
+# ret = stepper_get_polarity(6)
+# print(f"Polaritas sekarang 6 : {ret}")
+# ret = stepper_get_polarity(7)
+# print(f"Polaritas sekarang 7 : {ret}")
+# ret = stepper_get_polarity(8)
+# print(f"Polaritas sekarang 8 : {ret}")
 
 # # Set JV ke -1000
 # jv = stepper_set_jv(6, -1000)
@@ -394,3 +394,16 @@ print(f"Polaritas sekarang 8 : {ret}")
 # # Get position row 266
 # pos = stepper_pvt_get_pt_data_row_n(6, 266)
 # print(f"PT row 266 position: {pos}")
+
+
+stepper_pvt_clear_queue(6)
+    
+stepper_pvt_set_position_row_n(6, 0, 1000)
+stepper_pvt_set_position_row_n(6, 0, 1000)
+stepper_pvt_set_position_row_n(6, 0, 1000)
+stepper_pvt_set_position_row_n(6, 0, 1000)
+stepper_pvt_set_position_row_n(6, 0, 1000)
+
+row = stepper_pvt_get_queue(6)
+
+print(f"Initial PVT queue: {row} rows")

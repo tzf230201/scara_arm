@@ -210,3 +210,16 @@ def arm_pp_angle(tar_joints, t_ms):
 def arm_pp_coor(tar_coor, t_ms):
     tar_joints = inverse_kinematics(tar_coor)
     arm_pp_angle(tar_joints, t_ms)
+    
+def arm_pvt_init():
+    stepper_pvt_clear_queue(6)
+    
+    stepper_pvt_set_position_row_n(6, 0, 1000)
+    stepper_pvt_set_position_row_n(6, 0, 1000)
+    stepper_pvt_set_position_row_n(6, 0, 1000)
+    stepper_pvt_set_position_row_n(6, 0, 1000)
+    stepper_pvt_set_position_row_n(6, 0, 1000)
+    
+    row = stepper_pvt_get_queue(6)
+    
+    print(f"Initial PVT queue: {row} rows")
