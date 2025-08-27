@@ -617,6 +617,7 @@ def stepper_get_pa(node_id):
     if err == 0 and resp and len(resp["data"]) >= 5:
         # Data = [cw, d0, d1, d2, d3, ...]
         # PA = d0-d3 (little endian, signed)
+        print(f"[DEBUG] resp = {resp}")
         return int.from_bytes(resp["data"][1:5], "little", signed=True)
     return None
 
