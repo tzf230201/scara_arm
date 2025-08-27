@@ -75,9 +75,15 @@ def stepper_set_all_ptp_finish_notification_off():
     stepper_set_ptp_finish_notification(6, 0)
     stepper_set_ptp_finish_notification(7, 0)
     stepper_set_ptp_finish_notification(8, 0)
+    
+def stepper_set_all_working_current(current):
+    stepper_set_working_current(6, current)
+    stepper_set_working_current(7, current)
+    stepper_set_working_current(8, current)
 
 def init_stepper():
     stepper_set_all_motor_off()
+    stepper_set_all_working_current(0.5)
     stepper_set_all_ptp_finish_notification_off()
     stepper_set_all_group_id()
     stepper_set_all_unit_ac_dc()
