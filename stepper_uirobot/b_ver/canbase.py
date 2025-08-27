@@ -208,7 +208,7 @@ def simplecan3_write(id, cw, dl, data, ack=True):
 
     try:
         bus.send(msg)
-        #print(f"[SENT] CAN-ID=0x{can_id:08X}, CW=0x{cw_out:02X}, DL={dl}, Data={list(data_bytes)}")
+        print(f"[SENT] CAN-ID=0x{can_id:08X}, CW=0x{cw_out:02X}, DL={dl}, Data={list(data_bytes)}")
         return msg
     except can.CanError as e:
         print(f"[ERROR] Gagal kirim SimpleCAN3.0: {e}")
@@ -237,7 +237,7 @@ def simplecan3_read(request_id, request_cw):
         response_id = (can_id >> 24) & 0x7F
 
         # debug print
-        print(f"[DEBUG] can_id=0x{can_id:X}, response_id={response_id}, data={list(message.data)}")
+        print(f"[DEBUG] CAN-ID=0x{can_id:X}, response_cw={response_id}, data={list(message.data)}")
 
         # if response_id != request_id:
         #     continue
@@ -245,7 +245,7 @@ def simplecan3_read(request_id, request_cw):
         sid = (can_id >> 18) & 0x7FF
         eid = can_id & 0x3FFFF
         cw = eid & 0xFF
-        response_cw = cw & 0x7F  # Hapus bit ACK
+        response_cw =message.data[0] & 0x7F  # Hapus bit ACK (MSB)
         dl = len(message.data)
         data = list(message.data[:dl])
 
