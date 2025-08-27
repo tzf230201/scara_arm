@@ -84,7 +84,9 @@ import time
 #     print("Tidak ada error (atau gagal baca error report).")
 
 # stepper_set_micro_stepping_resolution(6, 16)
-print("Micro-stepping:", stepper_get_micro_stepping_resolution(6))
+# print("Micro-stepping:", stepper_get_micro_stepping_resolution(6))
+ret = stepper_get_ptp_finish_notification(6)
+print(f"PTP Finish Notification (motor 6): {ret}")
 
 # # print("Set current:", stepper_set_working_current(6, 2.5))
 # print("Working current (A):", stepper_get_working_current(6))
