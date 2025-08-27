@@ -397,19 +397,30 @@ import time
 
 
 stepper_pvt_clear_queue(6)
-    
-stepper_pvt_set_position_row_n(6, 0, 1000)
-stepper_pvt_set_velocity_row_n(6, 0, 1000)
-stepper_pvt_set_time_row_n(6, 0, 1000)
-stepper_pvt_set_position_row_n(6, 0, 1000)
-stepper_pvt_set_velocity_row_n(6, 0, 1000)
-stepper_pvt_set_time_row_n(6, 0, 1000)
-stepper_pvt_set_position_row_n(6, 0, 1000)
-stepper_pvt_set_velocity_row_n(6, 0, 1000)
-stepper_pvt_set_time_row_n(6, 0, 1000)
-stepper_pvt_set_position_row_n(6, 0, 1000)
-stepper_pvt_set_velocity_row_n(6, 0, 1000)
-stepper_pvt_set_time_row_n(6, 0, 1000)
+stepper_pvt_set_first_valid_row(6, 0)
+stepper_pvt_set_last_valid_row(6,500)
+stepper_pvt_set_management_mode(6, 0)
+stepper_pvt_set_pt_time(6, 50)
+stepper_pvt_set_pt_data_row_n(6, 0, 1000)
+stepper_pvt_set_pt_data_row_n(6, 0, 1000)
+stepper_pvt_set_pt_data_row_n(6, 0, 1000)
+stepper_pvt_set_pt_data_row_n(6, 0, 1000)
+stepper_pvt_set_pt_data_row_n(6, 0, 1000)
+
+
+
+# stepper_pvt_set_position_row_n(6, 0, 1000)
+# stepper_pvt_set_velocity_row_n(6, 0, 1000)
+# stepper_pvt_set_time_row_n(6, 0, 1000)
+# stepper_pvt_set_position_row_n(6, 0, 1000)
+# stepper_pvt_set_velocity_row_n(6, 0, 1000)
+# stepper_pvt_set_time_row_n(6, 0, 1000)
+# stepper_pvt_set_position_row_n(6, 0, 1000)
+# stepper_pvt_set_velocity_row_n(6, 0, 1000)
+# stepper_pvt_set_time_row_n(6, 0, 1000)
+# stepper_pvt_set_position_row_n(6, 0, 1000)
+# stepper_pvt_set_velocity_row_n(6, 0, 1000)
+# stepper_pvt_set_time_row_n(6, 0, 1000)
 
 row = stepper_pvt_get_queue(6)
 
