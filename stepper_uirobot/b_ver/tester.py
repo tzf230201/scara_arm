@@ -130,7 +130,11 @@ import time
 #     print("Gagal set cut-in speed")
 
 current = stepper_get_cut_in_speed(6)
-print(f"Cut-in speed sekarang: {current}")
+print(f"Cut-in speed sekarang 6 : {current}")
+current = stepper_get_cut_in_speed(7)
+print(f"Cut-in speed sekarang 7 : {current}")
+current = stepper_get_cut_in_speed(8)
+print(f"Cut-in speed sekarang 8 : {current}")
 
 # # Set JV ke -1000
 # jv = stepper_set_jv(6, -1000)
