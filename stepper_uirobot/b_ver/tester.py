@@ -140,9 +140,9 @@ current = stepper_get_cut_in_speed(8)
 print(f"Cut-in speed sekarang 8 : {current}")
 
 
-stepper_set_polarity(6, 0)
-stepper_set_polarity(7, 0)
-stepper_set_polarity(8, 0)
+# stepper_set_polarity(6, 0)
+# stepper_set_polarity(7, 0)
+# stepper_set_polarity(8, 0)
 
 ret = stepper_get_polarity(6)
 print(f"Polaritas sekarang 6 : {ret}")
