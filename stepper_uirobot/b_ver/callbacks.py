@@ -40,7 +40,7 @@ def pp_joint(msg, state):
         stepper_set_pa(node_id, pos)
         stepper_set_sp(node_id, v_max)
     # for node_id in node_ids:
-        stepper_begin_motion(group_id)
+    stepper_begin_motion(group_id)
 
 
 
