@@ -995,3 +995,16 @@ def stepper_pvt_get_pt_data_row_n(node_id, row):
         position = int.from_bytes(p[3:7], byteorder='little', signed=True)
         return position
     return None
+
+def stepper_pv(node_id, row=0):
+    """
+    Trigger PT/PVT motion execution from given row.
+    :param node_id: Node ID stepper
+    :param row: Index row (int, default 0)
+    :return: True jika sukses, False jika gagal
+    """
+    cw = MNEMONIC["PV"]
+    data = [row & 0xFF, (row >> 8) & 0xFF]  # LSB, MSB (row index 0..65535)
+    err, resp = simplecan3_write_read(node_id, cw, 2, data)
+    # Biasanya balasan ACK dengan data yang sama, atau kosong
+    return err == 0
