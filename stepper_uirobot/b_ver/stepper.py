@@ -846,6 +846,11 @@ def stepper_pvt_get_next_available_writing_row(node_id):
         return resp["data"][2] | (resp["data"][3] << 8)
     return None
 
+def stepper_pvt_start_motion(node_id, start_index):
+    cw = MNEMONIC["PV"]
+    err, resp = simplecan3_write_read(node_id, cw, 2, [start_index & 0xFF, (start_index >> 8) & 0xFF])
+    return err == 0
+
 def stepper_pvt_set_position_row_n(node_id, row_n, position):
     """
     Set position value of row N in PVT table (QP[N]=position)

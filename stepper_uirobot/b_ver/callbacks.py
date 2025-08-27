@@ -48,8 +48,9 @@ def read_position(msg, state):
     # TODO: Implement read pos & maybe update state["pos_abs"]
 
 def dancing(msg, state):
-    print(f"[cb] Dancing: motor={msg.get('motor')}")
-    # TODO: Implement demo/dance pattern
+    arm_pvt_init()
+    # print(f"[cb] Dancing: motor={msg.get('motor')}")
+    # # TODO: Implement demo/dance pattern
 
 def homing(msg, state):
     print(f"[cb] Homing: motor={msg.get('motor')}")
