@@ -41,7 +41,7 @@ def pvt_coor(msg, state):
 def read_position(msg, state):
     # print(f"[cb] Read Position: motor={msg.get('motor')}")
     pa2_deg, pa3_deg, pa4_deg = stepper_get_all_angle()
-    x,y,z,yaw = forward_kinematics(0,[pa2_deg, pa3_deg, pa4_deg])
+    x,y,z,yaw = forward_kinematics([0,pa2_deg, pa3_deg, pa4_deg])
     print_yellow(f"[cb] pa2={pa2_deg:.2f}, pa3={pa3_deg:.2f}, pa4={pa4_deg:.2f} degree")
     print_orange(f"[cb] x={x:.2f}, y={y:.2f}, z={z:.2f}, yaw={yaw:.2f} degree")
 
