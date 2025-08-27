@@ -67,7 +67,9 @@ def read_encoder(msg, state):
 
 def set_origin(msg, state):
     print(f"[cb] Set Origin: motor={msg.get('motor')}")
-    # TODO: Implement set origin
+    # stepper_set_origin(6)
+    # stepper_set_origin(7)
+    # stepper_set_origin(8)
 
 # === Mapping ===
 HANDLERS = {
