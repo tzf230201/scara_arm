@@ -128,9 +128,9 @@ import time
 #     print(f"Set cut-in speed: {speed} pulse/sec^2")
 # else:
 #     print("Gagal set cut-in speed")
-stepper_set_cut_in_speed(6, 0)
-stepper_set_cut_in_speed(7, 0)
-stepper_set_cut_in_speed(8, 0)
+stepper_set_cut_in_speed(6, 3)
+stepper_set_cut_in_speed(7, 3)
+stepper_set_cut_in_speed(8, 3)
 
 current = stepper_get_cut_in_speed(6)
 print(f"Cut-in speed sekarang 6 : {current}")
