@@ -14,6 +14,7 @@ def shutdown(msg, state):
     state['motor_on'] = False
 
 def pp_joint(msg, state):
+    group_id = STEPPER_GROUP_ID
     # Ambil array lengkap [joint1, joint2, joint3, joint4]
     joints_full = msg.get("joints", [0, 0, 0, 0])
     t_ms = msg.get("time", 1000)
@@ -38,8 +39,8 @@ def pp_joint(msg, state):
         stepper_set_dc(node_id, acc)
         stepper_set_pa(node_id, pos)
         stepper_set_sp(node_id, v_max)
-    for node_id in node_ids:
-        stepper_begin_motion(node_id)
+    # for node_id in node_ids:
+        stepper_begin_motion(group_id)
 
 
 
