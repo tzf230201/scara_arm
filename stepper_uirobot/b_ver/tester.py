@@ -123,11 +123,14 @@ import time
 # cur = stepper_get_deceleration(6)
 # print(f"Deceleration sekarang: {cur}")
 
-# speed = stepper_set_cut_in_speed(6, 1001)
+# speed = stepper_set_cut_in_speed(6, 0)
 # if speed is not None:
 #     print(f"Set cut-in speed: {speed} pulse/sec^2")
 # else:
 #     print("Gagal set cut-in speed")
+stepper_set_cut_in_speed(6, 0)
+stepper_set_cut_in_speed(7, 0)
+stepper_set_cut_in_speed(8, 0)
 
 current = stepper_get_cut_in_speed(6)
 print(f"Cut-in speed sekarang 6 : {current}")
