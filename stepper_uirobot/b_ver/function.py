@@ -188,6 +188,7 @@ def forward_kinematics(cur_joints):
     yaw = (cur_deg4 / 5) + OFFSET_4
 
     return [x3, y3, z, yaw]
+
 def arm_pp_angle(tar_joints, t_ms):
     tar_joints = check_limit(tar_joints)
     arm_tar_joints = tar_joints[1:4]
@@ -197,17 +198,13 @@ def arm_pp_angle(tar_joints, t_ms):
     delta = [abs(p - p_now) for p, p_now in zip(pulses, pa_now)]
     t = max(t_ms / 1000.0, 1e-3)
 
-    v_max = max(2 * d / t for d in delta)
-    ac_dc = max(4 * d / (t ** 2) for d in delta)
-    v_max = int(max(v_max, 1))
-    ac_dc = int(max(ac_dc, 1))
-
-    print(f"PP Joint (TRIANGLE): pulses={pulses}, speed={v_max}, ac_dc={ac_dc}, time={t_ms}ms")
-    for node_id, pos in zip([6, 7, 8], pulses):
-        stepper_set_ac(node_id, ac_dc)
-        stepper_set_dc(node_id, ac_dc)
+    for node_id, pos, d in zip(node_ids, pulses, delta):
+        v_m = int(2 * d / t) if t > 0 else 1
+        ac_m = int(4 * d / (t ** 2)) if t > 0 else 1
+        stepper_set_ac(node_id, ac_m)
+        stepper_set_dc(node_id, ac_m)
         stepper_set_pa(node_id, pos)
-        stepper_set_sp(node_id, v_max)
+        stepper_set_sp(node_id, v_m)
     stepper_begin_motion(STEPPER_GROUP_ID)
     
 def arm_pp_coor(tar_coor, t_ms):
