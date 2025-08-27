@@ -273,6 +273,6 @@ def simplecan3_write_read(request_id, cw, dl, data):
     simplecan3_write(request_id, cw, dl, data, ack=True)
 
     # Tunggu dan baca balasan
-    error_code, response = simplecan3_read(request_id)
+    error_code, response = simplecan3_read(request_id, cw)
 
     return error_code, response
