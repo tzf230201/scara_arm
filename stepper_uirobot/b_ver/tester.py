@@ -396,7 +396,7 @@ import time
 # print(f"PT row 266 position: {pos}")
 
 
-stepper_pvt_clear_queue(6)
+# stepper_pvt_clear_queue(6)
     
 stepper_pvt_set_position_row_n(6, 0, 1000)
 stepper_pvt_set_velocity_row_n(6, 0, 1000)
@@ -411,6 +411,6 @@ stepper_pvt_set_position_row_n(6, 0, 1000)
 stepper_pvt_set_velocity_row_n(6, 0, 1000)
 stepper_pvt_set_time_row_n(6, 0, 1000)
 
-# row = stepper_pvt_get_queue(6)
+row = stepper_pvt_get_queue(6)
 
 print(f"Initial PVT queue: {row} rows")
