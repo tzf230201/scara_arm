@@ -2,15 +2,15 @@
 
 A 4-DoF SCARA robot arm on a vertical rail, equipped with Integrated Closed-Loop (ICL) stepper motors and a 400-watt industrial servo motor, all controlled via CAN bus communication.
 
-![Scara Arm](images/images_1.png)
+![Scara Arm](images/picture_1.png)
 
 The software currently runs on ROS1-Noetic, utilizing a URDF model and MoveIt, with an option to use a custom Tkinter GUI. 
 
-![MoveIt](images/images_5.png)
+![MoveIt](images/picture_5.png)
 
 Movelt actually difficult to manage our arm robot, because our robot mechanically different from general arm robot system. each link is connected individually to its motor which is located on the main base instead of the normal, on its parent link. Each link will point to the same global direction regardless of the other link's movement.
 
-![Mechanical Design](images/images_2.png)
+![Mechanical Design](images/picture_2.png)
 
 That's why We are also developing our own motion designer software called [Dancemotion Designer](https://github.com/tzf230201/Dancemotion-Designer), which is also an ongoing project.
 
@@ -22,11 +22,11 @@ sturdy and backlash free)
 
 Each actuator features a built-in smart MCU, allowing users to configure parameters such as starting speed, acceleration and deceleration times, maximum speed, and total pulse count. These settings enable smooth S-curve acceleration and deceleration.
 
-![Diagram](images/images_3.png)
+![Diagram](images/picture_3.png)
 
 Commands are sent through the CAN bus using the CANopen protocol. 
 
-![MCP2515 module](images/images_6.jpg)
+![MCP2515 module](images/picture_6.jpg)
 
 [2-CH CAN HAT Module Datasheet](https://www.waveshare.com/wiki/2-CH_CAN_HAT)
 
