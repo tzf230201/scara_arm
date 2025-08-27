@@ -9,6 +9,24 @@ STEPPER_CPR = 200 * STEPPER_MICROSTEP  # 200 step/rev x 128 microstep = 25600 pu
 STEPPER_DEG_PER_PULSE = 360.0 / STEPPER_CPR   # (ex: 0.0140625 deg/pulse)
 STEPPER_PULSE_PER_DEG = STEPPER_CPR / 360.0   # (ex: 71.111... pulse/deg)
 
+def print_red(text):
+    # ANSI escape code untuk warna merah
+    RED = '\033[31m'  # Kode warna 256-color mode untuk merah
+    RESET = '\033[0m'  # Untuk mengembalikan warna ke default
+    print(f"{RED}{text}{RESET}")
+
+def print_yellow(text):
+    # ANSI escape code untuk warna kuning
+    YELLOW = '\033[93m'
+    RESET = '\033[0m'  # Untuk mengembalikan warna ke default
+    print(f"{YELLOW}{text}{RESET}")
+
+def print_orange(text):
+    # ANSI escape code untuk warna kuning yang menyerupai oranye
+    ORANGE = '\033[38;5;214m'  # Kode warna 256-color mode untuk oranye
+    RESET = '\033[0m'  # Untuk mengembalikan warna ke default
+    print(f"{ORANGE}{text}{RESET}")
+
 def stepper_pulse_to_deg(pulse):
     return float(pulse) * STEPPER_DEG_PER_PULSE
 
