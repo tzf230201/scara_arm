@@ -88,8 +88,8 @@ import time
 # ret = stepper_get_ptp_finish_notification(6)
 # print(f"PTP Finish Notification (motor 6): {ret}")
 
-print("Set current:", stepper_set_working_current(6, 0.5))
-print("Working current (A):", stepper_get_working_current(6))
+# print("Set current:", stepper_set_working_current(6, 0.5))
+# print("Working current (A):", stepper_get_working_current(6))
 
 # # print("Set idle %:", stepper_set_percentage_idle_current(6, 50))
 # print("Idle %:", stepper_get_percentage_idle_current(6))
@@ -129,8 +129,8 @@ print("Working current (A):", stepper_get_working_current(6))
 # else:
 #     print("Gagal set cut-in speed")
 
-# current = stepper_get_cut_in_speed(6)
-# print(f"Cut-in speed sekarang: {current}")
+current = stepper_get_cut_in_speed(6)
+print(f"Cut-in speed sekarang: {current}")
 
 # # Set JV ke -1000
 # jv = stepper_set_jv(6, -1000)
