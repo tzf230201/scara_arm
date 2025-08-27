@@ -122,18 +122,13 @@ def stepper_get_group_id(node_id):
 
 
 
-# def stepper_set_ac_dc_unit(node_id, unit):
-#     """
-#     Set Units for AC and DC (IC[4]):
-#     unit = 0 → pulse/sec²
-#     unit = 1 → millisecond
-#     """
-#     cw = MNEMONIC["IC"]
-#     val = 1 if unit else 0
-#     err, resp = simplecan3_write_read(node_id, cw, 3, [4, 0, val])
-#     if err == 0 and resp and len(resp["data"]) >= 3 and resp["data"][0] == 4:
-#         return resp["data"][2]
-#     return None
+def stepper_set_polarity(node_id, polarity):
+    cw = MNEMONIC["IC"]
+    val = 1 if polarity else 0
+    err, resp = simplecan3_write_read(node_id, cw, 3, [1, val, 0])
+    if err == 0 and resp and len(resp["data"]) >= 3 and resp["data"][0] == 1:
+        return resp["data"][1]
+    return None
 
 def stepper_get_polarity(node_id):
     cw = MNEMONIC["IC"]
