@@ -216,10 +216,10 @@ def arm_pvt_init():
     stepper_pvt_set_first_valid_row(8, 0)
     stepper_pvt_set_last_valid_row(8,500)
     stepper_pvt_set_management_mode(8, 0)
-    stepper_pvt_set_pt_time(8, 10)
+    stepper_pvt_set_pt_time(8, 20)
     for n in range(100):
-        pulse = stepper_deg_to_pulse(n)
-        stepper_pvt_set_pt_data_row_n(8, 0, -pulse)
+        pulse = stepper_deg_to_pulse(-n)
+        stepper_pvt_set_pt_data_row_n(8, 0, pulse)
 
     row = stepper_pvt_get_queue(8)
     print(f"Initial PVT queue: {row} rows")
