@@ -182,7 +182,7 @@ def stepper_get_ptp_finish_notification(node_id):
     cw = MNEMONIC["IE"]
     err, resp = simplecan3_write_read(node_id, cw, 1, [8])
     # Balasan: data[0]=CW, data[1]=3 (index), data[2]=val
-    if err == 0 and resp["dl"] > 2 and resp["data"][1] == 3:
+    if err == 0 and resp["dl"] > 1 and resp["data"][1] == 8:
         return resp["data"][2]
     return None
 
