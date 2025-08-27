@@ -22,7 +22,7 @@ def stop_can():
 
 start_can()
 MAX_FAILED_CNT = 20
-RECV_WAIT = 0.5
+RECV_WAIT = 0.2
 
 
 # CAN-OPEN LIBRARY
@@ -214,9 +214,10 @@ def simplecan3_write(id, cw, dl, data, ack=True):
         print(f"[ERROR] Gagal kirim SimpleCAN3.0: {e}")
         return None
 
-def simplecan3_read(request_id):
+def simplecan3_read(request_id, request_cw):
     error_code = NO_ERROR
     response_id = 0x04
+    response_cw = 0x00
     response = {
         "id": None,
         "cw": None,
@@ -224,7 +225,7 @@ def simplecan3_read(request_id):
         "data": []
     }
 
-    while (request_id != response_id):
+    while ((request_id != response_id) or (request_cw != response_cw)):
         message = bus.recv(RECV_WAIT)
         if message is None:
             error_code = TIMEOUT_ERROR
@@ -236,10 +237,10 @@ def simplecan3_read(request_id):
         response_id = (can_id >> 24) & 0x7F
 
         # debug print
-        #print(f"[DEBUG] can_id=0x{can_id:X}, response_id={response_id}, data={list(message.data)}")
+        print(f"[DEBUG] can_id=0x{can_id:X}, response_id={response_id}, data={list(message.data)}")
 
-        if response_id != request_id:
-            continue
+        # if response_id != request_id:
+        #     continue
 
         sid = (can_id >> 18) & 0x7FF
         eid = can_id & 0x3FFFF
