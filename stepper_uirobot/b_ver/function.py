@@ -55,6 +55,8 @@ def stepper_set_all_micro_stepping():
 
 def init_stepper():
     stepper_set_all_motor_off()
+    ret = stepper_get_ptp_finish_notification(6)
+    print(f"PTP Finish Notification (motor 6): {ret}")
     stepper_set_all_group_id()
     stepper_set_all_unit_ac_dc()
     stepper_set_all_micro_stepping()
