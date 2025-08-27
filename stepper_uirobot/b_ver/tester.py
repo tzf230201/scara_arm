@@ -139,6 +139,13 @@ print(f"Cut-in speed sekarang 7 : {current}")
 current = stepper_get_cut_in_speed(8)
 print(f"Cut-in speed sekarang 8 : {current}")
 
+ret = stepper_get_polarity(6)
+print(f"Polaritas sekarang 6 : {ret}")
+ret = stepper_get_polarity(7)
+print(f"Polaritas sekarang 7 : {ret}")
+ret = stepper_get_polarity(8)
+print(f"Polaritas sekarang 8 : {ret}")
+
 # # Set JV ke -1000
 # jv = stepper_set_jv(6, -1000)
 # print("JV set:", jv)
