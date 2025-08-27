@@ -88,7 +88,7 @@ import time
 # ret = stepper_get_ptp_finish_notification(6)
 # print(f"PTP Finish Notification (motor 6): {ret}")
 
-# # print("Set current:", stepper_set_working_current(6, 2.5))
+print("Set current:", stepper_set_working_current(6, 0.5))
 print("Working current (A):", stepper_get_working_current(6))
 
 # # print("Set idle %:", stepper_set_percentage_idle_current(6, 50))
