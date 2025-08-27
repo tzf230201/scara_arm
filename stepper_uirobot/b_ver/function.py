@@ -52,15 +52,14 @@ def stepper_set_all_micro_stepping():
     stepper_set_micro_stepping_resolution(7, STEPPER_MICROSTEP)
     stepper_set_micro_stepping_resolution(8, STEPPER_MICROSTEP)
 
+def stepper_set_all_ptp_finish_notification_off():
+    stepper_set_ptp_finish_notification(6, 0)
+    stepper_set_ptp_finish_notification(7, 0)
+    stepper_set_ptp_finish_notification(8, 0)
 
 def init_stepper():
     stepper_set_all_motor_off()
-    ret = stepper_get_ptp_finish_notification(6)
-    print(f"PTP Finish Notification (motor 6): {ret}")
-    ret = stepper_get_ptp_finish_notification(7)
-    print(f"PTP Finish Notification (motor 7): {ret}")
-    ret = stepper_get_ptp_finish_notification(8)
-    print(f"PTP Finish Notification (motor 8): {ret}")
+    stepper_set_all_ptp_finish_notification_off()
     stepper_set_all_group_id()
     stepper_set_all_unit_ac_dc()
     stepper_set_all_micro_stepping()
