@@ -212,15 +212,17 @@ def arm_pp_coor(tar_coor, t_ms):
     arm_pp_angle(tar_joints, t_ms)
     
 def arm_pvt_init():
-    stepper_pvt_clear_queue(6)
-    stepper_pvt_set_first_valid_row(6, 0)
-    stepper_pvt_set_last_valid_row(6,500)
-    stepper_pvt_set_management_mode(6, 0)
-    stepper_pvt_set_pt_time(6, 10)
+    stepper_pvt_clear_queue(8)
+    stepper_pvt_set_first_valid_row(8, 0)
+    stepper_pvt_set_last_valid_row(8,500)
+    stepper_pvt_set_management_mode(8, 0)
+    stepper_pvt_set_pt_time(8, 10)
     for n in range(200):
         pulse = stepper_deg_to_pulse(n)
-        stepper_pvt_set_pt_data_row_n(6, n, -pulse)
+        stepper_pvt_set_pt_data_row_n(8, n, -pulse)
 
-    stepper_pvt_start_motion(6, 0)
+    row = stepper_pvt_get_queue(8)
+    print(f"Initial PVT queue: {row} rows")
+    stepper_pvt_start_motion(8, 0)
     
-    # print(f"Initial PVT queue: {row} rows")
+    
