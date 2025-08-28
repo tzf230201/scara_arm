@@ -583,6 +583,7 @@ def pre_start_dancing():
     pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(start_coor, list_tar_coor, PT_TIME_INTERVAL)
     
     plot_xy_from_pt(pt1, pt2, pt3, pt4)
+    print(len(pt1), len(pt2), len(pt3), len(pt4))
 
     # arm_pvt_init()
     # for i in range(len(pt2)):
