@@ -321,8 +321,8 @@ def plot_xy_from_pt(pt1, pt2, pt3, pt4):
         j2 = stepper_pulse_to_deg(pt2[i])
         j3 = stepper_pulse_to_deg(pt3[i])
         j4 = stepper_pulse_to_deg(pt4[i])
-        # FK untuk dapatkan x, y
-        x, y, *_ = forward_kinematics(j1, j2, j3, j4)
+        # FK: panggil dengan satu list
+        x, y, *_ = forward_kinematics([j1, j2, j3, j4])
         x_list.append(x)
         y_list.append(y)
     plt.figure()
@@ -334,6 +334,7 @@ def plot_xy_from_pt(pt1, pt2, pt3, pt4):
     plt.legend()
     plt.title("XY Trajectory from PT Path")
     plt.show()
+
 
 # Panggil ini setelah generate pt1, pt2, pt3, pt4:
 
