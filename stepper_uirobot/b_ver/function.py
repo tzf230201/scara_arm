@@ -321,6 +321,7 @@ def plot_xy_from_pt(pt1, pt2, pt3, pt4):
 # Panggil ini setelah generate pt1, pt2, pt3, pt4:
 
 def arm_pt_init():
+    stepper_set_all_group_id()
     stepper_pvt_clear_queue(STEPPER_GROUP_ID)
     stepper_pvt_set_first_valid_row(STEPPER_GROUP_ID, 0)
     stepper_pvt_set_last_valid_row(STEPPER_GROUP_ID, 500)
@@ -333,13 +334,16 @@ def arm_pt_set_point(pt2, pt3, pt4):
     stepper_pvt_set_pt_data_row_n(8, 0, pt4)
     
 def arm_pt_execute():
-    group_id = STEPPER_GROUP_ID
-    stepper_set_all_group_id()
     stepper_pvt_start_motion(6, 0)
     stepper_pvt_start_motion(7, 0)
     stepper_pvt_start_motion(8, 0)
-    stepper_begin_motion(group_id)
+    stepper_begin_motion(STEPPER_GROUP_ID)
 
+def arm_pt_get_index():
+    n2 = stepper_pvt_get_queue(6)
+    n3 = stepper_pvt_get_queue(7)
+    n4 = stepper_pvt_get_queue(8)
+    print(f"[dance] queue: n2={n2}, n3={n3}, n4={n4}")
 
 def pre_start_dancing():
     start_coor = forward_kinematics([0, 0, 0, 0])
@@ -357,8 +361,5 @@ def pre_start_dancing():
     for i in range(len(pt2)):
         arm_pt_set_point(pt2[i], pt3[i], pt4[i])
     
-    n2 = stepper_pvt_get_queue(6)
-    n3 = stepper_pvt_get_queue(7)
-    n4 = stepper_pvt_get_queue(8)
-    print(f"[dance] queue: n2={n2}, n3={n3}, n4={n4}, total points={len(pt2)}")
+    arm_pt_get_index()
     arm_pt_execute()
