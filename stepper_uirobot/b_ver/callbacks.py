@@ -55,7 +55,7 @@ def dancing(msg, state):
 def homing(msg, state):
     # joints = msg.get("joints", [0, 0, 0, 0])
     joints = [0, 0, 0, 0]
-    t_ms = msg.get("time", 1000)
+    t_ms = msg.get("time", 4000)
     arm_pp_angle(joints, t_ms)
     # print(f"[cb] Homing: motor={msg.get('motor')}")
     # # TODO: Implement homing
