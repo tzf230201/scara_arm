@@ -258,7 +258,7 @@ def arm_pp_coor(tar_coor, t_ms):
     arm_pp_angle(tar_joints, t_ms)
 
 ############################################################## PVT
-PT_TIME_INTERVAL = 50
+PT_TIME_INTERVAL = 100
     
 def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interval=PT_TIME_INTERVAL):
     """
@@ -568,9 +568,9 @@ def pre_start_dancing():
     start_coor = forward_kinematics([0, 0, 0, 0])
     # 2) Daftar target (Cartesian, durasi_ms)
     list_tar_coor = [
-        ([166.82, -168,   0,   0], 2000),
-        ([258,     0,     0,   0], 2000),
-        ([107,    125,    0,  90], 2000),
+        ([166.82, -168,   0,   0], 1000),
+        ([258,     0,     0,   0], 1000),
+        ([107,    125,    0,  90], 1000),
     ]
 
     # 3) Hitung PVT untuk joint1–4
