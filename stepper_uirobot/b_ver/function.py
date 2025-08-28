@@ -232,14 +232,7 @@ def arm_pvt_init():
     stepper_pvt_start_motion(8, 0)
     stepper_begin_motion(8)
     
-def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interval=20):
-    """
-    Generate PT trajectory (pulse) untuk 4 joint, dengan linear interpolation di Cartesian space.
-    - start_coor: [x0, y0, z0, yaw0]
-    - list_tar_coor: list of ([x, y, z, yaw], durasi_ms)
-    - pt_time_interval: waktu sampling ms (default: 20)
-    Returns: pt1_f, pt2_f, pt3_f, pt4_f (list posisi pulse per joint)
-    """
+def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interval=PT_TIME_INTERVAL):
     pt1_f, pt2_f, pt3_f, pt4_f = [], [], [], []
     last_coor = start_coor
 
@@ -251,7 +244,8 @@ def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interva
                 last_coor[j] + (tar_coor[j] - last_coor[j]) * alpha
                 for j in range(4)
             ]
-            joint = inverse_kinematics(*coor)    # → [j1,j2,j3,j4] dalam degree
+            # Panggil dengan satu list:
+            joint = inverse_kinematics(coor)    # ← tar_coor adalah [x,y,z,yaw]
             pulses = [stepper_deg_to_pulse(j) for j in joint]
             pt1_f.append(pulses[0])
             pt2_f.append(pulses[1])
@@ -259,8 +253,8 @@ def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interva
             pt4_f.append(pulses[3])
         last_coor = tar_coor
 
-    # Tambahkan titik akhir supaya benar-benar sampai target terakhir
-    final_joint = inverse_kinematics(*list_tar_coor[-1][0])
+    # Titik akhir:
+    final_joint = inverse_kinematics(list_tar_coor[-1][0])
     pulses = [stepper_deg_to_pulse(j) for j in final_joint]
     pt1_f.append(pulses[0])
     pt2_f.append(pulses[1])
@@ -268,6 +262,7 @@ def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interva
     pt4_f.append(pulses[3])
 
     return pt1_f, pt2_f, pt3_f, pt4_f
+
 
 
 import matplotlib.pyplot as plt
