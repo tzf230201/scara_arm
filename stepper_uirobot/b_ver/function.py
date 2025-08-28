@@ -344,12 +344,9 @@ def arm_pt_execute():
 def pre_start_dancing():
     start_coor = forward_kinematics([0, 0, 0, 0])
     list_tar_coor = [
-        ([150, -100, 90, 0], 1000),
-        ([150,   0,   90, 87], 1000),
-        ([107,   50,  90, 87], 1000),
-        ([107,  160,  90, 87],  500),
-        ([107,  160, 115, 87], 1000),
-        ([107,   50, 115, 87], 3000),
+        ([150, -100, 90, 0], 2000),
+        ([150,   0,   90, 87], 2000),
+        ([107,   50,  90, 87], 2000)
     ]
     pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(
         start_coor, list_tar_coor, PT_TIME_INTERVAL
