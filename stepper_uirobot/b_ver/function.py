@@ -364,6 +364,6 @@ def pre_start_dancing():
     
     arm_pt_get_index()
     arm_pt_execute()
-    for t in range(1000):
+    for t in range(100):
         arm_pt_get_index()
         time.sleep(0.2)
