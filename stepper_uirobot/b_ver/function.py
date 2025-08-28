@@ -251,7 +251,7 @@ def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interva
                 last_coor[j] + (tar_coor[j] - last_coor[j]) * alpha
                 for j in range(4)
             ]
-            joint = inverse_kinematics(coor)    # → [j1,j2,j3,j4] dalam degree
+            joint = inverse_kinematics(*coor)    # → [j1,j2,j3,j4] dalam degree
             pulses = [stepper_deg_to_pulse(j) for j in joint]
             pt1_f.append(pulses[0])
             pt2_f.append(pulses[1])
