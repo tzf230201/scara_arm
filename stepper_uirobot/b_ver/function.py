@@ -125,47 +125,86 @@ def check_limit(tar_joints, source_info=""):
     tar_joint_4 *= -1
     return [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
 
-
 def inverse_kinematics(tar_coor):
     x, y, z, yaw = tar_coor
-    # max area
+    # Panjang link (mm)
     L2 = 137.0
     L3 = 121.0
-    L4 = 56.82
+    # Offset (derajat) dan rasio joint
     OFFSET_2 = -96.5
     OFFSET_3 = 134
     OFFSET_4 = -52.5
-    #ration joint = 5:1
+    RATIO = 5.0  # 5:1
 
-    distance = math.sqrt(x**2 + y**2)
-
+    # Hitung jarak planar
+    distance = math.hypot(x, y)
     if distance > (L2 + L3):
-        raise ValueError("out of boundary")
+        raise ValueError(f"Target out of reach: distance {distance:.1f} > {L2+L3:.1f}")
 
-    # joint_3
+    # Hitung cos(theta3)
     cos_theta3 = (x**2 + y**2 - L2**2 - L3**2) / (2 * L2 * L3)
-    theta3 = math.acos(cos_theta3)  #angle in radian
+    # Clamp ke [-1,1]
+    cos_theta3_clamped = max(-1.0, min(1.0, cos_theta3))
+    if abs(cos_theta3) > 1.0 + 1e-6:
+        # Jika jauh di luar batas, laporkan error
+        raise ValueError(f"cos_theta3 = {cos_theta3:.3f} di luar [-1,1]")
+    theta3_rad = math.acos(cos_theta3_clamped)
+    theta3 = math.degrees(theta3_rad)
 
-    # joint_2
-    k1 = L2 + L3 * cos_theta3
-    k2 = L3 * math.sin(theta3)
-    theta2 = math.atan2(y, x) - math.atan2(k2, k1)
+    # Hitung theta2
+    k1 = L2 + L3 * cos_theta3_clamped
+    k2 = L3 * math.sin(theta3_rad)
+    theta2_rad = math.atan2(y, x) - math.atan2(k2, k1)
+    theta2 = math.degrees(theta2_rad)
 
-    # rad to deg
-    theta2 = math.degrees(theta2)
-    theta3 = math.degrees(theta3)
+    # Konversi ke pulse
+    joint_1 = z * (360.0 / 90.0)           # asumsi 90 mm → 360°
+    joint_2 = (theta2 - OFFSET_2) * RATIO
+    joint_3 = (theta3 - OFFSET_3) * RATIO + joint_2
+    joint_4 = -((yaw - OFFSET_4) * RATIO)
 
-    joint_1 = z * (360/90)
-    joint_2 = (theta2-OFFSET_2)*5
-    joint_3 = (theta3-OFFSET_3)*5 + joint_2
-    joint_4 = (yaw-OFFSET_4)*5# + joint_3;
-        
-    joint_4 *= -1
-    
     joints = [joint_1, joint_2, joint_3, joint_4]
-    joints = check_limit(joints)
+    return check_limit(joints)
+# def inverse_kinematics(tar_coor):
+#     x, y, z, yaw = tar_coor
+#     # max area
+#     L2 = 137.0
+#     L3 = 121.0
+#     L4 = 56.82
+#     OFFSET_2 = -96.5
+#     OFFSET_3 = 134
+#     OFFSET_4 = -52.5
+#     #ration joint = 5:1
+
+#     distance = math.sqrt(x**2 + y**2)
+
+#     if distance > (L2 + L3):
+#         raise ValueError("out of boundary")
+
+#     # joint_3
+#     cos_theta3 = (x**2 + y**2 - L2**2 - L3**2) / (2 * L2 * L3)
+#     theta3 = math.acos(cos_theta3)  #angle in radian
+
+#     # joint_2
+#     k1 = L2 + L3 * cos_theta3
+#     k2 = L3 * math.sin(theta3)
+#     theta2 = math.atan2(y, x) - math.atan2(k2, k1)
+
+#     # rad to deg
+#     theta2 = math.degrees(theta2)
+#     theta3 = math.degrees(theta3)
+
+#     joint_1 = z * (360/90)
+#     joint_2 = (theta2-OFFSET_2)*5
+#     joint_3 = (theta3-OFFSET_3)*5 + joint_2
+#     joint_4 = (yaw-OFFSET_4)*5# + joint_3;
+        
+#     joint_4 *= -1
     
-    return joints
+#     joints = [joint_1, joint_2, joint_3, joint_4]
+#     joints = check_limit(joints)
+    
+#     return joints
 
 
 def forward_kinematics(cur_joints):
