@@ -441,7 +441,7 @@ import time
 for i in [6, 7, 8]:
     lpr = stepper_get_qe(i, 0)
     print(f"line per rev (Node {i}): {lpr}")
-    stepper_set_qe(i, 1, 320)
+    stepper_set_qe(i, 1, 1600)
     stall_tolerance = stepper_get_qe(i, 1)
     print(f"Stall Tolerance (Node {i}): {stall_tolerance}")
     stbae = stepper_get_qe(i, 2)
