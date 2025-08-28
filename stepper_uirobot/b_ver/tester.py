@@ -413,9 +413,10 @@ import time
 # stepper_pvt_set_velocity_row_n(6, 0, 1000)
 # stepper_pvt_set_time_row_n(6, 0, 1000)
 
-row = stepper_pvt_get_queue(6)
+# row = stepper_pvt_get_queue(6)
 
-print(f"Initial PVT queue: {row} rows")
+# print(f"Initial PVT queue: {row} rows")
+
 
 
 # def arm_pvt_init():
@@ -436,3 +437,7 @@ print(f"Initial PVT queue: {row} rows")
 #         print(f"Row {m}: {pulse} pulse, {stepper_pulse_to_deg(pulse):.2f} deg")
 #     stepper_pvt_start_motion(8, 0)
 #     stepper_begin_motion(8)
+
+for i in [6, 7, 8]:
+    stall_tolerance = stepper_get_qe(i, 1)
+    print(f"Stall Tolerance (Node {i}): {stall_tolerance}")
