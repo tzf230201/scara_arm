@@ -210,7 +210,9 @@ def arm_pp_angle(tar_joints, t_ms):
 def arm_pp_coor(tar_coor, t_ms):
     tar_joints = inverse_kinematics(tar_coor)
     arm_pp_angle(tar_joints, t_ms)
-    
+
+PT_TIME_INTERVAL = 50
+ 
 def arm_pvt_init():
     stepper_pvt_clear_queue(8)
     stepper_pvt_set_first_valid_row(8, 0)
@@ -229,3 +231,84 @@ def arm_pvt_init():
         print(f"Row {m}: {pulse} pulse, {stepper_pulse_to_deg(pulse):.2f} deg")
     stepper_pvt_start_motion(8, 0)
     stepper_begin_motion(8)
+    
+def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interval=20):
+    """
+    Generate PT trajectory (pulse) untuk 4 joint, dengan linear interpolation di Cartesian space.
+    - start_coor: [x0, y0, z0, yaw0]
+    - list_tar_coor: list of ([x, y, z, yaw], durasi_ms)
+    - pt_time_interval: waktu sampling ms (default: 20)
+    Returns: pt1_f, pt2_f, pt3_f, pt4_f (list posisi pulse per joint)
+    """
+    pt1_f, pt2_f, pt3_f, pt4_f = [], [], [], []
+    last_coor = start_coor
+
+    for tar_coor, traveltime in list_tar_coor:
+        n_step = max(int(round(traveltime / pt_time_interval)), 1)
+        for i in range(n_step):
+            alpha = i / n_step
+            coor = [
+                last_coor[j] + (tar_coor[j] - last_coor[j]) * alpha
+                for j in range(4)
+            ]
+            joint = inverse_kinematics(*coor)    # → [j1,j2,j3,j4] dalam degree
+            pulses = [stepper_deg_to_pulse(j) for j in joint]
+            pt1_f.append(pulses[0])
+            pt2_f.append(pulses[1])
+            pt3_f.append(pulses[2])
+            pt4_f.append(pulses[3])
+        last_coor = tar_coor
+
+    # Tambahkan titik akhir supaya benar-benar sampai target terakhir
+    final_joint = inverse_kinematics(*list_tar_coor[-1][0])
+    pulses = [stepper_deg_to_pulse(j) for j in final_joint]
+    pt1_f.append(pulses[0])
+    pt2_f.append(pulses[1])
+    pt3_f.append(pulses[2])
+    pt4_f.append(pulses[3])
+
+    return pt1_f, pt2_f, pt3_f, pt4_f
+
+
+import matplotlib.pyplot as plt
+
+def plot_xy_from_pt(pt1, pt2, pt3, pt4):
+    x_list, y_list = [], []
+    N = len(pt1)
+    for i in range(N):
+        # Pulse → degree
+        j1 = stepper_pulse_to_deg(pt1[i])
+        j2 = stepper_pulse_to_deg(pt2[i])
+        j3 = stepper_pulse_to_deg(pt3[i])
+        j4 = stepper_pulse_to_deg(pt4[i])
+        # FK untuk dapatkan x, y
+        x, y, *_ = forward_kinematics(j1, j2, j3, j4)
+        x_list.append(x)
+        y_list.append(y)
+    plt.figure()
+    plt.plot(x_list, y_list, '-o', label='End Effector Path')
+    plt.xlabel('X (mm)')
+    plt.ylabel('Y (mm)')
+    plt.axis('equal')
+    plt.grid(True)
+    plt.legend()
+    plt.title("XY Trajectory from PT Path")
+    plt.show()
+
+# Panggil ini setelah generate pt1, pt2, pt3, pt4:
+
+
+def pre_start_dancing():
+
+    start_coor = [0, 0, 0, 0]
+    list_tar_coor = [
+        ([150, -100, 90, 0], 1000),
+        ([150, 0, 90, 87], 1000),
+        ([107, 50, 90, 87], 1000),
+        ([107, 160, 90, 87], 500),
+        ([107, 160, 115, 87], 1000),
+        ([107, 50, 115, 87], 3000),
+    ]
+    pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(start_coor, list_tar_coor, PT_TIME_INTERVAL)
+
+    plot_xy_from_pt(pt1, pt2, pt3, pt4)
