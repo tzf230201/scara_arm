@@ -1,3 +1,4 @@
+from datetime import time
 from stepper import *
 import math
 
@@ -363,3 +364,6 @@ def pre_start_dancing():
     
     arm_pt_get_index()
     arm_pt_execute()
+    for t in range(2000):
+        arm_pt_get_index()
+        time.sleep(0.1)
