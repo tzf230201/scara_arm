@@ -355,4 +355,9 @@ def pre_start_dancing():
     arm_pt_init()
     for i in range(len(pt2)):
         arm_pt_set_point(pt2[i], pt3[i], pt4[i])
-    arm_pt_execute()
+    
+    n2 = stepper_pvt_get_queue(6)
+    n3 = stepper_pvt_get_queue(7)
+    n4 = stepper_pvt_get_queue(8)
+    print(f"[dance] queue: n2={n2}, n3={n3}, n4={n4}, total points={len(pt2)}")
+    # arm_pt_execute()
