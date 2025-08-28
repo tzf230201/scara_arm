@@ -439,5 +439,13 @@ import time
 #     stepper_begin_motion(8)
 
 for i in [6, 7, 8]:
+    lpr = stepper_get_qe(i, 0)
+    print(f"line per rev (Node {i}): {lpr}")
     stall_tolerance = stepper_get_qe(i, 1)
     print(f"Stall Tolerance (Node {i}): {stall_tolerance}")
+    stbae = stepper_get_qe(i, 2)
+    print(f"single turn bits of aboslute encoder  {i}): {stbae}")
+    bs = stepper_get_qe(i, 3)
+    print(f"battery status (Node {i}): {bs}")
+    cpr = stepper_get_qe(i, 4)
+    print(f"CPR (Node {i}): {cpr}")
