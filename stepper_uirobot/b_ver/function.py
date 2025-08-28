@@ -319,6 +319,17 @@ def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interva
 
 import matplotlib.pyplot as plt
 
+def plot_yx(x_list,y_list):
+    plt.figure()
+    plt.plot(y_list, x_list, '-o', label='End Effector Path')
+    plt.xlabel('Y (mm)')
+    plt.ylabel('X (mm)')
+    plt.axis('equal')
+    plt.grid(True)
+    plt.legend()
+    plt.title("YX Trajectory from PT Path")
+    plt.show()
+
 def plot_xy_from_pt(pt1, pt2, pt3, pt4):
     x_list, y_list = [], []
     N = len(pt1)
@@ -510,9 +521,10 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     
     # ==== HITUNG TRAJEKTORI CARTESIAN ====
     t, x, y, z, yaw = generate_trajectory_triangle(cur_coor, list_tar_coor, dt)
+    plot_yx(x, y)
 
     # ==== KONVERSI CARTESIAN → JOINT ====
-    j1_traj, j2_traj, j3_traj, j4_traj = convert_cartesian_traj_to_joint_traj(x, y, z, yaw)
+    # j1_traj, j2_traj, j3_traj, j4_traj = convert_cartesian_traj_to_joint_traj(x, y, z, yaw)
     
     # # ==== POSISI BASE JOINT UNTUK HITUNG POSISI RELATIF ====
     # base_joint_deg = inverse_kinematics(cur_coor)
@@ -570,7 +582,7 @@ def pre_start_dancing():
     ]
     pt1, pt2, pt3, pt4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, PT_TIME_INTERVAL)
     
-    plot_xy_from_pt(pt1, pt2, pt3, pt4)
+    # plot_xy_from_pt(pt1, pt2, pt3, pt4)
 
     # arm_pvt_init()
     # for i in range(len(pt2)):
