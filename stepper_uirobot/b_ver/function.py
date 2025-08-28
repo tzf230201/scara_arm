@@ -256,21 +256,9 @@ def arm_pp_coor(tar_coor, t_ms):
     tar_joints = inverse_kinematics(tar_coor)
     arm_pp_angle(tar_joints, t_ms)
 
+############################################################## PVT
 PT_TIME_INTERVAL = 50
- 
-def arm_pt_init():
-    stepper_pvt_clear_queue(STEPPER_GROUP_ID)
-    stepper_pvt_set_first_valid_row(STEPPER_GROUP_ID, 0)
-    stepper_pvt_set_last_valid_row(STEPPER_GROUP_ID, 500)
-    stepper_pvt_set_management_mode(STEPPER_GROUP_ID, 0)
-    stepper_pvt_set_pt_time(STEPPER_GROUP_ID, PT_TIME_INTERVAL)
     
-
-def arm_pt_execute():
-    group_id = STEPPER_GROUP_ID
-    stepper_pvt_start_motion(group_id, 0)
-    stepper_begin_motion(group_id)
-
 def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interval=PT_TIME_INTERVAL):
     pt1_f, pt2_f, pt3_f, pt4_f = [], [], [], []
     last_coor = start_coor
@@ -332,10 +320,26 @@ def plot_xy_from_pt(pt1, pt2, pt3, pt4):
 
 # Panggil ini setelah generate pt1, pt2, pt3, pt4:
 
+def arm_pt_init():
+    stepper_pvt_clear_queue(STEPPER_GROUP_ID)
+    stepper_pvt_set_first_valid_row(STEPPER_GROUP_ID, 0)
+    stepper_pvt_set_last_valid_row(STEPPER_GROUP_ID, 500)
+    stepper_pvt_set_management_mode(STEPPER_GROUP_ID, 0)
+    stepper_pvt_set_pt_time(STEPPER_GROUP_ID, PT_TIME_INTERVAL)
+
 def arm_pt_set_point(pt2, pt3, pt4):
     stepper_pvt_set_pt_data_row_n(6, 0, pt2)
     stepper_pvt_set_pt_data_row_n(7, 0, pt3)
     stepper_pvt_set_pt_data_row_n(8, 0, pt4)
+    
+def arm_pt_execute():
+    group_id = STEPPER_GROUP_ID
+    stepper_set_all_group_id()
+    stepper_pvt_start_motion(6, 0)
+    stepper_pvt_start_motion(7, 0)
+    stepper_pvt_start_motion(8, 0)
+    stepper_begin_motion(group_id)
+
 
 def pre_start_dancing():
     start_coor = forward_kinematics([0, 0, 0, 0])
