@@ -29,7 +29,7 @@ def pp_coor(msg, state):
 def pvt_joint(msg, state):
     joints = msg.get("joints", [])
     t_ms = msg.get("time", 0)
-    print(f"[cb] PVT Joint: joints={joints}, time={t_ms} ms, motor={msg.get('motor')}")
+    arm_pvt_angle(joints, t_ms)
     # TODO: Implement PVT handling
 
 def pvt_coor(msg, state):
