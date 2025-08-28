@@ -299,16 +299,16 @@ def plot_xy_from_pt(pt1, pt2, pt3, pt4):
 
 
 def pre_start_dancing():
-
     start_coor = [0, 0, 0, 0]
     list_tar_coor = [
         ([150, -100, 90, 0], 1000),
-        ([150, 0, 90, 87], 1000),
-        ([107, 50, 90, 87], 1000),
-        ([107, 160, 90, 87], 500),
-        ([107, 160, 115, 87], 1000),
-        ([107, 50, 115, 87], 3000),
+        ([150,   0,   90, 87], 1000),
+        ([107,   50,  90, 87], 1000),
+        ([107,  160,  90, 87],  500),
+        ([107,  160, 115, 87], 1000),
+        ([107,   50, 115, 87], 3000),
     ]
-    pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(start_coor, list_tar_coor, PT_TIME_INTERVAL)
-
+    pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(
+        start_coor, list_tar_coor, PT_TIME_INTERVAL
+    )
     plot_xy_from_pt(pt1, pt2, pt3, pt4)
