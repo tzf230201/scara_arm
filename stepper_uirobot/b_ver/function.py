@@ -261,27 +261,50 @@ def arm_pp_coor(tar_coor, t_ms):
 PT_TIME_INTERVAL = 50
     
 def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interval=PT_TIME_INTERVAL):
+    """
+    Generate PT trajectory (pulse) untuk 4 joint dengan triangle profile di Cartesian space.
+    - start_coor: [x0, y0, z0, yaw0]
+    - list_tar_coor: list of ([x, y, z, yaw], durasi_ms)
+    - pt_time_interval: waktu sampling ms
+    Returns: pt1_f, pt2_f, pt3_f, pt4_f
+    """
     pt1_f, pt2_f, pt3_f, pt4_f = [], [], [], []
     last_coor = start_coor
 
     for tar_coor, traveltime in list_tar_coor:
+        # jumlah step & total waktu
         n_step = max(int(round(traveltime / pt_time_interval)), 1)
+        T = n_step * pt_time_interval
+
         for i in range(n_step):
-            alpha = i / n_step
+            t = i * pt_time_interval
+            tau = t / T  # normalisasi waktu [0,1)
+
+            # triangle profile: alpha = s(t)/s_total
+            if tau <= 0.5:
+                alpha = 2 * tau**2
+            else:
+                alpha = 1 - 2 * (1 - tau)**2
+
+            # interpolasi Cartesian
             coor = [
                 last_coor[j] + (tar_coor[j] - last_coor[j]) * alpha
                 for j in range(4)
             ]
-            # Panggil dengan satu list:
-            joint = inverse_kinematics(coor)    # ← tar_coor adalah [x,y,z,yaw]
+
+            # IK → pulse
+            joint = inverse_kinematics(coor)
             pulses = [stepper_deg_to_pulse(j) for j in joint]
+
             pt1_f.append(pulses[0])
             pt2_f.append(pulses[1])
             pt3_f.append(pulses[2])
             pt4_f.append(pulses[3])
+
+        # beralih ke segmen berikutnya, pastikan posisinya pas di target
         last_coor = tar_coor
 
-    # Titik akhir:
+    # tambahkan titik akhir yang pasti sampai target terakhir
     final_joint = inverse_kinematics(list_tar_coor[-1][0])
     pulses = [stepper_deg_to_pulse(j) for j in final_joint]
     pt1_f.append(pulses[0])
@@ -290,6 +313,7 @@ def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interva
     pt4_f.append(pulses[3])
 
     return pt1_f, pt2_f, pt3_f, pt4_f
+
 
 
 
