@@ -35,7 +35,7 @@ def pvt_joint(msg, state):
 def pvt_coor(msg, state):
     coor = msg.get("coor", [])
     t_ms = msg.get("time", 0)
-    print(f"[cb] PVT Coor: coor={coor}, time={t_ms} ms, motor={msg.get('motor')}")
+    arm_pvt_coor(coor, t_ms)
     # TODO: Implement inverse kinematics/PVT
 
 def read_position(msg, state):

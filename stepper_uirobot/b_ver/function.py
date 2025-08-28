@@ -409,3 +409,7 @@ def arm_pvt_angle(tar_joints, t_ms, pt_time_interval=PT_TIME_INTERVAL):
     for node in node_ids:
         stepper_pvt_start_motion(node, 0)
     stepper_begin_motion(STEPPER_GROUP_ID)
+
+def arm_pvt_coor(tar_coor, t_ms, pt_time_interval=PT_TIME_INTERVAL):
+    tar_joints = inverse_kinematics(tar_coor)
+    arm_pvt_angle(tar_joints, t_ms, pt_time_interval)
