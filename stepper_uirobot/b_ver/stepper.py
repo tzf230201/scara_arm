@@ -1008,3 +1008,35 @@ def stepper_pv(node_id, row=0):
     err, resp = simplecan3_write_read(node_id, cw, 2, data)
     # Biasanya balasan ACK dengan data yang sama, atau kosong
     return err == 0
+
+def stepper_get_qe(node_id, index):
+    """
+    Get Quadrature Encoder parameter QE[index]:
+      index: 0=LPR, 1=Stall tolerance, 2=Single-turn bits, 3=Battery status, 4=CPR
+    Returns 16-bit unsigned value, atau None jika gagal.
+    """
+    cw = MNEMONIC["QE"]
+    # Kirim GET (DL=1, data=[index])
+    err, resp = simplecan3_write_read(node_id, cw, 1, [index])
+    # Harus ada minimal 3 byte data: [index, lo, hi]
+    if err == 0 and resp and resp["dl"] >= 3 and resp["data"][1] == index:
+        lo, hi = resp["data"][2], resp["data"][3]
+        return lo | (hi << 8)
+    return None
+
+def stepper_set_qe(node_id, index, value):
+    """
+    Set Quadrature Encoder parameter QE[index] ke `value` (0..65535).
+    Kembaliannya adalah nilai yang ter-set (16-bit), atau None jika gagal.
+    """
+    cw = MNEMONIC["QE"]
+    # Pecah ke little-endian
+    lo = value & 0xFF
+    hi = (value >> 8) & 0xFF
+    # Kirim SET (DL=3, data=[index, lo, hi])
+    err, resp = simplecan3_write_read(node_id, cw, 3, [index, lo, hi])
+    # Balasan minimal 3 byte: [index, lo, hi]
+    if err == 0 and resp and resp["dl"] >= 3 and resp["data"][0] == index:
+        lo_r, hi_r = resp["data"][1], resp["data"][2]
+        return lo_r | (hi_r << 8)
+    return None
