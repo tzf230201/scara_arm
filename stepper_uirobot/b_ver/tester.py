@@ -416,3 +416,23 @@ import time
 row = stepper_pvt_get_queue(6)
 
 print(f"Initial PVT queue: {row} rows")
+
+
+# def arm_pvt_init():
+#     stepper_pvt_clear_queue(8)
+#     stepper_pvt_set_first_valid_row(8, 0)
+#     stepper_pvt_set_last_valid_row(8,500)
+#     stepper_pvt_set_management_mode(8, 0)
+#     stepper_pvt_set_pt_time(8, 20)
+#     for n in range(100):
+#         pulse = stepper_deg_to_pulse(-n)
+#         stepper_pvt_set_pt_data_row_n(8, 0, pulse)
+
+#     row = stepper_pvt_get_queue(8)
+#     print(f"Initial PVT queue: {row} rows")
+    
+#     for m in range(100):
+#         pulse = stepper_pvt_get_pt_data_row_n(8, m)
+#         print(f"Row {m}: {pulse} pulse, {stepper_pulse_to_deg(pulse):.2f} deg")
+#     stepper_pvt_start_motion(8, 0)
+#     stepper_begin_motion(8)
