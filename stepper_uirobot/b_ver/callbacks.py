@@ -56,7 +56,7 @@ def dancing(msg, state):
 def homing(msg, state):
     home_angle = [0, 0, 0, 0]
     t_ms = msg.get("time", 0)
-    arm_pvt_angle(home_angle, t_ms)
+    arm_pp_angle(home_angle, t_ms)
     # print(f"[cb] Homing: motor={msg.get('motor')}")
     # # TODO: Implement homing
 
