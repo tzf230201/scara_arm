@@ -14,7 +14,6 @@ def shutdown(msg, state):
     state['motor_on'] = False
 
 def pp_joint(msg, state):
-    group_id = STEPPER_GROUP_ID
     # Ambil array lengkap [joint1, joint2, joint3, joint4]
     joints = msg.get("joints", [0, 0, 0, 0])
     t_ms = msg.get("time", 1000)
@@ -54,9 +53,10 @@ def dancing(msg, state):
     # # TODO: Implement demo/dance pattern
 
 def homing(msg, state):
-    home_angle = [0, 0, 0, 0]
+    # joints = msg.get("joints", [0, 0, 0, 0])
+    joints = [0, 0, 0, 0]
     t_ms = msg.get("time", 1000)
-    arm_pp_angle(home_angle, t_ms)
+    arm_pp_angle(joints, t_ms)
     # print(f"[cb] Homing: motor={msg.get('motor')}")
     # # TODO: Implement homing
 
