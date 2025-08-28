@@ -125,6 +125,8 @@ def check_limit(tar_joints, source_info=""):
     tar_joint_4 *= -1
     return [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
 
+import math
+
 def inverse_kinematics(tar_coor):
     x, y, z, yaw = tar_coor
     # Panjang link (mm)
@@ -138,21 +140,24 @@ def inverse_kinematics(tar_coor):
 
     # Hitung jarak planar
     distance = math.hypot(x, y)
-    if distance > (L2 + L3):
-        raise ValueError(f"Target out of reach: distance {distance:.1f} > {L2+L3:.1f}")
+    max_reach = L2 + L3
+    if distance > max_reach:
+        # Jika benar-benar di luar jangkauan, optional: warn, lalu clamp ke batas terjauh
+        print(f"Warning: target ({x:.1f},{y:.1f}) jarak {distance:.1f} > {max_reach:.1f}, akan di-clamp")
+        # Arahkan ke arah tepi workspace
+        scale = max_reach / distance
+        x *= scale
+        y *= scale
 
     # Hitung cos(theta3)
     cos_theta3 = (x**2 + y**2 - L2**2 - L3**2) / (2 * L2 * L3)
     # Clamp ke [-1,1]
-    cos_theta3_clamped = max(-1.0, min(1.0, cos_theta3))
-    if abs(cos_theta3) > 1.0 + 1e-6:
-        # Jika jauh di luar batas, laporkan error
-        raise ValueError(f"cos_theta3 = {cos_theta3:.3f} di luar [-1,1]")
-    theta3_rad = math.acos(cos_theta3_clamped)
+    cos_theta3 = max(-1.0, min(1.0, cos_theta3))
+    theta3_rad = math.acos(cos_theta3)
     theta3 = math.degrees(theta3_rad)
 
     # Hitung theta2
-    k1 = L2 + L3 * cos_theta3_clamped
+    k1 = L2 + L3 * cos_theta3
     k2 = L3 * math.sin(theta3_rad)
     theta2_rad = math.atan2(y, x) - math.atan2(k2, k1)
     theta2 = math.degrees(theta2_rad)
@@ -165,6 +170,7 @@ def inverse_kinematics(tar_coor):
 
     joints = [joint_1, joint_2, joint_3, joint_4]
     return check_limit(joints)
+
 # def inverse_kinematics(tar_coor):
 #     x, y, z, yaw = tar_coor
 #     # max area
