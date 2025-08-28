@@ -524,7 +524,7 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     plot_yx(x, y)
 
     # ==== KONVERSI CARTESIAN → JOINT ====
-    # j1_traj, j2_traj, j3_traj, j4_traj = convert_cartesian_traj_to_joint_traj(x, y, z, yaw)
+    j1_traj, j2_traj, j3_traj, j4_traj = convert_cartesian_traj_to_joint_traj(x, y, z, yaw)
     
     # # ==== POSISI BASE JOINT UNTUK HITUNG POSISI RELATIF ====
     # base_joint_deg = inverse_kinematics(cur_coor)
@@ -580,10 +580,10 @@ def pre_start_dancing():
         ([258,   0,   0, 0], 2000),
         ([107,   125,  0, 90], 2000)
     ]
-    pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(start_coor, list_tar_coor, PT_TIME_INTERVAL)
+    pt1, pt2, pt3, pt4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, PT_TIME_INTERVAL)
     
     plot_xy_from_pt(pt1, pt2, pt3, pt4)
-    print(len(pt1), len(pt2), len(pt3), len(pt4))
+    # print(len(pt1), len(pt2), len(pt3), len(pt4))
 
     # arm_pvt_init()
     # for i in range(len(pt2)):
