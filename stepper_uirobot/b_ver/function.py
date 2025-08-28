@@ -1,6 +1,6 @@
-from datetime import time
 from stepper import *
 import math
+import time
 
 STEPPER_GROUP_ID = 10
 STEPPER_MICROSTEP = 128
