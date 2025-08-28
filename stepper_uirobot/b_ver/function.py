@@ -340,7 +340,7 @@ def plot_xy_from_pt(pt1, pt2, pt3, pt4):
 
 
 def pre_start_dancing():
-    start_coor = [0, 0, 0, 0]
+    start_coor = forward_kinematics([0, 0, 0, 0])
     list_tar_coor = [
         ([150, -100, 90, 0], 1000),
         ([150,   0,   90, 87], 1000),
