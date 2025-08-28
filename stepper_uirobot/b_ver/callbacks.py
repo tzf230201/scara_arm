@@ -54,9 +54,9 @@ def dancing(msg, state):
     # # TODO: Implement demo/dance pattern
 
 def homing(msg, state):
-    home_coor = [0, 0, 0, 0]
+    home_angle = [0, 0, 0, 0]
     t_ms = msg.get("time", 0)
-    arm_pvt_coor(home_coor, t_ms)
+    arm_pvt_angle(home_angle, t_ms)
     # print(f"[cb] Homing: motor={msg.get('motor')}")
     # # TODO: Implement homing
 
