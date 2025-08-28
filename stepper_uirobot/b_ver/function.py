@@ -370,7 +370,7 @@ def arm_pt_get_index():
     n4 = stepper_pvt_get_queue(8)
     print(f"[dance] queue: n2={n2}, n3={n3}, n4={n4}")
 
-def pre_start_dancing():
+def pt_test():
     start_coor = forward_kinematics([0, 0, 0, 0])
     list_tar_coor = [
         ([150, -100, 90, 0], 2000),
@@ -392,7 +392,7 @@ def pre_start_dancing():
     #     arm_pt_get_index()
     #     time.sleep(0.2)
     
-def arm_pvt_angle(tar_joints, t_ms, pt_time_interval=PT_TIME_INTERVAL):
+def arm_pt_angle(tar_joints, t_ms, pt_time_interval=PT_TIME_INTERVAL):
 
     node_ids=[6,7,8]
     # 1. Pastikan joint dalam limit, lalu ambil 3 joint arm
@@ -434,6 +434,149 @@ def arm_pvt_angle(tar_joints, t_ms, pt_time_interval=PT_TIME_INTERVAL):
         stepper_pvt_start_motion(node, 0)
     stepper_begin_motion(STEPPER_GROUP_ID)
 
-def arm_pvt_coor(tar_coor, t_ms, pt_time_interval=PT_TIME_INTERVAL):
+def arm_pt_coor(tar_coor, t_ms, pt_time_interval=PT_TIME_INTERVAL):
     tar_joints = inverse_kinematics(tar_coor)
-    arm_pvt_angle(tar_joints, t_ms, pt_time_interval)
+    arm_pt_angle(tar_joints, t_ms, pt_time_interval)
+
+def arm_pvt_init():
+    stepper_set_all_group_id()
+    stepper_pvt_clear_queue(STEPPER_GROUP_ID)
+    stepper_pvt_set_first_valid_row(STEPPER_GROUP_ID, 0)
+    stepper_pvt_set_last_valid_row(STEPPER_GROUP_ID, 250)
+    stepper_pvt_set_management_mode(STEPPER_GROUP_ID, 0)
+    stepper_pvt_set_pt_time(STEPPER_GROUP_ID, 0)
+    
+
+    #     time.sleep(0.2)
+    
+def stepper_pvt_set_pvt_value(node_id, p, v, t):
+    stepper_pvt_set_position_row_n(node_id, 0, p)
+    stepper_pvt_set_velocity_row_n(node_id, 0, v)
+    stepper_pvt_set_time_row_n(node_id, 0, t)
+
+import numpy as np
+
+def generate_trajectory_triangle(cur_coor, list_tar_coor, dt):
+    def triangle_profile(p0, p1, T, dt):
+        steps = int(T / dt)
+        half = steps // 2
+        a = 4 * (p1 - p0) / (T ** 2)
+
+        positions = []
+        for i in range(steps + 1):
+            t = i * dt
+            if i <= half:
+                pos = p0 + 0.5 * a * t**2
+            else:
+                t1 = t - T / 2
+                vmax = a * (T / 2)
+                pmid = p0 + 0.5 * a * (T / 2)**2
+                pos = pmid + vmax * t1 - 0.5 * a * t1**2
+            positions.append(pos)
+        return positions
+
+    time_vals = []
+    total_time = 0
+    current = cur_coor
+    traj = [[] for _ in range(4)]
+
+    for target, T in list_tar_coor:
+        for j in range(4):  # x, y, z, yaw
+            interp = triangle_profile(current[j], target[j], T, dt)
+            traj[j].extend(interp)
+        time_vals.extend(np.arange(total_time, total_time + T + dt, dt))
+        total_time += T
+        current = target
+
+    return time_vals, traj[0], traj[1], traj[2], traj[3]
+
+def convert_cartesian_traj_to_joint_traj(x_list, y_list, z_list, yaw_list):
+    joint1_list, joint2_list, joint3_list, joint4_list = [], [], [], []
+
+    for i, (x, y, z, yaw) in enumerate(zip(x_list, y_list, z_list, yaw_list)):
+        joints = inverse_kinematics([x, y, z, yaw])
+        
+        
+        joint1_list.append(joints[0])
+        joint2_list.append(joints[1])
+        joint3_list.append(joints[2])
+        joint4_list.append(joints[3])
+
+    return joint1_list, joint2_list, joint3_list, joint4_list
+
+def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
+    
+    cur_coor = start_coor
+    
+    # ==== HITUNG TRAJEKTORI CARTESIAN ====
+    t, x, y, z, yaw = generate_trajectory_triangle(cur_coor, list_tar_coor, dt)
+
+    # ==== KONVERSI CARTESIAN → JOINT ====
+    j1_traj, j2_traj, j3_traj, j4_traj = convert_cartesian_traj_to_joint_traj(x, y, z, yaw)
+    return j1_traj, j2_traj, j3_traj, j4_traj
+    # # ==== POSISI BASE JOINT UNTUK HITUNG POSISI RELATIF ====
+    # base_joint_deg = inverse_kinematics(cur_coor)
+
+    # def compute_relative_joint_trajectory(joint_list, base_value):
+    #     return [val - base_value for val in joint_list]
+    
+    # j1_rel = compute_relative_joint_trajectory(j1_traj, base_joint_deg[1])
+    # j2_rel = compute_relative_joint_trajectory(j2_traj, base_joint_deg[1])
+    # j3_rel = compute_relative_joint_trajectory(j3_traj, base_joint_deg[2])
+    # j4_rel = compute_relative_joint_trajectory(j4_traj, base_joint_deg[3])
+
+   
+    # # plot_xy_trajectory(x, y)
+    # # ==== PVT POINTS ====
+    # def generate_pvt_points(j1_abs, j1_rel, j2_rel, j3_rel, j4_rel, dt_ms):
+        
+    #     origins = [0, 0, 0, 0]
+        
+    #     dt_sec = dt_ms / 1000
+
+    #     pvt1, pvt2, pvt3, pvt4 = [], [], [], []
+
+    #     for i in range(1, len(j1_rel)):
+    #         # === Joint 1 (servo): gunakan origin
+    #         pos1 = int(servo_degrees_to_pulses(j1_abs[i]) + origins[0])
+    #         vel1 = int(servo_degrees_to_pulses((j1_rel[i] - j1_rel[i - 1]) / dt_sec) * 10)
+    #         pvt1.append((pos1, vel1, dt_ms))
+
+    #         # === Joint 2–4 (stepper): tanpa origin
+    #         for j_rel, pvt_list in zip(
+    #             [j2_rel, j3_rel, j4_rel],
+    #             [pvt2, pvt3, pvt4]
+    #         ):
+    #             pos = int(stepper_degrees_to_pulses(j_rel[i]))
+    #             vel = int(stepper_degrees_to_pulses((j_rel[i] - j_rel[i - 1]) / dt_sec))
+    #             pvt_list.append((pos, vel, dt_ms))
+
+    #     return pvt1, pvt2, pvt3, pvt4
+
+
+    
+    # # Cetak PVT
+    # pvt_points = generate_pvt_points(j1_traj,j1_rel, j2_rel, j3_rel, j4_rel, dt)
+    
+    # return pvt_points
+
+def pre_start_dancing():
+    
+    start_coor = forward_kinematics([0, 0, 0, 0])
+    list_tar_coor = [
+        ([150, -100, 90, 0], 2000),
+        ([150,   0,   90, 87], 2000),
+        ([107,   50,  90, 87], 2000)
+    ]
+    pt1, pt2, pt3, pt4 = generate_multi_straight_pvt_points(start_coor, list_tar_coor, PT_TIME_INTERVAL)
+    
+    plot_xy_from_pt(pt1, pt2, pt3, pt4)
+
+    arm_pvt_init()
+    for i in range(len(pt2)):
+        arm_pt_set_point(pt2[i], pt3[i], pt4[i])
+    
+    arm_pt_get_index()
+    arm_pt_execute()
+    # for t in range(100):
+    #     arm_pt_get_index()

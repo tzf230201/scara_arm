@@ -28,13 +28,13 @@ def pp_coor(msg, state):
 def pvt_joint(msg, state):
     joints = msg.get("joints", [])
     t_ms = msg.get("time", 1000)
-    arm_pvt_angle(joints, t_ms)
+    arm_pt_angle(joints, t_ms)
     # TODO: Implement PVT handling
 
 def pvt_coor(msg, state):
     coor = msg.get("coor", [])
     t_ms = msg.get("time", 1000)
-    arm_pvt_coor(coor, t_ms)
+    arm_pt_coor(coor, t_ms)
     # TODO: Implement inverse kinematics/PVT
 
 def read_position(msg, state):
