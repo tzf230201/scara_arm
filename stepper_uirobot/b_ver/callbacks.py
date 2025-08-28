@@ -28,13 +28,13 @@ def pp_coor(msg, state):
 
 def pvt_joint(msg, state):
     joints = msg.get("joints", [])
-    t_ms = msg.get("time", 0)
+    t_ms = msg.get("time", 1000)
     arm_pvt_angle(joints, t_ms)
     # TODO: Implement PVT handling
 
 def pvt_coor(msg, state):
     coor = msg.get("coor", [])
-    t_ms = msg.get("time", 0)
+    t_ms = msg.get("time", 1000)
     arm_pvt_coor(coor, t_ms)
     # TODO: Implement inverse kinematics/PVT
 
@@ -55,7 +55,7 @@ def dancing(msg, state):
 
 def homing(msg, state):
     home_angle = [0, 0, 0, 0]
-    t_ms = msg.get("time", 0)
+    t_ms = msg.get("time", 1000)
     arm_pp_angle(home_angle, t_ms)
     # print(f"[cb] Homing: motor={msg.get('motor')}")
     # # TODO: Implement homing
