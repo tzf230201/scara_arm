@@ -506,12 +506,12 @@ def convert_cartesian_traj_to_joint_traj(x_list, y_list, z_list, yaw_list):
 
     for i, (x, y, z, yaw) in enumerate(zip(x_list, y_list, z_list, yaw_list)):
         joints = inverse_kinematics([x, y, z, yaw])
-        
-        
-        joint1_list.append(joints[0])
-        joint2_list.append(joints[1])
-        joint3_list.append(joints[2])
-        joint4_list.append(joints[3])
+
+
+        joint1_list.append(stepper_deg_to_pulse(joints[0]))
+        joint2_list.append(stepper_deg_to_pulse(joints[1]))
+        joint3_list.append(stepper_deg_to_pulse(joints[2]))
+        joint4_list.append(stepper_deg_to_pulse(joints[3]))
 
     return joint1_list, joint2_list, joint3_list, joint4_list
 
