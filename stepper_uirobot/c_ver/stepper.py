@@ -3,6 +3,19 @@
 from canbase import simplecan3_write_read
 import struct
 
+STEPPER_MICROSTEP = 128
+STEPPER_CPR = 200 * STEPPER_MICROSTEP  # 200 step/rev x 128 microstep = 25600 pulse/rev
+
+# Satuan: degree/pulse dan pulse/degree
+STEPPER_DEG_PER_PULSE = 360.0 / STEPPER_CPR   # (ex: 0.0140625 deg/pulse)
+STEPPER_PULSE_PER_DEG = STEPPER_CPR / 360.0   # (ex: 71.111... pulse/deg)
+
+def stepper_pulse_to_deg(pulse):
+    return float(pulse) * STEPPER_DEG_PER_PULSE
+
+def stepper_deg_to_pulse(deg):
+    return int(round(float(deg) * STEPPER_PULSE_PER_DEG))
+
 # List mnemonic dan nilai Control Word (CW)
 MNEMONIC = {
     "PP": 0x01,
