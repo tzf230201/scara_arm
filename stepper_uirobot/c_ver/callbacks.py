@@ -21,7 +21,14 @@ def wake_up(msg, state):
 
 def shutdown(msg, state):
     print(f"[cb] Shutdown: motor={msg.get('motor')}")
-    arm_set_motor_off()
+    selection = msg.get('motor')
+    if is_stepper_selected(selection):
+        arm_set_motor_off()
+    if is_servo_selected(selection):
+        servo_shutdown()
+        # print(f"servo shutdown, brake active")
+        print(f"servo is not shutdown, development purpose only")
+        
     state['motor_on'] = False
 
 def pp_joint(msg, state):
