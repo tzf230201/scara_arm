@@ -258,7 +258,7 @@ def arm_pp_coor(tar_coor, t_ms):
     arm_pp_angle(tar_joints, t_ms)
 
 ############################################################## PVT
-PT_TIME_INTERVAL = 50
+PT_TIME_INTERVAL = 100
     
 def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interval=PT_TIME_INTERVAL):
     """
