@@ -385,7 +385,9 @@ def pt_test():
     start_coor = forward_kinematics([0, 0, 0, 0])
     list_tar_coor = [
         ([166.82, -168,   0,   0], 4000),
+        ([166.82, -168,   0,   0], 200),
         ([258,     0,     0,   0], 4000),
+        ([258,     0,     0,   0], 200),
         ([107,    125,    0,  90], 4000),
     ]
     pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(
