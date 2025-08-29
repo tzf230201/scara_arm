@@ -3,10 +3,8 @@ from time import time
 from stepper import *
 from function import *
 
-
 def wake_up(msg, state):
-    selection = msg.get('motor')
-    print(f"selection = {selection}")
+    print(f"[cb] Wake up: motor={msg.get('motor')}")  # Wake up/enable/prepare motors
     init_stepper()
     state['motor_on'] = True
 
