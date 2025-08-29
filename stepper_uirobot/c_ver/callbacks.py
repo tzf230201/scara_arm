@@ -4,31 +4,18 @@ from arm import *
 from function import *
 from motion import *
 from servo import *
+from robot import *
 
 def wake_up(msg, state):
 
     selection = msg.get('motor')
-    print(f"selection = {selection}")
-    if is_stepper_selected(selection):
-        arm_init()
-    if is_servo_selected(selection):
-        print(f"servo initialization skipped in this version")
-        servo_init(1)  # 7 is PVT mode, 1 is PP mode
-        servo_disable_heartbeat()
-        
+    robot_wake_up(selection)
     state['motor_on'] = True
     print(f"[cb] Wake up: motor={selection}")  # Wake up/enable/prepare motors
 
 def shutdown(msg, state):
-    print(f"[cb] Shutdown: motor={msg.get('motor')}")
     selection = msg.get('motor')
-    if is_stepper_selected(selection):
-        arm_set_motor_off()
-    if is_servo_selected(selection):
-        servo_shutdown()
-        # print(f"servo shutdown, brake active")
-        print(f"servo is not shutdown, development purpose only")
-        
+    robot_shutdown(selection)
     state['motor_on'] = False
 
 def pp_joint(msg, state):

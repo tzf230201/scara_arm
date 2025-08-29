@@ -21,9 +21,3 @@ def print_orange(text):
     ORANGE = '\033[38;5;214m'  # Kode warna 256-color mode untuk oranye
     RESET = '\033[0m'  # Untuk mengembalikan warna ke default
     print(f"{ORANGE}{text}{RESET}")
-
-def is_stepper_selected(selection):
-    return selection != "servo_only"
-
-def is_servo_selected(selection):
-    return selection != "stepper_only"

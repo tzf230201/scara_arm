@@ -25,17 +25,17 @@ def arm_set_motor_on():
 
 
 def arm_get_enc():
-    pa2 = stepper_get_pa(6)
-    pa3 = stepper_get_pa(7)
-    pa4 = stepper_get_pa(8)
-    return pa2, pa3, pa4
+    enc_2 = stepper_get_pa(6)
+    enc_3 = stepper_get_pa(7)
+    enc_4 = stepper_get_pa(8)
+    return enc_2, enc_3, enc_4
 
 def arm_get_angle():
-    pa2, pa3, pa4 = arm_get_enc()
-    pa2_deg = stepper_pulse_to_deg(pa2)
-    pa3_deg = stepper_pulse_to_deg(pa3)
-    pa4_deg = stepper_pulse_to_deg(pa4)
-    return pa2_deg, pa3_deg, pa4_deg
+    enc_2, enc_3, enc_4 = arm_get_enc()
+    cur_angle_2 = stepper_pulse_to_deg(enc_2)
+    cur_angle_3 = stepper_pulse_to_deg(enc_3)
+    cur_angle_4 = stepper_pulse_to_deg(enc_4)
+    return cur_angle_2, cur_angle_3, cur_angle_4
 
 
 
@@ -183,7 +183,7 @@ def arm_pt_coor(tar_coor, t_ms, pt_time_interval=PT_TIME_INTERVAL):
     arm_pt_angle(tar_joints, t_ms, pt_time_interval)
     
 def arm_pvt_init():
-    stepper_set_all_group_id()
+    arm_set_group_id()
     stepper_pvt_clear_queue(STEPPER_GROUP_ID)
     stepper_pvt_set_first_valid_row(STEPPER_GROUP_ID, 0)
     stepper_pvt_set_last_valid_row(STEPPER_GROUP_ID, 250)
