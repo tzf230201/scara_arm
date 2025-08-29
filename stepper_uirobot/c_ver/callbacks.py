@@ -3,6 +3,7 @@ from time import time
 from arm import *
 from function import *
 from motion import *
+from servo import *
 
 def wake_up(msg, state):
 
@@ -10,10 +11,10 @@ def wake_up(msg, state):
     print(f"selection = {selection}")
     if is_stepper_selected(selection):
         arm_init()
-    # if is_servo_selected(selection):
-    #     print(f"servo initialization skipped in this version")
-    #     servo_init(1)  # 7 is PVT mode, 1 is PP mode
-    #     servo_disable_heartbeat()
+    if is_servo_selected(selection):
+        print(f"servo initialization skipped in this version")
+        servo_init(1)  # 7 is PVT mode, 1 is PP mode
+        servo_disable_heartbeat()
         
     state['motor_on'] = True
     print(f"[cb] Wake up: motor={selection}")  # Wake up/enable/prepare motors
