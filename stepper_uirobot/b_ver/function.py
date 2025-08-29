@@ -449,6 +449,7 @@ def arm_pt_angle(tar_joints, t_ms, pt_time_interval=PT_TIME_INTERVAL):
 
 def arm_pt_coor(tar_coor, t_ms, pt_time_interval=PT_TIME_INTERVAL):
     tar_joints = inverse_kinematics(tar_coor)
+    print(f"[arm_pt_coor] tar_coor={tar_coor} → tar_joints={tar_joints}")
     arm_pt_angle(tar_joints, t_ms, pt_time_interval)
 
 def arm_pvt_init():
