@@ -373,6 +373,7 @@ def pre_start_dancing(selection):
     
     arm_pt_get_index()
     arm_pt_execute()
+    time.sleep(6)
     
 def start_dancing(selection):
     x,y,z,yaw = shuttle_coor
