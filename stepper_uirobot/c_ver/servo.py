@@ -377,12 +377,12 @@ def servo_pp_angle(tar_angle_1, t_ms):
     
     origins = get_origins()
     
-    print(f"origins[0] = {origins[0]}")
+    # print(f"origins[0] = {origins[0]}")
     
     cur_angle_1 = servo_get_angle()
     tar_pulse_1 = servo_degrees_to_pulses(tar_angle_1) + origins[0]
     
-    print(f"tar_angle = {tar_angle_1}, tar_pulses = {tar_pulse_1}")
+    # print(f"tar_angle = {tar_angle_1}, tar_pulses = {tar_pulse_1}")
 
     delta_pulse_1 = servo_degrees_to_pulses(tar_angle_1 - cur_angle_1)
     accel_decel_1, max_speed_1 = servo_accel_decel_calc(delta_pulse_1, t_ms)
@@ -395,7 +395,7 @@ def servo_pp_angle(tar_angle_1, t_ms):
     servo_set_tar_pulse(tar_pulse_1)
           
     if (accel_decel_1 <= SERVO_MAX_ACCEL):
-        # servo_execute()
+        servo_execute()
         if (accel_decel_1 >= (SERVO_MAX_ACCEL * 0.8)):
             print_yellow(f"warning : almost max acceleration")
         return 1
