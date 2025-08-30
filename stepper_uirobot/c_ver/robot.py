@@ -138,11 +138,14 @@ def robot_get_angle(selection):
 
 
 def robot_set_origin(selection):
-    enc_1 = servo_get_motor_position(ID1)
-    enc_2, enc_3, enc_4 = arm_get_enc()
-    save_origin_to_config([enc_1, enc_2, enc_3, enc_4])
-    arm_set_origin()
-    print(f"robot_set_origin({selection})")
+    if selection == "all":
+        enc_1 = servo_get_motor_position(ID1)
+        enc_2, enc_3, enc_4 = arm_get_enc()
+        save_origin_to_config([enc_1, enc_2, enc_3, enc_4])
+        arm_set_origin()
+        print(f"robot_set_origin({selection})")
+    else:
+        print(f"robot_set_origin({selection}) skipped, only available for 'all' selection")
     
 def robot_dancing(selection):
     print(f"robot_dancing({selection})")
