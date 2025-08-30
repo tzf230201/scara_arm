@@ -365,6 +365,7 @@ def servo_get_angle():
     return cur_angle_1
 
 def servo_set_origin():
+    global origins
     origins = list(get_origins())      # e.g. [-3306079, 0, 0, 0]
     # Baca enkoder servo
     enc_1 = servo_get_encoder()
