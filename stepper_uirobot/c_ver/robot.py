@@ -3,6 +3,222 @@ from servo import *
 from stepper import *
 from arm import *
 import time
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+
+def plot_yx(x_list,y_list):
+    plt.figure()
+    plt.plot(y_list, x_list, '-o', label='End Effector Path')
+    plt.xlabel('Y (mm)')
+    plt.ylabel('X (mm)')
+    plt.axis('equal')
+    plt.grid(True)
+    plt.legend()
+    plt.title("YX Trajectory from PT Path")
+    plt.show()
+
+
+def check_limit(tar_joints, source_info=""):
+    tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
+    tar_joint_4 *= -1
+
+    if tar_joint_1 > (3510 * 4):
+        print(f"[{source_info}] tar_joint_1 greater than {tar_joint_1}")
+        tar_joint_1 = (3510 * 4)
+    elif tar_joint_1 < -1:
+        print(f"[{source_info}] tar_joint_1 lower than {tar_joint_1}")
+        tar_joint_1 = -1
+
+    if tar_joint_2 > (178 * 5):
+        print(f"[{source_info}] tar_joint_2 greater than {tar_joint_2}")
+        tar_joint_2 = 178 * 5
+    elif tar_joint_2 < 0:
+        print(f"[{source_info}] tar_joint_2 lower than {tar_joint_2}")
+        tar_joint_2 = 0
+
+    if tar_joint_3 > (0 + tar_joint_2):
+        print(f"[{source_info}] tar_joint_3 greater than {tar_joint_3}")
+        tar_joint_3 = (0 + tar_joint_2)
+    elif tar_joint_3 < ((-135 * 5) + tar_joint_2):
+        print(f"[{source_info}] tar_joint_3 lower than {tar_joint_3}")
+        tar_joint_3 = (-135 * 5) + tar_joint_2
+
+    if tar_joint_4 > ((196 * 5) + tar_joint_3):
+        print(f"[{source_info}] tar_joint_4 greater than {tar_joint_4}")
+        tar_joint_4 = (196 * 5) + tar_joint_3
+    elif tar_joint_4 < (0 + tar_joint_3):
+        print(f"[{source_info}] tar_joint_4 lower than {tar_joint_4}")
+        tar_joint_4 = 0 + tar_joint_3
+
+    tar_joint_4 *= -1
+    return [tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4]
+
+import math
+
+def inverse_kinematics(tar_coor):
+    x, y, z, yaw = tar_coor
+    # Panjang link (mm)
+    L2 = 137.0
+    L3 = 121.0
+    # Offset (derajat) dan rasio joint
+    OFFSET_2 = -96.5
+    OFFSET_3 = 134
+    OFFSET_4 = -52.5
+    RATIO = 5.0  # 5:1
+
+    # Hitung jarak planar
+    distance = math.hypot(x, y)
+    max_reach = L2 + L3
+    if distance > max_reach:
+        # Jika benar-benar di luar jangkauan, optional: warn, lalu clamp ke batas terjauh
+        print(f"Warning: target ({x:.1f},{y:.1f}) jarak {distance:.1f} > {max_reach:.1f}, akan di-clamp")
+        # Arahkan ke arah tepi workspace
+        scale = max_reach / distance
+        x *= scale
+        y *= scale
+
+    # Hitung cos(theta3)
+    cos_theta3 = (x**2 + y**2 - L2**2 - L3**2) / (2 * L2 * L3)
+    # Clamp ke [-1,1]
+    cos_theta3 = max(-1.0, min(1.0, cos_theta3))
+    theta3_rad = math.acos(cos_theta3)
+    theta3 = math.degrees(theta3_rad)
+
+    # Hitung theta2
+    k1 = L2 + L3 * cos_theta3
+    k2 = L3 * math.sin(theta3_rad)
+    theta2_rad = math.atan2(y, x) - math.atan2(k2, k1)
+    theta2 = math.degrees(theta2_rad)
+
+    # Konversi ke pulse
+    joint_1 = z * (360.0 / 90.0)           # asumsi 90 mm → 360°
+    joint_2 = (theta2 - OFFSET_2) * RATIO
+    joint_3 = (theta3 - OFFSET_3) * RATIO + joint_2
+    joint_4 = -((yaw - OFFSET_4) * RATIO)
+
+    joints = [joint_1, joint_2, joint_3, joint_4]
+    return check_limit(joints)
+
+# def inverse_kinematics(tar_coor):
+#     x, y, z, yaw = tar_coor
+#     # max area
+#     L2 = 137.0
+#     L3 = 121.0
+#     L4 = 56.82
+#     OFFSET_2 = -96.5
+#     OFFSET_3 = 134
+#     OFFSET_4 = -52.5
+#     #ration joint = 5:1
+
+#     distance = math.sqrt(x**2 + y**2)
+
+#     if distance > (L2 + L3):
+#         raise ValueError("out of boundary")
+
+#     # joint_3
+#     cos_theta3 = (x**2 + y**2 - L2**2 - L3**2) / (2 * L2 * L3)
+#     theta3 = math.acos(cos_theta3)  #angle in radian
+
+#     # joint_2
+#     k1 = L2 + L3 * cos_theta3
+#     k2 = L3 * math.sin(theta3)
+#     theta2 = math.atan2(y, x) - math.atan2(k2, k1)
+
+#     # rad to deg
+#     theta2 = math.degrees(theta2)
+#     theta3 = math.degrees(theta3)
+
+#     joint_1 = z * (360/90)
+#     joint_2 = (theta2-OFFSET_2)*5
+#     joint_3 = (theta3-OFFSET_3)*5 + joint_2
+#     joint_4 = (yaw-OFFSET_4)*5# + joint_3;
+        
+#     joint_4 *= -1
+    
+#     joints = [joint_1, joint_2, joint_3, joint_4]
+#     joints = check_limit(joints)
+    
+#     return joints
+
+
+def forward_kinematics(cur_joints):
+    cur_deg1, cur_deg2, cur_deg3, cur_deg4 = cur_joints
+    cur_deg4 *= -1.0
+    L2 = 137.0
+    L3 = 121.0
+    OFFSET_2 = -96.5
+    OFFSET_3 = 134.0
+    OFFSET_4 = -52.5
+
+    theta2_rad = math.radians((cur_deg2 / 5) + OFFSET_2)
+    theta3_rad = math.radians((cur_deg3 / 5) + OFFSET_3 - (cur_deg2 / 5))
+
+    x2 = L2 * math.cos(theta2_rad)
+    y2 = L2 * math.sin(theta2_rad)
+    x3 = x2 + L3 * math.cos(theta2_rad + theta3_rad)
+    y3 = y2 + L3 * math.sin(theta2_rad + theta3_rad)
+    z = (cur_deg1 / 360) * 90
+    yaw = (cur_deg4 / 5) + OFFSET_4
+
+    return [x3, y3, z, yaw]
+
+def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interval=50):
+    pt1_f, pt2_f, pt3_f, pt4_f = [], [], [], []
+    last_coor = start_coor
+
+    for tar_coor, traveltime in list_tar_coor:
+        # jumlah step & total waktu
+        n_step = max(int(round(traveltime / pt_time_interval)), 1)
+        T = n_step * pt_time_interval
+
+        for i in range(n_step):
+            t = i * pt_time_interval
+            tau = t / T  # normalisasi waktu [0,1)
+
+            # triangle profile: alpha = s(t)/s_total
+            if tau <= 0.5:
+                alpha = 2 * tau**2
+            else:
+                alpha = 1 - 2 * (1 - tau)**2
+
+            # interpolasi Cartesian
+            coor = [
+                last_coor[j] + (tar_coor[j] - last_coor[j]) * alpha
+                for j in range(4)
+            ]
+            
+            
+
+            # IK → pulse
+            joint = inverse_kinematics(coor)
+            pulses = [stepper_deg_to_pulse(j) for j in joint]
+
+            pt1_f.append(pulses[0])
+            pt2_f.append(pulses[1])
+            pt3_f.append(pulses[2])
+            pt4_f.append(pulses[3])
+
+        # beralih ke segmen berikutnya, pastikan posisinya pas di target
+        last_coor = tar_coor
+
+    # tambahkan titik akhir yang pasti sampai target terakhir
+    final_joint = inverse_kinematics(list_tar_coor[-1][0])
+    pulses = [stepper_deg_to_pulse(j) for j in final_joint]
+    pt1_f.append(pulses[0])
+    pt2_f.append(pulses[1])
+    pt3_f.append(pulses[2])
+    pt4_f.append(pulses[3])
+
+    return pt1_f, pt2_f, pt3_f, pt4_f
+
+
+
+
+
+
+
+
 
 
 def is_stepper_selected(selection):
@@ -110,6 +326,7 @@ def robot_pt_coor(tar_coor, t_ms, selection):
     tar_angles = tar_angle_1, tar_angle_2, tar_angle_3, tar_angle_4
     robot_pt_angle(tar_angles, t_ms, selection)
 
+
 def robot_dancing(selection):
     print(f"robot_dancing({selection})")
     
@@ -149,54 +366,7 @@ def pre_start_dancing():
 
 
 
-def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interval=50):
-    pt1_f, pt2_f, pt3_f, pt4_f = [], [], [], []
-    last_coor = start_coor
 
-    for tar_coor, traveltime in list_tar_coor:
-        # jumlah step & total waktu
-        n_step = max(int(round(traveltime / pt_time_interval)), 1)
-        T = n_step * pt_time_interval
-
-        for i in range(n_step):
-            t = i * pt_time_interval
-            tau = t / T  # normalisasi waktu [0,1)
-
-            # triangle profile: alpha = s(t)/s_total
-            if tau <= 0.5:
-                alpha = 2 * tau**2
-            else:
-                alpha = 1 - 2 * (1 - tau)**2
-
-            # interpolasi Cartesian
-            coor = [
-                last_coor[j] + (tar_coor[j] - last_coor[j]) * alpha
-                for j in range(4)
-            ]
-            
-            
-
-            # IK → pulse
-            joint = inverse_kinematics(coor)
-            pulses = [stepper_deg_to_pulse(j) for j in joint]
-
-            pt1_f.append(pulses[0])
-            pt2_f.append(pulses[1])
-            pt3_f.append(pulses[2])
-            pt4_f.append(pulses[3])
-
-        # beralih ke segmen berikutnya, pastikan posisinya pas di target
-        last_coor = tar_coor
-
-    # tambahkan titik akhir yang pasti sampai target terakhir
-    final_joint = inverse_kinematics(list_tar_coor[-1][0])
-    pulses = [stepper_deg_to_pulse(j) for j in final_joint]
-    pt1_f.append(pulses[0])
-    pt2_f.append(pulses[1])
-    pt3_f.append(pulses[2])
-    pt4_f.append(pulses[3])
-
-    return pt1_f, pt2_f, pt3_f, pt4_f
 
 def pt_test():
     x, y, yaw = arm_forward_kinematics(0,0,0)
