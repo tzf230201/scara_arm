@@ -46,9 +46,29 @@ def read_position(msg, state):
     # print(f"[cb] Read Position: motor={msg.get('motor')}")
     selection = msg.get('motor')
     cur_angle_1, cur_angle_2, cur_angle_3, cur_angle_4 = robot_get_angle(selection)
-    x,y,z,yaw = forward_kinematics([0,cur_angle_2, cur_angle_3, cur_angle_4])
-    print_yellow(f"[cb] m1={cur_angle_1:.2f} m2={cur_angle_2:.2f}° m3={cur_angle_3:.2f}° m4={cur_angle_4:.2f}°")
-    print_orange(f"[cb] x={x:.2f}mm, y={y:.2f}mm, z={z:.2f}mm, yaw={yaw:.2f}°")
+
+    # Format string dengan aman
+    def fmt(val, unit=""):
+        return f"{val:.2f}{unit}" if val is not None else "None"
+
+    m1_s = fmt(cur_angle_1)
+    m2_s = fmt(cur_angle_2, "°")
+    m3_s = fmt(cur_angle_3, "°")
+    m4_s = fmt(cur_angle_4, "°")
+
+    # Hanya hitung FK kalau semua stepper angle ada
+    if None not in (cur_angle_2, cur_angle_3, cur_angle_4):
+        x, y, z, yaw = forward_kinematics([0, cur_angle_2, cur_angle_3, cur_angle_4])
+        x_s   = fmt(x, "mm")
+        y_s   = fmt(y, "mm")
+        z_s   = fmt(z, "mm")
+        yaw_s = fmt(yaw, "°")
+    else:
+        x_s = y_s = z_s = yaw_s = "None"
+
+    print_yellow(f"[cb] m1={m1_s} m2={m2_s} m3={m3_s} m4={m4_s}")
+    print_orange(f"[cb] x={x_s}, y={y_s}, z={z_s}, yaw={yaw_s}")
+
 
     # TODO: Implement read pos & maybe update state["pos_abs"]
 
