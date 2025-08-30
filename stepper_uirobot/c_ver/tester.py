@@ -19,9 +19,9 @@ import time
 # else:
 #     print("Gagal baca bitrate")
 
-stepper_set_plc_mode(0)
-stepper_set_plc_mode(0)
-stepper_set_plc_mode(0)
+# stepper_set_plc_mode(0)
+# stepper_set_plc_mode(0)
+# stepper_set_plc_mode(0)
     
 # node_id = stepper_get_node_id(6)
 # if node_id is not None:
