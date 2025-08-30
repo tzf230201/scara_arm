@@ -42,8 +42,10 @@ def origin_load_from_config():
             json.dump(default_config, f, indent=4)
         return tuple(default_config.values())
 
+origins = origin_load_from_config()
 
 def origin_save_to_config(encoders):
+    
     config_data = {
         "origin_1": encoders[0],
         "origin_2": encoders[1],
@@ -56,7 +58,10 @@ def origin_save_to_config(encoders):
 
     print(f"Origin saved to {config_path}")
     
-origins = origin_load_from_config()
+    global origins
+    origins = origin_load_from_config()
+    
+
 
 def get_origins():
     global origins
