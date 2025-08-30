@@ -26,11 +26,9 @@ poller = zmq.Poller(); poller.register(sub, zmq.POLLIN)
 state = {
     "running": True,
     "motor_on": False,
-    "pos_abs": 0.0,
-    "speed": 0.0,
+    "routine": False,
     "last_cmd_ts": time.time(),
     # optional cache untuk posisi per-ID
-    "last_pos": {},  # {id: pos}
 }
 
 def control_step(state):

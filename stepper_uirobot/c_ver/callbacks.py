@@ -17,6 +17,7 @@ def shutdown(msg, state):
     selection = msg.get('motor')
     robot_shutdown(selection)
     state['motor_on'] = False
+    state['routine'] = False
 
 def pp_joint(msg, state):
     # Ambil array lengkap [joint1, joint2, joint3, joint4]
@@ -76,9 +77,14 @@ def dancing(msg, state):
     selection = "all"
     # pre_start_dancing(selection)
     start_dancing(selection)
+    # state['routine'] = True
     # pt_test()
     # print(f"[cb] Dancing: motor={msg.get('motor')}")
     # # TODO: Implement demo/dance pattern
+    
+def routine(state):
+    if state['routine'] == True:
+        pt_routine()
 
 def homing(msg, state):
     # joints = msg.get("joints", [0, 0, 0, 0])
@@ -90,7 +96,8 @@ def homing(msg, state):
 def stop(msg, state):
     arm_set_motor_off()
     print(f"[cb] STOP (from GUI)")
-    # state['running'] = False
+    state['routine'] = False
+    state['running'] = False
 
 def read_encoder(msg, state):
     selection = msg.get('motor')
@@ -103,9 +110,7 @@ def set_origin(msg, state):
     robot_set_origin(selection)
     print(f"[cb] Set Origin: motor={msg.get('motor')}")
     
-def routine(state):
-    if state['motor_on'] == True:
-        print(f"enter routine")
+
 # === Mapping ===
 HANDLERS = {
     "wake_up": wake_up,
