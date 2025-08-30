@@ -51,7 +51,8 @@ def read_position(msg, state):
     cur_angle_1, cur_angle_2, cur_angle_3, cur_angle_4 = robot_get_angle(selection)
     print(f"{cur_angle_1}, {cur_angle_2}, {cur_angle_3}, {cur_angle_4}")
 
-    # if cur_angle_1 != None:
+    if cur_angle_1 != None:
+        print(f"bukan None m1")
     #     z = servo_forward_kinematics(cur_angle_1)
     #     m1_s = f"{cur_angle_1:.2f}°"
     #     z_s = f"{z:.2f}mm"
