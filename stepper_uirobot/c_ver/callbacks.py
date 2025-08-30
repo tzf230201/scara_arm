@@ -104,8 +104,7 @@ def set_origin(msg, state):
     print(f"[cb] Set Origin: motor={msg.get('motor')}")
     
 def routine():
-    if state['motor_on'] == True:
-        print(f"enter routine")
+    print(f"enter routine")
 # === Mapping ===
 HANDLERS = {
     "wake_up": wake_up,
