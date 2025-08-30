@@ -379,10 +379,11 @@ def servo_pp_angle(tar_angle_1, t_ms):
     
     # print(f"origins[0] = {origins[0]}")
     
+    print(f"tar_angle = {tar_angle_1}")
     cur_angle_1 = servo_get_angle()
     tar_pulse_1 = servo_degrees_to_pulses(tar_angle_1) + origins[0]
     
-    print(f"tar_angle = {tar_angle_1}, tar_pulses = {tar_pulse_1}")
+    
 
     delta_pulse_1 = servo_degrees_to_pulses(tar_angle_1 - cur_angle_1)
     accel_decel_1, max_speed_1 = servo_accel_decel_calc(delta_pulse_1, t_ms)
