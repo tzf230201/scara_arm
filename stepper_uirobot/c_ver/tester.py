@@ -1,7 +1,9 @@
 from stepper import *
 import time
 
-
+stepper_set_mo(6, False)
+stepper_set_mo(7, False)
+stepper_set_mo(8, False)
 BITRATE_MAP = {
     0: "1000Kbps",
     1: "800Kbps",
