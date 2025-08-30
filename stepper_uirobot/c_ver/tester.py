@@ -18,12 +18,16 @@ import time
 #     print(f"Bitrate Stepper 6: {BITRATE_MAP.get(br, 'Unknown')}")
 # else:
 #     print("Gagal baca bitrate")
+
+stepper_set_plc_mode(6)
+stepper_set_plc_mode(7)
+stepper_set_plc_mode(8)
     
-node_id = stepper_get_node_id(6)
-if node_id is not None:
-    print(f"Node ID Stepper 6: {node_id}")
-else:
-    print("Gagal baca Node ID")
+# node_id = stepper_get_node_id(6)
+# if node_id is not None:
+#     print(f"Node ID Stepper 6: {node_id}")
+# else:
+#     print("Gagal baca Node ID")
 
 # group_id = stepper_get_group_id(6)
 # if group_id is not None:
