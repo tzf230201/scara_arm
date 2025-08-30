@@ -11,9 +11,9 @@ BITRATE_MAP = {
     3: "250Kbps",
     4: "125Kbps"
 }
-stepper_set_bitrate(6,0)
-stepper_set_bitrate(7,0)
-stepper_set_bitrate(8,0)
+# stepper_set_bitrate(6,0)
+# stepper_set_bitrate(7,0)
+# stepper_set_bitrate(8,0)
 br = stepper_get_bitrate(6)
 
 if br is not None:
