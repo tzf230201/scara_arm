@@ -1,7 +1,7 @@
 # callbacks.py
 from time import time
 from arm import *
-from stepper_uirobot.c_ver.utility import *
+from utility import *
 from motion import *
 from servo import *
 from robot import *
