@@ -340,41 +340,39 @@ def robot_pt_coor(tar_coor, t_ms, selection):
 
 def robot_dancing(selection):
     print(f"robot_dancing({selection})")
-    
+
+home_angle = 360,0,0,0
+shuttle_coor = 166.82, -168, 90, 0
+pre_pick_up_coor = 107, 125, 90, 90
+pick_up_coor = 107, 224, 90, 90
     
 def pre_start_dancing():
+    
+    robot_pp_angle(home_angle, 4000, "all")
+    time.sleep(4100)
+    
     # 1) Cartesian home
     start_coor = forward_kinematics([0, 0, 0, 0])
     # 2) Daftar target (Cartesian, durasi_ms)
     list_tar_coor = [
-        ([166.82, -168,   0,   0], 1000),
-        ([258,     0,     0,   0], 1000),
-        ([107,    125,    0,  90], 1000),
+        ([150, -100, 90, 0], 1000),
+        ([107, 125, 90, 90], 1000),
+        ([107, 224, 90, 90], 500),
+        ([107, 224, 115, 90], 1000),
+        ([107, 125, 115, 90], 3000),
     ]
 
-    # 3) Hitung PVT untuk joint1–4
-    pvt1, pvt2, pvt3, pvt4 = generate_multi_straight_pvt_points(
-        start_coor, list_tar_coor, PT_TIME_INTERVAL
-    )
-
-    # 4) Node IDs untuk joint2,3,4
-    node_ids = [6, 7, 8]
-    pvts     = [pvt2, pvt3, pvt4]
-
-    arm_pvt_init()
-
-    # 6) Isi PVT: posisi, kecepatan, waktu
-    for node, (pos, vel, times) in zip(node_ids, pvts):
-        for row in range(len(pos)):
-            stepper_pvt_set_position_row_n(node, 0, pos[row])
-            stepper_pvt_set_velocity_row_n(node, 0, vel[row])
-            stepper_pvt_set_time_row_n(node, 0, times[row])
-
-    # 7) Mulai motion serempak
-    for node in node_ids:
-        stepper_pvt_start_motion(node, 0)
-    stepper_begin_motion(STEPPER_GROUP_ID)
-
+    pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(start_coor, list_tar_coor, PT_TIME_INTERVAL)
+    
+    
+    plot_xy_from_pt(pt1, pt2, pt3, pt4)
+    
+    arm_pt_init()
+    for i in range(len(pt2)):
+        arm_pt_set_point(pt2[i], pt3[i], pt4[i])
+    
+    arm_pt_get_index()
+    arm_pt_execute()
 
 
 
@@ -408,3 +406,27 @@ def pt_test():
     # for t in range(100):
     #     arm_pt_get_index()
     #     time.sleep(0.2)
+    
+    
+    
+# 3) Hitung PVT untuk joint1–4
+    # pvt1, pvt2, pvt3, pvt4 = generate_multi_straight_pvt_points(
+    #     start_coor, list_tar_coor, PT_TIME_INTERVAL
+    # )
+    # # 4) Node IDs untuk joint2,3,4
+    # node_ids = [6, 7, 8]
+    # pvts     = [pvt2, pvt3, pvt4]
+
+    # arm_pvt_init()
+
+    # # 6) Isi PVT: posisi, kecepatan, waktu
+    # for node, (pos, vel, times) in zip(node_ids, pvts):
+    #     for row in range(len(pos)):
+    #         stepper_pvt_set_position_row_n(node, 0, pos[row])
+    #         stepper_pvt_set_velocity_row_n(node, 0, vel[row])
+    #         stepper_pvt_set_time_row_n(node, 0, times[row])
+
+    # # 7) Mulai motion serempak
+    # for node in node_ids:
+    #     stepper_pvt_start_motion(node, 0)
+    # stepper_begin_motion(STEPPER_GROUP_ID)
