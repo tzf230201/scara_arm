@@ -380,6 +380,11 @@ def servo_pp_angle(tar_angle_1, t_ms):
     # print(f"origins[0] = {origins[0]}")
     
     print(f"tar_angle = {tar_angle_1}")
+    print(f"tar_angle = {tar_angle_1}")
+    print(f"tar_angle = {tar_angle_1}")
+    print(f"tar_angle = {tar_angle_1}")
+    print(f"tar_angle = {tar_angle_1}")
+    print(f"tar_angle = {tar_angle_1}")
     cur_angle_1 = servo_get_angle()
     tar_pulse_1 = servo_degrees_to_pulses(tar_angle_1) + origins[0]
     
