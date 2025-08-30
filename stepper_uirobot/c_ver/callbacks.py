@@ -90,7 +90,6 @@ def stop(msg, state):
 def read_encoder(msg, state):
     selection = msg.get('motor')
     enc1, enc2, enc3, enc4 = robot_get_enc(selection)
-    pa2, pa3, pa4 = arm_get_enc()
     print(f"[cb] enc: {enc1}, {enc2}, {enc3}, {enc4}")
     # TODO: Implement reading encoder value
 
