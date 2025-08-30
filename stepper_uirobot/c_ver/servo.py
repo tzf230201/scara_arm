@@ -364,15 +364,17 @@ def servo_get_angle():
     return cur_angle_1
 
 def servo_set_origin():
-    # Ambil origins (bisa tuple atau list)
-    origins = list(get_origins())
-    origins[0] = servo_get_encoder()
+    origins = get_origins()  # misal (-3306079, 0, 0, 0)
+    # Baca enkoder servo
+    enc_1 = servo_get_encoder()
+    # Buat dict sesuai format config_origin.json
     config = {
-        "origin_1": origins[0],
+        "origin_1": enc_1,
         "origin_2": origins[1],
         "origin_3": origins[2],
         "origin_4": origins[3],
     }
+    # Simpan ke file JSON
     origin_save_to_config(config)
 
 
