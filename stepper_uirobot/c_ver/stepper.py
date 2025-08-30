@@ -64,16 +64,7 @@ def stepper_set_plc_mode(node_id):
     err, resp = simplecan3_write_read(node_id, 0x00, 4, [0, 0, 0, 0])
 
 def stepper_set_bitrate(node_id, bitrate_code):
-    """
-    Set bitrate stepper.
-    :param node_id: ID device sekarang
-    :param bitrate_code: kode bitrate (0-4)
-    :return: bitrate baru jika sukses, None jika gagal
-    
-    − Within a specific CAN network, Node IDs and Group IDs of all UIM devices should never be overlapped.
-    − Protocol Parameters will take effectiveness after reboot the UIM device.
-    − The set value will be saved to EEPROM only when MO=0; otherwise, it stays in RAM and is lost after power off.
-    """
+
     cw = MNEMONIC["PP"]
     err, resp = simplecan3_write_read(node_id, cw, 2, [5, bitrate_code])
     if err == 0 and resp["dl"] > 1 and resp["data"][0] == 5:
