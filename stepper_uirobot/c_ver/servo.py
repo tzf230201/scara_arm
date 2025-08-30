@@ -130,7 +130,7 @@ def servo_set_bitrate(bitrate):
     
 def servo_get_bitrate():
     bitrate = req_sdo(ID1, OD_SERVO_CANOPEN_NETWORK_CONFIGURATION, 0x00)
-    print(f"bitrate = {bitrate:04X}")
+    print(f"bitrate = {bitrate}")
     
 servo_get_bitrate()
 
