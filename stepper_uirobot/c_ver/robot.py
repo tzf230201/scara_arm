@@ -562,7 +562,8 @@ def start_dancing(selection):
     m1 = servo_get_angle()
     z = servo_forward_kinematics(m1)
     print(f"m1 = {m1} degree")
-    # servo_pp_coor(114, 1000)
+    servo_pp_coor(114, 1000)
+    
     # entry = motion_data[motion_cnt]
     # travel_time = entry['travel_time']
     # motion_cnt += 1
