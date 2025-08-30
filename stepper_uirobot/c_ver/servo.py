@@ -364,10 +364,16 @@ def servo_get_angle():
     return cur_angle_1
 
 def servo_set_origin():
+    # Ambil origins (bisa tuple atau list)
     origins = get_origins()
+    print(f"{origins}")
+    # Baca enkoder servo
     enc_1 = servo_get_encoder()
+    # Update origin untuk servo pertama
     origins[0] = enc_1
+    # Simpan kembali (bisa berupa list atau tuple sesuai implementasi)
     origin_save_to_config(origins)
+
 
 def servo_pp_angle(tar_angle_1, t_ms):
     
