@@ -19,9 +19,9 @@ import time
 # else:
 #     print("Gagal baca bitrate")
 
-stepper_set_plc_mode(6)
-stepper_set_plc_mode(7)
-stepper_set_plc_mode(8)
+# stepper_set_plc_mode(6)
+# stepper_set_plc_mode(7)
+# stepper_set_plc_mode(8)
     
 # node_id = stepper_get_node_id(6)
 # if node_id is not None:
@@ -41,8 +41,8 @@ stepper_set_plc_mode(8)
 # # else:
 # #     print("Gagal set AC/DC Unit")
     
-# unit = stepper_get_ac_dc_unit(6)
-# print(f"AC/DC Unit (IC[4]): {unit} ({'unit pulses/sec²' if unit == 0 else 'unit ms' if unit == 1 else 'unknown'})")
+unit = stepper_get_ac_dc_unit(6)
+print(f"AC/DC Unit (IC[4]): {unit} ({'unit pulses/sec²' if unit == 0 else 'unit ms' if unit == 1 else 'unknown'})")
 
 # # set_cl = stepper_set_using_close_loop(6, True)
 # # print(f"Set Closed-loop: {set_cl}")
@@ -445,15 +445,15 @@ stepper_set_plc_mode(8)
 #     stepper_pvt_start_motion(8, 0)
 #     stepper_begin_motion(8)
 
-for i in [6, 7, 8]:
-    lpr = stepper_get_qe(i, 0)
-    print(f"line per rev (Node {i}): {lpr}")
-    stepper_set_qe(i, 1, 160)
-    stall_tolerance = stepper_get_qe(i, 1)
-    print(f"Stall Tolerance (Node {i}): {stall_tolerance}")
-    stbae = stepper_get_qe(i, 2)
-    print(f"single turn bits of aboslute encoder  {i}): {stbae}")
-    bs = stepper_get_qe(i, 3)
-    print(f"battery status (Node {i}): {bs}")
-    cpr = stepper_get_qe(i, 4)
-    print(f"CPR (Node {i}): {cpr}")
+# for i in [6, 7, 8]:
+#     lpr = stepper_get_qe(i, 0)
+#     print(f"line per rev (Node {i}): {lpr}")
+#     stepper_set_qe(i, 1, 160)
+#     stall_tolerance = stepper_get_qe(i, 1)
+#     print(f"Stall Tolerance (Node {i}): {stall_tolerance}")
+#     stbae = stepper_get_qe(i, 2)
+#     print(f"single turn bits of aboslute encoder  {i}): {stbae}")
+#     bs = stepper_get_qe(i, 3)
+#     print(f"battery status (Node {i}): {bs}")
+#     cpr = stepper_get_qe(i, 4)
+#     print(f"CPR (Node {i}): {cpr}")
