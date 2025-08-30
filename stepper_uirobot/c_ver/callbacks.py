@@ -53,7 +53,7 @@ def read_position(msg, state):
     def fmt(val, unit=""):
         return f"{val:.2f}{unit}" if val is not None else "None"
 
-    if None not in cur_angle_1:
+    if None != cur_angle_1:
         z = servo_forward_kinematics(cur_angle_1)
         m1_s = f"{cur_angle_1:.2f}°"
         z_s = f"{z:.2f}mm"
