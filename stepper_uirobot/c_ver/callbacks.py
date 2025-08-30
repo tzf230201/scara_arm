@@ -20,15 +20,17 @@ def shutdown(msg, state):
 
 def pp_joint(msg, state):
     # Ambil array lengkap [joint1, joint2, joint3, joint4]
+    selection = msg.get('motor')
     joints = msg.get("joints", [0, 0, 0, 0])
     t_ms = msg.get("time", 1000)
-    robot_pp_angle(joints, t_ms, "stepper_only")
+    robot_pp_angle(joints, t_ms, selection)
 
 
 def pp_coor(msg, state):
+    selection = msg.get('motor')
     coor = msg.get("coor", [258, 0, 0, 0])
     t_ms = msg.get("time", 1000)
-    robot_pp_coor(coor, t_ms, "stepper_only")
+    robot_pp_coor(coor, t_ms, selection)
 
 def pvt_joint(msg, state):
     joints = msg.get("joints", [])
