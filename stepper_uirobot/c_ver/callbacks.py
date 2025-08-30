@@ -65,7 +65,7 @@ def read_position(msg, state):
         m4_s = f"{cur_angle_4:.2f}°"
         x_s   = f"{x:.2f}mm"
         y_s   = f"{y:.2f}mm"
-        yaw_s = f"{z:.2f}°"
+        yaw_s = f"{yaw:.2f}°"
 
     print_yellow(f"[cb] m1={m1_s} m2={m2_s} m3={m3_s} m4={m4_s}")
     print_orange(f"[cb] x={x_s}, y={y_s}, z={z_s}, yaw={yaw_s}")
