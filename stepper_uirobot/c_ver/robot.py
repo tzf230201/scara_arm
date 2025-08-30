@@ -579,50 +579,50 @@ def pt_routine():
     global pt_1, pt_2, pt_3, pt_4
     
     if motion_enable:
-            depth = stepper_pvt_get_queue(8)
-            print(f"depth: {depth}")
-            if depth != 0:
-                # print("lanjut")
-                # print(f"motion_cnt: {motion_cnt} of {motion_size}")
-                if motion_cnt < motion_size:
-                    if (depth < 40):
-                        
-                        if pvt_cnt < max_pvt_index:
-                            arm_pt_set_point(pt_2[pvt_cnt], pt_3[pvt_cnt], pt_4[pvt_cnt])    
+        depth = stepper_pvt_get_queue(8)
+        print(f"depth: {depth}")
+        if depth != 0:
+            # print("lanjut")
+            # print(f"motion_cnt: {motion_cnt} of {motion_size}")
+            if motion_cnt < motion_size:
+                if (depth < 40):
                     
-                            pvt_cnt += 1
-                            cur_pvt += 1
-                    
-                    change_motion = 0
-                    
-                    if cur_pvt >= tar_pvt:
-                        change_motion = 1
-                    
-                    print(f"pvt_cnt: {pvt_cnt}")
-                    if pvt_cnt == 120:
-                        servo_pp_coor(114, 1000)
-                                                
-                    if change_motion:
-                        entry = motion_data[motion_cnt]
-                        # motion_type = entry['motion_type']
-                        # entry['travel_time'] = get_travel_time() #atur waktu
-                        travel_time = entry['travel_time']
-                        # d1 = entry['d1']
-                        # d2 = entry['d2']
-                        # d3 = entry['d3']
-                        # d4 = entry['d4']
-                        tar_time = travel_time
-                        tar_pvt = int(travel_time/PT_TIME_INTERVAL)
-                        cur_pvt = 0
-                        # print(f"tar pvt = {tar_pvt}")
+                    if pvt_cnt < max_pvt_index:
+                        arm_pt_set_point(pt_2[pvt_cnt], pt_3[pvt_cnt], pt_4[pvt_cnt])    
+                
+                        pvt_cnt += 1
+                        cur_pvt += 1
+                
+                change_motion = 0
+                
+                if cur_pvt >= tar_pvt:
+                    change_motion = 1
+                
+                print(f"pvt_cnt: {pvt_cnt}")
+                if pvt_cnt == 120:
+                    servo_pp_coor(114, 1000)
+                                            
+                if change_motion:
+                    entry = motion_data[motion_cnt]
+                    # motion_type = entry['motion_type']
+                    # entry['travel_time'] = get_travel_time() #atur waktu
+                    travel_time = entry['travel_time']
+                    # d1 = entry['d1']
+                    # d2 = entry['d2']
+                    # d3 = entry['d3']
+                    # d4 = entry['d4']
+                    tar_time = travel_time
+                    tar_pvt = int(travel_time/PT_TIME_INTERVAL)
+                    cur_pvt = 0
+                    # print(f"tar pvt = {tar_pvt}")
 
-                        motion_cnt += 1
-                        # execute_motion_data(entry)
-                        last_time = time.time()
-            else:
-                start_dancing()  
+                    motion_cnt += 1
+                    # execute_motion_data(entry)
+                    last_time = time.time()
         else:
-            stop()
+            start_dancing()  
+    else:
+        stop()
     
     
 
