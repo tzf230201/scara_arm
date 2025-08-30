@@ -346,9 +346,9 @@ shuttle_coor = 166.82, -168, 90, 0
 pre_pick_up_coor = 107, 125, 90, 90
 pick_up_coor = 107, 224, 90, 90
     
-def pre_start_dancing():
+def pre_start_dancing(selection):
     
-    robot_pp_angle(home_angle, 4000, "all")
+    robot_pp_angle(home_angle, 4000, selection)
     time.sleep(4100)
     
     # 1) Cartesian home
