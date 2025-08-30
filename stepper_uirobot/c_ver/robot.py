@@ -398,6 +398,7 @@ def start_dancing(selection):
     
     time.sleep(4.1)
     arm_pt_execute()
+    time.sleep(6)
     
 
 
