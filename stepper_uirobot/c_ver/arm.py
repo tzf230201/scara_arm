@@ -238,7 +238,8 @@ def arm_pt_angle(angle_2, angle_3, angle_4, t_ms, pt_time_interval=PT_TIME_INTER
         for node, p in zip(node_ids, row_pulses):
             stepper_pvt_set_pt_data_row_n(node, idx, p)
             pt = stepper_pvt_get_pt_data_row_n(node, idx)
-            print(f"node {node} index {idx} is {pt}")
+            pa = stepper_pulse_to_deg(pt)
+            print(f"node {node} index {idx} is {pa}")
 
     # 7. Mulai motion serempak
     for node in node_ids:
