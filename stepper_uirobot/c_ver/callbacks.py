@@ -47,7 +47,7 @@ def read_position(msg, state):
     selection = msg.get('motor')
     cur_angle_1, cur_angle_2, cur_angle_3, cur_angle_4 = robot_get_angle(selection)
     x,y,z,yaw = forward_kinematics([0,cur_angle_2, cur_angle_3, cur_angle_4])
-    print_yellow(f"[cb] pa2={cur_angle_2:.2f}°, pa3={cur_angle_3:.2f}°, pa4={cur_angle_4:.2f}°")
+    print_yellow(f"[cb] m1={cur_angle_1:.2f} m2={cur_angle_2:.2f}° m3={cur_angle_3:.2f}° m4={cur_angle_4:.2f}°")
     print_orange(f"[cb] x={x:.2f}mm, y={y:.2f}mm, z={z:.2f}mm, yaw={yaw:.2f}°")
 
     # TODO: Implement read pos & maybe update state["pos_abs"]
