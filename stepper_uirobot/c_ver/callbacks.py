@@ -53,7 +53,7 @@ def read_position(msg, state):
 
     if cur_angle_1 != None:
         print(f"bukan None m1")
-    #     z = servo_forward_kinematics(cur_angle_1)
+        z = servo_forward_kinematics(cur_angle_1)
     #     m1_s = f"{cur_angle_1:.2f}°"
     #     z_s = f"{z:.2f}mm"
         
