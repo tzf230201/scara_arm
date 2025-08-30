@@ -1,6 +1,6 @@
 # main.py — ZMQ SUB (one-way), ROS-like rate + router ke callbacks
 import os, time, zmq
-from callbacks import HANDLERS  # mapping: "command" -> fungsi callback
+from callbacks import routine, HANDLERS  # mapping: "command" -> fungsi callback
 
 CMD_ENDPOINT = os.getenv("CMD_ENDPOINT", "ipc:///tmp/motor_cmd")
 TARGET_HZ = float(os.getenv("TARGET_HZ", 50))
@@ -34,13 +34,7 @@ state = {
 }
 
 def control_step():
-    # contoh ringan: integrasi posisi + heartbeat 1 Hz
-    state["pos_abs"] += state["speed"] * Ts
-    if not hasattr(control_step, "_acc"): control_step._acc = 0.0
-    control_step._acc += Ts
-    if control_step._acc >= 1.0:
-        print(f"[hb] pos={state['pos_abs']:.1f} speed={state['speed']:.1f} motor_on={state['motor_on']}")
-        control_step._acc = 0.0
+    routine()
 
 if __name__ == "__main__":
     print(f"[main] SUB on {CMD_ENDPOINT}  rate={TARGET_HZ} Hz")
@@ -63,7 +57,7 @@ if __name__ == "__main__":
                     print("[warn] unknown command:", msg)
 
             # 2) tugas periodik
-            # control_step()
+            control_step()
 
             # 3) pertahankan periode
             rate.sleep()
