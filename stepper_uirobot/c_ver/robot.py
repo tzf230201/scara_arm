@@ -559,12 +559,17 @@ def start_dancing(selection):
     time.sleep(4.1)
     arm_pt_execute()
     time.sleep(2)
-    entry = motion_data[motion_cnt]
-    travel_time = entry['travel_time']
-    motion_cnt += 1
-    tar_time = travel_time
-    tar_pvt = int(travel_time/PT_TIME_INTERVAL)
-    execute_motion_data(entry)
+    m1 = servo_get_angle()
+    z = servo_forward_kinematics(m1)
+    print(f"m1 = {m1} degree")
+    servo_pp_coor(114, 1000)
+    # entry = motion_data[motion_cnt]
+    # travel_time = entry['travel_time']
+    # motion_cnt += 1
+    # tar_time = travel_time
+    # tar_pvt = int(travel_time/PT_TIME_INTERVAL)
+    # execute_motion_data(entry)
+    
     
 def pt_routine():
     global motion_enable
