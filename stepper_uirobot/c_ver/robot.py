@@ -82,9 +82,9 @@ def robot_set_origin(selection):
 
 def robot_pp_angle(tar_joints, t_ms, selection):
     angle_1, angle_2, angle_3, angle_4 = tar_joints
-    if is_stepper_selected() :
+    if is_stepper_selected(selection) :
         arm_pp_angle(angle_2, angle_3, angle_4, t_ms)
-    if is_servo_selected():
+    if is_servo_selected(selection):
         servo_pp_angle(angle_1, t_ms)
     
 def robot_pp_coor(tar_coor,travel_time,selection):
