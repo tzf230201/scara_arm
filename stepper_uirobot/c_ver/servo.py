@@ -74,6 +74,7 @@ OD_SERVO_TRAJECTORY_BUFFER_FREE_COUNT = 0x2011
 OD_SERVO_TRAJECTORY_BUFFER_STATUS = 0x2012
 OD_SERVO_NEXT_TRAJECTORY_SEGMENT_ID = 0x2013
 
+OD_SERVO_CANOPEN_NETWORK_CONFIGURATION = 0x21B0
 
 SERVO_PPR = 131072
 SERVO_RATIO = SERVO_PPR / 360
@@ -124,6 +125,14 @@ def servo_get_status_word():
     status_word = req_sdo(ID1, OD_SERVO_STATUS_WORD, 0x00)
     return status_word
 
+def servo_set_bitrate(bitrate):
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CANOPEN_NETWORK_CONFIGURATION, 0x00, bitrate)
+    
+def servo_get_bitrate():
+    bitrate = req_sdo(ID1, OD_SERVO_CANOPEN_NETWORK_CONFIGURATION, 0x00)
+    print(f"bitrate = {bitrate:04X}")
+    
+servo_get_bitrate()
 
 def servo_accel_decel_calc(d_total, t_travel_ms):
     """
