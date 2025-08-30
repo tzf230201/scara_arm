@@ -44,9 +44,10 @@ def pvt_coor(msg, state):
 
 def read_position(msg, state):
     # print(f"[cb] Read Position: motor={msg.get('motor')}")
-    pa2_deg, pa3_deg, pa4_deg = arm_get_angle()
-    x,y,z,yaw = forward_kinematics([0,pa2_deg, pa3_deg, pa4_deg])
-    print_yellow(f"[cb] pa2={pa2_deg:.2f}°, pa3={pa3_deg:.2f}°, pa4={pa4_deg:.2f}°")
+    selection = msg.get('motor')
+    cur_angle_1, cur_angle_2, cur_angle_3, cur_angle_4 = robot_get_angle(selection)
+    x,y,z,yaw = forward_kinematics([0,cur_angle_2, cur_angle_3, cur_angle_4])
+    print_yellow(f"[cb] pa2={cur_angle_2:.2f}°, pa3={cur_angle_3:.2f}°, pa4={cur_angle_4:.2f}°")
     print_orange(f"[cb] x={x:.2f}mm, y={y:.2f}mm, z={z:.2f}mm, yaw={yaw:.2f}°")
 
     # TODO: Implement read pos & maybe update state["pos_abs"]
@@ -72,8 +73,10 @@ def stop(msg, state):
     # state['running'] = False
 
 def read_encoder(msg, state):
+    selection = msg.get('motor')
+    enc1, enc2, enc3, enc4 = robot_get_enc(selection)
     pa2, pa3, pa4 = arm_get_enc()
-    print(f"[cb] enc: pa2={pa2} pa3={pa3} pa4={pa4}")
+    print(f"[cb] enc: {enc1}, {enc2}, {enc3}, {enc4}")
     # TODO: Implement reading encoder value
 
 def set_origin(msg, state):

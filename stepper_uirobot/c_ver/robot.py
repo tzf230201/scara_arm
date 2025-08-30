@@ -100,19 +100,43 @@ def robot_shutdown(selection):
     print(f"robot_shutdown({selection})")
 
 def robot_get_enc(selection):
-    enc_1 = servo_get_motor_position(ID1)
-    enc_2, enc_3, enc_4 = arm_get_enc()
-    print(f"robot_get_enc({selection})")
+    # Inisialisasi default
+    enc_1 = None
+    enc_2 = None
+    enc_3 = None
+    enc_4 = None
+
+    # Baca encoder servo jika ter-select
+    if is_servo_selected(selection):
+        enc_1 = servo_get_motor_position(ID1)
+
+    # Baca encoder stepper jika ter-select
+    if is_stepper_selected(selection):
+        enc_2, enc_3, enc_4 = arm_get_enc()
+
     return enc_1, enc_2, enc_3, enc_4
 
+
 def robot_get_angle(selection):
-    enc_1 = servo_get_motor_position(ID1)
-    cur_angle_1 = servo_pulses_to_degrees(enc_1)
-    cur_angle_2, cur_angle_3, cur_angle_4 = arm_get_angle()
-    print(f"robot_get_angle({selection})")
-    return cur_angle_1, cur_angle_2, cur_angle_3, cur_angle_4   
-    
-    
+    # Inisialisasi default
+    cur_angle_1 = None
+    cur_angle_2 = None
+    cur_angle_3 = None
+    cur_angle_4 = None
+
+    # Baca servo jika ter-select
+    if is_servo_selected(selection):
+        enc_1 = servo_get_motor_position(ID1)
+        cur_angle_1 = servo_pulses_to_degrees(enc_1)
+
+    # Baca stepper jika ter-select
+    if is_stepper_selected(selection):
+        cur_angle_2, cur_angle_3, cur_angle_4 = arm_get_angle()
+
+    return cur_angle_1, cur_angle_2, cur_angle_3, cur_angle_4
+
+
+
 def robot_set_origin(selection):
     enc_1 = servo_get_motor_position(ID1)
     enc_2, enc_3, enc_4 = arm_get_enc()
