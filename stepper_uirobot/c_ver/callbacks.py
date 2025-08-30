@@ -52,26 +52,21 @@ def read_position(msg, state):
     print(f"{cur_angle_1}, {cur_angle_2}, {cur_angle_3}, {cur_angle_4}")
 
     if cur_angle_1 != None:
-        print(f"bukan None m1")
         z = servo_forward_kinematics(cur_angle_1)
         m1_s = "{cur_angle_1:.2f}°"
         z_s = f"{z:.2f}mm"
-        print(z_s)
         
-    # if None not in (cur_angle_2, cur_angle_3, cur_angle_4):
-    #     x, y, yaw = arm_forward_kinematics(cur_angle_2, cur_angle_3, cur_angle_4)
-    #     m2_s = f"{cur_angle_2:.2f}°"
-    #     m3_s = f"{cur_angle_3:.2f}°"
-    #     m4_s = f"{cur_angle_4:.2f}°"
-    #     x_s   = f"{x:.2f}mm"
-    #     y_s   = f"{y:.2f}mm"
-    #     yaw_s = f"{z:.2f}°"
+    if None not in (cur_angle_2, cur_angle_3, cur_angle_4):
+        x, y, yaw = arm_forward_kinematics(cur_angle_2, cur_angle_3, cur_angle_4)
+        m2_s = f"{cur_angle_2:.2f}°"
+        m3_s = f"{cur_angle_3:.2f}°"
+        m4_s = f"{cur_angle_4:.2f}°"
+        x_s   = f"{x:.2f}mm"
+        y_s   = f"{y:.2f}mm"
+        yaw_s = f"{z:.2f}°"
 
-    # print_yellow(f"[cb] m1={m1_s} m2={m2_s} m3={m3_s} m4={m4_s}")
-    # print_orange(f"[cb] x={x_s}, y={y_s}, z={z_s}, yaw={yaw_s}")
-
-
-    # TODO: Implement read pos & maybe update state["pos_abs"]
+    print_yellow(f"[cb] m1={m1_s} m2={m2_s} m3={m3_s} m4={m4_s}")
+    print_orange(f"[cb] x={x_s}, y={y_s}, z={z_s}, yaw={yaw_s}")
 
 def dancing(msg, state):
     # arm_pvt_init()
