@@ -402,5 +402,9 @@ def servo_pp_angle(tar_angle_1, t_ms):
     else:
         print_red(f"motion denied, acceleration is too high, dangerous movement")
         return 0
+
+def servo_pp_coor(z, t_ms):
+    angle_1 = servo_inverse_kinematics(z)
+    servo_pp_angle(angle_1, t_ms)
     
 

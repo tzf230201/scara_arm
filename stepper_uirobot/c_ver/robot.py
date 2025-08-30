@@ -373,6 +373,32 @@ def pre_start_dancing(selection):
     
     arm_pt_get_index()
     arm_pt_execute()
+    
+def start_dancing(selection):
+    x,y,z,yaw = shuttle_coor
+    arm_pp_coor(x, y, yaw, 3000, selection)
+    servo_pp_coor(200, 4000)
+    time.sleep(5)
+    servo_pp_coor(90, 4000)
+    
+    list_tar_coor_2 = [
+        ([107, 125, 90, 87], 1000),
+        ([107, 224, 90, 87], 700),
+        ([107, 224, 115, 87], 1000),
+        ([107, 125, 115, 87], 3000),
+    ]
+    
+    pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(shuttle_coor, list_tar_coor_2, PT_TIME_INTERVAL)
+    
+    arm_pt_init()
+    for i in range(len(pt2)):
+        arm_pt_set_point(pt2[i], pt3[i], pt4[i])
+    
+    arm_pt_get_index()
+    
+    time.sleep(4.1)
+    arm_pt_execute()
+    
 
 
 
