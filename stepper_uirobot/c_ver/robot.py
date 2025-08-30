@@ -3,76 +3,13 @@ from servo import *
 from stepper import *
 from arm import *
 import time
-import os
-import json
-import shutil
+
 
 def is_stepper_selected(selection):
     return selection != "servo_only"
 
 def is_servo_selected(selection):
     return selection != "stepper_only"
-
-def load_origin_from_config():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(script_dir, "config_origin.json")
-    print(f"{config_path}")
-    
-    default_config = {
-        "origin_1": -3306079,
-        "origin_2": 0,
-        "origin_3": 0,
-        "origin_4": 0
-    } 
-
-    if not os.path.exists(config_path):
-        with open(config_path, "w") as f:
-            json.dump(default_config, f, indent=4)
-        print("config_origin.json not found. Created new file with defaults.")
-        return tuple(default_config.values())
-
-    try:
-        with open(config_path, "r") as f:
-            config_data = json.load(f)
-
-        origin_1 = config_data.get("origin_1", 0)
-        origin_2 = config_data.get("origin_2", 0)
-        origin_3 = config_data.get("origin_3", 0)
-        origin_4 = config_data.get("origin_4", 0)
-
-        print(f"Loaded origins: {origin_1}, {origin_2}, {origin_3}, {origin_4}")
-        return origin_1, origin_2, origin_3, origin_4
-
-    except json.JSONDecodeError:
-        # Backup the invalid file
-        backup_path = config_path + ".backup_invalid"
-        shutil.copy(config_path, backup_path)
-        print(f"Invalid JSON format. Backup saved to {backup_path}. Rewriting with defaults.")
-        
-        with open(config_path, "w") as f:
-            json.dump(default_config, f, indent=4)
-        return tuple(default_config.values())
-
-
-def save_origin_to_config(encoders):
-    config_data = {
-        "origin_1": encoders[0],
-        "origin_2": encoders[1],
-        "origin_3": encoders[2],
-        "origin_4": encoders[3],
-    }
-    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config_origin.json")
-    with open(config_path, "w") as f:
-        json.dump(config_data, f, indent=4)
-
-    print(f"Origin saved to {config_path}")
-    
-origins = load_origin_from_config()
-
-def get_origins():
-    global origins
-    
-    return origins
 
 
 
@@ -108,7 +45,7 @@ def robot_get_enc(selection):
 
     # Baca encoder servo jika ter-select
     if is_servo_selected(selection):
-        enc_1 = servo_get_motor_position(ID1)
+        enc_1 = servo_get_encoder()
 
     # Baca encoder stepper jika ter-select
     if is_stepper_selected(selection):
@@ -126,8 +63,7 @@ def robot_get_angle(selection):
 
     # Baca servo jika ter-select
     if is_servo_selected(selection):
-        enc_1 = servo_get_motor_position(ID1)
-        cur_angle_1 = servo_pulses_to_degrees(enc_1)
+        cur_angle_1 = servo_get_angle()
 
     # Baca stepper jika ter-select
     if is_stepper_selected(selection):
@@ -135,36 +71,29 @@ def robot_get_angle(selection):
 
     return cur_angle_1, cur_angle_2, cur_angle_3, cur_angle_4
 
-
-
 def robot_set_origin(selection):
     if selection == "all":
-        enc_1 = servo_get_motor_position(ID1)
-        enc_2, enc_3, enc_4 = arm_get_enc()
-        save_origin_to_config([enc_1, enc_2, enc_3, enc_4])
+        servo_set_origin()
         arm_set_origin()
         print(f"robot_set_origin({selection})")
     else:
         print(f"robot_set_origin({selection}) skipped, only available for 'all' selection")
     
-def robot_dancing(selection):
-    print(f"robot_dancing({selection})")
-    
-    
 
-    
-    
-    
-
-
-
-
-def robot_pp_angle(tar_joints, travel_time, selection):
+def robot_pp_angle(tar_joints, t_ms, selection):
+    angle_1, angle_2, angle_3, angle_4 = tar_joints
+    if is_stepper_selected() :
+        arm_pp_angle(angle_2, angle_3, angle_4, t_ms)
+    if is_servo_selected():
+        servo_pp_angle(angle_1, t_ms)
     print(f"entering robot pp angle")
     
 def robot_pp_coor(tar_coor,travel_time,selection):
-    # tar_joints = inverse_kinematics(tar_coor)
-    # robot_pp_angle(tar_joints, travel_time, selection)
+    x,y,z,yaw = tar_coor
+    angle_1 = servo_inverse_kinematics(z)
+    angle_2, angle_3, angle_4 = arm_inverse_kinematics(x, y, yaw)
+    tar_joints = angle_1, angle_2, angle_3, angle_4
+    robot_pp_angle(tar_joints, travel_time, selection)
     print(f"entering robot pp coor")
 
 def robot_pt_angle(tar_joints, travel_time, selection):
@@ -172,3 +101,69 @@ def robot_pt_angle(tar_joints, travel_time, selection):
 
 def robot_pt_coor(tar_coor, travel_time, selection):
     print(f"entering robot pt coor")
+
+def robot_dancing(selection):
+    print(f"robot_dancing({selection})")
+    
+    
+def pre_start_dancing():
+    # 1) Cartesian home
+    start_coor = forward_kinematics([0, 0, 0, 0])
+    # 2) Daftar target (Cartesian, durasi_ms)
+    list_tar_coor = [
+        ([166.82, -168,   0,   0], 1000),
+        ([258,     0,     0,   0], 1000),
+        ([107,    125,    0,  90], 1000),
+    ]
+
+    # 3) Hitung PVT untuk joint1–4
+    pvt1, pvt2, pvt3, pvt4 = generate_multi_straight_pvt_points(
+        start_coor, list_tar_coor, PT_TIME_INTERVAL
+    )
+
+    # 4) Node IDs untuk joint2,3,4
+    node_ids = [6, 7, 8]
+    pvts     = [pvt2, pvt3, pvt4]
+
+    arm_pvt_init()
+
+    # 6) Isi PVT: posisi, kecepatan, waktu
+    for node, (pos, vel, times) in zip(node_ids, pvts):
+        for row in range(len(pos)):
+            stepper_pvt_set_position_row_n(node, 0, pos[row])
+            stepper_pvt_set_velocity_row_n(node, 0, vel[row])
+            stepper_pvt_set_time_row_n(node, 0, times[row])
+
+    # 7) Mulai motion serempak
+    for node in node_ids:
+        stepper_pvt_start_motion(node, 0)
+    stepper_begin_motion(STEPPER_GROUP_ID)
+
+def pt_test():
+    x, y, yaw = arm_forward_kinematics(0,0,0)
+    list_tar_coor = [
+        ([166.82, -168,   0,   0], 2000),
+        ([166.82, -168,   0,   0], 200),
+        ([258,     0,     0,   0], 2000),
+        ([258,     0,     0,   0], 200),
+        ([107,    125,    0,  90], 2000),
+        ([107,    125,    0,  90], 200),
+        ([107,    224,    0,  90], 2000),
+        ([107,    224,    0,  90], 500),
+        ([107,    125,    0,  90], 2000),
+        ([166.82, -168,   0,   0], 2000),
+    ]
+    pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(
+        start_coor, list_tar_coor, PT_TIME_INTERVAL
+    )
+    plot_xy_from_pt(pt1, pt2, pt3, pt4)
+
+    arm_pt_init()
+    for i in range(len(pt2)):
+        arm_pt_set_point(pt2[i], pt3[i], pt4[i])
+    
+    arm_pt_get_index()
+    arm_pt_execute()
+    # for t in range(100):
+    #     arm_pt_get_index()
+    #     time.sleep(0.2)

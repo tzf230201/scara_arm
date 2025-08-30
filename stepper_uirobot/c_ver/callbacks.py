@@ -1,7 +1,7 @@
 # callbacks.py
 from time import time
 from arm import *
-from function import *
+from stepper_uirobot.c_ver.utility import *
 from motion import *
 from servo import *
 from robot import *
@@ -43,28 +43,29 @@ def pvt_coor(msg, state):
     # TODO: Implement inverse kinematics/PVT
 
 def read_position(msg, state):
-    # print(f"[cb] Read Position: motor={msg.get('motor')}")
+    m1_s = m2_s = m3_s = m4_s = "None"
+    x_s = y_s = z_s = yaw_s = "None"
+    
     selection = msg.get('motor')
     cur_angle_1, cur_angle_2, cur_angle_3, cur_angle_4 = robot_get_angle(selection)
-
+    
     # Format string dengan aman
     def fmt(val, unit=""):
         return f"{val:.2f}{unit}" if val is not None else "None"
 
-    m1_s = fmt(cur_angle_1)
-    m2_s = fmt(cur_angle_2, "°")
-    m3_s = fmt(cur_angle_3, "°")
-    m4_s = fmt(cur_angle_4, "°")
-
-    # Hanya hitung FK kalau semua stepper angle ada
+    if None not in cur_angle_1:
+        z = servo_forward_kinematics(cur_angle_1)
+        m1_s = f"{cur_angle_1:.2f}°"
+        z_s = f"{z:.2f}mm"
+        
     if None not in (cur_angle_2, cur_angle_3, cur_angle_4):
-        x, y, z, yaw = forward_kinematics([0, cur_angle_2, cur_angle_3, cur_angle_4])
-        x_s   = fmt(x, "mm")
-        y_s   = fmt(y, "mm")
-        z_s   = fmt(z, "mm")
-        yaw_s = fmt(yaw, "°")
-    else:
-        x_s = y_s = z_s = yaw_s = "None"
+        x, y, yaw = arm_forward_kinematics(cur_angle_2, cur_angle_3, cur_angle_4)
+        m2_s = f"{cur_angle_2:.2f}°"
+        m3_s = f"{cur_angle_3:.2f}°"
+        m4_s = f"{cur_angle_4:.2f}°"
+        x_s   = f"{x:.2f}mm"
+        y_s   = f"{y:.2f}mm"
+        yaw_s = f"{z:.2f}°"
 
     print_yellow(f"[cb] m1={m1_s} m2={m2_s} m3={m3_s} m4={m4_s}")
     print_orange(f"[cb] x={x_s}, y={y_s}, z={z_s}, yaw={yaw_s}")

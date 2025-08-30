@@ -1,4 +1,9 @@
 from canbase import *
+from origin import *
+from utility import *
+
+
+SERVO_MAX_ACCEL = 583000 # 582549
 
 # System Information (RO)
 OD_SERVO_DEVICE_TYPE = 0x1000
@@ -107,16 +112,16 @@ def servo_rps_to_pps(rps):
 
     
 
-def servo_get_motor_position(node_id):
-    servo_position = req_sdo(node_id, OD_SERVO_POSITION_ACTUAL_VALUE, 0x00)
+def servo_get_encoder():
+    servo_position = req_sdo(ID1, OD_SERVO_POSITION_ACTUAL_VALUE, 0x00)
     return servo_position
 
-def servo_get_motor_velocity(node_id):
-    servo_velocity = req_sdo(node_id, OD_SERVO_VELOCITY_ACTUAL_VALUE, 0x00)
+def servo_get_velocity():
+    servo_velocity = req_sdo(ID1, OD_SERVO_VELOCITY_ACTUAL_VALUE, 0x00)
     return servo_velocity
 
-def servo_get_status_word(node_id):
-    status_word = req_sdo(node_id, OD_SERVO_STATUS_WORD, 0x00)
+def servo_get_status_word():
+    status_word = req_sdo(ID1, OD_SERVO_STATUS_WORD, 0x00)
     return status_word
 
 
@@ -313,7 +318,7 @@ def servo_get_trajectory_buffer_status():
 #     set_sdo(ID1, SET_4_BYTE, OD_SERVO_IP_SEGMENT_MOVE_COMMAND, 0x03, time)         # sub_index 3: time
 #     set_sdo(ID1, SET_4_BYTE, OD_SERVO_IP_SEGMENT_MOVE_COMMAND, 0x04, velocity)     # sub_index 4: velocity
 
-def servo_pvt_position(cur_po, tar_pos, travel_time):
+def servo_pvt_position(cur_pos, tar_pos, travel_time):
     """
     Set PVT (Position, Velocity, Time) for servo.
     cur_pos: Current position in counts.
@@ -322,14 +327,72 @@ def servo_pvt_position(cur_po, tar_pos, travel_time):
     tar_vel: Target velocity in counts/s.
     """
     position = tar_pos - cur_pos
+    tar_time = travel_time
+    tar_vel = servo_pps_to_rps(abs(position) / (tar_time / 1000.0))  # counts/s
     servo_set_interpolation_data(position, tar_time, tar_vel)
     
     # Send the command to start the movement
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_IP_SEGMENT_MOVE_COMMAND, 0x01,  0x01)  # Start the segment move command
     
-
+def servo_pre_execute():
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
     
 def servo_execute():
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x1F)
     
+def servo_check_limit(angle_1):
+    if angle_1 > (3510 * 4):
+        print(f"[angle_1 greater than {angle_1}")
+        angle_1 = (3510 * 4)
+    elif angle_1 < -2:
+        print(f"angle_1 lower than {angle_1}")
+        angle_1 = -2
     
+def servo_inverse_kinematics(z):
+    angle_1 = z * (360.0 / 90.0)
+    angle_1 = servo_check_limit(angle_1)
+    return angle_1
+
+def servo_forward_kinematics(angle_1):
+    z = (angle_1 / 360) * 90
+    return z
+
+def servo_get_angle():
+    origins = get_origins()
+    enc_1 = servo_get_encoder() - origins[0]
+    cur_angle_1 = servo_pulses_to_degrees(enc_1)
+    return cur_angle_1
+
+def servo_set_origin():
+    origins = get_origins()
+    enc_1 = servo_get_encoder()
+    origins[0] = enc_1
+    origin_save_to_config(origins)
+
+def servo_pp_angle(tar_angle_1, t_ms):
+    
+    origins = get_origins()
+    
+    cur_angle_1 = servo_get_angle()
+    tar_pulse_1 = servo_degrees_to_pulses(tar_angle_1) + origins[0]
+
+    delta_pulse_1 = servo_degrees_to_pulses(tar_angle_1 - cur_angle_1)
+    accel_decel_1, max_speed_1 = servo_accel_decel_calc(delta_pulse_1, t_ms)
+
+    servo_pre_execute()
+    servo_set_profile_type(0x00)
+    servo_set_acceleration(accel_decel_1)
+    servo_set_deceleration(accel_decel_1)
+    servo_set_max_speed(max_speed_1)
+    servo_set_tar_pulse(tar_pulse_1)
+          
+    if (accel_decel_1 <= SERVO_MAX_ACCEL):
+        servo_execute()
+        if (accel_decel_1 >= (SERVO_MAX_ACCEL * 0.8)):
+            print_yellow(f"warning : almost max acceleration")
+        return 1
+    else:
+        print_red(f"motion denied, acceleration is too high, dangerous movement")
+        return 0
+    
+

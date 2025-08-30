@@ -1,9 +1,3 @@
-from stepper import *
-import math
-import time
-
-
-
 def print_red(text):
     # ANSI escape code untuk warna merah
     RED = '\033[31m'  # Kode warna 256-color mode untuk merah
