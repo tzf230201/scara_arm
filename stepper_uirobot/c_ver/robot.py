@@ -7,17 +7,28 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_yx(x_list,y_list):
+def plot_xy_from_pt(pt1, pt2, pt3, pt4):
+    x_list, y_list = [], []
+    N = len(pt1)
+    for i in range(N):
+        # Pulse → degree
+        j1 = stepper_pulse_to_deg(pt1[i])
+        j2 = stepper_pulse_to_deg(pt2[i])
+        j3 = stepper_pulse_to_deg(pt3[i])
+        j4 = stepper_pulse_to_deg(pt4[i])
+        # FK: panggil dengan satu list
+        x, y, *_ = forward_kinematics([j1, j2, j3, j4])
+        x_list.append(x)
+        y_list.append(y)
     plt.figure()
-    plt.plot(y_list, x_list, '-o', label='End Effector Path')
-    plt.xlabel('Y (mm)')
-    plt.ylabel('X (mm)')
+    plt.plot(x_list, y_list, '-o', label='End Effector Path')
+    plt.xlabel('X (mm)')
+    plt.ylabel('Y (mm)')
     plt.axis('equal')
     plt.grid(True)
     plt.legend()
-    plt.title("YX Trajectory from PT Path")
+    plt.title("XY Trajectory from PT Path")
     plt.show()
-
 
 def check_limit(tar_joints, source_info=""):
     tar_joint_1, tar_joint_2, tar_joint_3, tar_joint_4 = tar_joints
