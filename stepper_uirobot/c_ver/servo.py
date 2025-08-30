@@ -364,18 +364,13 @@ def servo_get_angle():
     return cur_angle_1
 
 def servo_set_origin():
-    origins = get_origins()  # misal (-3306079, 0, 0, 0)
+    origins = list(get_origins())      # e.g. [-3306079, 0, 0, 0]
     # Baca enkoder servo
     enc_1 = servo_get_encoder()
-    # Buat dict sesuai format config_origin.json
-    config = {
-        "origin_1": enc_1,
-        "origin_2": origins[1],
-        "origin_3": origins[2],
-        "origin_4": origins[3],
-    }
-    # Simpan ke file JSON
-    origin_save_to_config(config)
+    # Update hanya elemen pertama
+    origins[0] = enc_1
+    # Simpan list ke config (origin_save_to_config meng-index 0..3)
+    origin_save_to_config(origins)
 
 
 def servo_pp_angle(tar_angle_1, t_ms):
