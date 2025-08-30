@@ -2,23 +2,37 @@ from stepper import *
 import time
 
 
-# BITRATE_MAP = {
-#     0: "1000Kbps",
-#     1: "800Kbps",
-#     2: "500Kbps",
-#     3: "250Kbps",
-#     4: "125Kbps"
-# }
+BITRATE_MAP = {
+    0: "1000Kbps",
+    1: "800Kbps",
+    2: "500Kbps",
+    3: "250Kbps",
+    4: "125Kbps"
+}
 # stepper_set_bitrate(6,0)
 # stepper_set_bitrate(7,0)
 # stepper_set_bitrate(8,0)
-# br = stepper_get_bitrate(6)
+br = stepper_get_bitrate(6)
 
-# if br is not None:
-#     print(f"Bitrate Stepper 6: {BITRATE_MAP.get(br, 'Unknown')}")
-# else:
-#     print("Gagal baca bitrate")
+if br is not None:
+    print(f"Bitrate Stepper 6: {BITRATE_MAP.get(br, 'Unknown')}")
+else:
+    print("Gagal baca bitrate")
 
+
+br = stepper_get_bitrate(7)
+
+if br is not None:
+    print(f"Bitrate Stepper 7: {BITRATE_MAP.get(br, 'Unknown')}")
+else:
+    print("Gagal baca bitrate")
+    
+    br = stepper_get_bitrate(8)
+
+if br is not None:
+    print(f"Bitrate Stepper 8: {BITRATE_MAP.get(br, 'Unknown')}")
+else:
+    print("Gagal baca bitrate")
 # stepper_set_plc_mode(0)
 # stepper_set_plc_mode(0)
 # stepper_set_plc_mode(0)
@@ -41,12 +55,12 @@ import time
 # # else:
 # #     print("Gagal set AC/DC Unit")
     
-unit = stepper_get_ac_dc_unit(6)
-print(f"AC/DC Unit (IC[4]): {unit} ({'unit pulses/sec²' if unit == 0 else 'unit ms' if unit == 1 else 'unknown'})")
-unit = stepper_get_ac_dc_unit(7)
-print(f"AC/DC Unit (IC[4]): {unit} ({'unit pulses/sec²' if unit == 0 else 'unit ms' if unit == 1 else 'unknown'})")
-unit = stepper_get_ac_dc_unit(8)
-print(f"AC/DC Unit (IC[4]): {unit} ({'unit pulses/sec²' if unit == 0 else 'unit ms' if unit == 1 else 'unknown'})")
+# unit = stepper_get_ac_dc_unit(6)
+# print(f"AC/DC Unit (IC[4]): {unit} ({'unit pulses/sec²' if unit == 0 else 'unit ms' if unit == 1 else 'unknown'})")
+# unit = stepper_get_ac_dc_unit(7)
+# print(f"AC/DC Unit (IC[4]): {unit} ({'unit pulses/sec²' if unit == 0 else 'unit ms' if unit == 1 else 'unknown'})")
+# unit = stepper_get_ac_dc_unit(8)
+# print(f"AC/DC Unit (IC[4]): {unit} ({'unit pulses/sec²' if unit == 0 else 'unit ms' if unit == 1 else 'unknown'})")
 
 # # set_cl = stepper_set_using_close_loop(6, True)
 # # print(f"Set Closed-loop: {set_cl}")
