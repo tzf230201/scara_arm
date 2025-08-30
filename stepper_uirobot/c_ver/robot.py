@@ -94,11 +94,19 @@ def robot_pp_coor(tar_coor,travel_time,selection):
     tar_joints = angle_1, angle_2, angle_3, angle_4
     robot_pp_angle(tar_joints, travel_time, selection)
 
-def robot_pt_angle(tar_joints, travel_time, selection):
-    print(f"entering robot pt angle")
+def robot_pt_angle(tar_angles, t_ms, selection):
+    tar_angle_1, tar_angle_2, tar_angle_3, tar_angle_4 = tar_angles
+    if is_servo_selected(selection):
+        servo_pp_angle(tar_angle_1, t_ms)
+    if is_stepper_selected(selection):
+        arm_pt_angle(tar_angle_2, tar_angle_3, tar_angle_4, t_ms, PT_TIME_INTERVAL)
 
-def robot_pt_coor(tar_coor, travel_time, selection):
-    print(f"entering robot pt coor")
+def robot_pt_coor(tar_coor, t_ms, selection):
+    x, y, z, yaw = tar_coor
+    tar_angle_1 = servo_inverse_kinematics(z)
+    tar_angle_2, tar_angle_3, tar_angle_4 = arm_inverse_kinematics(x, y, yaw)
+    tar_angles = tar_angle_1, tar_angle_2, tar_angle_3, tar_angle_4
+    robot_pt_angle(tar_angles, t_ms, selection)
 
 def robot_dancing(selection):
     print(f"robot_dancing({selection})")
