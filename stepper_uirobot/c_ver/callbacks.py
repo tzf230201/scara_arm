@@ -73,6 +73,7 @@ def read_position(msg, state):
 def dancing(msg, state):
     # arm_pvt_init()
     selection = msg.get('motor')
+    selection = "all"
     pre_start_dancing(selection)
     start_dancing(selection)
     # pt_test()

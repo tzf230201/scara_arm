@@ -377,7 +377,7 @@ def pre_start_dancing(selection):
     
 def start_dancing(selection):
     x,y,z,yaw = shuttle_coor
-    arm_pp_coor(x, y, yaw, 3000, selection)
+    arm_pp_coor(x, y, yaw, 3000)
     servo_pp_coor(200, 4000)
     time.sleep(5)
     servo_pp_coor(90, 4000)
