@@ -349,7 +349,7 @@ pick_up_coor = 107, 224, 90, 90
 def pre_start_dancing(selection):
     
     robot_pp_angle(home_angle, 4000, selection)
-    time.sleep(4100)
+    time.sleep(4.1)
     
     # 1) Cartesian home
     start_coor = forward_kinematics([0, 0, 0, 0])
