@@ -43,17 +43,15 @@ def pvt_coor(msg, state):
     # TODO: Implement inverse kinematics/PVT
 
 def read_position(msg, state):
+    cur_angle_1 = cur_angle_2 = cur_angle_3 = cur_angle_4 = None
     m1_s = m2_s = m3_s = m4_s = "None"
     x_s = y_s = z_s = yaw_s = "None"
     
     selection = msg.get('motor')
     cur_angle_1, cur_angle_2, cur_angle_3, cur_angle_4 = robot_get_angle(selection)
     
-    # Format string dengan aman
-    def fmt(val, unit=""):
-        return f"{val:.2f}{unit}" if val is not None else "None"
 
-    if None != cur_angle_1:
+    if cur_angle_1 != None:
         z = servo_forward_kinematics(cur_angle_1)
         m1_s = f"{cur_angle_1:.2f}°"
         z_s = f"{z:.2f}mm"
