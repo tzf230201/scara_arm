@@ -3,7 +3,7 @@ import os, time, zmq
 from callbacks import routine, HANDLERS  # mapping: "command" -> fungsi callback
 
 CMD_ENDPOINT = os.getenv("CMD_ENDPOINT", "ipc:///tmp/motor_cmd")
-TARGET_HZ = float(os.getenv("TARGET_HZ", 50))
+TARGET_HZ = float(os.getenv("TARGET_HZ", 40))
 Ts = 1.0 / TARGET_HZ
 
 class Rate:
@@ -33,8 +33,8 @@ state = {
     "last_pos": {},  # {id: pos}
 }
 
-def control_step():
-    routine()
+def control_step(state):
+    routine(state)
 
 if __name__ == "__main__":
     print(f"[main] SUB on {CMD_ENDPOINT}  rate={TARGET_HZ} Hz")
@@ -57,7 +57,7 @@ if __name__ == "__main__":
                     print("[warn] unknown command:", msg)
 
             # 2) tugas periodik
-            control_step()
+            control_step(state)
 
             # 3) pertahankan periode
             rate.sleep()

@@ -103,8 +103,9 @@ def set_origin(msg, state):
     robot_set_origin(selection)
     print(f"[cb] Set Origin: motor={msg.get('motor')}")
     
-def routine():
-    print(f"enter routine")
+def routine(state):
+    if state['motor_on'] == True:
+        print(f"enter routine")
 # === Mapping ===
 HANDLERS = {
     "wake_up": wake_up,
