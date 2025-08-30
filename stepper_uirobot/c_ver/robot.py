@@ -383,10 +383,10 @@ def start_dancing(selection):
     servo_pp_coor(90, 4000)
     
     list_tar_coor_2 = [
-        ([107, 125, 90, 87], 1000),
-        ([107, 224, 90, 87], 700),
-        ([107, 224, 115, 87], 1000),
-        ([107, 125, 115, 87], 3000),
+        ([107, 125, 90, 90], 1000),
+        ([107, 224, 90, 90], 700),
+        ([107, 224, 115, 90], 1000),
+        ([107, 125, 115, 90], 3000),
     ]
     
     pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(shuttle_coor, list_tar_coor_2, PT_TIME_INTERVAL)

@@ -74,7 +74,7 @@ def dancing(msg, state):
     # arm_pvt_init()
     selection = msg.get('motor')
     selection = "all"
-    pre_start_dancing(selection)
+    # pre_start_dancing(selection)
     start_dancing(selection)
     # pt_test()
     # print(f"[cb] Dancing: motor={msg.get('motor')}")
