@@ -132,8 +132,9 @@ def servo_get_bitrate():
     bitrate = req_sdo(ID1, OD_SERVO_CANOPEN_NETWORK_CONFIGURATION, 0x00)
     print(f"bitrate = {bitrate}")
 
-servo_set_bitrate(0x1800)
-servo_get_bitrate()
+# servo_set_bitrate(0x1800) #1Mbps
+# servo_set_bitrate(0x2800) #500Kbps
+# servo_get_bitrate()
 
 def servo_accel_decel_calc(d_total, t_travel_ms):
     """
