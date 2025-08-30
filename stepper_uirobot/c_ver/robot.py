@@ -558,7 +558,7 @@ def start_dancing(selection):
     
     time.sleep(4.1)
     arm_pt_execute()
-    time.sleep(2)
+    time.sleep(1.8)
     m1 = servo_get_angle()
     z = servo_forward_kinematics(m1)
     print(f"m1 = {m1} degree")
