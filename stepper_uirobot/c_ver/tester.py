@@ -44,6 +44,12 @@ import time
 unit = stepper_get_ac_dc_unit(6)
 print(f"AC/DC Unit (IC[4]): {unit} ({'unit pulses/sec²' if unit == 0 else 'unit ms' if unit == 1 else 'unknown'})")
 
+
+unit = stepper_get_ac_dc_unit(7)
+print(f"AC/DC Unit (IC[4]): {unit} ({'unit pulses/sec²' if unit == 0 else 'unit ms' if unit == 1 else 'unknown'})")
+      
+unit = stepper_get_ac_dc_unit(8)
+print(f"AC/DC Unit (IC[4]): {unit} ({'unit pulses/sec²' if unit == 0 else 'unit ms' if unit == 1 else 'unknown'})")
 # # set_cl = stepper_set_using_close_loop(6, True)
 # # print(f"Set Closed-loop: {set_cl}")
 
