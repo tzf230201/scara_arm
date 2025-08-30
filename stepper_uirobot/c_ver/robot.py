@@ -86,7 +86,6 @@ def robot_pp_angle(tar_joints, t_ms, selection):
         arm_pp_angle(angle_2, angle_3, angle_4, t_ms)
     if is_servo_selected():
         servo_pp_angle(angle_1, t_ms)
-    print(f"entering robot pp angle")
     
 def robot_pp_coor(tar_coor,travel_time,selection):
     x,y,z,yaw = tar_coor
@@ -94,7 +93,6 @@ def robot_pp_coor(tar_coor,travel_time,selection):
     angle_2, angle_3, angle_4 = arm_inverse_kinematics(x, y, yaw)
     tar_joints = angle_1, angle_2, angle_3, angle_4
     robot_pp_angle(tar_joints, travel_time, selection)
-    print(f"entering robot pp coor")
 
 def robot_pt_angle(tar_joints, travel_time, selection):
     print(f"entering robot pt angle")
