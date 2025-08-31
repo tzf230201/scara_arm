@@ -257,7 +257,7 @@ def simplecan3_read(request_id, request_cw):
     return error_code, response
 
 
-def simplecan3_write_read(request_id, cw, dl, data):
+def simplecan3_write_read(request_id, cw, dl, data, ack=True):
     """
     Kirim data ke UIM342 dan tunggu balasan menggunakan protokol SimpleCAN3.0.
 

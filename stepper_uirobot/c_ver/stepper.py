@@ -61,7 +61,7 @@ MNEMONIC = {
 }
 
 def stepper_set_plc_mode(node_id):
-    err, resp = simplecan3_write_read(node_id, 0x00, 4, [0, 0, 0, 0])
+    err, resp = simplecan3_write_read(node_id, 0x00, 4, [0, 0, 0, 0], ack=False)
 
 def stepper_set_bitrate(node_id, bitrate_code):
 
