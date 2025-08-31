@@ -256,7 +256,7 @@ def servo_set_profile_type(profile_type):
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_PROFILE_TYPE, 0x00,  profile_type)
 
 def servo_set_acceleration(accel_1):
-    set_sdo(ID2, SET_4_BYTE, OD_SERVO_ACCELERATION, 0x00,  accel_1)
+    set_sdo(ID1, SET_4_BYTE, OD_SERVO_ACCELERATION, 0x00,  accel_1)
     
 def servo_set_deceleration(decel_1):
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_DECELERATION, 0x00,  decel_1)
@@ -400,8 +400,8 @@ def servo_pp_angle(tar_angle_1, t_ms):
 
     servo_pre_execute()
     servo_set_profile_type(0x00)
-    servo_set_acceleration(accel_decel_1)
-    # servo_set_deceleration(accel_decel_1)
+    # servo_set_acceleration(accel_decel_1)
+    servo_set_deceleration(accel_decel_1)
     # servo_set_max_speed(max_speed_1)
     # servo_set_tar_pulse(tar_pulse_1)
           
