@@ -445,11 +445,11 @@ def convert_csv_to_list_tar_coor(filepath):
     return list_tar_coor
 
 
-home_angle = [80,0,0,0]
-shuttle_coor = [166.82, -168, 20, 0]
-pre_past_shelf_coor = [107, 125, 20, 90]
-pickup_from_shelf_coor = [107, 224, 20, 90]
-place_onto_shelf_coor = [107, 197, 20, 90]
+home_angle = [360,0,0,0]
+shuttle_coor = [166.82, -168, 90, 0]
+pre_past_shelf_coor = [107, 125, 90, 90]
+pickup_from_shelf_coor = [107, 224, 90, 90]
+place_onto_shelf_coor = [107, 197, 90, 90]
 
 def execute_motion_data(entry):
     motion_type = entry['motion_type']
@@ -540,7 +540,7 @@ def robot_start_dancing():
     #qq
     x,y,z,yaw = shuttle_coor
     arm_pp_coor(x, y, yaw, 2000)
-    servo_pp_coor(20, 2000)
+    servo_pp_coor(90, 2000)
     time.sleep(3)
     
     pvt_sended = 0
