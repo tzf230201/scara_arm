@@ -567,6 +567,7 @@ def pt_routine():
         print(f"depth: {depth}")
         if depth != 0:
             if (depth < 40):
+                print(f"masuk: {depth} < 40")
                 if pvt_sended < max_pvt_index:
                     arm_pt_set_point(pt_2[pvt_sended], pt_3[pvt_sended], pt_4[pvt_sended])
                     pvt_sended += 1
