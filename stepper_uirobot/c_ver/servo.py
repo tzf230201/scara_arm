@@ -138,6 +138,7 @@ def servo_get_node_id():
     node_id = req_sdo(ID1, OD_SERVO_MAPPING_FOR_CAN_NODE_ID, 0x00)
     print(f"bitrate = {node_id}")
     
+servo_get_node_id()
 # servo_set_bitrate(0x0800) #1Mbps
 # servo_set_bitrate(0x2800) #500Kbps
 # servo_get_bitrate()
