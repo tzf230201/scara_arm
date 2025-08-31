@@ -224,6 +224,10 @@ def arm_pt_angle(angle_2, angle_3, angle_4, t_ms, pt_time_interval=PT_TIME_INTER
             for p_now, p_tgt in zip(pulses_now, pulses_target)
         ]
         trajectory.append(traj)
+    
+    trajectory.append(traj)
+    trajectory.append(traj)
+    trajectory.append(traj)
 
     # 5. Setup PVT queue di tiap node
     for node in node_ids:
