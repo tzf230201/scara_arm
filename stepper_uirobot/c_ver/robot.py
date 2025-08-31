@@ -561,7 +561,7 @@ def pt_routine():
     global pvt_sended, max_pvt_index, tar_pvt, cur_pvt
     global motion_cnt, motion_data, motion_size, motion_enable
     if motion_enable:
-        depth = stepper_pvt_get_queue(8)
+        depth = stepper_pvt_get_queue(7)
         if is_pvt_decrease(depth):
             cur_pvt += 1
         if depth != 0:
