@@ -214,6 +214,16 @@ def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interva
         pt2_f.append(pulses[1])
         pt3_f.append(pulses[2])
         pt4_f.append(pulses[3])
+        
+        pt1_f.append(pulses[0])
+        pt2_f.append(pulses[1])
+        pt3_f.append(pulses[2])
+        pt4_f.append(pulses[3])
+        
+        pt1_f.append(pulses[0])
+        pt2_f.append(pulses[1])
+        pt3_f.append(pulses[2])
+        pt4_f.append(pulses[3])
         # beralih ke segmen berikutnya, pastikan posisinya pas di target
         last_coor = tar_coor
 
