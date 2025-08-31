@@ -391,7 +391,7 @@ def read_motion_csv(filename):
 
     with open(filename, mode='r', newline='') as file:
         reader = csv.DictReader(file)
-        print("CSV fieldnames:", reader.fieldnames)  # DEBUG HEADER
+        # print("CSV fieldnames:", reader.fieldnames)  # DEBUG HEADER
 
         for row in reader:
             motion_type = row['motion_type']
