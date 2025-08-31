@@ -6,6 +6,10 @@ PT_TIME_INTERVAL = 100
 STEPPER_GROUP_ID = 10
 stepper_ids = [6, 7, 8]
 
+def arm_set_plc_mode():
+    for node_id in stepper_ids:
+        stepper_set_plc_mode(node_id)
+
 def arm_set_motor_off():
     for node_id in stepper_ids:
         stepper_set_mo(node_id, 0)
@@ -145,6 +149,7 @@ def arm_set_origin():
     stepper_set_origin(8)
     
 def arm_init():
+    arm_set_plc_mode()
     arm_set_motor_off()
     arm_set_group_id()
     arm_set_working_current(1.6)
