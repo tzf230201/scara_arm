@@ -86,10 +86,11 @@ def routine(state):
         pt_routine()
 
 def homing(msg, state):
-    # joints = msg.get("joints", [0, 0, 0, 0])
+    joints = msg.get("joints", [0, 0, 0, 0])
     t_ms = msg.get("time", 4000)
-    arm_pp_angle(0, 0, 0, t_ms)
-    # print(f"[cb] Homing: motor={msg.get('motor')}")
+    selection = msg.get('motor')
+    robot_pp_angle(joints, t_ms, selection)
+    print(f"[cb] Homing: motor={msg.get('motor')}")
     # # TODO: Implement homing
 
 def stop(msg, state):
