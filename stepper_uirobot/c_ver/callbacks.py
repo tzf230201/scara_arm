@@ -75,7 +75,7 @@ def dancing(msg, state):
     selection = msg.get('motor')
     selection = "all"
     # pre_start_dancing(selection)
-    start_dancing(selection)
+    robot_start_dancing()
     # state['routine'] = True
     # pt_test()
     # print(f"[cb] Dancing: motor={msg.get('motor')}")
