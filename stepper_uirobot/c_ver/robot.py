@@ -530,7 +530,7 @@ def robot_start_dancing():
     
     pvt_sended = 0
     cur_pvt = 0
-    
+    motion_cnt = 0
     
     arm_pt_init()
     for i in range(80):
