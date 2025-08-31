@@ -564,10 +564,8 @@ def pt_routine():
         depth = stepper_pvt_get_queue(8)
         if is_pvt_decrease(depth):
             cur_pvt += 1
-        print(f"depth: {depth}")
         if depth != 0:
             if (depth < 40):
-                print(f"sended {pvt_sended} < {max_pvt_index}")
                 if pvt_sended < max_pvt_index:
                     
                     arm_pt_set_point(pt_2[pvt_sended], pt_3[pvt_sended], pt_4[pvt_sended])
@@ -577,7 +575,7 @@ def pt_routine():
                 entry = motion_data[motion_cnt]
 #                 # motion_type = entry['motion_type']
                 travel_time = entry['travel_time']           
-                # execute_motion_data(entry)
+                execute_motion_data(entry)
                 motion_cnt += 1
                 tar_pvt = int(travel_time/PT_TIME_INTERVAL)
                 cur_pvt = 0
