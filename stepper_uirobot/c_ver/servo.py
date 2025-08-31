@@ -397,12 +397,12 @@ def servo_pp_angle(tar_angle_1, t_ms):
     delta_pulse_1 = servo_degrees_to_pulses(tar_angle_1 - cur_angle_1)
     accel_decel_1, max_speed_1 = servo_accel_decel_calc(delta_pulse_1, t_ms)
 
-    servo_pre_execute()
-    servo_set_profile_type(0x00)
-    servo_set_acceleration(accel_decel_1)
-    servo_set_deceleration(accel_decel_1)
-    servo_set_max_speed(max_speed_1)
-    servo_set_tar_pulse(tar_pulse_1)
+    # servo_pre_execute()
+    # servo_set_profile_type(0x00)
+    # servo_set_acceleration(accel_decel_1)
+    # servo_set_deceleration(accel_decel_1)
+    # servo_set_max_speed(max_speed_1)
+    # servo_set_tar_pulse(tar_pulse_1)
           
     if (accel_decel_1 <= SERVO_MAX_ACCEL):
         # servo_execute()
