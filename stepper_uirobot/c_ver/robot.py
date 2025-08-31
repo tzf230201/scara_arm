@@ -545,9 +545,9 @@ def pt_routine():
     global motion_enable
     if motion_enable:
         depth = stepper_pvt_get_queue(8)
-        print(f"depth: {depth}")
-    #     if depth != 0:
-    #         # print("lanjut")
+        if depth != 0:
+            print(f"depth: {depth}")
+            # print("lanjut")
     #         # print(f"motion_cnt: {motion_cnt} of {motion_size}")
     #         if motion_cnt < motion_size:
     #             if (depth < 40):
@@ -584,10 +584,13 @@ def pt_routine():
     #                 motion_cnt += 1
     #                 # execute_motion_data(entry)
     #                 last_time = time.time()
-    #     else:
-    #         start_dancing()  
+        else:
+            print(f"motion selesai")
+            return 1
     # else:
     #     stop()
+    
+    return 0
     
     
 

@@ -83,7 +83,9 @@ def dancing(msg, state):
     
 def routine(state):
     if state['routine'] == True:
-        pt_routine()
+        ret = pt_routine()
+        if ret == 1:
+            state['routine'] = False
 
 def homing(msg, state):
     joints = msg.get("joints", [360, 0, 0, 0])
