@@ -1,7 +1,7 @@
 from stepper import *
 import math
 
-PT_TIME_INTERVAL = 100
+PT_TIME_INTERVAL = 50
 
 STEPPER_GROUP_ID = 10
 stepper_ids = [6, 7, 8]
