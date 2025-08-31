@@ -1,6 +1,10 @@
 from stepper import *
 import time
 
+stepper_set_plc_mode(6)
+stepper_set_plc_mode(7)
+stepper_set_plc_mode(8)
+
 stepper_set_mo(6, False)
 stepper_set_mo(7, False)
 stepper_set_mo(8, False)
@@ -35,9 +39,7 @@ if br is not None:
     print(f"Bitrate Stepper 8: {BITRATE_MAP.get(br, 'Unknown')}")
 else:
     print("Gagal baca bitrate")
-# stepper_set_plc_mode(0)
-# stepper_set_plc_mode(0)
-# stepper_set_plc_mode(0)
+
     
 # node_id = stepper_get_node_id(6)
 # if node_id is not None:
