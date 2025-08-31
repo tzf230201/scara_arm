@@ -540,7 +540,7 @@ def robot_start_dancing():
     #qq
     x,y,z,yaw = shuttle_coor
     arm_pp_coor(x, y, yaw, 3000)
-    servo_pp_coor(90, 3000)
+    servo_pp_coor(20, 3000)
     time.sleep(4)
     
     pvt_sended = 0
