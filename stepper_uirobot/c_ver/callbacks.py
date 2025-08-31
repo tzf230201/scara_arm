@@ -88,7 +88,7 @@ def routine(state):
             state['routine'] = False
 
 def homing(msg, state):
-    joints = msg.get("joints", [20, 0, 0, 0])
+    joints = msg.get("joints", home_angle)
     t_ms = msg.get("time", 4000)
     selection = msg.get('motor')
     robot_pp_angle(joints, t_ms, selection)
