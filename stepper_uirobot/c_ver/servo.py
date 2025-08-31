@@ -256,7 +256,7 @@ def servo_set_profile_type(profile_type):
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_PROFILE_TYPE, 0x00,  profile_type)
 
 def servo_set_acceleration(accel_1):
-    set_sdo(ID2, SET_4_BYTE, OD_SERVO_ACCELERATION, 0x00,  accel_1)
+    set_sdo(ID1, SET_4_BYTE, OD_SERVO_ACCELERATION, 0x00,  accel_1)
     
 def servo_set_deceleration(decel_1):
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_DECELERATION, 0x00,  decel_1)
