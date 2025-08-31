@@ -533,7 +533,7 @@ def robot_start_dancing():
     
     
     arm_pt_init()
-    for i in range(len(pt_2)):
+    for i in range(80):
         arm_pt_set_point(pt_2[pvt_sended], pt_3[pvt_sended], pt_4[pvt_sended])
         pvt_sended += 1
     
