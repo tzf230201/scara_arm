@@ -564,7 +564,7 @@ def pt_routine():
         depth = stepper_pvt_get_queue(8)
         if is_pvt_decrease(depth):
             cur_pvt += 1
-        # print(f"depth: {depth}")
+        print(f"depth: {depth}")
         if depth != 0:
             if (depth < 40):
                 if pvt_sended < max_pvt_index:
