@@ -76,6 +76,8 @@ OD_SERVO_NEXT_TRAJECTORY_SEGMENT_ID = 0x2013
 
 OD_SERVO_CANOPEN_NETWORK_CONFIGURATION = 0x21B0
 
+OD_SERVO_MAPPING_FOR_CAN_NODE_ID = 0x21B1
+
 SERVO_PPR = 131072
 SERVO_RATIO = SERVO_PPR / 360
 
@@ -132,6 +134,10 @@ def servo_get_bitrate():
     bitrate = req_sdo(ID1, OD_SERVO_CANOPEN_NETWORK_CONFIGURATION, 0x00)
     print(f"bitrate = {bitrate}")
 
+def servo_get_node_id():
+    node_id = req_sdo(ID1, OD_SERVO_MAPPING_FOR_CAN_NODE_ID, 0x00)
+    print(f"bitrate = {node_id}")
+    
 # servo_set_bitrate(0x0800) #1Mbps
 # servo_set_bitrate(0x2800) #500Kbps
 # servo_get_bitrate()
