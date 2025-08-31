@@ -400,7 +400,7 @@ def servo_pp_angle(tar_angle_1, t_ms):
 
     servo_pre_execute()
     servo_set_profile_type(0x00)
-    # servo_set_acceleration(accel_decel_1)
+    servo_set_acceleration(accel_decel_1)
     # servo_set_deceleration(accel_decel_1)
     # servo_set_max_speed(max_speed_1)
     # servo_set_tar_pulse(tar_pulse_1)
