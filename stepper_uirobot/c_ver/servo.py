@@ -128,22 +128,22 @@ def servo_get_status_word():
     return status_word
 
 def servo_set_bitrate(bitrate_code):
-    bitrate = (bitrate <<12 | 0x0800)
-    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CANOPEN_NETWORK_CONFIGURATION, 0x00, bitrate)
+    cur_word = req_sdo(ID1, OD_SERVO_CANOPEN_NETWORK_CONFIGURATION, 0x00)
+    bitrate_code = (bitrate_code <<12 | cur_word)
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CANOPEN_NETWORK_CONFIGURATION, 0x00, bitrate_code)
     
 def servo_get_bitrate():
     bitrate = req_sdo(ID1, OD_SERVO_CANOPEN_NETWORK_CONFIGURATION, 0x00)
-    print(f"bitrate = {bitrate:04X}")
     bitrate = (bitrate >> 12) & 0XFF
-    print(f"bitrate = {bitrate}")
 
-# def servo_get_node_id_offset():
-#     offset = req_sdo(ID1, OD_SERVO_CANOPEN_NETWORK_CONFIGURATION, 0x00)
-#     offset = 
-#     print(f"node_id_offset = {offset}")
+def servo_get_node_id_offset(node_id_offset):
+    cur_word = req_sdo(ID1, OD_SERVO_CANOPEN_NETWORK_CONFIGURATION, 0x00)
+    node_id_offset = (node_id_offset | cur_word)
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CANOPEN_NETWORK_CONFIGURATION, 0x00, node_id_offset)
     
 # servo_get_node_id_offset()
-servo_get_bitrate()
+# servo_get_bitrate()
+
 
 def servo_accel_decel_calc(d_total, t_travel_ms):
     """
