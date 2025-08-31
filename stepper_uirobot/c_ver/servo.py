@@ -415,7 +415,7 @@ def servo_pp_angle(tar_angle_1, t_ms):
     servo_set_tar_pulse(tar_pulse_1)
           
     if (accel_decel_1 <= SERVO_MAX_ACCEL):
-        # servo_execute()
+        servo_execute()
         if (accel_decel_1 >= (SERVO_MAX_ACCEL * 0.8)):
             print_yellow(f"warning : almost max acceleration")
         return 1
