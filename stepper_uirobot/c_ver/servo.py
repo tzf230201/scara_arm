@@ -251,7 +251,7 @@ def servo_init(OPERATION_MODE=1):
         servo_get_buffer_free_count()
         servo_get_next_trajectory_segment_id()
     # print(f"servo wake_up")
-
+#ww
 def servo_set_profile_type(profile_type):
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_PROFILE_TYPE, 0x00,  profile_type)
 
@@ -384,7 +384,7 @@ def servo_set_origin():
     # Simpan list ke config (origin_save_to_config meng-index 0..3)
     origin_save_to_config(origins)
 
-
+#qq
 def servo_pp_angle(tar_angle_1, t_ms):
     
     origins = get_origins()
