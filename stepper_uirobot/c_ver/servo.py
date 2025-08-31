@@ -233,7 +233,7 @@ def servo_set_operation_mode(operation_mode):
     set_sdo(ID1, SET_1_BYTE, OD_SERVO_MODE_OF_OPERATION, 0x00,  operation_mode)
     
 def servo_goto_operational():
-    id = 0x01
+    id = (ID1 - 0x600)
     send_can_command(f"000#01{id:02X}")
     
 def servo_init(OPERATION_MODE=1):
