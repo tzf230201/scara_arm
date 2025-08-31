@@ -44,7 +44,7 @@ ID3 = 0x603
 ID4 = 0x604
 
 response_id_map = {
-    ID1: 0x581,
+    ID1: 0x589,
     ID2: 0x582,
     ID3: 0x583,
     ID4: 0x584
