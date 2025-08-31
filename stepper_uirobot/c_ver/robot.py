@@ -571,7 +571,20 @@ def start_dancing(selection):
     # tar_time = travel_time
     # tar_pvt = int(travel_time/PT_TIME_INTERVAL)
     # execute_motion_data(entry)
+def robot_start_dancing():
+    #qq
+    x,y,z,yaw = shuttle_coor
+    arm_pp_coor(x, y, yaw, 3000)
+    servo_pp_coor(90, 3000)
+    time.sleep(4)
+    pt_1, pt_2, pt_3, pt_4 = generate_multi_straight_pt_points(shuttle_coor, dancing_tar_coor, PT_TIME_INTERVAL)
     
+    arm_pt_init()
+    for i in range(len(pt_2)):
+        arm_pt_set_point(pt_2[i], pt_3[i], pt_4[i])
+    
+    arm_pt_get_index()
+    arm_pt_execute()
     
 def pt_routine():
     global motion_enable
