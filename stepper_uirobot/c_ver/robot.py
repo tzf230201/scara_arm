@@ -462,12 +462,6 @@ def execute_motion_data(entry):
         servo_pp_coor(d3, travel_time)
 
 
-motion_enable = True
-motion_size = 0  # Initialize motion size
-motion_cnt = 0   
-motion_data = []
-pvt_cnt = 0
-
 
 
 
@@ -476,23 +470,12 @@ tar_time = 0
 last_time = 0
 
 
-pt_1 = []
-pt_2 = []
-pt_3 = []
-pt_4 = []
 
-max_pvt_index = 0
-cur_pvt = 0
-tar_pvt = 0
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-filename = os.path.join(script_dir, "motion_data_4.csv")
-motion_data = read_motion_csv(filename)
-motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
-dancing_tar_coor = convert_csv_to_list_tar_coor(filename)
-# start_coor = forward_kinematics(get_cur_joints("all"))
-start_coor = shuttle_coor
-pt_1, pt_2, pt_3, pt_4 = generate_multi_straight_pt_points(start_coor, dancing_tar_coor, PT_TIME_INTERVAL)
+
+
+
+
 
 def pre_start_dancing(selection):
     
@@ -523,126 +506,88 @@ def pre_start_dancing(selection):
     arm_pt_execute()
     time.sleep(6)
     
-def start_dancing(selection):
-    global last_time
-    global motion_enable
-    global motion_cnt
-    global motion_data
-    global motion_size
-    global pvt_cnt
-    global tar_time
-    global pt_1, pt_2, pt_3, pt_4
-    global max_pvt_index
-    global cur_pvt
-    global tar_pvt
-    x,y,z,yaw = shuttle_coor
-    arm_pp_coor(x, y, yaw, 3000)
-    servo_pp_coor(200, 4000)
-    time.sleep(5)
-    servo_pp_coor(90, 4000)
-    
-    list_tar_coor_2 = [
-        ([107, 125, 90, 90], 2000),
-        ([107, 224, 90, 90], 2000),
-        ([107, 224, 115, 90], 1000),
-        ([107, 125, 115, 90], 3000),
-    ]
-    
-    pt_1, pt_2, pt_3, pt_4 = generate_multi_straight_pt_points(shuttle_coor, list_tar_coor_2, PT_TIME_INTERVAL)
-    
-    arm_pt_init()
-    for i in range(len(pt_2)):
-        arm_pt_set_point(pt_2[i], pt_3[i], pt_4[i])
-    
-    arm_pt_get_index()
-    
-    time.sleep(4.1)
-    arm_pt_execute()
-    time.sleep(1.8)
-    m1 = servo_get_angle()
-    z = servo_forward_kinematics(m1)
-    print(f"m1 = {m1} degree")
-    servo_pp_coor(114, 1000)
-    
-    
-    # entry = motion_data[motion_cnt]
-    # travel_time = entry['travel_time']
-    # motion_cnt += 1
-    # tar_time = travel_time
-    # tar_pvt = int(travel_time/PT_TIME_INTERVAL)
-    # execute_motion_data(entry)
+
+pt_1 = []
+pt_2 = []
+pt_3 = []
+pt_4 = []
+
+filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "motion_data_4.csv")
+motion_enable = True
+motion_cnt = 0   
+motion_data = []
+motion_data = read_motion_csv(filename)
+motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
+dancing_tar_coor = convert_csv_to_list_tar_coor(filename)
+pt_1, pt_2, pt_3, pt_4 = generate_multi_straight_pt_points(shuttle_coor, dancing_tar_coor, PT_TIME_INTERVAL)
+
+pvt_sended = 0
+max_pvt_index = 0
+
 def robot_start_dancing():
+    global pvt_sended, max_pvt_index
     #qq
     x,y,z,yaw = shuttle_coor
     arm_pp_coor(x, y, yaw, 3000)
     servo_pp_coor(90, 3000)
     time.sleep(4)
-    pt_1, pt_2, pt_3, pt_4 = generate_multi_straight_pt_points(shuttle_coor, dancing_tar_coor, PT_TIME_INTERVAL)
+    
     
     arm_pt_init()
     for i in range(len(pt_2)):
         arm_pt_set_point(pt_2[i], pt_3[i], pt_4[i])
+        pvt_sended += 1
     
-    arm_pt_get_index()
+    max_pvt_index = stepper_pvt_get_queue(8)
     arm_pt_execute()
     
 def pt_routine():
     global motion_enable
-    global motion_cnt
-    global motion_size
-    global motion_data
-    global pvt_cnt
-    global max_pvt_index
-    global tar_pvt
-    global cur_pvt
-    global tar_time
-    global pt_1, pt_2, pt_3, pt_4
-    
     if motion_enable:
         depth = stepper_pvt_get_queue(8)
         print(f"depth: {depth}")
-        if depth != 0:
-            # print("lanjut")
-            # print(f"motion_cnt: {motion_cnt} of {motion_size}")
-            if motion_cnt < motion_size:
-                if (depth < 40):
+    #     if depth != 0:
+    #         # print("lanjut")
+    #         # print(f"motion_cnt: {motion_cnt} of {motion_size}")
+    #         if motion_cnt < motion_size:
+    #             if (depth < 40):
                     
-                    if pvt_cnt < max_pvt_index:
-                        arm_pt_set_point(pt_2[pvt_cnt], pt_3[pvt_cnt], pt_4[pvt_cnt])    
+    #                 if pvt_cnt < max_pvt_index:
+    #                     arm_pt_set_point(pt_2[pvt_cnt], pt_3[pvt_cnt], pt_4[pvt_cnt])    
                 
-                        pvt_cnt += 1
-                        cur_pvt += 1
+    #                     pvt_cnt += 1
+    #                     cur_pvt += 1
                 
-                change_motion = 0
+    #             change_motion = 0
                 
-                if cur_pvt >= tar_pvt:
-                    change_motion = 1
+    #             if cur_pvt >= tar_pvt:
+    #                 change_motion = 1
                 
-                print(f"pvt_cnt: {pvt_cnt}")
-                if pvt_cnt == 120:
-                    servo_pp_coor(114, 1000)
+    #             print(f"pvt_cnt: {pvt_cnt}")
+    #             if pvt_cnt == 120:
+    #                 servo_pp_coor(114, 1000)
                                             
-                if change_motion:
-                    entry = motion_data[motion_cnt]
-                    # motion_type = entry['motion_type']
-                    # entry['travel_time'] = get_travel_time() #atur waktu
-                    travel_time = entry['travel_time']
-                    # d1 = entry['d1']
-                    # d2 = entry['d2']
-                    # d3 = entry['d3']
-                    # d4 = entry['d4']
-                    tar_time = travel_time
-                    tar_pvt = int(travel_time/PT_TIME_INTERVAL)
-                    cur_pvt = 0
-                    # print(f"tar pvt = {tar_pvt}")
+    #             if change_motion:
+    #                 entry = motion_data[motion_cnt]
+    #                 # motion_type = entry['motion_type']
+    #                 # entry['travel_time'] = get_travel_time() #atur waktu
+    #                 travel_time = entry['travel_time']
+    #                 # d1 = entry['d1']
+    #                 # d2 = entry['d2']
+    #                 # d3 = entry['d3']
+    #                 # d4 = entry['d4']
+    #                 tar_time = travel_time
+    #                 tar_pvt = int(travel_time/PT_TIME_INTERVAL)
+    #                 cur_pvt = 0
+    #                 # print(f"tar pvt = {tar_pvt}")
 
-                    motion_cnt += 1
-                    # execute_motion_data(entry)
-                    last_time = time.time()
-        else:
-            start_dancing()  
-    else:
-        stop()
+    #                 motion_cnt += 1
+    #                 # execute_motion_data(entry)
+    #                 last_time = time.time()
+    #     else:
+    #         start_dancing()  
+    # else:
+    #     stop()
     
     
 
