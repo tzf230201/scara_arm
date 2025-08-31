@@ -575,7 +575,7 @@ def pt_routine():
                 entry = motion_data[motion_cnt]
 #                 # motion_type = entry['motion_type']
                 travel_time = entry['travel_time']           
-                execute_motion_data(entry)
+                # execute_motion_data(entry)
                 motion_cnt += 1
                 tar_pvt = int(travel_time/PT_TIME_INTERVAL)
                 cur_pvt = 0
