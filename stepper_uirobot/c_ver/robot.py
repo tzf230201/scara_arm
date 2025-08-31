@@ -537,7 +537,7 @@ def robot_start_dancing():
         arm_pt_set_point(pt_2[pvt_sended], pt_3[pvt_sended], pt_4[pvt_sended])
         pvt_sended += 1
     
-    max_pvt_index = stepper_pvt_get_queue(8)
+    max_pvt_index = len(pt_2)
     
     entry = motion_data[motion_cnt]
     execute_motion_data(entry)
