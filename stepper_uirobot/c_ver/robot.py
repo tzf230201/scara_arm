@@ -528,6 +528,9 @@ def robot_start_dancing():
     servo_pp_coor(90, 3000)
     time.sleep(4)
     
+    pvt_sended = 0
+    cur_pvt = 0
+    
     
     arm_pt_init()
     for i in range(len(pt_2)):
