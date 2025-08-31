@@ -332,6 +332,7 @@ def robot_pt_angle(tar_angles, t_ms, selection):
 
 def robot_pt_coor(tar_coor, t_ms, selection):
     x, y, z, yaw = tar_coor
+    print(f"xyzyaw = {[x,y,z,yaw]}")
     tar_angle_1 = servo_inverse_kinematics(z)
     tar_angle_2, tar_angle_3, tar_angle_4 = arm_inverse_kinematics(x, y, yaw)
     tar_angles = tar_angle_1, tar_angle_2, tar_angle_3, tar_angle_4
