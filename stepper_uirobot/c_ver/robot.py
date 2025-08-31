@@ -539,9 +539,9 @@ def robot_start_dancing():
     global motion_enable, motion_cnt, motion_data, motion_size
     #qq
     x,y,z,yaw = shuttle_coor
-    arm_pp_coor(x, y, yaw, 3000)
-    servo_pp_coor(20, 3000)
-    time.sleep(4)
+    arm_pp_coor(x, y, yaw, 2000)
+    servo_pp_coor(20, 2000)
+    time.sleep(3)
     
     pvt_sended = 0
     cur_pvt = 0
