@@ -5,40 +5,40 @@ stepper_set_plc_mode(6)
 stepper_set_plc_mode(7)
 stepper_set_plc_mode(8)
 
-stepper_set_mo(6, False)
-stepper_set_mo(7, False)
-stepper_set_mo(8, False)
-BITRATE_MAP = {
-    0: "1000Kbps",
-    1: "800Kbps",
-    2: "500Kbps",
-    3: "250Kbps",
-    4: "125Kbps"
-}
-# stepper_set_bitrate(6,0)
-# stepper_set_bitrate(7,0)
-# stepper_set_bitrate(8,0)
-br = stepper_get_bitrate(6)
+# stepper_set_mo(6, False)
+# stepper_set_mo(7, False)
+# stepper_set_mo(8, False)
+# BITRATE_MAP = {
+#     0: "1000Kbps",
+#     1: "800Kbps",
+#     2: "500Kbps",
+#     3: "250Kbps",
+#     4: "125Kbps"
+# }
+# # stepper_set_bitrate(6,0)
+# # stepper_set_bitrate(7,0)
+# # stepper_set_bitrate(8,0)
+# br = stepper_get_bitrate(6)
 
-if br is not None:
-    print(f"Bitrate Stepper 6: {BITRATE_MAP.get(br, 'Unknown')}")
-else:
-    print("Gagal baca bitrate")
+# if br is not None:
+#     print(f"Bitrate Stepper 6: {BITRATE_MAP.get(br, 'Unknown')}")
+# else:
+#     print("Gagal baca bitrate")
 
 
-br = stepper_get_bitrate(7)
+# br = stepper_get_bitrate(7)
 
-if br is not None:
-    print(f"Bitrate Stepper 7: {BITRATE_MAP.get(br, 'Unknown')}")
-else:
-    print("Gagal baca bitrate")
+# if br is not None:
+#     print(f"Bitrate Stepper 7: {BITRATE_MAP.get(br, 'Unknown')}")
+# else:
+#     print("Gagal baca bitrate")
     
-    br = stepper_get_bitrate(8)
+#     br = stepper_get_bitrate(8)
 
-if br is not None:
-    print(f"Bitrate Stepper 8: {BITRATE_MAP.get(br, 'Unknown')}")
-else:
-    print("Gagal baca bitrate")
+# if br is not None:
+#     print(f"Bitrate Stepper 8: {BITRATE_MAP.get(br, 'Unknown')}")
+# else:
+#     print("Gagal baca bitrate")
 
     
 # node_id = stepper_get_node_id(6)
