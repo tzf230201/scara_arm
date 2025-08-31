@@ -271,7 +271,7 @@ def simplecan3_write_read(request_id, cw, dl, data, ack=True):
         (error_code, response_dict)
     """
     # Kirim data
-    simplecan3_write(request_id, cw, dl, data, ack=True)
+    simplecan3_write(request_id, cw, dl, data, ack)
 
     # Tunggu dan baca balasan
     error_code, response = simplecan3_read(request_id, cw)
