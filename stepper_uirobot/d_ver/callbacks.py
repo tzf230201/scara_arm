@@ -2,7 +2,6 @@
 from time import time
 from arm import *
 from utility import *
-from motion import *
 from servo import *
 from robot import *
 
