@@ -284,7 +284,7 @@ def arm_pvt_get_index():
     
 def arm_pvt_set_pvt(pvt_2, pvt_3, pvt_4):
     for (node_id, pvt) in zip(stepper_ids, [pvt_2, pvt_3, pvt_4]):
-        print(pvt)
+        print(f"{pvt}")
         p, v, t = pvt
         stepper_pvt_set_pvt(node_id, p,v,t)
 
