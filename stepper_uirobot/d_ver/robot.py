@@ -740,8 +740,10 @@ def pvt_test():
     N = len(pvts_1[0])
     arm_pvt_init()
     # 6) Isi PVT: posisi, kecepatan, waktu
-    for i in range(N):
-        arm_pvt_set_pvt(pvts_2[i], pvts_3[i],pvts_4[i])
+    # for i in range(N):
+    #     p2, v2, t2 = pvts_2
+    #     arm_pvt_set_pvt(pvts_2[i], pvts_3[i],pvts_4[i])
+    print(f"{pvts_1[0]}")
 
     arm_pvt_get_index()
     arm_pvt_execute()
