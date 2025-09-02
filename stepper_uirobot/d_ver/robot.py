@@ -734,21 +734,14 @@ def pvt_test():
         ([107,    125,    0,  90], 2000),
         ([166.82, -168,   0,   0], 2000),
     ]
-    pvt1, pvt2, pvt3, pvt4 = generate_multi_straight_pvt_points(
+    pvts_1, pvts_2, pvts_3, pvts_4 = generate_multi_straight_pvt_points(
         start_coor, list_tar_coor, PT_TIME_INTERVAL
     )
-    
-    node_ids = [6, 7, 8]
-    pvts     = [pvt2, pvt3, pvt4]
-
+    N = len(pvts_1[0])
     arm_pvt_init()
     # 6) Isi PVT: posisi, kecepatan, waktu
-    for node, (pos, vel, times) in zip(node_ids, pvts):
-        for row in range(len(pos)):
-            stepper_pvt_set_position_row_n(node, 0, pos[row])
-            stepper_pvt_set_velocity_row_n(node, 0, vel[row])
-            stepper_pvt_set_time_row_n(node, 0, times[row])
-
+    for i in range(N):
+        arm_pvt_set_pvt(pvts_2[i], pvts_3[i],pvts_4[i])
 
     arm_pvt_get_index()
     arm_pvt_execute()

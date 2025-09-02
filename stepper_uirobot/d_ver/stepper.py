@@ -929,6 +929,11 @@ def stepper_pvt_get_time_row_n(node_id, row):
         return value
     return None
 
+def stepper_pvt_set_pvt(node_id, p, v, t):
+    stepper_pvt_set_position_row_n(node_id, 0, p)
+    stepper_pvt_set_velocity_row_n(node_id, 0, v)
+    stepper_pvt_set_time_row_n(node_id, 0, t)
+
 def stepper_pvt_set_quick_feeding(node_id, qp, qv, qt):
     """
     Kirim satu segment Quick Feeding (PVT) ke driver.
