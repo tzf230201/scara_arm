@@ -738,11 +738,10 @@ def pvt_test():
         start_coor, list_tar_coor, PT_TIME_INTERVAL
     )
     N = len(pvts_1)
-    print(f"pvts_2: {pvts_2[0]}, N: {N}")
-    # arm_pvt_init()
+    arm_pvt_init()
     # # 6) Isi PVT: posisi, kecepatan, waktu
-    # for i in range(N):
-    #     arm_pvt_set_pvt(pvts_2[i], pvts_3[i], pvts_4[i])
+    for i in range(N):
+        arm_pvt_set_pvt(pvts_2[i], pvts_3[i], pvts_4[i])
 
-    # arm_pvt_get_index()
-    # arm_pvt_execute()
+    arm_pvt_get_index()
+    arm_pvt_execute()
