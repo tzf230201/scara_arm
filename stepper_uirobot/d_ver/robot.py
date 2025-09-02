@@ -675,7 +675,6 @@ def convert_cartesian_traj_to_joint_traj(x_list, y_list, z_list, yaw_list):
         joint4_list.append(joints[3])
 
     return joint1_list, joint2_list, joint3_list, joint4_list
-
 def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     """
     - start_coor: [x0,y0,z0,yaw0]
@@ -684,7 +683,7 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
 
     Return:
       pvt1, pvt2, pvt3, pvt4
-    di mana setiap pvtX adalah list [positions, velocities, times]
+    di mana setiap pvtX adalah list of [pos, vel, time] per index
     """
     # 1) Trajektori Cartesian + konversi ke joint (deg)
     t_arr, x_arr, y_arr, z_arr, yaw_arr = generate_trajectory_triangle(start_coor, list_tar_coor, dt)
@@ -711,13 +710,14 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     # 4) Waktu per row (ms)
     times = [dt] * len(p1)
 
-    # 5) Buat list PVT untuk tiap joint
-    pvt1 = [p1, v1, times]
-    pvt2 = [p2, v2, times]
-    pvt3 = [p3, v3, times]
-    pvt4 = [p4, v4, times]
+    # 5) Gabungkan menjadi list of [pos, vel, time] per index
+    pvt1 = [[p1[i], v1[i], times[i]] for i in range(len(p1))]
+    pvt2 = [[p2[i], v2[i], times[i]] for i in range(len(p2))]
+    pvt3 = [[p3[i], v3[i], times[i]] for i in range(len(p3))]
+    pvt4 = [[p4[i], v4[i], times[i]] for i in range(len(p4))]
 
     return pvt1, pvt2, pvt3, pvt4
+
 
 def pvt_test():
     x, y, yaw = arm_forward_kinematics(0,0,0)
@@ -737,13 +737,12 @@ def pvt_test():
     pvts_1, pvts_2, pvts_3, pvts_4 = generate_multi_straight_pvt_points(
         start_coor, list_tar_coor, PT_TIME_INTERVAL
     )
-    N = len(pvts_1[0])
-    arm_pvt_init()
-    # 6) Isi PVT: posisi, kecepatan, waktu
+    N = len(pvts_1)
+    print(f"pvts_2: {pvts_2[0]}, N: {N}")
+    # arm_pvt_init()
+    # # 6) Isi PVT: posisi, kecepatan, waktu
     # for i in range(N):
-    #     p2, v2, t2 = pvts_2
-    #     arm_pvt_set_pvt(pvts_2[i], pvts_3[i],pvts_4[i])
-    print(f"{pvts_1[0]}")
+    #     arm_pvt_set_pvt(pvts_2[i], pvts_3[i], pvts_4[i])
 
-    arm_pvt_get_index()
-    arm_pvt_execute()
+    # arm_pvt_get_index()
+    # arm_pvt_execute()

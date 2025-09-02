@@ -283,9 +283,7 @@ def arm_pvt_get_index():
     print(f"[dance] queue: n2={n2}, n3={n3}, n4={n4}")
     
 def arm_pvt_set_pvt(pvt_2, pvt_3, pvt_4):
-    for (node_id, pvt) in zip(stepper_ids, [pvt_2, pvt_3, pvt_4]):
-        print(f"{pvt}")
-        p, v, t = pvt
+    for (node_id, (p, v, t)) in zip(stepper_ids, [pvt_2, pvt_3, pvt_4]):
         stepper_pvt_set_pvt(node_id, p,v,t)
 
 def arm_pvt_set_quick_feeding(pvt_2, pvt_3, pvt_4):
