@@ -351,7 +351,20 @@ def robot_pt_coor(tar_coor, t_ms, selection):
     tar_angles = tar_angle_1, tar_angle_2, tar_angle_3, tar_angle_4
     robot_pt_angle(tar_angles, t_ms, selection)
 
-
+def robot_pvt_angle(tar_angles, t_ms, selection):
+    tar_angle_1, tar_angle_2, tar_angle_3, tar_angle_4 = tar_angles
+    if is_servo_selected(selection):
+        servo_pp_angle(tar_angle_1, t_ms)
+    if is_stepper_selected(selection):
+        arm_pvt_angle(tar_angle_2, tar_angle_3, tar_angle_4, t_ms, PT_TIME_INTERVAL)
+    
+def robot_pvt_coor(tar_coor, t_ms, selection):
+    x, y, z, yaw = tar_coor
+    print(f"xyzyaw = {[x,y,z,yaw]}")
+    tar_angle_1 = servo_inverse_kinematics(z)
+    tar_angle_2, tar_angle_3, tar_angle_4 = arm_inverse_kinematics(x, y, yaw)
+    tar_angles = tar_angle_1, tar_angle_2, tar_angle_3, tar_angle_4
+    robot_pvt_angle(tar_angles, t_ms, selection)
 
 
 
@@ -368,80 +381,57 @@ def robot_pt_coor(tar_coor, t_ms, selection):
 ##########################################################################
 
 
-
-#DANCING
-
-
-
-
-
-
-
-
-
-
-
-
 import csv
 import os
 
+def _get_filepath(filename):
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_dir, filename)
+
+
 def read_motion_csv(filename):
+    filepath = _get_filepath(filename)
     motions = []
-
-    with open(filename, mode='r', newline='') as file:
-        reader = csv.DictReader(file)
-        # print("CSV fieldnames:", reader.fieldnames)  # DEBUG HEADER
-
+    with open(filepath, mode='r', newline='') as f:
+        reader = csv.DictReader(f)
         for row in reader:
-            motion_type = row['motion_type']
-            travel_time = int(row['travel_time'])  # in ms
-
-            # For pp_mode: interpret as x,y,z,yaw
-            d1 = float(row['d1'])
-            d2 = float(row['d2'])
-            d3 = float(row['d3'])
-            d4 = float(row['d4'])
-
-            motion_data = {
-                'motion_type': motion_type,
-                'travel_time': travel_time,
-                'd1': d1,
-                'd2': d2,
-                'd3': d3,
-                'd4': d4
-            }
-            # print(f"Read motion entry: {motion_data}")  # DEBUG ENTRY
-            motions.append(motion_data)
-
+            motions.append({
+                'motion_type': row['motion_type'],
+                'x':           float(row['x']),
+                'y':           float(row['y']),
+                'yaw':         float(row['yaw']),
+                't_arm':       int(row['t_arm']),
+                'z':           float(row['z']),
+                't_servo':     int(row['t_servo']),
+            })
     return motions
 
-def print_motion_data(motion_data):
-    i = 0
-    for entry in motion_data:
-        motion_type = entry['motion_type']
-        travel_time = entry['travel_time']
-        d1 = entry['d1']
-        d2 = entry['d2']
-        d3 = entry['d3']
-        d4 = entry['d4']
 
-        print(f"{i} : {motion_type}, {travel_time} ms, d1: {d1}, d2: {d2}, d3: {d3}, d4: {d4}")
-        i += 1
+def print_motion_data(motions):
+    for i, m in enumerate(motions):
+        print(
+            f"{i}: {m['motion_type']}, "
+            f"x={m['x']:.2f}, y={m['y']:.2f}, yaw={m['yaw']:.2f}, "
+            f"t_arm={m['t_arm']}ms, z={m['z']:.2f}, t_servo={m['t_servo']}ms"
+        )
 
 
-def convert_csv_to_list_tar_coor(filepath):
-    list_tar_coor = []
-    with open(filepath, mode='r', newline='') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            if row['motion_type'] == 'pvt':
-                travel_time = int(row['travel_time'])
-                x = float(row['d1'])
-                y = float(row['d2'])
-                z = float(row['d3'])
-                yaw = float(row['d4'])
-                list_tar_coor.append(([x, y, z, yaw], travel_time))
-    return list_tar_coor
+def convert_csv_to_list_tar_coor(filename):
+    motions = read_motion_csv(filename)
+    arm_list   = []
+    servo_list = []
+
+    for m in motions:
+        if m['motion_type'].lower() != 'pvt':
+            continue
+
+        # Arm trajectory (z-plane = 0.0)
+        arm_list.append(([m['x'], m['y'], m['z'], m['yaw']], m['t_arm']))
+        # Servo trajectory (joint 1)
+        servo_list.append((m['z'], m['t_servo']))
+
+    return arm_list, servo_list
+
 
 
 home_angle = [360,0,0,0]
@@ -452,37 +442,15 @@ place_onto_shelf_coor = [107, 197, 90, 90]
 
 def execute_motion_data(entry):
     motion_type = entry['motion_type']
-    travel_time = entry['travel_time']
-    d1 = entry['d1']
-    d2 = entry['d2']
-    d3 = entry['d3']
-    d4 = entry['d4']
-    
-    if motion_type == 'pp_coor':
-        robot_pp_coor([d1, d2, d3, d4], travel_time, selection="all")
-    elif motion_type == 'pp_angle':
-        robot_pp_angle([d1, d2, d3, d4], travel_time, selection="all")
-    elif motion_type == 'home':
-        robot_pp_angle(home_angle, travel_time, selection="all")
-    elif motion_type == 'shuttle':
-        robot_pp_coor(shuttle_coor, travel_time, selection="all")
-    elif motion_type == 'pre_past_shelf':
-        robot_pp_coor(pre_past_shelf_coor, travel_time, selection="all")
-    elif motion_type == 'pickup_from_shelf':
-        robot_pp_coor(pickup_from_shelf_coor, travel_time, selection="all")
-    elif motion_type == 'place_onto_shelf':
-        robot_pp_coor(place_onto_shelf_coor, travel_time, selection="all")
-    elif motion_type == 'pvt':
-        servo_pp_coor(d3, travel_time)
+    x = entry['x']
+    y = entry['y']
+    yaw = entry['yaw']
+    t_arm = entry['t_arm']
+    z = entry['z']
+    t_servo = entry['t_servo']
 
-
-
-
-
-
-
-
-
+    if motion_type == 'pvt':
+        servo_pp_coor(z, t_servo)
 
 
 def pre_start_dancing(selection):
@@ -520,13 +488,13 @@ pt_2 = []
 pt_3 = []
 pt_4 = []
 
-filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "motion_data_4.csv")
+filename = "motion_data_5.csv"
 motion_enable = True
 motion_cnt = 0   
 motion_data = read_motion_csv(filename)
 motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
-dancing_tar_coor = convert_csv_to_list_tar_coor(filename)
-pt_1, pt_2, pt_3, pt_4 = generate_multi_straight_pt_points(shuttle_coor, dancing_tar_coor, PT_TIME_INTERVAL)
+robot_tar_coor,servo_tar_coor  = convert_csv_to_list_tar_coor(filename)
+pt_1, pt_2, pt_3, pt_4 = generate_multi_straight_pt_points(shuttle_coor, robot_tar_coor, PT_TIME_INTERVAL)
 
 pvt_sended = 0
 max_pvt_index = 0
@@ -659,3 +627,128 @@ def pt_test():
     # for node in node_ids:
     #     stepper_pvt_start_motion(node, 0)
     # stepper_begin_motion(STEPPER_GROUP_ID)
+    
+def generate_trajectory_triangle(cur_coor, list_tar_coor, dt):
+    def triangle_profile(p0, p1, T, dt):
+        steps = int(T / dt)
+        half = steps // 2
+        a = 4 * (p1 - p0) / (T ** 2)
+
+        positions = []
+        for i in range(steps + 1):
+            t = i * dt
+            if i <= half:
+                pos = p0 + 0.5 * a * t**2
+            else:
+                t1 = t - T / 2
+                vmax = a * (T / 2)
+                pmid = p0 + 0.5 * a * (T / 2)**2
+                pos = pmid + vmax * t1 - 0.5 * a * t1**2
+            positions.append(pos)
+        return positions
+
+    time_vals = []
+    total_time = 0
+    current = cur_coor
+    traj = [[] for _ in range(4)]
+
+    for target, T in list_tar_coor:
+        for j in range(4):  # x, y, z, yaw
+            interp = triangle_profile(current[j], target[j], T, dt)
+            traj[j].extend(interp)
+        time_vals.extend(np.arange(total_time, total_time + T + dt, dt))
+        total_time += T
+        current = target
+
+    return time_vals, traj[0], traj[1], traj[2], traj[3]
+
+def convert_cartesian_traj_to_joint_traj(x_list, y_list, z_list, yaw_list):
+    joint1_list, joint2_list, joint3_list, joint4_list = [], [], [], []
+
+    for i, (x, y, z, yaw) in enumerate(zip(x_list, y_list, z_list, yaw_list)):
+        joints = inverse_kinematics([x, y, z, yaw])
+        
+        
+        joint1_list.append(joints[0])
+        joint2_list.append(joints[1])
+        joint3_list.append(joints[2])
+        joint4_list.append(joints[3])
+
+    return joint1_list, joint2_list, joint3_list, joint4_list
+
+def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
+    """
+    - start_coor: [x0,y0,z0,yaw0]
+    - list_tar_coor: list of ([x,y,z,yaw], durasi_ms)
+    - dt: sampling interval per row (ms)
+
+    Return:
+      pvt1, pvt2, pvt3, pvt4
+    di mana setiap pvtX adalah list [positions, velocities, times]
+    """
+    # 1) Trajektori Cartesian + konversi ke joint (deg)
+    t_arr, x_arr, y_arr, z_arr, yaw_arr = generate_trajectory_triangle(start_coor, list_tar_coor, dt)
+    j1_arr, j2_arr, j3_arr, j4_arr = convert_cartesian_traj_to_joint_traj(x_arr, y_arr, z_arr, yaw_arr)
+
+    # 2) Degree → pulse
+    p1 = [stepper_deg_to_pulse(d) for d in j1_arr]
+    p2 = [stepper_deg_to_pulse(d) for d in j2_arr]
+    p3 = [stepper_deg_to_pulse(d) for d in j3_arr]
+    p4 = [stepper_deg_to_pulse(d) for d in j4_arr]
+
+    # 3) Hitung velocity (pulse/sec)
+    dt_s = dt / 1000.0
+    def compute_vel(p):
+        v = [int((p[i+1] - p[i]) / dt_s) for i in range(len(p)-1)]
+        v.append(0)
+        return v
+
+    v1 = compute_vel(p1)
+    v2 = compute_vel(p2)
+    v3 = compute_vel(p3)
+    v4 = compute_vel(p4)
+
+    # 4) Waktu per row (ms)
+    times = [dt] * len(p1)
+
+    # 5) Buat list PVT untuk tiap joint
+    pvt1 = [p1, v1, times]
+    pvt2 = [p2, v2, times]
+    pvt3 = [p3, v3, times]
+    pvt4 = [p4, v4, times]
+
+    return pvt1, pvt2, pvt3, pvt4
+
+def pvt_test():
+    x, y, yaw = arm_forward_kinematics(0,0,0)
+    start_coor = [x, y, 0, yaw]
+    list_tar_coor = [
+        ([166.82, -168,   0,   0], 2000),
+        ([166.82, -168,   0,   0], 200),
+        ([258,     0,     0,   0], 2000),
+        ([258,     0,     0,   0], 200),
+        ([107,    125,    0,  90], 2000),
+        ([107,    125,    0,  90], 200),
+        ([107,    224,    0,  90], 2000),
+        ([107,    224,    0,  90], 500),
+        ([107,    125,    0,  90], 2000),
+        ([166.82, -168,   0,   0], 2000),
+    ]
+    pvt1, pvt2, pvt3, pvt4 = generate_multi_straight_pvt_points(
+        start_coor, list_tar_coor, PT_TIME_INTERVAL
+    )
+    
+    node_ids = [6, 7, 8]
+    pvts     = [pvt2, pvt3, pvt4]
+
+    arm_pvt_init()
+    # 6) Isi PVT: posisi, kecepatan, waktu
+    for node, (pos, vel, times) in zip(node_ids, pvts):
+        for row in range(len(pos)):
+            stepper_pvt_set_position_row_n(node, 0, pos[row])
+            stepper_pvt_set_velocity_row_n(node, 0, vel[row])
+            stepper_pvt_set_time_row_n(node, 0, times[row])
+
+
+    arm_pvt_get_index()
+    arm_pvt_execute()

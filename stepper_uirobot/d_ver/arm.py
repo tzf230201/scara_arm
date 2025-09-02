@@ -285,7 +285,53 @@ def arm_pvt_get_index():
     n3 = stepper_pvt_get_queue(7)
     n4 = stepper_pvt_get_queue(8)
     print(f"[dance] queue: n2={n2}, n3={n3}, n4={n4}")
+    
+def arm_pvt_angle(angle_2, angle_3, angle_4, t_ms, pt_time_interval=PT_TIME_INTERVAL):
+    node_ids=[6,7,8]
+    # 1. Pastikan joint dalam limit, lalu ambil 3 joint arm
+    angle_2, angle_3, angle_4 = arm_check_limit(angle_2, angle_3, angle_4)
+    target_deg = [angle_2, angle_3, angle_4]
 
+    # 2. Konversi target → pulse, baca posisi sekarang (pulse)
+    pulses_target = [stepper_deg_to_pulse(d) for d in target_deg]
+    pulses_now    = [stepper_get_pa(n)       for n in node_ids]
 
+    # 3. Hitung jumlah step untuk interpolation
+    n_step = max(int(round(t_ms / pt_time_interval)), 1)
+
+    # 4. Bangun trajectory pulse per node: list of [p1,p2,p3] tiap step
+    trajectory = []
+    for i in range(n_step+1):
+        alpha = i / n_step
+        traj = [
+            int(p_now + (p_tgt - p_now) * alpha)
+            for p_now, p_tgt in zip(pulses_now, pulses_target)
+        ]
+        trajectory.append(traj)
+    
+    trajectory.append(traj)
+    trajectory.append(traj)
+    trajectory.append(traj)
+
+    # 5. Setup PVT queue di tiap node
+    for node in node_ids:
+        stepper_pvt_clear_queue(node)
+        stepper_pvt_set_first_valid_row(node, 0)
+        stepper_pvt_set_last_valid_row (node, len(trajectory))
+        stepper_pvt_set_management_mode(node, 0)
+        stepper_pvt_set_pt_time(node, pt_time_interval)
+
+    # 6. Isi queue: setiap row untuk semua node
+    for idx, row_pulses in enumerate(trajectory):
+        for node, p in zip(node_ids, row_pulses):
+            stepper_pvt_set_pt_data_row_n(node, idx, p)
+            pt = stepper_pvt_get_pt_data_row_n(node, idx)
+            pa = stepper_pulse_to_deg(pt)
+            print(f"node {node} index {idx} is {pa}")
+
+    # 7. Mulai motion serempak
+    for node in node_ids:
+        stepper_pvt_start_motion(node, 0)
+    stepper_begin_motion(STEPPER_GROUP_ID)
 
 
