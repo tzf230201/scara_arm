@@ -735,7 +735,7 @@ def pvt_test():
         ([166.82, -168,   0,   0], 2000),
     ]
     pvts_1, pvts_2, pvts_3, pvts_4 = generate_multi_straight_pvt_points(
-        start_coor, list_tar_coor, PT_TIME_INTERVAL
+        start_coor, list_tar_coor, 50
     )
     N = len(pvts_1)
     arm_pvt_init()
