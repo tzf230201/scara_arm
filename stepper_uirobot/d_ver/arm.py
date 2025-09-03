@@ -331,7 +331,7 @@ def arm_generate_multi_straight_pvt_points_xyyaw(start_xyyaw, list_tar_xyyaw, dt
     # 2) konversi Cartesian → joint sudut (deg)
     j2_arr, j3_arr, j4_arr = [], [], []
     for x, y, yaw in zip(traj_x, traj_y, traj_yaw):
-        j1, j2, j3, j4 = arm_inverse_kinematics(x, y, yaw)
+        j2, j3, j4 = arm_inverse_kinematics(x, y, yaw)
         j2_arr.append(j2)
         j3_arr.append(j3)
         j4_arr.append(j4)
