@@ -675,7 +675,7 @@ def robot_start_pvt_dancing():
     entry = motion_data[motion_cnt]
     execute_motion_data(entry)
     motion_cnt += 1
-    travel_time = entry['travel_time']
+    travel_time = entry['t_arm']
     tar_pvt = int(travel_time/PT_TIME_INTERVAL)
     arm_pvt_execute()
     
@@ -695,7 +695,7 @@ def pvt_routine():
             if cur_pvt >= tar_pvt:
                 entry = motion_data[motion_cnt]
 #                 # motion_type = entry['motion_type']
-                travel_time = entry['travel_time']           
+                travel_time = entry['t_arm']           
                 execute_motion_data(entry)
                 motion_cnt += 1
                 tar_pvt = int(travel_time/PT_TIME_INTERVAL)
