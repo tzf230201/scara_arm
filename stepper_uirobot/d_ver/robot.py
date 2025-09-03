@@ -652,7 +652,7 @@ def pt_routine():
     return 0
     
     
-def start_pvt_dancing():
+def robot_start_pvt_dancing():
     global pvt_sended, max_pvt_index, tar_pvt, cur_pvt
     global motion_enable, motion_cnt, motion_data, motion_size
     #qq

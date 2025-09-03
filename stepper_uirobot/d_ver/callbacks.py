@@ -78,8 +78,9 @@ def dancing(msg, state):
     selection = "all"
     # pre_start_dancing(selection)
     # robot_start_dancing()
-    pvt_test()
-    # state['routine'] = True
+    # pvt_test()
+    robot_start_pvt_dancing()
+    state['routine'] = True
     # pt_test()
     # print(f"[cb] Dancing: motor={msg.get('motor')}")
     # # TODO: Implement demo/dance pattern
