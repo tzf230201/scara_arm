@@ -236,7 +236,86 @@ def generate_multi_straight_pt_points(start_coor, list_tar_coor, pt_time_interva
 
     return pt1_f, pt2_f, pt3_f, pt4_f
 
+def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
+    def generate_trajectory_triangle(cur_coor, list_tar_coor, dt):
+        def triangle_profile(p0, p1, T, dt):
+            steps = int(T / dt)
+            half = steps // 2
+            a = 4 * (p1 - p0) / (T ** 2)
 
+            positions = []
+            for i in range(steps + 1):
+                t = i * dt
+                if i <= half:
+                    pos = p0 + 0.5 * a * t**2
+                else:
+                    t1 = t - T / 2
+                    vmax = a * (T / 2)
+                    pmid = p0 + 0.5 * a * (T / 2)**2
+                    pos = pmid + vmax * t1 - 0.5 * a * t1**2
+                positions.append(pos)
+            return positions
+
+        time_vals = []
+        total_time = 0
+        current = cur_coor
+        traj = [[] for _ in range(4)]
+
+        for target, T in list_tar_coor:
+            for j in range(4):  # x, y, z, yaw
+                interp = triangle_profile(current[j], target[j], T, dt)
+                traj[j].extend(interp)
+            time_vals.extend(np.arange(total_time, total_time + T + dt, dt))
+            total_time += T
+            current = target
+
+        return time_vals, traj[0], traj[1], traj[2], traj[3]
+    
+    def convert_cartesian_traj_to_joint_traj(x_list, y_list, z_list, yaw_list):
+        joint1_list, joint2_list, joint3_list, joint4_list = [], [], [], []
+
+        for i, (x, y, z, yaw) in enumerate(zip(x_list, y_list, z_list, yaw_list)):
+            joints = inverse_kinematics([x, y, z, yaw])
+            
+            
+            joint1_list.append(joints[0])
+            joint2_list.append(joints[1])
+            joint3_list.append(joints[2])
+            joint4_list.append(joints[3])
+
+        return joint1_list, joint2_list, joint3_list, joint4_list
+    # 1) Trajektori Cartesian + konversi ke joint (deg)
+    t_arr, x_arr, y_arr, z_arr, yaw_arr = generate_trajectory_triangle(start_coor, list_tar_coor, dt)
+    j1_arr, j2_arr, j3_arr, j4_arr = convert_cartesian_traj_to_joint_traj(x_arr, y_arr, z_arr, yaw_arr)
+
+    # 2) Degree → pulse
+    p1 = [stepper_deg_to_pulse(d) for d in j1_arr]
+    p2 = [stepper_deg_to_pulse(d) for d in j2_arr]
+    p3 = [stepper_deg_to_pulse(d) for d in j3_arr]
+    p4 = [stepper_deg_to_pulse(d) for d in j4_arr]
+
+    # 3) Hitung velocity (pulse/sec)
+    dt_s = dt / 1000.0
+    def compute_vel(p):
+        v = [int((p[i+1] - p[i]) / dt_s) for i in range(len(p)-1)]
+        v.append(0)
+        return v
+
+    v1 = compute_vel(p1)
+    v2 = compute_vel(p2)
+    v3 = compute_vel(p3)
+    v4 = compute_vel(p4)
+
+    # 4) Waktu per row (ms)
+    times = [dt] * len(p1)
+
+    # 5) Gabungkan menjadi list of [pos, vel, time] per index
+    pvt1 = [[p1[i], v1[i], times[i]] for i in range(len(p1))]
+    pvt2 = [[p2[i], v2[i], times[i]] for i in range(len(p2))]
+    pvt3 = [[p3[i], v3[i], times[i]] for i in range(len(p3))]
+    pvt4 = [[p4[i], v4[i], times[i]] for i in range(len(p4))]
+
+    return pvt1, pvt2, pvt3, pvt4
 
 
 
@@ -495,13 +574,24 @@ motion_data = read_motion_csv(filename)
 motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
 robot_tar_coor,servo_tar_coor  = convert_csv_to_list_tar_coor(filename)
 pt_1, pt_2, pt_3, pt_4 = generate_multi_straight_pt_points(shuttle_coor, robot_tar_coor, PT_TIME_INTERVAL)
+pvts_1, pvts_2, pvts_3, pvts_4 = generate_multi_straight_pvt_points(shuttle_coor, robot_tar_coor, PT_TIME_INTERVAL)
 
 pvt_sended = 0
 max_pvt_index = 0
 cur_pvt = 0
 tar_pvt = 0
 
-def robot_start_dancing():
+last_depth = 0
+def is_pvt_decrease(depth):
+    global last_depth
+    ret = 0
+    if depth < last_depth:
+        ret = 1
+    last_depth = depth
+    return ret
+        
+
+def robot_start_pt_dancing():
     global pvt_sended, max_pvt_index, tar_pvt, cur_pvt
     global motion_enable, motion_cnt, motion_data, motion_size
     #qq
@@ -528,15 +618,7 @@ def robot_start_dancing():
     tar_pvt = int(travel_time/PT_TIME_INTERVAL)
     arm_pt_execute()
 
-last_depth = 0
-def is_pvt_decrease(depth):
-    global last_depth
-    ret = 0
-    if depth < last_depth:
-        ret = 1
-    last_depth = depth
-    return ret
-        
+
     
     
 def pt_routine():
@@ -570,139 +652,113 @@ def pt_routine():
     return 0
     
     
-
-
-
-
-def pt_test():
-    x, y, yaw = arm_forward_kinematics(0,0,0)
-    start_coor = [x, y, 0, yaw]
-    list_tar_coor = [
-        ([166.82, -168,   0,   0], 2000),
-        ([166.82, -168,   0,   0], 200),
-        ([258,     0,     0,   0], 2000),
-        ([258,     0,     0,   0], 200),
-        ([107,    125,    0,  90], 2000),
-        ([107,    125,    0,  90], 200),
-        ([107,    224,    0,  90], 2000),
-        ([107,    224,    0,  90], 500),
-        ([107,    125,    0,  90], 2000),
-        ([166.82, -168,   0,   0], 2000),
-    ]
-    pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(
-        start_coor, list_tar_coor, PT_TIME_INTERVAL
-    )
-    plot_xy_from_pt(pt1, pt2, pt3, pt4)
-
-    arm_pt_init()
-    for i in range(len(pt2)):
-        arm_pt_set_point(pt2[i], pt3[i], pt4[i])
+def start_pvt_dancing():
+    global pvt_sended, max_pvt_index, tar_pvt, cur_pvt
+    global motion_enable, motion_cnt, motion_data, motion_size
+    #qq
+    x,y,z,yaw = shuttle_coor
+    arm_pp_coor(x, y, yaw, 2000)
+    servo_pp_coor(90, 2000)
+    time.sleep(3)
     
-    arm_pt_get_index()
-    arm_pt_execute()
-
-
-def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
-    def generate_trajectory_triangle(cur_coor, list_tar_coor, dt):
-        def triangle_profile(p0, p1, T, dt):
-            steps = int(T / dt)
-            half = steps // 2
-            a = 4 * (p1 - p0) / (T ** 2)
-
-            positions = []
-            for i in range(steps + 1):
-                t = i * dt
-                if i <= half:
-                    pos = p0 + 0.5 * a * t**2
-                else:
-                    t1 = t - T / 2
-                    vmax = a * (T / 2)
-                    pmid = p0 + 0.5 * a * (T / 2)**2
-                    pos = pmid + vmax * t1 - 0.5 * a * t1**2
-                positions.append(pos)
-            return positions
-
-        time_vals = []
-        total_time = 0
-        current = cur_coor
-        traj = [[] for _ in range(4)]
-
-        for target, T in list_tar_coor:
-            for j in range(4):  # x, y, z, yaw
-                interp = triangle_profile(current[j], target[j], T, dt)
-                traj[j].extend(interp)
-            time_vals.extend(np.arange(total_time, total_time + T + dt, dt))
-            total_time += T
-            current = target
-
-        return time_vals, traj[0], traj[1], traj[2], traj[3]
+    pvt_sended = 0
+    cur_pvt = 0
+    motion_cnt = 0
     
-    def convert_cartesian_traj_to_joint_traj(x_list, y_list, z_list, yaw_list):
-        joint1_list, joint2_list, joint3_list, joint4_list = [], [], [], []
-
-        for i, (x, y, z, yaw) in enumerate(zip(x_list, y_list, z_list, yaw_list)):
-            joints = inverse_kinematics([x, y, z, yaw])
-            
-            
-            joint1_list.append(joints[0])
-            joint2_list.append(joints[1])
-            joint3_list.append(joints[2])
-            joint4_list.append(joints[3])
-
-        return joint1_list, joint2_list, joint3_list, joint4_list
-    # 1) Trajektori Cartesian + konversi ke joint (deg)
-    t_arr, x_arr, y_arr, z_arr, yaw_arr = generate_trajectory_triangle(start_coor, list_tar_coor, dt)
-    j1_arr, j2_arr, j3_arr, j4_arr = convert_cartesian_traj_to_joint_traj(x_arr, y_arr, z_arr, yaw_arr)
-
-    # 2) Degree → pulse
-    p1 = [stepper_deg_to_pulse(d) for d in j1_arr]
-    p2 = [stepper_deg_to_pulse(d) for d in j2_arr]
-    p3 = [stepper_deg_to_pulse(d) for d in j3_arr]
-    p4 = [stepper_deg_to_pulse(d) for d in j4_arr]
-
-    # 3) Hitung velocity (pulse/sec)
-    dt_s = dt / 1000.0
-    def compute_vel(p):
-        v = [int((p[i+1] - p[i]) / dt_s) for i in range(len(p)-1)]
-        v.append(0)
-        return v
-
-    v1 = compute_vel(p1)
-    v2 = compute_vel(p2)
-    v3 = compute_vel(p3)
-    v4 = compute_vel(p4)
-
-    # 4) Waktu per row (ms)
-    times = [dt] * len(p1)
-
-    # 5) Gabungkan menjadi list of [pos, vel, time] per index
-    pvt1 = [[p1[i], v1[i], times[i]] for i in range(len(p1))]
-    pvt2 = [[p2[i], v2[i], times[i]] for i in range(len(p2))]
-    pvt3 = [[p3[i], v3[i], times[i]] for i in range(len(p3))]
-    pvt4 = [[p4[i], v4[i], times[i]] for i in range(len(p4))]
-
-    return pvt1, pvt2, pvt3, pvt4
-
-
-def pvt_test():
-    x, y, yaw = arm_forward_kinematics(0,0,0)
-    start_coor = [x, y, 0, yaw]
-    list_tar_coor = [
-        ([166.82, -168,   0,   0], 2000),
-        ([258,     0,     0,   0], 2000),
-        ([107,    125,    0,  90], 2000),
-        ([107,    224,    0,  90], 2000),
-        ([107,    125,    0,  90], 2000),
-        ([166.82, -168,   0,   0], 2000),
-    ]
-    pvts_1, pvts_2, pvts_3, pvts_4 = generate_multi_straight_pvt_points(
-        start_coor, list_tar_coor, 50
-    )
-    N = len(pvts_1)
     arm_pvt_init()
-    # # 6) Isi PVT: posisi, kecepatan, waktu
-    for i in range(N):
-        arm_pvt_set_pvt(pvts_2[i], pvts_3[i], pvts_4[i])
+    for i in range(80):
+        arm_pvt_set_pvt(pvts_2[pvt_sended], pvts_3[pvt_sended], pvts_4[pvt_sended])
+        pvt_sended += 1
 
-    arm_pvt_get_index()
+    max_pvt_index = len(pvts_2)
+
+    entry = motion_data[motion_cnt]
+    execute_motion_data(entry)
+    motion_cnt += 1
+    travel_time = entry['travel_time']
+    tar_pvt = int(travel_time/PT_TIME_INTERVAL)
     arm_pvt_execute()
+    
+def pvt_routine():
+    global pvt_sended, max_pvt_index, tar_pvt, cur_pvt
+    global motion_cnt, motion_data, motion_size, motion_enable
+    if motion_enable:
+        depth = stepper_pvt_get_queue(7)
+        if is_pvt_decrease(depth):
+            cur_pvt += 1
+        if depth != 0:
+            if (depth < 40):
+                if pvt_sended < max_pvt_index:
+                    arm_pvt_set_pvt(pvts_2[pvt_sended], pvts_3[pvt_sended], pvts_4[pvt_sended])
+                    pvt_sended += 1
+                                            
+            if cur_pvt >= tar_pvt:
+                entry = motion_data[motion_cnt]
+#                 # motion_type = entry['motion_type']
+                travel_time = entry['travel_time']           
+                execute_motion_data(entry)
+                motion_cnt += 1
+                tar_pvt = int(travel_time/PT_TIME_INTERVAL)
+                cur_pvt = 0
+        else:
+            print(f"motion selesai")
+            return 1
+    # else:
+    #     stop()
+    
+    return 0
+
+# def pt_test():
+#     x, y, yaw = arm_forward_kinematics(0,0,0)
+#     start_coor = [x, y, 0, yaw]
+#     list_tar_coor = [
+#         ([166.82, -168,   0,   0], 2000),
+#         ([166.82, -168,   0,   0], 200),
+#         ([258,     0,     0,   0], 2000),
+#         ([258,     0,     0,   0], 200),
+#         ([107,    125,    0,  90], 2000),
+#         ([107,    125,    0,  90], 200),
+#         ([107,    224,    0,  90], 2000),
+#         ([107,    224,    0,  90], 500),
+#         ([107,    125,    0,  90], 2000),
+#         ([166.82, -168,   0,   0], 2000),
+#     ]
+#     pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(
+#         start_coor, list_tar_coor, PT_TIME_INTERVAL
+#     )
+#     plot_xy_from_pt(pt1, pt2, pt3, pt4)
+
+#     arm_pt_init()
+#     for i in range(len(pt2)):
+#         arm_pt_set_point(pt2[i], pt3[i], pt4[i])
+    
+#     arm_pt_get_index()
+#     arm_pt_execute()
+
+
+
+
+
+# def pvt_test():
+#     x, y, yaw = arm_forward_kinematics(0,0,0)
+#     start_coor = [x, y, 0, yaw]
+#     list_tar_coor = [
+#         ([166.82, -168,   0,   0], 2000),
+#         ([258,     0,     0,   0], 2000),
+#         ([107,    125,    0,  90], 2000),
+#         ([107,    224,    0,  90], 2000),
+#         ([107,    125,    0,  90], 2000),
+#         ([166.82, -168,   0,   0], 2000),
+#     ]
+#     pvts_1, pvts_2, pvts_3, pvts_4 = generate_multi_straight_pvt_points(
+#         start_coor, list_tar_coor, PT_TIME_INTERVAL
+#     )
+#     N = len(pvts_1)
+#     arm_pvt_init()
+#     # # 6) Isi PVT: posisi, kecepatan, waktu
+#     for i in range(N):
+#         arm_pvt_set_pvt(pvts_2[i], pvts_3[i], pvts_4[i])
+
+#     arm_pvt_get_index()
+#     arm_pvt_execute()
+    
