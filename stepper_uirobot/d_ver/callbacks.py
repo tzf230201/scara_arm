@@ -87,7 +87,8 @@ def dancing(msg, state):
     
 def routine(state):
     if state['routine'] == True:
-        ret = pt_routine()
+        # ret = pt_routine()
+        ret = pvt_routine()
         if ret == 1:
             state['routine'] = False
 
