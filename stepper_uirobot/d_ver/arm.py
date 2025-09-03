@@ -1,5 +1,6 @@
 from stepper import *
 import math
+import numpy as np
 
 PT_TIME_INTERVAL = 100
 
@@ -40,6 +41,11 @@ def arm_get_angle():
     cur_angle_3 = stepper_pulse_to_deg(enc_3)
     cur_angle_4 = stepper_pulse_to_deg(enc_4)
     return cur_angle_2, cur_angle_3, cur_angle_4
+
+def arm_get_coor():
+    angle_2, angle_3, angle_4 = arm_get_angle()
+    x, y, yaw = arm_forward_kinematics(angle_2, angle_3, angle_4)
+    return x, y, yaw
 
 def arm_check_limit(angle_2, angle_3, angle_4):
     angle_2_upper_limit = 178 * 5
@@ -289,3 +295,91 @@ def arm_pvt_set_pvt(pvt_2, pvt_3, pvt_4):
 def arm_pvt_set_quick_feeding(pvt_2, pvt_3, pvt_4):
     for (node_id, (p,v,t)) in zip(stepper_ids, [pvt_2, pvt_3, pvt_4]):
         stepper_pvt_set_quick_feeding(node_id, p,v,t)
+
+import numpy as np
+
+def arm_generate_multi_straight_pvt_points_xyyaw(start_xyyaw, list_tar_xyyaw, dt):
+    def triangle_profile(p0, p1, T, dt):
+        steps = int(T / dt)
+        half = steps // 2
+        a = 4 * (p1 - p0) / (T ** 2)
+        positions = []
+        for i in range(steps + 1):
+            t = i * dt
+            if i <= half:
+                pos = p0 + 0.5 * a * t**2
+            else:
+                t1 = t - T / 2
+                vmax = a * (T / 2)
+                pmid = p0 + 0.5 * a * (T / 2)**2
+                pos = pmid + vmax * t1 - 0.5 * a * t1**2
+            positions.append(pos)
+        return positions
+
+    # 1) bangun trajektor Cartesian per dimensi x, y, yaw
+    traj_x, traj_y, traj_yaw = [], [], []
+    current = start_xyyaw
+    for (tx, ty, tyaw), T in list_tar_xyyaw:
+        interp_x   = triangle_profile(current[0], tx,   T, dt)
+        interp_y   = triangle_profile(current[1], ty,   T, dt)
+        interp_yaw = triangle_profile(current[2], tyaw, T, dt)
+        traj_x.extend(interp_x)
+        traj_y.extend(interp_y)
+        traj_yaw.extend(interp_yaw)
+        current = (tx, ty, tyaw)
+
+    # 2) konversi Cartesian → joint sudut (deg)
+    j2_arr, j3_arr, j4_arr = [], [], []
+    for x, y, yaw in zip(traj_x, traj_y, traj_yaw):
+        j1, j2, j3, j4 = arm_inverse_kinematics(x, y, yaw)
+        j2_arr.append(j2)
+        j3_arr.append(j3)
+        j4_arr.append(j4)
+
+    # 3) degree → pulse
+    p2 = [stepper_deg_to_pulse(d) for d in j2_arr]
+    p3 = [stepper_deg_to_pulse(d) for d in j3_arr]
+    p4 = [stepper_deg_to_pulse(d) for d in j4_arr]
+
+    # 4) velocity (pulse/sec)
+    dt_s = dt / 1000.0
+    def vel_list(p):
+        v = [int((p[i+1] - p[i]) / dt_s) for i in range(len(p)-1)]
+        v.append(0)
+        return v
+
+    v2 = vel_list(p2)
+    v3 = vel_list(p3)
+    v4 = vel_list(p4)
+
+    # 5) waktu per row
+    times = [dt] * len(p2)
+
+    # 6) gabungkan menjadi PVT rows
+    pvt2 = [[p2[i], v2[i], times[i]] for i in range(len(p2))]
+    pvt3 = [[p3[i], v3[i], times[i]] for i in range(len(p3))]
+    pvt4 = [[p4[i], v4[i], times[i]] for i in range(len(p4))]
+
+    return pvt2, pvt3, pvt4
+
+
+def arm_pvt_angle(tar_angle_2, tar_angle_3, tar_angle_4, t_ms, dt=PT_TIME_INTERVAL):
+    
+    cur_x, cur_y, cur_yaw = arm_get_coor()
+    tar_angle_2, tar_angle_3, tar_angle_4 = arm_check_limit(tar_angle_2, tar_angle_3, tar_angle_4)
+    tar_x, tar_y, tar_yaw = arm_forward_kinematics(tar_angle_2, tar_angle_3, tar_angle_4)
+    start_coor = [cur_x, cur_y, cur_yaw]
+    tar_coor  = [tar_x, tar_y, tar_yaw]
+    
+    pvts_2, pvts_3, pvts_4 = arm_generate_multi_straight_pvt_points_xyyaw(start_coor, [(tar_coor, t_ms)], dt)
+    n = len(pvts_2)
+    arm_pvt_init()
+    for i in range(n):
+        arm_pvt_set_pvt(pvts_2[i], pvts_3[i], pvts_4[i])
+
+    arm_pvt_get_index()
+    arm_pvt_execute()
+    
+def arm_pvt_coor(tar_x, tar_y, tar_yaw, t_ms, dt):
+    tar_angle_2, tar_angle_3, tar_angle_4 = arm_inverse_kinematics(tar_x, tar_y, tar_yaw)
+    arm_pvt_angle(tar_angle_2, tar_angle_3, tar_angle_4, t_ms, dt)

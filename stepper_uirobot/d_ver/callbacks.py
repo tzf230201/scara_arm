@@ -33,15 +33,18 @@ def pp_coor(msg, state):
     robot_pp_coor(coor, t_ms, selection)
 
 def pvt_joint(msg, state):
+    selection = msg.get('motor')
     joints = msg.get("joints", [])
     t_ms = msg.get("time", 1000)
-    robot_pt_angle(joints, t_ms, "stepper_only")
+    # robot_pt_angle(joints, t_ms, "stepper_only")
+    robot_pvt_angle(joints, t_ms, selection)
     # TODO: Implement PVT handling
 
 def pvt_coor(msg, state):
+    selection = msg.get('motor')
     coor = msg.get("coor", [])
     t_ms = msg.get("time", 1000)
-    robot_pt_coor(coor, t_ms, "stepper_only")
+    robot_pvt_coor(coor, t_ms, selection)
     # TODO: Implement inverse kinematics/PVT
 
 def read_position(msg, state):

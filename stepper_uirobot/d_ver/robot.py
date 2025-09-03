@@ -600,91 +600,56 @@ def pt_test():
     
     arm_pt_get_index()
     arm_pt_execute()
-    # for t in range(100):
-    #     arm_pt_get_index()
-    #     time.sleep(0.2)
-    
-    
-    
-# 3) Hitung PVT untuk joint1–4
-    # pvt1, pvt2, pvt3, pvt4 = generate_multi_straight_pvt_points(
-    #     start_coor, list_tar_coor, PT_TIME_INTERVAL
-    # )
-    # # 4) Node IDs untuk joint2,3,4
-    # node_ids = [6, 7, 8]
-    # pvts     = [pvt2, pvt3, pvt4]
 
-    # arm_pvt_init()
 
-    # # 6) Isi PVT: posisi, kecepatan, waktu
-    # for node, (pos, vel, times) in zip(node_ids, pvts):
-    #     for row in range(len(pos)):
-    #         stepper_pvt_set_position_row_n(node, 0, pos[row])
-    #         stepper_pvt_set_velocity_row_n(node, 0, vel[row])
-    #         stepper_pvt_set_time_row_n(node, 0, times[row])
-
-    # # 7) Mulai motion serempak
-    # for node in node_ids:
-    #     stepper_pvt_start_motion(node, 0)
-    # stepper_begin_motion(STEPPER_GROUP_ID)
-    
-def generate_trajectory_triangle(cur_coor, list_tar_coor, dt):
-    def triangle_profile(p0, p1, T, dt):
-        steps = int(T / dt)
-        half = steps // 2
-        a = 4 * (p1 - p0) / (T ** 2)
-
-        positions = []
-        for i in range(steps + 1):
-            t = i * dt
-            if i <= half:
-                pos = p0 + 0.5 * a * t**2
-            else:
-                t1 = t - T / 2
-                vmax = a * (T / 2)
-                pmid = p0 + 0.5 * a * (T / 2)**2
-                pos = pmid + vmax * t1 - 0.5 * a * t1**2
-            positions.append(pos)
-        return positions
-
-    time_vals = []
-    total_time = 0
-    current = cur_coor
-    traj = [[] for _ in range(4)]
-
-    for target, T in list_tar_coor:
-        for j in range(4):  # x, y, z, yaw
-            interp = triangle_profile(current[j], target[j], T, dt)
-            traj[j].extend(interp)
-        time_vals.extend(np.arange(total_time, total_time + T + dt, dt))
-        total_time += T
-        current = target
-
-    return time_vals, traj[0], traj[1], traj[2], traj[3]
-
-def convert_cartesian_traj_to_joint_traj(x_list, y_list, z_list, yaw_list):
-    joint1_list, joint2_list, joint3_list, joint4_list = [], [], [], []
-
-    for i, (x, y, z, yaw) in enumerate(zip(x_list, y_list, z_list, yaw_list)):
-        joints = inverse_kinematics([x, y, z, yaw])
-        
-        
-        joint1_list.append(joints[0])
-        joint2_list.append(joints[1])
-        joint3_list.append(joints[2])
-        joint4_list.append(joints[3])
-
-    return joint1_list, joint2_list, joint3_list, joint4_list
 def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
-    """
-    - start_coor: [x0,y0,z0,yaw0]
-    - list_tar_coor: list of ([x,y,z,yaw], durasi_ms)
-    - dt: sampling interval per row (ms)
+    def generate_trajectory_triangle(cur_coor, list_tar_coor, dt):
+        def triangle_profile(p0, p1, T, dt):
+            steps = int(T / dt)
+            half = steps // 2
+            a = 4 * (p1 - p0) / (T ** 2)
 
-    Return:
-      pvt1, pvt2, pvt3, pvt4
-    di mana setiap pvtX adalah list of [pos, vel, time] per index
-    """
+            positions = []
+            for i in range(steps + 1):
+                t = i * dt
+                if i <= half:
+                    pos = p0 + 0.5 * a * t**2
+                else:
+                    t1 = t - T / 2
+                    vmax = a * (T / 2)
+                    pmid = p0 + 0.5 * a * (T / 2)**2
+                    pos = pmid + vmax * t1 - 0.5 * a * t1**2
+                positions.append(pos)
+            return positions
+
+        time_vals = []
+        total_time = 0
+        current = cur_coor
+        traj = [[] for _ in range(4)]
+
+        for target, T in list_tar_coor:
+            for j in range(4):  # x, y, z, yaw
+                interp = triangle_profile(current[j], target[j], T, dt)
+                traj[j].extend(interp)
+            time_vals.extend(np.arange(total_time, total_time + T + dt, dt))
+            total_time += T
+            current = target
+
+        return time_vals, traj[0], traj[1], traj[2], traj[3]
+    
+    def convert_cartesian_traj_to_joint_traj(x_list, y_list, z_list, yaw_list):
+        joint1_list, joint2_list, joint3_list, joint4_list = [], [], [], []
+
+        for i, (x, y, z, yaw) in enumerate(zip(x_list, y_list, z_list, yaw_list)):
+            joints = inverse_kinematics([x, y, z, yaw])
+            
+            
+            joint1_list.append(joints[0])
+            joint2_list.append(joints[1])
+            joint3_list.append(joints[2])
+            joint4_list.append(joints[3])
+
+        return joint1_list, joint2_list, joint3_list, joint4_list
     # 1) Trajektori Cartesian + konversi ke joint (deg)
     t_arr, x_arr, y_arr, z_arr, yaw_arr = generate_trajectory_triangle(start_coor, list_tar_coor, dt)
     j1_arr, j2_arr, j3_arr, j4_arr = convert_cartesian_traj_to_joint_traj(x_arr, y_arr, z_arr, yaw_arr)
