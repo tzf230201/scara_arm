@@ -720,7 +720,7 @@ def pvt_routine():
                     pvt_sended += 1
                                             
             if cur_pvt >= tar_pvt:
-                print(f"motion_cnt{motion_cnt} cur_pvt {cur_pvt}, {tar_pvt}")   
+                print(f"motion_cnt {motion_cnt}:{motion_size} cur_pvt {cur_pvt}:{tar_pvt}")   
                 entry = motion_data[motion_cnt]
 #                 # motion_type = entry['motion_type']
                 travel_time = entry['t_arm']           
