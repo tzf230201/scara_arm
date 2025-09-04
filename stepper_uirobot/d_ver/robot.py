@@ -495,21 +495,59 @@ def print_motion_data(motions):
         )
 
 
-def convert_csv_to_list_tar_coor(filename):
-    motions = read_motion_csv(filename)
-    arm_list   = []
+# def convert_csv_to_list_tar_coor(filename):
+#     motions = read_motion_csv(filename)
+#     arm_list   = []
+#     servo_list = []
+
+#     for m in motions:
+#         if m['motion_type'].lower() != 'pvt':
+#             continue
+
+#         # Arm trajectory (z-plane = 0.0)
+#         arm_list.append(([m['x'], m['y'], m['z'], m['yaw']], m['t_arm']))
+#         # Servo trajectory (joint 1)
+#         servo_list.append((m['z'], m['t_servo']))
+
+#     return arm_list, servo_list
+def convert_csv_to_list_tar_coor_2(filename):
+    import csv
+    def to_float(s):
+        try: return float(s)
+        except: return None
+    def to_int(s):
+        try: return int(float(s))
+        except: return None
+
+    arm_list = []
     servo_list = []
 
-    for m in motions:
-        if m['motion_type'].lower() != 'pvt':
-            continue
+    with open(filename, newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if (row.get('motion_type') or '').strip().lower() != 'pvt':
+                continue
 
-        # Arm trajectory (z-plane = 0.0)
-        arm_list.append(([m['x'], m['y'], m['z'], m['yaw']], m['t_arm']))
-        # Servo trajectory (joint 1)
-        servo_list.append((m['z'], m['t_servo']))
+            x = to_float(row.get('x'))
+            y = to_float(row.get('y'))
+            yaw = to_float(row.get('yaw'))
+            t_arm = to_int(row.get('t_arm')) or 0
+            z = to_float(row.get('z'))
+            t_servo = to_int(row.get('t_servo')) or 0
+
+            # primary entries
+            arm_list.append(([x, y, z, yaw], t_arm))
+            servo_list.append((z, t_servo))
+
+            # if servo lasts longer, add idle arm row and servo time=0
+            if t_servo > t_arm:
+                idle = t_servo - t_arm
+                arm_list.append(([x, y, z, yaw], idle))
+                servo_list.append((z, 0))
 
     return arm_list, servo_list
+
+
 
 
 
@@ -529,7 +567,8 @@ def execute_motion_data(entry):
     t_servo = entry['t_servo']
 
     if motion_type == 'pvt':
-        servo_pp_coor(z, t_servo)
+        if t_servo > 0:
+            servo_pp_coor(z, t_servo)
 
 
 def pre_start_dancing(selection):
@@ -572,7 +611,7 @@ motion_enable = True
 motion_cnt = 0   
 motion_data = read_motion_csv(filename)
 motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
-robot_tar_coor,servo_tar_coor  = convert_csv_to_list_tar_coor(filename)
+robot_tar_coor,servo_tar_coor  = convert_csv_to_list_tar_coor_2(filename)
 pt_1, pt_2, pt_3, pt_4 = generate_multi_straight_pt_points(shuttle_coor, robot_tar_coor, PT_TIME_INTERVAL)
 pvts_1, pvts_2, pvts_3, pvts_4 = generate_multi_straight_pvt_points(shuttle_coor, robot_tar_coor, PT_TIME_INTERVAL)
 
