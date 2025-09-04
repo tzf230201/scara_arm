@@ -495,55 +495,24 @@ def print_motion_data(motions):
         )
 
 
-# def convert_csv_to_list_tar_coor(filename):
-#     motions = read_motion_csv(filename)
-#     arm_list   = []
-#     servo_list = []
-
-#     for m in motions:
-#         if m['motion_type'].lower() != 'pvt':
-#             continue
-
-#         # Arm trajectory (z-plane = 0.0)
-#         arm_list.append(([m['x'], m['y'], m['z'], m['yaw']], m['t_arm']))
-#         # Servo trajectory (joint 1)
-#         servo_list.append((m['z'], m['t_servo']))
-
-#     return arm_list, servo_list
-def convert_csv_to_list_tar_coor_2(filename):
-    import csv
-    def to_float(s):
-        try: return float(s)
-        except: return None
-    def to_int(s):
-        try: return int(float(s))
-        except: return None
-
-    arm_list = []
+def convert_csv_to_list_tar_coor(filename):
+    motions = read_motion_csv(filename)
+    arm_list   = []
     servo_list = []
 
-    with open(filename, newline='') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if (row.get('motion_type') or '').strip().lower() != 'pvt':
-                continue
+    for m in motions:
+        if m['motion_type'].lower() != 'pvt':
+            continue
 
-            x = to_float(row.get('x'))
-            y = to_float(row.get('y'))
-            yaw = to_float(row.get('yaw'))
-            t_arm = to_int(row.get('t_arm')) or 0
-            z = to_float(row.get('z'))
-            t_servo = to_int(row.get('t_servo')) or 0
-
-            # primary entries
-            arm_list.append(([x, y, z, yaw], t_arm))
-            servo_list.append((z, t_servo))
-
-            # if servo lasts longer, add idle arm row and servo time=0
-            if t_servo > t_arm:
-                idle = t_servo - t_arm
-                arm_list.append(([x, y, z, yaw], idle))
-                servo_list.append((z, 0))
+        # Arm trajectory (z-plane = 0.0)
+        arm_list.append(([m['x'], m['y'], m['z'], m['yaw']], m['t_arm']))
+        # Servo trajectory (joint 1)
+        servo_list.append((m['z'], m['t_servo']))
+        
+        if m['t_arm'] < m['t_servo']:
+            t_idle = m['t_servo'] - m['t_arm']
+            arm_list.append(([m['x'], m['y'], m['z'], m['yaw']], t_idle))
+            servo_list.append((m['z'], 0))
 
     return arm_list, servo_list
 
