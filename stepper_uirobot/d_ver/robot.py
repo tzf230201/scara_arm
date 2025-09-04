@@ -516,6 +516,24 @@ def convert_csv_to_list_tar_coor(filename):
 
     return arm_list, servo_list
 
+def read_motion_list(arm_list, servo_list):
+    motions = []
+    for i in range(len(arm_list)):
+        arm_coor, t_arm = arm_list[i]
+        servo_coor, t_servo = servo_list[i]
+        motion = {
+            'motion_type': 'pvt',
+            'x': arm_coor[0],
+            'y': arm_coor[1],
+            'yaw': arm_coor[3],
+            't_arm': t_arm,
+            'z': servo_coor,
+            't_servo': t_servo,
+            'travel_time': max(t_arm, t_servo)
+        }
+        motions.append(motion)
+    return motions
+
 
 
 
@@ -575,12 +593,12 @@ pt_2 = []
 pt_3 = []
 pt_4 = []
 
-filename = "motion_data_5.csv"
+filename = "motion_data_5.csv"  
+robot_tar_coor,servo_tar_coor  = convert_csv_to_list_tar_coor(filename)
 motion_enable = True
 motion_cnt = 0   
-motion_data = read_motion_csv(filename)
-motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
-robot_tar_coor,servo_tar_coor  = convert_csv_to_list_tar_coor(filename)
+motion_data = read_motion_list(robot_tar_coor, servo_tar_coor)
+motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV  
 pt_1, pt_2, pt_3, pt_4 = generate_multi_straight_pt_points(shuttle_coor, robot_tar_coor, PT_TIME_INTERVAL)
 pvts_1, pvts_2, pvts_3, pvts_4 = generate_multi_straight_pvt_points(shuttle_coor, robot_tar_coor, PT_TIME_INTERVAL)
 
