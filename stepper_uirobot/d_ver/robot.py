@@ -719,8 +719,7 @@ def pvt_routine():
                     arm_pvt_set_pvt(pvts_2[pvt_sended], pvts_3[pvt_sended], pvts_4[pvt_sended])
                     pvt_sended += 1
                                             
-            if cur_pvt >= tar_pvt:
-                print(f"motion_cnt {motion_cnt}:{motion_size} cur_pvt {cur_pvt}:{tar_pvt}")   
+            if (cur_pvt >= tar_pvt) and (motion_cnt < motion_size):
                 entry = motion_data[motion_cnt]
 #                 # motion_type = entry['motion_type']
                 travel_time = entry['t_arm']           
