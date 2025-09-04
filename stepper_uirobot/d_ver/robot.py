@@ -661,7 +661,8 @@ def pt_routine():
                     arm_pt_set_point(pt_2[pvt_sended], pt_3[pvt_sended], pt_4[pvt_sended])
                     pvt_sended += 1
                                             
-            if cur_pvt > tar_pvt:
+            if cur_pvt >= tar_pvt:
+                print(f"motion_cnt{motion_cnt} cur_pvt {cur_pvt}, {tar_pvt}")
                 entry = motion_data[motion_cnt]
 #                 # motion_type = entry['motion_type']
                 travel_time = entry['travel_time']           
