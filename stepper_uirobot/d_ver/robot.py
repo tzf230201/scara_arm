@@ -580,7 +580,7 @@ motion_enable = True
 motion_cnt = 0   
 motion_data = read_motion_csv(filename)
 motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV    
-robot_tar_coor,servo_tar_coor  = convert_csv_to_list_tar_coor_2(filename)
+robot_tar_coor,servo_tar_coor  = convert_csv_to_list_tar_coor(filename)
 pt_1, pt_2, pt_3, pt_4 = generate_multi_straight_pt_points(shuttle_coor, robot_tar_coor, PT_TIME_INTERVAL)
 pvts_1, pvts_2, pvts_3, pvts_4 = generate_multi_straight_pvt_points(shuttle_coor, robot_tar_coor, PT_TIME_INTERVAL)
 
