@@ -398,9 +398,11 @@ def servo_pp_angle(tar_angle_1, t_ms):
     
     origins = get_origins()
     
-    cur_angle_1 = servo_get_angle()
+    #cur_angle_1 = servo_get_angle()
+    cur_angle_1 = servo_pulses_to_degrees(servo_get_encoder()))
     
-    tar_pulse_1 = servo_degrees_to_pulses(tar_angle_1) + origins[0]
+    
+    tar_pulse_1 = servo_degrees_to_pulses(tar_angle_1)# + origins[0]
     
     
 
