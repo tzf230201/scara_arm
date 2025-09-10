@@ -221,7 +221,7 @@ def servo_shutdown():
     # servo_brake_on()
     # time.sleep(1)
     set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x06)
-    send_can_command(f"000#8101")
+    send_can_command(f"000#8109")
     
     
 
