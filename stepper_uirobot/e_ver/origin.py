@@ -8,7 +8,7 @@ def origin_load_from_config():
     print(f"{config_path}")
     
     default_config = {
-        "origin_1": 3306079,
+        "origin_1": 393216,
         "origin_2": 0,
         "origin_3": 0,
         "origin_4": 0
