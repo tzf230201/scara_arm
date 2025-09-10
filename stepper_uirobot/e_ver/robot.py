@@ -434,7 +434,7 @@ def robot_pvt_angle(tar_angles, t_ms, selection):
     tar_angle_1, tar_angle_2, tar_angle_3, tar_angle_4 = tar_angles
     if is_servo_selected(selection):
         # servo_pp_angle(tar_angle_1, t_ms)
-        servo_pvt_angle(tar_angle_1, t_ms, PT_TIME_INTERVAL)
+        servo_pvt_angle(tar_angle_1, t_ms, PT_TIME_INTERVAL*2)
     if is_stepper_selected(selection):
         arm_pvt_angle(tar_angle_2, tar_angle_3, tar_angle_4, t_ms, PT_TIME_INTERVAL)
     

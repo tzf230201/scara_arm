@@ -517,7 +517,7 @@ def servo_gererate_multi_straight_pvt_points_z(start_z, list_tar_z, dt):
 
     return pvt1
 
-def servo_pvt_angle(tar_angle_1, t_ms, dt=50):
+def servo_pvt_angle(tar_angle_1, t_ms, dt=100):
     cur_z = servo_get_angle()
     tar_angle_1 = servo_check_limit(tar_angle_1)
     tar_z = servo_forward_kinematics(tar_angle_1)
@@ -531,6 +531,6 @@ def servo_pvt_angle(tar_angle_1, t_ms, dt=50):
     servo_get_next_trajectory_segment_id()
     servo_pvt_execute()
 
-def servo_pvt_coor(tar_z, t_ms, dt=50):
+def servo_pvt_coor(tar_z, t_ms, dt=100):
     tar_angle_1 = servo_inverse_kinematics(tar_z)
     servo_pvt_angle(tar_angle_1, t_ms, dt)
