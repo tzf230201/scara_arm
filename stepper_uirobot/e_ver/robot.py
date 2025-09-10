@@ -350,7 +350,7 @@ def robot_shutdown(selection):
     if is_stepper_selected(selection):
         arm_set_motor_off()
     if is_servo_selected(selection):
-        # servo_shutdown()
+        servo_shutdown()
         # print(f"servo shutdown, brake active")
         print(f"servo is not shutdown, development purpose only")
     print(f"robot_shutdown({selection})")
