@@ -297,11 +297,12 @@ def servo_set_interpolation_data(position, time, velocity):
     origins = get_origins()
     
     tar_pulse_1 = position + origins[0]
+    scaled_velocity = int(velocity * 10)  # convert to 0.1 count/s unit
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x01,  tar_pulse_1)  # sub_index 1: position
     set_sdo(ID1, SET_1_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x02,  time)      # sub_index 2: time
-    set_sdo(ID1, SET_4_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x03,  velocity)  # sub_index 3: velocity
-    
-    print_yellow(f"servo pvt wr: {tar_pulse_1},{velocity},{time}")
+    set_sdo(ID1, SET_4_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x03,  scaled_velocity)  # sub_index 3: velocity
+
+    print_yellow(f"servo pvt wr: {tar_pulse_1},{scaled_velocity},{time}")
 
 def servo_get_buffer_free_count():
     """
