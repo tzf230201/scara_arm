@@ -525,8 +525,8 @@ def servo_pvt_angle(tar_angle_1, t_ms, dt=100):
     pvts_1 = servo_gererate_multi_straight_pvt_points_z(cur_z, [(tar_z, t_ms)], dt)
     n = len(pvts_1)
     servo_pvt_init()
-    for i in range(60):
-        servo_set_interpolation_data(pvts_1[i][0], pvts_1[i][2], pvts_1[i][1])
+    for i in range(64):
+        servo_pvt_set_pvt(pvts_1[i* (n//64) : (i+1)*(n//64)])
     
     servo_get_next_trajectory_segment_id()
     servo_pvt_execute()
