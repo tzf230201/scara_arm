@@ -452,9 +452,9 @@ def servo_pvt_init():
 
     
 def servo_pvt_execute():
-    servo_pre_execute()
-    servo_execute()
-    
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x0F)
+    set_sdo(ID1, SET_2_BYTE, OD_SERVO_CONTROL_WORD, 0x00,  0x3F)
+
 def servo_get_index():
     return servo_get_next_trajectory_segment_id()
     
