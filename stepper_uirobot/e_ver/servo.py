@@ -303,6 +303,7 @@ def servo_set_interpolation_data(position, time, velocity):
     set_sdo(ID1, SET_4_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x03,  scaled_velocity)  # sub_index 3: velocity
 
     print_yellow(f"servo pvt wr: {tar_pulse_1},{scaled_velocity},{time}")
+    print(f"servo pvt wr: {servo_pulses_to_degrees(tar_pulse_1)}, {servo_pulses_to_degrees(scaled_velocity/10)},{time}")
 
 def servo_get_buffer_free_count():
     """
