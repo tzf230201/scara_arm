@@ -459,8 +459,8 @@ def servo_get_index():
     
 
 def servo_pvt_set_pvt(pvt_1):
-    for (p, v, t) in pvt_1:
-        servo_set_interpolation_data(p, t, v)
+    p, v, t = pvt_1
+    servo_set_interpolation_data(p, t, v)
 
 import numpy as np
 
