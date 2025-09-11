@@ -528,11 +528,10 @@ def servo_pvt_angle(tar_angle_1, t_ms, dt=100):
     servo_pvt_init()
     for i in range(n):
         servo_pvt_set_pvt(pvts_1[i])
-        # servo_get_next_trajectory_segment_id()
-        servo_get_buffer_free_count()
-        # servo_set_interpolation_data(pvts_1[i])
+        servo_get_next_trajectory_segment_id()
+
     
-    servo_get_next_trajectory_segment_id()
+    # servo_get_next_trajectory_segment_id()
     servo_pvt_execute()
 
 def servo_pvt_coor(tar_z, t_ms, dt=100):
