@@ -443,7 +443,7 @@ def servo_pp_coor(z, t_ms):
 def servo_pvt_init():
     servo_set_operation_mode(7)  # Interpolated Position mode
     servo_get_operation_mode()
-    servo_set_interpolation_sub_mode(-2)
+    servo_set_interpolation_sub_mode(-3)
     servo_get_sub_mode()
     servo_get_buffer_free_count()
     servo_get_next_trajectory_segment_id()
