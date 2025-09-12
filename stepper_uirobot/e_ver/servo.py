@@ -484,6 +484,8 @@ def servo_gererate_multi_straight_pvt_points_z(start_z, list_tar_z, dt):
                 pos = pmid + vmax * t1 - 0.5 * a * t1**2
             positions.append(pos)
         return positions
+    
+    
 
     # 1) bangun trajektor Cartesian per dimensi z
     traj_z = []
@@ -493,10 +495,13 @@ def servo_gererate_multi_straight_pvt_points_z(start_z, list_tar_z, dt):
         traj_z.extend(interp_z)
         current = tz
 
+    
+    
     # 2) konversi Cartesian → joint sudut (deg)
     j1_arr = []
     for z in traj_z:
         j1 = servo_inverse_kinematics(z)
+        print(f"traj_z: {z} => j1: {j1}")
         j1_arr.append(j1)
 
     # 3) degree → pulse
@@ -524,7 +529,7 @@ def servo_pvt_angle(tar_angle_1, t_ms, dt=100):
     tar_angle_1 = servo_check_limit(tar_angle_1)
     tar_z = servo_forward_kinematics(tar_angle_1)
     
-    print(f"cur_z: {cur_z}, tar_z: {tar_z}, t_ms: {t_ms}, dt: {dt}")
+    
     pvts_1 = servo_gererate_multi_straight_pvt_points_z(cur_z, [(tar_z, t_ms)], dt)
     n = len(pvts_1)
     servo_pvt_init()
