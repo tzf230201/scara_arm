@@ -527,7 +527,7 @@ def servo_gererate_multi_straight_pvt_points_z(start_z, list_tar_z, dt):
 def servo_pvt_angle(tar_angle_1, t_ms, dt=100):
     cur_angle_1 = servo_get_angle()
     tar_angle_1 = servo_check_limit(tar_angle_1)
-    cur_z = servo_inverse_kinematics(cur_angle_1)
+    cur_z = servo_forward_kinematics(cur_angle_1)
     tar_z = servo_forward_kinematics(tar_angle_1)
     print(f"cur_angle_1: {cur_angle_1}, tar_angle_1: {tar_angle_1}")
     print(f"servo_pvt_angle: cur_z={cur_z}, tar_z={tar_z}, t_ms={t_ms}, dt={dt}")
