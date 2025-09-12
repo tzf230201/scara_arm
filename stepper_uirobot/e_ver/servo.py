@@ -375,12 +375,12 @@ def servo_check_limit(angle_1):
     return angle_1
     
 def servo_inverse_kinematics(z):
-    angle_1 = z * (360.0 / 90.0)
+    angle_1 = z * (90.0 / 360.0)
     angle_1 = servo_check_limit(angle_1)
     return angle_1
 
 def servo_forward_kinematics(angle_1):
-    z = (angle_1 / 360) * 90
+    z = (angle_1 / 90.0) * 360
     return z
 
 def servo_get_angle():
