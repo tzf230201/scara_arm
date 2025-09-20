@@ -400,6 +400,8 @@ def servo_set_origin():
 
 def servo_pp_angle(tar_angle_1, t_ms):
     
+    servo_set_operation_mode(1)
+    #add operation mode
     origins = get_origins()
     
     cur_angle_1 = servo_get_angle()
