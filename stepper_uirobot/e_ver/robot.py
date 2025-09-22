@@ -600,7 +600,6 @@ motion_enable = True
 motion_cnt = 0   
 motion_data = read_motion_list(robot_tar_coor, servo_tar_coor)
 motion_size = len(motion_data)  # Set how many times to run based on the number of entries in the CSV  
-pt_1, pt_2, pt_3, pt_4 = generate_multi_straight_pt_points(shuttle_coor, robot_tar_coor, PT_TIME_INTERVAL)
 pvts_1, pvts_2, pvts_3, pvts_4 = generate_multi_straight_pvt_points(shuttle_coor, robot_tar_coor, PT_TIME_INTERVAL)
 
 pvt_sended = 0
@@ -609,6 +608,7 @@ cur_pvt = 0
 tar_pvt = 0
 
 last_depth = 0
+
 def is_pvt_decrease(depth):
     global last_depth
     ret = 0
@@ -617,67 +617,6 @@ def is_pvt_decrease(depth):
     last_depth = depth
     return ret
         
-
-def robot_start_pt_dancing():
-    global pvt_sended, max_pvt_index, tar_pvt, cur_pvt
-    global motion_enable, motion_cnt, motion_data, motion_size
-    #qq
-    x,y,z,yaw = shuttle_coor
-    arm_pp_coor(x, y, yaw, 2000)
-    servo_pp_coor(90, 2000)
-    time.sleep(3)
-    
-    pvt_sended = 0
-    cur_pvt = 0
-    motion_cnt = 0
-    
-    arm_pt_init()
-    for i in range(80):
-        arm_pt_set_point(pt_2[pvt_sended], pt_3[pvt_sended], pt_4[pvt_sended])
-        pvt_sended += 1
-    
-    max_pvt_index = len(pt_2)
-    
-    entry = motion_data[motion_cnt]
-    execute_motion_data(entry)
-    motion_cnt += 1
-    travel_time = entry['travel_time']
-    tar_pvt = int(travel_time/PT_TIME_INTERVAL)
-    arm_pt_execute()
-
-
-    
-    
-def pt_routine():
-    global pvt_sended, max_pvt_index, tar_pvt, cur_pvt
-    global motion_cnt, motion_data, motion_size, motion_enable
-    if motion_enable:
-        depth = stepper_pvt_get_queue(7)
-        if is_pvt_decrease(depth):
-            cur_pvt += 1
-        if depth != 0:
-            if (depth < 40):
-                if pvt_sended < max_pvt_index:
-                    
-                    arm_pt_set_point(pt_2[pvt_sended], pt_3[pvt_sended], pt_4[pvt_sended])
-                    pvt_sended += 1
-            print(f"motion_cnt{motion_cnt} cur_pvt {cur_pvt}, {tar_pvt}")                           
-            if cur_pvt >= tar_pvt:
-                # print(f"motion_cnt{motion_cnt} cur_pvt {cur_pvt}, {tar_pvt}")
-                entry = motion_data[motion_cnt]
-#                 # motion_type = entry['motion_type']
-                travel_time = entry['travel_time']           
-                execute_motion_data(entry)
-                motion_cnt += 1
-                tar_pvt = int(travel_time/PT_TIME_INTERVAL)
-                cur_pvt = 0
-        else:
-            print(f"motion selesai")
-            return 1
-    # else:
-    #     stop()
-    
-    return 0
     
     
 def robot_start_pvt_dancing():
@@ -735,58 +674,3 @@ def pvt_routine():
     #     stop()
     
     return 0
-
-# def pt_test():
-#     x, y, yaw = arm_forward_kinematics(0,0,0)
-#     start_coor = [x, y, 0, yaw]
-#     list_tar_coor = [
-#         ([166.82, -168,   0,   0], 2000),
-#         ([166.82, -168,   0,   0], 200),
-#         ([258,     0,     0,   0], 2000),
-#         ([258,     0,     0,   0], 200),
-#         ([107,    125,    0,  90], 2000),
-#         ([107,    125,    0,  90], 200),
-#         ([107,    224,    0,  90], 2000),
-#         ([107,    224,    0,  90], 500),
-#         ([107,    125,    0,  90], 2000),
-#         ([166.82, -168,   0,   0], 2000),
-#     ]
-#     pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(
-#         start_coor, list_tar_coor, PT_TIME_INTERVAL
-#     )
-#     plot_xy_from_pt(pt1, pt2, pt3, pt4)
-
-#     arm_pt_init()
-#     for i in range(len(pt2)):
-#         arm_pt_set_point(pt2[i], pt3[i], pt4[i])
-    
-#     arm_pt_get_index()
-#     arm_pt_execute()
-
-
-
-
-
-# def pvt_test():
-#     x, y, yaw = arm_forward_kinematics(0,0,0)
-#     start_coor = [x, y, 0, yaw]
-#     list_tar_coor = [
-#         ([166.82, -168,   0,   0], 2000),
-#         ([258,     0,     0,   0], 2000),
-#         ([107,    125,    0,  90], 2000),
-#         ([107,    224,    0,  90], 2000),
-#         ([107,    125,    0,  90], 2000),
-#         ([166.82, -168,   0,   0], 2000),
-#     ]
-#     pvts_1, pvts_2, pvts_3, pvts_4 = generate_multi_straight_pvt_points(
-#         start_coor, list_tar_coor, PT_TIME_INTERVAL
-#     )
-#     N = len(pvts_1)
-#     arm_pvt_init()
-#     # # 6) Isi PVT: posisi, kecepatan, waktu
-#     for i in range(N):
-#         arm_pvt_set_pvt(pvts_2[i], pvts_3[i], pvts_4[i])
-
-#     arm_pvt_get_index()
-#     arm_pvt_execute()
-    
