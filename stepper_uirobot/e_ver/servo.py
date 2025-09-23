@@ -114,8 +114,8 @@ def servo_rps_to_pps(rps):
 # GPIO.setup(17, GPIO.OUT)
 # servo_brake_on()
 
-def servo_get_output_pin_configuration():
-    ret = req_sdo(ID1, OR_SERVO_OUTPUT_PIN_CONFIGURATION, 0x00)
+def servo_get_output_pin_configuration(pinout):
+    ret = req_sdo(ID1, OR_SERVO_OUTPUT_PIN_CONFIGURATION, pinout)
     ret = ret & 65535
     print(f"ret = {ret}")
     return ret
