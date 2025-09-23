@@ -121,13 +121,13 @@ def out2_active(msg, state):
     print(f"out2 active")
     servo_get_output_pin_configuration(2)
     servo_set_digital_output_state(2, 1)
-    servo_get_digital_output_state()
+    # servo_get_digital_output_state()
 
 def out2_nonactive(msg, state):
     print(f"out2 non-active")
     servo_get_output_pin_configuration(2)
     servo_set_digital_output_state(2, 0)
-    servo_get_digital_output_state()
+    # servo_get_digital_output_state()
     
 
 # === Mapping ===
