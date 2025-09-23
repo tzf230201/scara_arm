@@ -123,6 +123,7 @@ def out2_active(msg, state):
 
 def out2_nonactive(msg, state):
     print(f"out2 non-active")
+    servo_get_output_pin_configuration()
     
 
 # === Mapping ===

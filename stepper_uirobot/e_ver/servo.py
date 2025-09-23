@@ -78,6 +78,7 @@ OD_SERVO_CANOPEN_NETWORK_CONFIGURATION = 0x21B0
 
 OD_SERVO_MAPPING_FOR_CAN_NODE_ID = 0x21B1
 
+OR_SERVO_OUTPUT_PIN_CONFIGURATION = 0x2193
 OR_SERVO_OUTPUT_STATES_AND_PROGRAM_CONTROL = 0x2194
 
 SERVO_PPR = 131072
@@ -113,7 +114,10 @@ def servo_rps_to_pps(rps):
 # GPIO.setup(17, GPIO.OUT)
 # servo_brake_on()
 
-
+def servo_get_output_pin_configuration():
+    ret = req_sdo(ID1, OR_SERVO_OUTPUT_PIN_CONFIGURATION, 0x00)
+    print(f"ret = {ret}")
+    return ret
 
 def servo_get_digital_output_state():
     do = req_sdo(ID1, OR_SERVO_OUTPUT_STATES_AND_PROGRAM_CONTROL, 0x00)
