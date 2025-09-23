@@ -245,7 +245,8 @@ def servo_goto_operational():
 
 
 def servo_set_out2_on():
-    send_can_command(ID1, )
+    # send_can_command(ID1, )
+    print(f"TBD")
     
 def servo_init(OPERATION_MODE=1):
     print(f"servo init")

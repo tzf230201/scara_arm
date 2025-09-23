@@ -119,6 +119,7 @@ def set_origin(msg, state):
 
 def out2_active(msg, state):
     print(f"out2 active")
+    servo_get_digital_output_state()
 
 def out2_nonactive(msg, state):
     print(f"out2 non-active")
