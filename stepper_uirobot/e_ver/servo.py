@@ -137,6 +137,7 @@ def servo_set_digital_output_state(pin, state):
         new_do = cur_do & ~(1 << pin)
 
     set_sdo(ID1, SET_2_BYTE, OR_SERVO_OUTPUT_STATES_AND_PROGRAM_CONTROL, 0x00, new_do)
+    servo_get_digital_output_state()
 
 def servo_get_encoder():
     servo_position = req_sdo(ID1, OD_SERVO_POSITION_ACTUAL_VALUE, 0x00)
