@@ -116,13 +116,13 @@ def servo_rps_to_pps(rps):
 
 def servo_get_output_pin_configuration():
     ret = req_sdo(ID1, OR_SERVO_OUTPUT_PIN_CONFIGURATION, 0x00)
-    ret = ret >> 16 
+    ret = ret & 65535
     print(f"ret = {ret}")
     return ret
 
 def servo_get_digital_output_state():
     do = req_sdo(ID1, OR_SERVO_OUTPUT_STATES_AND_PROGRAM_CONTROL, 0x00)
-    do = do >> 16
+    do = do & 65535
     print(f"do = {do}")
     return do
 
