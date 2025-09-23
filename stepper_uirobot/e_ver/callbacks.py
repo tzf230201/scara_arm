@@ -116,6 +116,12 @@ def set_origin(msg, state):
     selection = msg.get('motor')
     robot_set_origin(selection)
     print(f"[cb] Set Origin: motor={msg.get('motor')}")
+
+def out2_active(msg, state):
+    print(f"out2 active")
+
+def out2_nonactive(msg, state):
+    print(f"out2 non-active")
     
 
 # === Mapping ===
@@ -132,4 +138,6 @@ HANDLERS = {
     "stop": stop,
     "read_encoder": read_encoder,
     "set_origin": set_origin,
+    "out2_active": out2_active,
+    "out2_nonactive": out2_nonactive,
 }
