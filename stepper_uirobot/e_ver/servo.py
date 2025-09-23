@@ -78,6 +78,8 @@ OD_SERVO_CANOPEN_NETWORK_CONFIGURATION = 0x21B0
 
 OD_SERVO_MAPPING_FOR_CAN_NODE_ID = 0x21B1
 
+OR_SERVO_OUTPUT_STATES_AND_PROGRAM_CONTROL = 0x2194
+
 SERVO_PPR = 131072
 SERVO_RATIO = SERVO_PPR / 360
 
@@ -112,6 +114,11 @@ def servo_rps_to_pps(rps):
 # servo_brake_on()
 
 
+
+def servo_get_digital_output_state():
+    do = req_sdo(ID1, OR_SERVO_OUTPUT_STATES_AND_PROGRAM_CONTROL, 0x00)
+    print(f"do = {do}")
+    return do
 
     
 
@@ -235,6 +242,10 @@ def servo_set_operation_mode(operation_mode):
 def servo_goto_operational():
     id = (ID1 - 0x600)
     send_can_command(f"000#01{id:02X}")
+
+
+def servo_set_out2_on():
+    send_can_command(ID1, )
     
 def servo_init(OPERATION_MODE=1):
     print(f"servo init")

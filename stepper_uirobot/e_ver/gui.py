@@ -126,6 +126,9 @@ tk.Button(root, text="Read Encoder",
           command=lambda: send("read_encoder", motor=current_motor())).grid(row=15, column=0, sticky="ew")
 tk.Button(root, text="Set Origin",
           command=lambda: send("set_origin", motor=current_motor())).grid(row=15, column=1, sticky="ew")
+# Row 16
+tk.Button(root, text="OUT2",
+          command=lambda: send("out2", motor=current_motor())).grid(row=15, column=1, sticky="ew")
 
 # Status label
 lbl_last = tk.Label(root, text=f"endpoint: {CMD_ENDPOINT}")
