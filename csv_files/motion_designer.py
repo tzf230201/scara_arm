@@ -1,9 +1,24 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import os, json
+import pandas as pd  # ⬅️ untuk baca CSV
 
 # === Flag Global ===
 PP_MOTION_ENABLE = True  # kalau False, PP_Coor & PP_Angle tidak muncul
+
+
+def read_first_xyz_yaw(csv_path):
+    """Baca baris pertama dari file CSV dan ambil X, Y, Z, Yaw (jika ada)."""
+    try:
+        df = pd.read_csv(csv_path)
+        cols = {c.lower(): c for c in df.columns}
+        x = float(df[cols.get("x", 0)][0]) if "x" in cols else 0
+        y = float(df[cols.get("y", 0)][0]) if "y" in cols else 0
+        z = float(df[cols.get("z", 0)][0]) if "z" in cols else 0
+        yaw = float(df[cols.get("yaw", 0)][0]) if "yaw" in cols else 0
+        return x, y, z, yaw
+    except Exception:
+        return None
 
 
 class MotionPopup(tk.Toplevel):
@@ -265,6 +280,7 @@ class MotionDesigner:
     def __init__(self, root):
         self.root = root
         self.root.title("Motion Designer")
+        self.last_xyz_yaw = (0, 0, 0, 0)  # koordinat terakhir
 
         self.tree = ttk.Treeview(
             root, columns=("Index", "Type", "Details"), show="headings"
@@ -273,7 +289,6 @@ class MotionDesigner:
         self.tree.heading("Type", text="Motion Type")
         self.tree.heading("Details", text="Details")
 
-        # Set awal (nanti diatur otomatis)
         self.tree.column("Index", anchor="center")
         self.tree.column("Type", anchor="center")
         self.tree.column("Details", stretch=True)
@@ -292,9 +307,7 @@ class MotionDesigner:
         tk.Button(btn_frame, text="Load",
                   command=self.load_motions).pack(side="left", padx=5)
 
-    # === AUTO RESIZE ===
     def autosize_columns(self):
-        """Menyesuaikan lebar kolom Treeview berdasarkan isi teks terpanjang."""
         import tkinter.font as tkFont
         for col in self.tree["columns"]:
             font = tkFont.Font()
@@ -329,6 +342,26 @@ class MotionDesigner:
         normalized = {k.lower(): v for k, v in filtered_data.items()}
         motion_type = motion_type.lower()
 
+        # Safety check PVT_CSV
+        highlight_color = ""
+        if motion_type == "pvt_csv":
+            csv_name = normalized.get("csv", "")
+            if csv_name and os.path.exists(csv_name):
+                first = read_first_xyz_yaw(csv_name)
+                if first:
+                    dx = abs(first[0] - self.last_xyz_yaw[0])
+                    dy = abs(first[1] - self.last_xyz_yaw[1])
+                    dz = abs(first[2] - self.last_xyz_yaw[2])
+                    dyaw = abs(first[3] - self.last_xyz_yaw[3])
+                    if dx > 1 or dy > 1 or dz > 1 or dyaw > 1:
+                        messagebox.showwarning(
+                            "Coordinate Mismatch",
+                            f"⚠️ CSV '{csv_name}' start point differs more than ±1mm/° "
+                            f"from previous motion.\n"
+                            f"Δx={dx:.2f}, Δy={dy:.2f}, Δz={dz:.2f}, Δyaw={dyaw:.2f}"
+                        )
+                        highlight_color = "#FFB3B3"
+
         details = ", ".join(f"{k}={v}" for k, v in normalized.items())
 
         children = list(self.tree.get_children())
@@ -339,6 +372,22 @@ class MotionDesigner:
             new_item = self.tree.insert("", sel_index + 1, values=("", motion_type, details))
         else:
             new_item = self.tree.insert("", "end", values=("", motion_type, details))
+
+        # Highlight jika ada mismatch
+        if highlight_color:
+            self.tree.item(new_item, tags=("alert",))
+            self.tree.tag_configure("alert", background=highlight_color)
+
+        # update koordinat terakhir
+        if motion_type in ["pp_coor", "pvt_coor"]:
+            try:
+                x = float(normalized.get("x", 0))
+                y = float(normalized.get("y", 0))
+                z = float(normalized.get("z", 0))
+                c = float(normalized.get("c", 0))
+                self.last_xyz_yaw = (x, y, z, c)
+            except:
+                pass
 
         for i, item in enumerate(self.tree.get_children(), start=1):
             vals = list(self.tree.item(item, "values"))
@@ -402,12 +451,4 @@ class MotionDesigner:
                     self.tree.see(last_item)
                 messagebox.showinfo("Success", f"Loaded {len(motions)} motions")
             except Exception as e:
-                messagebox.showerror("Error", f"Gagal load: {e}")
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.geometry("900x500")
-    root.minsize(800, 450)
-    app = MotionDesigner(root)
-    root.mainloop()
+                messagebox
