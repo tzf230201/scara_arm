@@ -1,0 +1,87 @@
+[
+  {
+    "Index": "1",
+    "Type": "pvt_angle",
+    "Details": "angle_1=360, angle_2=0, angle_3=0, angle_4=0, t_arm=4000, t_servo=4000"
+  },
+  {
+    "Index": "2",
+    "Type": "pvt_coor",
+    "Details": "z=90, x=166.8, y=-168, c=0, t_arm=2000, t_servo=2000"
+  },
+  {
+    "Index": "3",
+    "Type": "pvt_coor",
+    "Details": "z=90, x=107, y=150, c=90, t_arm=2000, t_servo=2000"
+  },
+  {
+    "Index": "4",
+    "Type": "pvt_coor",
+    "Details": "z=90, x=107, y=224, c=90, t_arm=2000, t_servo=2000"
+  },
+  {
+    "Index": "5",
+    "Type": "pvt_coor",
+    "Details": "z=114, x=107, y=224, c=90, t_arm=1000, t_servo=1000"
+  },
+  {
+    "Index": "6",
+    "Type": "pvt_coor",
+    "Details": "z=114, x=107, y=150, c=90, t_arm=2000, t_servo=2000"
+  },
+  {
+    "Index": "7",
+    "Type": "pvt_coor",
+    "Details": "z=2000, x=166.8, y=-168, c=0, t_arm=3000, t_servo=5000"
+  },
+  {
+    "Index": "8",
+    "Type": "pvt_coor",
+    "Details": "z=2000, x=166.8, y=-168, c=0, t_arm=2000, t_servo=0"
+  },
+  {
+    "Index": "9",
+    "Type": "pvt_coor",
+    "Details": "z=90, x=166.8, y=-168, c=0, t_arm=5000, t_servo=5000"
+  },
+  {
+    "Index": "10",
+    "Type": "pvt_coor",
+    "Details": "z=90, x=107, y=150, c=90, t_arm=2000, t_servo=2000"
+  },
+  {
+    "Index": "11",
+    "Type": "pvt_coor",
+    "Details": "z=90, x=107, y=224, c=90, t_arm=2000, t_servo=2000"
+  },
+  {
+    "Index": "12",
+    "Type": "pvt_coor",
+    "Details": "z=114, x=107, y=224, c=90, t_arm=1000, t_servo=1000"
+  },
+  {
+    "Index": "13",
+    "Type": "pvt_coor",
+    "Details": "z=114, x=107, y=150, c=90, t_arm=2000, t_servo=2000"
+  },
+  {
+    "Index": "14",
+    "Type": "pvt_coor",
+    "Details": "z=2000, x=166.8, y=-168, c=0, t_arm=3000, t_servo=5000"
+  },
+  {
+    "Index": "15",
+    "Type": "pvt_coor",
+    "Details": "z=2000, x=166.8, y=-168, c=0, t_arm=2000, t_servo=0"
+  },
+  {
+    "Index": "16",
+    "Type": "pvt_coor",
+    "Details": "z=90, x=166.8, y=-168, c=0, t_arm=5000, t_servo=5000"
+  },
+  {
+    "Index": "17",
+    "Type": "pvt_csv",
+    "Details": "csv=pickup_shelf_20250922.csv, v_max=100, acc_dec=2000, v_safe=10"
+  }
+]
