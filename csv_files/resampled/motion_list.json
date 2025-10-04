@@ -82,6 +82,6 @@
   {
     "Index": "17",
     "Type": "pvt_csv",
-    "Details": "csv=pickup_shelf_20250922.csv, v_max=100, acc_dec=2000, v_safe=10"
+    "Details": "csv=pickup_shelf_20250922.csv, v_max=100, acc_dec=2000, offset_z=1000, v_safe=10"
   }
 ]

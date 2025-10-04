@@ -1,0 +1,761 @@
+import json
+import os
+
+def parse_details(details_str):
+    """Parse 'a=1, b=2' jadi dict (tahan spasi)."""
+    parts = [p.strip() for p in details_str.split(",") if p.strip()]
+    out = {}
+    for p in parts:
+        if "=" in p:
+            k, v = p.split("=", 1)
+            out[k.strip()] = v.strip()
+    return out
+
+def dict_to_details(d, order=None):
+    """Convert dict ke string, jaga urutan asli kalau ada."""
+    items = []
+    if order:
+        for k in order:
+            if k in d:
+                items.append(f"{k}={d[k]}")
+        for k in d:
+            if k not in order:
+                items.append(f"{k}={d[k]}")
+    else:
+        items = [f"{k}={v}" for k, v in d.items()]
+    return ", ".join(items)
+
+def normalize_timings(data):
+    """
+    Normalisasi semua motion:
+    jika t_arm != t_servo → pecah jadi 2 motion.
+    Extra motion memberi SELISIH ke channel yang LEBIH PENDEK.
+    """
+    normalized = []
+    for item in data:
+        t = item.get("Type", "")
+        if t.startswith("pvt") or t.startswith("pp"):
+            details = parse_details(item["Details"])
+            order = list(details.keys())  # simpan urutan asli
+
+            if "t_arm" in details and "t_servo" in details:
+                try:
+                    t_arm = int(float(details["t_arm"]))
+                    t_servo = int(float(details["t_servo"]))
+                except ValueError:
+                    normalized.append(item.copy())
+                    continue
+
+                # motion asli tetap masuk
+                normalized.append(item.copy())
+
+                if t_arm != t_servo:
+                    diff_item = item.copy()
+                    diff_details = details.copy()
+
+                    if t_arm < t_servo:
+                        # selisih ke t_arm
+                        diff_details["t_arm"] = str(t_servo - t_arm)
+                        diff_details["t_servo"] = "0"
+                    else:
+                        # selisih ke t_servo
+                        diff_details["t_arm"] = "0"
+                        diff_details["t_servo"] = str(t_arm - t_servo)
+
+                    diff_item["Details"] = dict_to_details(diff_details, order)
+                    normalized.append(diff_item)
+                continue
+        # selain motion (pause/repeat/dll) langsung masuk
+        normalized.append(item.copy())
+    return normalized
+
+def expand_repeats(data, from_idx=None, to_idx=None):
+    """Expand repeat (nested juga)."""
+    if from_idx is not None and to_idx is not None:
+        slice_data = [d for d in data if from_idx <= int(d["Index"]) <= to_idx]
+    else:
+        slice_data = data
+
+    expanded = []
+    for item in slice_data:
+        if item["Type"] != "repeat":
+            expanded.append(item.copy())
+        else:
+            details = parse_details(item["Details"])
+            f = int(details["from_index"])
+            t = int(details["to_index"])
+            times = int(details["how_many_times"])
+            sub_expanded = expand_repeats(data, f, t)
+            for _ in range(times):
+                expanded.extend([se.copy() for se in sub_expanded])
+    return expanded
+
+def reindex(data):
+    """Assign Index baru berurutan mulai dari 1."""
+    out = []
+    for i, item in enumerate(data, start=1):
+        new_item = item.copy()
+        new_item["Index"] = str(i)
+        out.append(new_item)
+    return out
+
+def process_motion_file(input_path, output_path="resampled/motion_list.json"):
+    # 1. Load JSON
+    with open(input_path, "r") as f:
+        data = json.load(f)
+
+    # 2. Normalisasi timings dulu
+    normalized = normalize_timings(data)
+
+    # 3. Expand repeat (nested)
+    expanded_all = expand_repeats(normalized)
+
+    # 4. Reindex
+    final = reindex(expanded_all)
+
+    # 5. Export
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(final, f, indent=2)
+
+    print(f"Exported expanded motion list → {output_path}")
+
+import math
+import numpy as np
+
+# =========================
+# SERVO KINEMATICS
+# =========================
+def servo_check_limit(angle_1):
+    if angle_1 > (3510 * 4):
+        print(f"[angle_1 greater than {angle_1}]")
+        angle_1 = (3510 * 4)
+    elif angle_1 < -2:
+        print(f"angle_1 lower than {angle_1}")
+        angle_1 = -2
+    return angle_1
+
+def servo_inverse_kinematics(z):
+    angle_1 = (360.0 / 90.0) * z
+    angle_1 = servo_check_limit(angle_1)
+    return angle_1
+
+def servo_forward_kinematics(angle_1):
+    z = (90.0 / 360.0) * angle_1
+    return z
+
+# =========================
+# ARM KINEMATICS
+# =========================
+def arm_check_limit(angle_2, angle_3, angle_4):
+    angle_2_upper_limit = 178 * 5
+    angle_2_lower_limit = 0
+    angle_3_upper_limit = 0 + angle_2
+    angle_3_lower_limit = (-135 * 5) + angle_2
+    angle_4_upper_limit = (196 * 5) + angle_3
+    angle_4_lower_limit = 0 + angle_3
+    angle_4 *= -1
+
+    if angle_2 > angle_2_upper_limit:
+        print(f"angle_2 greater than {angle_2}")
+        angle_2 = angle_2_upper_limit
+    elif angle_2 < angle_2_lower_limit:
+        print(f"angle_2 lower than {angle_2}")
+        angle_2 = angle_2_lower_limit
+
+    if angle_3 > angle_3_upper_limit:
+        print(f"angle_3 greater than {angle_3}")
+        angle_3 = angle_3_upper_limit
+    elif angle_3 < angle_3_lower_limit:
+        print(f"angle_3 lower than {angle_3}")
+        angle_3 = angle_3_lower_limit
+
+    if angle_4 > angle_4_upper_limit:
+        print(f"angle_4 greater than {angle_4}")
+        angle_4 = angle_4_upper_limit
+    elif angle_4 < angle_4_lower_limit:
+        print(f"angle_4 lower than {angle_4}")
+        angle_4 = angle_4_lower_limit
+
+    angle_4 *= -1
+    return angle_2, angle_3, angle_4
+
+def arm_inverse_kinematics(x, y, yaw):
+    # Panjang link (mm)
+    L2 = 137.0
+    L3 = 121.0
+    # Offset (deg) dan rasio joint
+    OFFSET_2 = -96.5
+    OFFSET_3 = 134
+    OFFSET_4 = -52.5
+    RATIO = 5.0  # 5:1
+
+    # Hitung jarak planar
+    distance = math.hypot(x, y)
+    max_reach = L2 + L3
+    if distance > max_reach:
+        print(f"Warning: target ({x:.1f},{y:.1f}) jarak {distance:.1f} > {max_reach:.1f}, akan di-clamp")
+        scale = max_reach / distance
+        x *= scale
+        y *= scale
+
+    # Hitung cos(theta3)
+    cos_theta3 = (x**2 + y**2 - L2**2 - L3**2) / (2 * L2 * L3)
+    cos_theta3 = max(-1.0, min(1.0, cos_theta3))
+    theta3_rad = math.acos(cos_theta3)
+    theta3 = math.degrees(theta3_rad)
+
+    # Hitung theta2
+    k1 = L2 + L3 * cos_theta3
+    k2 = L3 * math.sin(theta3_rad)
+    theta2_rad = math.atan2(y, x) - math.atan2(k2, k1)
+    theta2 = math.degrees(theta2_rad)
+
+    joint_2 = (theta2 - OFFSET_2) * RATIO
+    joint_3 = (theta3 - OFFSET_3) * RATIO + joint_2
+    joint_4 = -((yaw - OFFSET_4) * RATIO)
+
+    angle_2, angle_3, angle_4 = arm_check_limit(joint_2, joint_3, joint_4)
+    return angle_2, angle_3, angle_4
+
+def arm_forward_kinematics(angle_2, angle_3, angle_4):
+    angle_4 *= -1.0
+    L2 = 137.0
+    L3 = 121.0
+    OFFSET_2 = -96.5
+    OFFSET_3 = 134.0
+    OFFSET_4 = -52.5
+
+    theta2_rad = math.radians((angle_2 / 5) + OFFSET_2)
+    theta3_rad = math.radians((angle_3 / 5) + OFFSET_3 - (angle_2 / 5))
+
+    x2 = L2 * math.cos(theta2_rad)
+    y2 = L2 * math.sin(theta2_rad)
+    x3 = x2 + L3 * math.cos(theta2_rad + theta3_rad)
+    y3 = y2 + L3 * math.sin(theta2_rad + theta3_rad)
+    yaw = (angle_4 / 5) + OFFSET_4
+
+    return x3, y3, yaw
+
+# =========================
+# TRAJECTORY GENERATOR
+# =========================
+def servo_generate_single_straight_pvt_points(start_z, tar_z, T, dt):
+    def triangle_profile(p0, p1, T, dt):
+        steps = int(T / dt)
+        half = steps // 2
+        a = 4 * (p1 - p0) / (T ** 2)
+        positions = []
+        for i in range(steps + 1):
+            t = i * dt
+            if i <= half:
+                pos = p0 + 0.5 * a * t**2
+            else:
+                t1 = t - T / 2
+                vmax = a * (T / 2)
+                pmid = p0 + 0.5 * a * (T / 2)**2
+                pos = pmid + vmax * t1 - 0.5 * a * t1**2
+            positions.append(pos)
+        return positions
+
+    z_traj = triangle_profile(start_z, tar_z, T, dt)
+    j1_arr = [servo_inverse_kinematics(z) for z in z_traj]
+
+    dt_s = dt / 1000.0
+    v1 = [(j1_arr[i+1] - j1_arr[i]) / dt_s for i in range(len(j1_arr)-1)]
+    v1.append(0)
+
+    times = [dt] * len(j1_arr)
+    pvt1 = [[j1_arr[i], v1[i], times[i]] for i in range(len(j1_arr))]
+    return pvt1
+
+def arm_generate_single_straight_pvt_points(start_coor, tar_coor, T, dt):
+    def triangle_profile(p0, p1, T, dt):
+        steps = int(T / dt)
+        half = steps // 2
+        a = 4 * (p1 - p0) / (T ** 2)
+        positions = []
+        for i in range(steps + 1):
+            t = i * dt
+            if i <= half:
+                pos = p0 + 0.5 * a * t**2
+            else:
+                t1 = t - T / 2
+                vmax = a * (T / 2)
+                pmid = p0 + 0.5 * a * (T / 2)**2
+                pos = pmid + vmax * t1 - 0.5 * a * t1**2
+            positions.append(pos)
+        return positions
+
+    sx, sy, syaw = start_coor
+    tx, ty, tyaw = tar_coor
+
+    x_traj = triangle_profile(sx, tx, T, dt)
+    y_traj = triangle_profile(sy, ty, T, dt)
+    yaw_traj = triangle_profile(syaw, tyaw, T, dt)
+
+    j2_arr, j3_arr, j4_arr = [], [], []
+    for x, y, yaw in zip(x_traj, y_traj, yaw_traj):
+        a2, a3, a4 = arm_inverse_kinematics(x, y, yaw)
+        j2_arr.append(a2)
+        j3_arr.append(a3)
+        j4_arr.append(a4)
+
+    dt_s = dt / 1000.0
+    def compute_vel(arr):
+        v = [(arr[i+1] - arr[i]) / dt_s for i in range(len(arr)-1)]
+        v.append(0)
+        return v
+
+    v2, v3, v4 = map(compute_vel, [j2_arr, j3_arr, j4_arr])
+    times = [dt] * len(j2_arr)
+
+    pvt2 = [[j2_arr[i], v2[i], times[i]] for i in range(len(j2_arr))]
+    pvt3 = [[j3_arr[i], v3[i], times[i]] for i in range(len(j3_arr))]
+    pvt4 = [[j4_arr[i], v4[i], times[i]] for i in range(len(j4_arr))]
+    return pvt2, pvt3, pvt4
+
+
+import math
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
+
+def robot_csv_to_pvt(input_csv, output_csv,
+                     step_mm,
+                     angle_threshold,
+                     vmax,
+                     vsafe,
+                     t_acc_ms,
+                     dt_ms,
+                     offset_z=0.0,
+                     enable_static=False,
+                     enable_animation=False):
+
+    # =========================
+    # Step 1: Deteksi zona berbahaya
+    # =========================
+    def dangerous_angle_detection(csv_in, step_mm, angle_threshold):
+        df = pd.read_csv(csv_in)
+        pts = df[["X", "Y", "Z"]].values
+        dists = np.linalg.norm(np.diff(pts, axis=0), axis=1)
+        cum_dist = np.insert(np.cumsum(dists), 0, 0.0)
+
+        n = len(pts)
+        angles = np.full(n, np.nan)
+        flags = np.zeros(n, dtype=int)
+
+        for i in range(n):
+            l = np.searchsorted(cum_dist, cum_dist[i]-step_mm, side="right")-1
+            r = np.searchsorted(cum_dist, cum_dist[i]+step_mm, side="left")
+            if 0 <= l < i and r > i and r < n:
+                v1, v2 = pts[i]-pts[l], pts[r]-pts[i]
+                cosv = np.dot(v1,v2)/(np.linalg.norm(v1)*np.linalg.norm(v2))
+                ang = np.degrees(np.arccos(np.clip(cosv,-1,1)))
+                angles[i] = ang
+                flags[i] = ang > angle_threshold
+
+        df["angle_deg"], df["dangerous"] = angles, flags.astype(int)
+        return df
+
+    def compute_path_length(points_xyz):
+        seg_lengths = np.sqrt(np.sum(np.diff(points_xyz, axis=0)**2, axis=1))
+        return seg_lengths, np.insert(np.cumsum(seg_lengths), 0, 0)
+
+    def trapezoid_profile(D, v_start, v_end, vmax, t_acc_ms, dt_ms):
+        dt = dt_ms/1000.0
+        t_acc = t_acc_ms/1000.0
+        t_dec = t_acc
+        acc = (vmax-v_start)/t_acc if t_acc>0 else float("inf")
+        dec = (vmax-v_end)/t_dec if t_dec>0 else float("inf")
+        s_acc = (vmax**2-v_start**2)/(2*acc) if acc>0 else 0
+        s_dec = (vmax**2-v_end**2)/(2*dec) if dec>0 else 0
+        if s_acc+s_dec > D:
+            vmax = math.sqrt((2*D*acc*dec+dec*v_start**2+acc*v_end**2)/(acc+dec))
+            s_acc = (vmax**2-v_start**2)/(2*acc)
+            s_dec = (vmax**2-v_end**2)/(2*dec)
+            s_cruise=0
+        else:
+            s_cruise = D-(s_acc+s_dec)
+        t_acc = (vmax-v_start)/acc if acc>0 else 0
+        t_dec = (vmax-v_end)/dec if dec>0 else 0
+        t_cruise = s_cruise/vmax if vmax>0 else 0
+        T = t_acc+t_cruise+t_dec
+        times = np.arange(0,T+dt,dt)
+        v_vals=[]
+        for t in times:
+            if t<t_acc: v=v_start+acc*t
+            elif t<t_acc+t_cruise: v=vmax
+            elif t<=T: v=vmax-dec*(t-(t_acc+t_cruise))
+            else: v=v_end
+            v_vals.append(max(v,0))
+        return times, np.array(v_vals)
+
+    def build_full_profile(points_xyzc, seg_lengths, vmax, vsafe, t_acc_ms, dt_ms):
+        times_all,v_all,s_all=[],[],[]
+        offset_s,v_cur,t_off,i=0,0,0,0
+        while i < len(seg_lengths):
+            safe_len=0
+            while i<len(seg_lengths) and points_xyzc[i,4]==0 and points_xyzc[i+1,4]==0:
+                safe_len+=seg_lengths[i]; i+=1
+            if safe_len>0:
+                v_end = vsafe if i<len(seg_lengths) else 0
+                t,v=trapezoid_profile(safe_len,v_cur,v_end,vmax,t_acc_ms,dt_ms)
+                s=np.cumsum(v)*(dt_ms/1000.0)
+                times_all.extend(t_off+t); v_all.extend(v); s_all.extend(offset_s+s)
+                v_cur,t_off,offset_s=v_end,t_off+t[-1],offset_s+s[-1]
+            danger_len=0
+            while i<len(seg_lengths) and (points_xyzc[i,4]==1 or points_xyzc[i+1,4]==1):
+                danger_len+=seg_lengths[i]; i+=1
+            if danger_len>0:
+                dt=dt_ms/1000.0
+                steps=int(danger_len/(vsafe*dt))+1
+                t=np.linspace(0,steps*dt,steps)
+                v=np.ones_like(t)*vsafe
+                s=np.cumsum(v)*dt
+                times_all.extend(t_off+t); v_all.extend(v); s_all.extend(offset_s+s)
+                v_cur,t_off,offset_s=vsafe,t_off+t[-1],offset_s+s[-1]
+        return np.array(times_all),np.array(s_all),np.array(v_all)
+
+    def interpolate_position(points_xyz, cum_lengths, s):
+        idx=np.searchsorted(cum_lengths,s)-1
+        idx=max(0,min(idx,len(points_xyz)-2))
+        s0,s1=cum_lengths[idx],cum_lengths[idx+1]
+        r=(s-s0)/(s1-s0+1e-9)
+        return (1-r)*points_xyz[idx,:3]+r*points_xyz[idx+1,:3], idx
+
+    # =========================
+    # Plot & Animasi
+    # =========================
+    def plot_trajectory(df):
+        pts=df[["X","Y","Z"]].values
+        flags=df["dangerous"].values.astype(bool)
+        fig=plt.figure(figsize=(8,6))
+        ax=fig.add_subplot(111,projection="3d")
+        for safe,color in zip([~flags,flags],["grey","red"]):
+            idx=np.where(safe[:-1]&safe[1:])[0]
+            for i in idx:
+                ax.plot(pts[i:i+2,0],pts[i:i+2,1],pts[i:i+2,2],color=color)
+        ax.scatter(*pts[0],c="green",s=60,label="Start")
+        ax.scatter(*pts[-1],c="orange",s=60,label="End")
+        ax.set_title("Trajectory with Dangerous Zones")
+        ax.legend(); plt.show()
+
+    def animate_trajectory(times, s_vals, v_vals, points_xyzc, cum_lengths, dt_ms,
+                           frame_step=2, max_frames=1000, trail_window=300):
+        if len(times) == 0:
+            return
+        if max_frames is not None and len(times) > max_frames:
+            frame_idx = np.linspace(0, len(times)-1, max_frames, dtype=int)
+            interval_ms = int((times[frame_idx[1]]-times[frame_idx[0]])*1000)
+        else:
+            frame_idx = np.arange(0,len(times),frame_step,dtype=int)
+            interval_ms = int(dt_ms*frame_step)
+        idx = np.searchsorted(cum_lengths, s_vals, side="right") - 1
+        idx = np.clip(idx, 0, len(cum_lengths)-2)
+        s0, s1 = cum_lengths[idx], cum_lengths[idx+1]
+        r = (s_vals-s0)/(s1-s0+1e-9)
+        P0 = points_xyzc[idx,:3]; P1 = points_xyzc[idx+1,:3]
+        pos = (1.0-r)[:,None]*P0 + r[:,None]*P1
+        fig = plt.figure(figsize=(12,6))
+        ax1 = fig.add_subplot(121,projection="3d")
+        ax2 = fig.add_subplot(122)
+        for i in range(len(points_xyzc)-1):
+            color = "gray" if points_xyzc[i,4]==0 else "red"
+            ax1.plot(points_xyzc[i:i+2,0],points_xyzc[i:i+2,1],points_xyzc[i:i+2,2],color=color,linewidth=1)
+        trail, = ax1.plot([],[],[],linewidth=2)
+        point, = ax1.plot([],[],[],"o",markersize=6)
+        ax1.set_xlim(points_xyzc[:,0].min(), points_xyzc[:,0].max())
+        ax1.set_ylim(points_xyzc[:,1].min(), points_xyzc[:,1].max())
+        ax1.set_zlim(points_xyzc[:,2].min(), points_xyzc[:,2].max())
+        ax1.set_title("Trajectory Animation")
+        ax2.plot(times, v_vals, linewidth=1)
+        marker, = ax2.plot([],[],"ro")
+        ax2.set_xlim(0,float(times[-1])); ax2.set_ylim(0,float(max(v_vals)*1.1))
+        ax2.set_title("Velocity Profile"); ax2.set_xlabel("Time [s]"); ax2.set_ylabel("mm/s")
+        def init():
+            trail.set_data([],[]); trail.set_3d_properties([])
+            point.set_data([],[]); point.set_3d_properties([])
+            marker.set_data([],[])
+            return trail, point, marker
+        def update(j):
+            f=int(frame_idx[j])
+            px,py,pz = pos[f]
+            point.set_data([px],[py]); point.set_3d_properties([pz])
+            start = max(0,f-trail_window) if trail_window else 0
+            trail.set_data(pos[start:f+1,0],pos[start:f+1,1])
+            trail.set_3d_properties(pos[start:f+1,2])
+            marker.set_data([times[f]],[v_vals[f]])
+            return point, trail, marker
+        ani = FuncAnimation(fig,update,init_func=init,
+                            frames=len(frame_idx),interval=interval_ms,
+                            blit=False,repeat=False)
+        fig._ani = ani
+        plt.show()
+
+    # =========================
+    # Pipeline
+    # =========================
+    df = dangerous_angle_detection(input_csv, step_mm, angle_threshold)
+    points = df[["X","Y","Z","C","dangerous"]].values
+    seg_lengths, cum_lengths = compute_path_length(points[:,:3])
+    times, s_vals, v_vals = build_full_profile(points, seg_lengths, vmax, vsafe, t_acc_ms, dt_ms)
+
+    # ======= convert langsung ke PVT =======
+    dt_s = dt_ms / 1000.0
+    dt_ms_val = dt_ms
+    p1, p2, p3, p4 = [], [], [], []
+    for t,s,v in zip(times,s_vals,v_vals):
+        pos, idx = interpolate_position(points[:,:3], cum_lengths, s)
+        x,y,z = pos
+        z += offset_z
+        c_val = points[idx,3]
+        p1.append(servo_inverse_kinematics(z))
+        a2,a3,a4 = arm_inverse_kinematics(x,y,c_val)
+        p2.append(a2); p3.append(a3); p4.append(a4)
+    v1 = [(p1[i+1]-p1[i])/dt_s for i in range(len(p1)-1)] + [0]
+    v2 = [(p2[i+1]-p2[i])/dt_s for i in range(len(p2)-1)] + [0]
+    v3 = [(p3[i+1]-p3[i])/dt_s for i in range(len(p3)-1)] + [0]
+    v4 = [(p4[i+1]-p4[i])/dt_s for i in range(len(p4)-1)] + [0]
+    times_ms = [i*dt_ms_val for i in range(len(p1))]
+
+    # export gabungan
+    data = {
+        'p1': p1, 'v1': v1,
+        'p2': p2, 'v2': v2,
+        'p3': p3, 'v3': v3,
+        'p4': p4, 'v4': v4,
+        'dt': [dt_ms_val]*len(p1)
+    }
+    pd.DataFrame(data).to_csv(output_csv, index=False)
+    print(f"Final PVT CSV disimpan ke {output_csv}")
+
+    # Plot & Animasi opsional
+    if enable_static:
+        plot_trajectory(df)
+    if enable_animation:
+        animate_trajectory(times, s_vals, v_vals, points, cum_lengths, dt_ms)
+
+    # return PVT list per joint
+    pvt1 = [[p1[i], v1[i], times_ms[i]] for i in range(len(p1))]
+    pvt2 = [[p2[i], v2[i], times_ms[i]] for i in range(len(p2))]
+    pvt3 = [[p3[i], v3[i], times_ms[i]] for i in range(len(p3))]
+    pvt4 = [[p4[i], v4[i], times_ms[i]] for i in range(len(p4))]
+
+    return pvt1, pvt2, pvt3, pvt4
+
+
+# # =========================
+# # Contoh pemanggilan
+# # =========================
+# if __name__ == "__main__":
+#     pvt1, pvt2, pvt3, pvt4 = robot_csv_to_pvt(
+#         input_csv="pickup_shelf_20250922.csv",
+#         output_csv="resampled/pickup_shelf_20250922.csv",
+#         step_mm=2.0,
+#         angle_threshold=5,
+#         vmax=100,
+#         vsafe=10,
+#         t_acc_ms=2000,
+#         dt_ms=50,
+#         enable_static=False,       # tampilkan plot
+#         enable_animation=False     # tampilkan animasi
+#     )
+
+
+import json
+import pandas as pd
+
+def json_to_pvt(json_file, output_csv, dt_ms=50):
+    with open(json_file, "r") as f:
+        motions = json.load(f)
+
+    pvt1_all, pvt2_all, pvt3_all, pvt4_all = [], [], [], []
+    # kondisi awal
+    prev_z = 0
+    prev_coor = arm_forward_kinematics(0, 0, 0)  # x,y,yaw
+    prev_angles = (0, 0, 0, 0)
+
+    for motion in motions:
+        typ = motion["Type"]
+        details = {kv.split("=")[0].strip(): kv.split("=")[1].strip() 
+                   for kv in motion["Details"].split(",")}
+
+        # =========================
+        # case: pvt_angle
+        # =========================
+        if typ == "pvt_angle":
+            a1 = float(details["angle_1"])
+            a2 = float(details["angle_2"])
+            a3 = float(details["angle_3"])
+            a4 = float(details["angle_4"])
+            t_arm = int(details["t_arm"])
+            t_servo = int(details["t_servo"])
+
+            # servo
+            if t_servo > 0:
+                z_target = servo_forward_kinematics(a1)
+                seg1 = servo_generate_single_straight_pvt_points(prev_z, z_target, t_servo, dt_ms)
+                pvt1_all.extend(seg1)
+                prev_z = z_target
+
+            # arm
+            if t_arm > 0:
+                tar_coor = arm_forward_kinematics(a2, a3, a4)
+                seg2, seg3, seg4 = arm_generate_single_straight_pvt_points(prev_coor, tar_coor, t_arm, dt_ms)
+                pvt2_all.extend(seg2); pvt3_all.extend(seg3); pvt4_all.extend(seg4)
+                prev_coor = tar_coor
+
+            prev_angles = (a1, a2, a3, a4)
+
+        # =========================
+        # case: pvt_coor
+        # =========================
+        elif typ == "pvt_coor":
+            x = float(details["x"])
+            y = float(details["y"])
+            c = float(details["c"])
+            z = float(details["z"])
+            t_arm = int(details["t_arm"])
+            t_servo = int(details["t_servo"])
+
+            # servo
+            if t_servo > 0:
+                seg1 = servo_generate_single_straight_pvt_points(prev_z, z, t_servo, dt_ms)
+                pvt1_all.extend(seg1)
+                prev_z = z
+
+            # arm
+            if t_arm > 0:
+                tar_coor = (x, y, c)
+                seg2, seg3, seg4 = arm_generate_single_straight_pvt_points(prev_coor, tar_coor, t_arm, dt_ms)
+                pvt2_all.extend(seg2); pvt3_all.extend(seg3); pvt4_all.extend(seg4)
+                prev_coor = tar_coor
+
+        # =========================
+        # case: pvt_csv
+        # =========================
+        elif typ == "pvt_csv":
+            offset_z = float(details.get("offset_z", 0.0))
+            p1, p2, p3, p4 = robot_csv_to_pvt(details["csv"], output_csv,
+                                              step_mm=2.0,
+                                              angle_threshold=5,
+                                              vmax=float(details["v_max"]),
+                                              vsafe=float(details["v_safe"]),
+                                              t_acc_ms=float(details["acc_dec"]),
+                                              dt_ms=dt_ms,
+                                              offset_z=offset_z)
+            pvt1_all.extend(p1); pvt2_all.extend(p2); pvt3_all.extend(p3); pvt4_all.extend(p4)
+
+    # === samakan panjang semua list ===
+    N = max(len(pvt1_all), len(pvt2_all), len(pvt3_all), len(pvt4_all))
+    def pad(lst):
+        if len(lst) == 0:
+            # kalau dari awal kosong → isi dummy
+            for _ in range(N):
+                lst.append([0,0,dt_ms])
+        elif len(lst) < N:
+            last = lst[-1]
+            for _ in range(N-len(lst)):
+                lst.append([last[0], 0, last[2]])
+    pad(pvt1_all); pad(pvt2_all); pad(pvt3_all); pad(pvt4_all)
+
+    # === simpan gabungan ke CSV ===
+    df = pd.DataFrame({
+        "p1": [p[0] for p in pvt1_all],
+        "v1": [p[1] for p in pvt1_all],
+        "p2": [p[0] for p in pvt2_all],
+        "v2": [p[1] for p in pvt2_all],
+        "p3": [p[0] for p in pvt3_all],
+        "v3": [p[1] for p in pvt3_all],
+        "p4": [p[0] for p in pvt4_all],
+        "v4": [p[1] for p in pvt4_all],
+        "dt": [dt_ms]*N
+    })
+    df.to_csv(output_csv, index=False)
+    print(f"Selesai, disimpan ke {output_csv}")
+
+    return pvt1_all, pvt2_all, pvt3_all, pvt4_all
+
+
+def simulate_pvt(csv_file):
+    df = pd.read_csv(csv_file)
+    traj = []
+    for _, row in df.iterrows():
+        cur_angle_1 = row["p1"]
+        cur_angle_2, cur_angle_3, cur_angle_4 = row["p2"], row["p3"], row["p4"]
+        cur_z = servo_forward_kinematics(cur_angle_1)
+        cur_x, cur_y, cur_yaw = arm_forward_kinematics(cur_angle_2, cur_angle_3, cur_angle_4)
+        xyz_yaw = [cur_x, cur_y, cur_z, cur_yaw]
+        traj.append(xyz_yaw)
+    return np.array(traj)
+
+# ==========================================================
+# Animasi Trajectory
+# ==========================================================
+def animate_traj(csv_file, max_frames=1000, trail_window=200, interval=50):
+    traj = simulate_pvt(csv_file)
+    xs, ys, zs, yaws = traj[:, 0], traj[:, 1], traj[:, 2], traj[:, 3]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    ax.set_xlabel("X (mm)")
+    ax.set_ylabel("Y (mm)")
+    ax.set_zlabel("Z (mm)")
+    ax.set_title("4-Motor PVT Trajectory")
+
+    # Plot lintasan penuh abu-abu
+    ax.plot(xs, ys, zs, color="gray", linestyle="-", linewidth=1)
+
+    # Animasi garis biru
+    line, = ax.plot([], [], [], "b-", lw=2)
+    point, = ax.plot([], [], [], "ro")
+
+    # Progress text
+    progress_text = ax.text2D(0.05, 0.95, "Progress: 0%", transform=ax.transAxes)
+
+    # pilih subset frame kalau datanya panjang
+    if len(xs) > max_frames:
+        frame_idx = np.linspace(0, len(xs)-1, max_frames, dtype=int)
+    else:
+        frame_idx = np.arange(len(xs))
+
+    def init():
+        ax.set_xlim(min(xs) - 50, max(xs) + 50)
+        ax.set_ylim(min(ys) - 50, max(ys) + 50)
+        ax.set_zlim(min(zs) - 10, max(zs) + 10)
+        return line, point, progress_text
+
+    def update(j):
+        f = frame_idx[j]
+        start = max(0, f-trail_window)
+        line.set_data(xs[start:f], ys[start:f])
+        line.set_3d_properties(zs[start:f])
+        point.set_data(xs[f:f+1], ys[f:f+1])
+        point.set_3d_properties(zs[f:f+1])
+
+        progress = int((f / (len(xs)-1)) * 100)
+        progress_text.set_text(f"Progress: {progress}%")
+
+        return line, point, progress_text
+
+    ani = FuncAnimation(fig, update, frames=len(frame_idx),
+                        init_func=init, blit=False, interval=interval,
+                        repeat=False)
+    plt.show()
+
+# ==== contoh pakai ====
+if __name__ == "__main__":
+    process_motion_file("motions.json")
+    pvt1, pvt2, pvt3, pvt4 = json_to_pvt(
+        json_file="resampled/motion_list.json",             # input JSON
+        output_csv="resampled/motion_list.csv",  # output CSV hasil gabungan
+        dt_ms=50                              # sampling time per titik
+    )
+    animate_traj("resampled/motion_list.csv",
+                max_frames=10000,   # full dataset dipakai (1033 baris)
+                trail_window=100,  # panjang ekor
+                interval=50)       # ms antar frame
+

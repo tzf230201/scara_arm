@@ -4,26 +4,28 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import math
 
-# ==========================================================
-# Forward Kinematics
-# ==========================================================
-def forward_kinematics(cur_joints):
-    cur_deg1, cur_deg2, cur_deg3, cur_deg4 = cur_joints
-    cur_deg4 *= -1.0
-    L2, L3 = 137.0, 121.0
-    OFFSET_2, OFFSET_3, OFFSET_4 = -96.5, 134.0, -52.5
+def servo_forward_kinematics(angle_1):
+    z = (90.0 / 360.0) * angle_1
+    return z
 
-    theta2_rad = math.radians((cur_deg2 / 5) + OFFSET_2)
-    theta3_rad = math.radians((cur_deg3 / 5) + OFFSET_3 - (cur_deg2 / 5))
+def arm_forward_kinematics(angle_2, angle_3, angle_4):
+    angle_4 *= -1.0
+    L2 = 137.0
+    L3 = 121.0
+    OFFSET_2 = -96.5
+    OFFSET_3 = 134.0
+    OFFSET_4 = -52.5
+
+    theta2_rad = math.radians((angle_2 / 5) + OFFSET_2)
+    theta3_rad = math.radians((angle_3 / 5) + OFFSET_3 - (angle_2 / 5))
 
     x2 = L2 * math.cos(theta2_rad)
     y2 = L2 * math.sin(theta2_rad)
     x3 = x2 + L3 * math.cos(theta2_rad + theta3_rad)
     y3 = y2 + L3 * math.sin(theta2_rad + theta3_rad)
-    z = (cur_deg1 / 360) * 90
-    yaw = (cur_deg4 / 5) + OFFSET_4
-    return [x3, y3, z, yaw]
+    yaw = (angle_4 / 5) + OFFSET_4
 
+    return x3, y3, yaw
 # ==========================================================
 # Simulasi PVT (ambil hanya p1..p4)
 # ==========================================================
@@ -31,8 +33,11 @@ def simulate_pvt(csv_file):
     df = pd.read_csv(csv_file)
     traj = []
     for _, row in df.iterrows():
-        cur_joints = [row["p1"], row["p2"], row["p3"], row["p4"]]
-        xyz_yaw = forward_kinematics(cur_joints)
+        cur_angle_1 = row["p1"]
+        cur_angle_2, cur_angle_3, cur_angle_4 = row["p2"], row["p3"], row["p4"]
+        cur_z = servo_forward_kinematics(cur_angle_1)
+        cur_x, cur_y, cur_yaw = arm_forward_kinematics(cur_angle_2, cur_angle_3, cur_angle_4)
+        xyz_yaw = [cur_x, cur_y, cur_z, cur_yaw]
         traj.append(xyz_yaw)
     return np.array(traj)
 

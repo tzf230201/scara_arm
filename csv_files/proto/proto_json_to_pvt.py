@@ -451,7 +451,7 @@ def json_to_pvt(json_file, output_csv, dt_ms=50):
     pvt1_all, pvt2_all, pvt3_all, pvt4_all = [], [], [], []
     # kondisi awal
     prev_z = 0
-    prev_coor = (0, 0, 0)  # x,y,yaw
+    prev_coor = arm_forward_kinematics(0, 0, 0)  # x,y,yaw
     prev_angles = (0, 0, 0, 0)
 
     for motion in motions:

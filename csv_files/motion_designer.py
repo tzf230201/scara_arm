@@ -3,14 +3,14 @@ from tkinter import ttk, filedialog, messagebox
 import os, json
 
 # === Flag Global ===
-PP_MOTION_ENABLE = False  # kalau False, PP_Coor & PP_Angle tidak muncul
+PP_MOTION_ENABLE = True  # kalau False, PP_Coor & PP_Angle tidak muncul
 
 
 class MotionPopup(tk.Toplevel):
     def __init__(self, master, folder=".", on_submit=None, current_count=0, max_repeat_index=None):
         super().__init__(master)
         self.title("Add Motion")
-        self.geometry("420x650")
+        self.geometry("420x680")
 
         self.on_submit = on_submit
         self.folder = folder
@@ -66,8 +66,6 @@ class MotionPopup(tk.Toplevel):
         # Shortcut
         self.bind("<Escape>", lambda e: self.destroy())
         self.bind("<Return>", lambda e: self.submit())
-
-        # Fokus default ke OK
         ok_btn.focus_set()
 
     def update_inputs(self):
@@ -83,7 +81,7 @@ class MotionPopup(tk.Toplevel):
             for label in ["z", "x", "y", "c", "t_arm"]:
                 self.add_entry(label, defaults[label])
 
-            # t_servo (hidden by default)
+            # t_servo (hidden default)
             self.t_servo_frame = tk.Frame(self.input_frame)
             tk.Label(self.t_servo_frame, text="t_servo:").pack(anchor="w")
             self.t_servo_entry = tk.Entry(self.t_servo_frame)
@@ -109,7 +107,6 @@ class MotionPopup(tk.Toplevel):
             for label in ["angle_1", "angle_2", "angle_3", "angle_4", "t_arm"]:
                 self.add_entry(label, defaults[label])
 
-            # t_servo (hidden by default)
             self.t_servo_frame = tk.Frame(self.input_frame)
             tk.Label(self.t_servo_frame, text="t_servo:").pack(anchor="w")
             self.t_servo_entry = tk.Entry(self.t_servo_frame)
@@ -139,10 +136,12 @@ class MotionPopup(tk.Toplevel):
 
             v_max_default = 100
             acc_default = 2000
+            offset_z_default = 0
             v_safe_default = v_max_default / 10
 
             self.add_entry("v_max", v_max_default)
             self.add_entry("acc_dec", acc_default)
+            self.add_entry("offset_z", offset_z_default)
 
             self.vsafe_frame = tk.Frame(self.input_frame)
             tk.Label(self.vsafe_frame, text="v_safe:").pack(anchor="w")
@@ -273,7 +272,12 @@ class MotionDesigner:
         self.tree.heading("Index", text="Index")
         self.tree.heading("Type", text="Motion Type")
         self.tree.heading("Details", text="Details")
-        self.tree.column("Index", width=50, anchor="center")
+
+        # Set awal (nanti diatur otomatis)
+        self.tree.column("Index", anchor="center")
+        self.tree.column("Type", anchor="center")
+        self.tree.column("Details", stretch=True)
+
         self.tree.pack(fill="both", expand=True, padx=10, pady=10)
 
         btn_frame = tk.Frame(root)
@@ -287,6 +291,20 @@ class MotionDesigner:
                   command=self.save_motions).pack(side="left", padx=5)
         tk.Button(btn_frame, text="Load",
                   command=self.load_motions).pack(side="left", padx=5)
+
+    # === AUTO RESIZE ===
+    def autosize_columns(self):
+        """Menyesuaikan lebar kolom Treeview berdasarkan isi teks terpanjang."""
+        import tkinter.font as tkFont
+        for col in self.tree["columns"]:
+            font = tkFont.Font()
+            max_width = font.measure(col) + 20
+            for item in self.tree.get_children():
+                text = str(self.tree.set(item, col))
+                width = font.measure(text) + 20
+                if width > max_width:
+                    max_width = width
+            self.tree.column(col, width=max_width)
 
     def add_motion(self):
         children = list(self.tree.get_children())
@@ -331,6 +349,8 @@ class MotionDesigner:
         self.tree.focus(new_item)
         self.tree.see(new_item)
 
+        self.autosize_columns()
+
     def remove_motion(self):
         selected = self.tree.selection()
         for sel in selected:
@@ -339,6 +359,7 @@ class MotionDesigner:
             vals = list(self.tree.item(item, "values"))
             vals[0] = i
             self.tree.item(item, values=vals)
+        self.autosize_columns()
 
     def save_motions(self):
         motions = []
@@ -373,6 +394,7 @@ class MotionDesigner:
                     self.tree.delete(sel)
                 for i, m in enumerate(motions, start=1):
                     self.tree.insert("", "end", values=(i, m["Type"], m["Details"]))
+                self.autosize_columns()
                 if motions:
                     last_item = self.tree.get_children()[-1]
                     self.tree.selection_set(last_item)
@@ -385,5 +407,7 @@ class MotionDesigner:
 
 if __name__ == "__main__":
     root = tk.Tk()
+    root.geometry("900x500")
+    root.minsize(800, 450)
     app = MotionDesigner(root)
     root.mainloop()
