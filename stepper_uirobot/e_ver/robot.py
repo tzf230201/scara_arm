@@ -384,18 +384,6 @@ def robot_pvt_coor(tar_coor, t_ms, selection):
     tar_angles = tar_angle_1, tar_angle_2, tar_angle_3, tar_angle_4
     robot_pvt_angle(tar_angles, t_ms, selection)
 
-
-
-
-
-
-
-
-
-
-
-
-
 ##########################################################################
 
 
@@ -496,41 +484,6 @@ def execute_motion_data(entry):
         if t_servo > 0:
             servo_pp_coor(z, t_servo)
 
-
-def pre_start_dancing(selection):
-    
-    robot_pp_angle(home_angle, 4000, selection)
-    time.sleep(4.1)
-    
-    # 1) Cartesian home
-    start_coor = forward_kinematics([0, 0, 0, 0])
-    # 2) Daftar target (Cartesian, durasi_ms)
-    list_tar_coor = [
-        ([150, -100, 90, 0], 1000),
-        ([107, 125, 90, 90], 1000),
-        ([107, 224, 90, 90], 1000),
-        ([107, 224, 115, 90], 1000),
-        ([107, 125, 115, 90], 3000),
-    ]
-
-    pt1, pt2, pt3, pt4 = generate_multi_straight_pt_points(start_coor, list_tar_coor, PT_TIME_INTERVAL)
-    
-    
-    plot_xy_from_pt(pt1, pt2, pt3, pt4)
-    
-    arm_pt_init()
-    for i in range(len(pt2)):
-        arm_pt_set_point(pt2[i], pt3[i], pt4[i])
-    
-    arm_pt_get_index()
-    arm_pt_execute()
-    time.sleep(6)
-    
-
-pt_1 = []
-pt_2 = []
-pt_3 = []
-pt_4 = []
 
 filename = "motion_data_5.csv"  
 robot_tar_coor,servo_tar_coor  = convert_csv_to_list_tar_coor(filename)

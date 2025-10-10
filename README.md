@@ -1,4 +1,4 @@
-<!-- # scara_arm
+# scara_arm
 
 A 4-DoF SCARA robot arm on a vertical rail, equipped with Integrated Closed-Loop (ICL) stepper motors and a 400-watt industrial servo motor, all controlled via CAN bus communication.
 
@@ -64,4 +64,4 @@ Even though it's still an ongoing project,  let [**See it in action**](https://d
 
 
 
-Ask me anything : teukuzikrifatahillah@gmail.com -->
+Ask me anything : teukuzikrifatahillah@gmail.com

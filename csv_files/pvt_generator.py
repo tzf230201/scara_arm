@@ -648,6 +648,8 @@ def json_to_pvt(json_file, output_csv, dt_ms=50):
                                               dt_ms=dt_ms,
                                               offset_z=offset_z)
             pvt1_all.extend(p1); pvt2_all.extend(p2); pvt3_all.extend(p3); pvt4_all.extend(p4)
+            prev_z = servo_forward_kinematics(p1[-1][0])  # ubah kembali dari degree → mm
+            prev_coor = arm_forward_kinematics(p2[-1][0], p3[-1][0], p4[-1][0])
 
     # === samakan panjang semua list ===
     N = max(len(pvt1_all), len(pvt2_all), len(pvt3_all), len(pvt4_all))
@@ -755,7 +757,7 @@ if __name__ == "__main__":
         dt_ms=50                              # sampling time per titik
     )
     animate_traj("resampled/motion_list.csv",
-                max_frames=10000,   # full dataset dipakai (1033 baris)
-                trail_window=100,  # panjang ekor
+                max_frames=100000,   # full dataset dipakai (1033 baris)
+                trail_window=50,  # panjang ekor
                 interval=50)       # ms antar frame
 
