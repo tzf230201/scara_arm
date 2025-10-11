@@ -568,9 +568,9 @@ def robot_start_pvt_dancing(csv_path):
     pvts_1, pvts_2, pvts_3, pvts_4 = load_pvt_csv(csv_path)
     #qq
     x,y,z,yaw = shuttle_coor
-    arm_pp_coor(x, y, yaw, 2000)
-    servo_pp_coor(90, 2000)
-    time.sleep(3)
+    # arm_pp_coor(x, y, yaw, 2000)
+    # servo_pp_coor(90, 2000)
+    # time.sleep(3)
     
     pvt_sended = 0
     cur_pvt = 0
