@@ -116,7 +116,7 @@ def dancing(msg, state):
 
     # update state
     # state['routine'] = True
-
+    print(f"hi")
     
 def routine(state):
     if state['routine'] == True:
