@@ -5,7 +5,6 @@ import time
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 
 def plot_xy_from_pt(pt1, pt2, pt3, pt4):
     x_list, y_list = [], []
@@ -228,7 +227,7 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     j1_arr, j2_arr, j3_arr, j4_arr = convert_cartesian_traj_to_joint_traj(x_arr, y_arr, z_arr, yaw_arr)
 
     # 2) Degree → pulse
-    p1 = [servo_degrees_to_pulses(d) for d in j1_arr]
+    p1 = [stepper_deg_to_pulse(d) for d in j1_arr]
     p2 = [stepper_deg_to_pulse(d) for d in j2_arr]
     p3 = [stepper_deg_to_pulse(d) for d in j3_arr]
     p4 = [stepper_deg_to_pulse(d) for d in j4_arr]
@@ -257,54 +256,6 @@ def generate_multi_straight_pvt_points(start_coor, list_tar_coor, dt):
     return pvt1, pvt2, pvt3, pvt4
 
 
-def load_pvt_csv(file_path):
-    """
-    Membaca file CSV PVT dengan kolom:
-    p1,v1,p2,v2,p3,v3,p4,v4,dt
-    lalu menghasilkan list pvt1..pvt4 = [[pos, vel, time_ms], ...]
-    """
-    # 1) Baca CSV
-    df = pd.read_csv(file_path)
-
-    # 2) Ambil kolom posisi & dt
-    j1_arr = df["p1"].to_list()
-    j2_arr = df["p2"].to_list()
-    j3_arr = df["p3"].to_list()
-    j4_arr = df["p4"].to_list()
-    dt = float(df["dt"].iloc[0])  # diasumsikan sama untuk semua row
-    dt_s = dt / 1000.0
-
-    # 3) Konversi posisi ke pulses
-    p1 = [servo_degrees_to_pulses(d) for d in j1_arr]
-    p2 = [stepper_deg_to_pulse(d) for d in j2_arr]
-    p3 = [stepper_deg_to_pulse(d) for d in j3_arr]
-    p4 = [stepper_deg_to_pulse(d) for d in j4_arr]
-
-    # 4) Hitung velocity (pulse/sec)
-    def compute_vel(p):
-        v = [int((p[i+1] - p[i]) / dt_s) for i in range(len(p)-1)]
-        v.append(0)  # velocity terakhir = 0
-        return v
-
-    v1 = compute_vel(p1)
-    v2 = compute_vel(p2)
-    v3 = compute_vel(p3)
-    v4 = compute_vel(p4)
-
-    # 5) Waktu per baris (ms)
-    times = [dt] * len(p1)
-
-    # 6) Gabungkan jadi list [pos, vel, time]
-    pvt1 = [[p1[i], v1[i], times[i]] for i in range(len(p1))]
-    pvt2 = [[p2[i], v2[i], times[i]] for i in range(len(p2))]
-    pvt3 = [[p3[i], v3[i], times[i]] for i in range(len(p3))]
-    pvt4 = [[p4[i], v4[i], times[i]] for i in range(len(p4))]
-
-    print(f"[load_pvt_csv] Loaded {len(p1)} points, dt={dt} ms")
-    print(f"  p1 range: {min(p1)} .. {max(p1)} pulses")
-    print(f"  p2 range: {min(p2)} .. {max(p2)} pulses")
-
-    return pvt1, pvt2, pvt3, pvt4
 
 
 
@@ -559,12 +510,9 @@ def is_pvt_decrease(depth):
         
     
     
-def robot_start_pvt_dancing(csv_path):
+def robot_start_pvt_dancing():
     global pvt_sended, max_pvt_index, tar_pvt, cur_pvt
     global motion_enable, motion_cnt, motion_data, motion_size
-    global pvts_1, pvts_2, pvts_3, pvts_4
-
-    pvts_1, pvts_2, pvts_3, pvts_4 = load_pvt_csv(csv_path)
     #qq
     x,y,z,yaw = shuttle_coor
     arm_pp_coor(x, y, yaw, 2000)
@@ -576,20 +524,17 @@ def robot_start_pvt_dancing(csv_path):
     motion_cnt = 0
     
     arm_pvt_init()
-    servo_pvt_init()
-    for i in range(60):
-        servo_pvt_set_pvt(pvts_1[pvt_sended])
+    for i in range(80):
         arm_pvt_set_pvt(pvts_2[pvt_sended], pvts_3[pvt_sended], pvts_4[pvt_sended])
         pvt_sended += 1
 
     max_pvt_index = len(pvts_2)
 
-    # entry = motion_data[motion_cnt]
-    # execute_motion_data(entry)
-    # motion_cnt += 1
-    # travel_time = entry['t_arm']
-    # tar_pvt = int(travel_time/PT_TIME_INTERVAL)
-    servo_pvt_execute()
+    entry = motion_data[motion_cnt]
+    execute_motion_data(entry)
+    motion_cnt += 1
+    travel_time = entry['t_arm']
+    tar_pvt = int(travel_time/PT_TIME_INTERVAL)
     arm_pvt_execute()
     
 def pvt_routine():
@@ -602,9 +547,17 @@ def pvt_routine():
         if depth != 0:
             if (depth < 40):
                 if pvt_sended < max_pvt_index:
-                    servo_pvt_set_pvt(pvts_1[pvt_sended])
                     arm_pvt_set_pvt(pvts_2[pvt_sended], pvts_3[pvt_sended], pvts_4[pvt_sended])
                     pvt_sended += 1
+                                            
+            if (cur_pvt >= tar_pvt) and (motion_cnt < motion_size):
+                entry = motion_data[motion_cnt]
+#                 # motion_type = entry['motion_type']
+                travel_time = entry['t_arm']           
+                execute_motion_data(entry)
+                motion_cnt += 1
+                tar_pvt = int(travel_time/PT_TIME_INTERVAL)
+                cur_pvt = 0
         else:
             print(f"motion selesai")
             return 1
