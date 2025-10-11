@@ -46,11 +46,16 @@
   },
   {
     "Index": "10",
+    "Type": "pvt_coor",
+    "Details": "z=31, x=107, y=147.622, c=0, t_arm=4000, t_servo=4000"
+  },
+  {
+    "Index": "11",
     "Type": "pvt_csv",
     "Details": "csv=pickup_shelf_20250922.csv, v_max=100, acc_dec=2000, offset_z=0, v_safe=10"
   },
   {
-    "Index": "11",
+    "Index": "12",
     "Type": "pvt_angle",
     "Details": "angle_1=0, angle_2=0, angle_3=0, angle_4=0, t_arm=4000, t_servo=4000"
   }
