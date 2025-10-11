@@ -272,6 +272,7 @@ def load_pvt_csv(file_path):
     j3_arr = df["p3"].to_list()
     j4_arr = df["p4"].to_list()
     dt = float(df["dt"].iloc[0])  # diasumsikan sama untuk semua row
+    dt = int(dt)
     dt_s = dt / 1000.0
 
     # 3) Konversi posisi ke pulses
