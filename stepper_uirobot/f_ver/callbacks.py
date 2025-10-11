@@ -73,17 +73,44 @@ def read_position(msg, state):
     print_orange(f"[cb] x={x_s}, y={y_s}, z={z_s}, yaw={yaw_s}")
 
 def dancing(msg, state):
-    # arm_pvt_init()
-    selection = msg.get('motor')
-    selection = "all"
-    # pre_start_dancing(selection)
-    # robot_start_dancing()
-    # pvt_test()
+    selection = msg.get('motor', 'all')
+    csv_path = msg.get('csv_path', None)
+
+    # --- Cek apakah CSV path diberikan atau sudah ada di state
+    if csv_path:
+        state['csv_path'] = csv_path
+        print(f"[cb] Dancing command received with CSV: {csv_path}")
+    elif 'csv_path' in state:
+        csv_path = state['csv_path']
+        print(f"[cb] Dancing using previous CSV: {csv_path}")
+    else:
+        print("[cb] Dancing aborted — no CSV path provided.")
+        return
+
+    # --- Verifikasi keberadaan file
+    if not os.path.exists(csv_path):
+        print(f"[cb] CSV file not found: {csv_path}")
+        return
+
+    # --- (Opsional) tampilkan ringkasan CSV sebelum jalan
+    try:
+        with open(csv_path, 'r') as f:
+            preview = ''.join(f.readlines()[:5])
+        print(f"[cb] CSV preview (first 5 lines):\n{preview}")
+    except Exception as e:
+        print(f"[cb] Warning: cannot read CSV preview — {e}")
+
+    # --- Jalankan motion sequence berbasis CSV
+    print(f"[cb] Starting PVT dancing with file: {csv_path}")
+    # kamu bisa ganti bagian ini sesuai pipeline CSV-mu
+    # misal: robot_load_pvt_csv(csv_path)
+    # atau robot_prepare_motion(csv_path)
+    # lalu mulai eksekusi seperti biasa:
     robot_start_pvt_dancing()
+
+    # update state
     state['routine'] = True
-    # pt_test()
-    # print(f"[cb] Dancing: motor={msg.get('motor')}")
-    # # TODO: Implement demo/dance pattern
+
     
 def routine(state):
     if state['routine'] == True:
