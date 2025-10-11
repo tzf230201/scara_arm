@@ -1,0 +1,7 @@
+[
+  {
+    "Index": "1",
+    "Type": "pvt_csv",
+    "Details": "csv=motions_pvt.csv, v_max=100, acc_dec=2000, offset_z=0, v_safe=10.0"
+  }
+]

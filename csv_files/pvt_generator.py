@@ -114,7 +114,7 @@ def process_motion_file(input_path, output_path="resampled/motion_list.json"):
     final = reindex(expanded_all)
 
     # 5. Export
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(final, f, indent=2)
 
@@ -748,16 +748,81 @@ def animate_traj(csv_file, max_frames=1000, trail_window=200, interval=50):
                         repeat=False)
     plt.show()
 
-# ==== contoh pakai ====
-if __name__ == "__main__":
-    process_motion_file("motions.json")
-    pvt1, pvt2, pvt3, pvt4 = json_to_pvt(
-        json_file="resampled/motion_list.json",             # input JSON
-        output_csv="resampled/motion_list.csv",  # output CSV hasil gabungan
-        dt_ms=50                              # sampling time per titik
-    )
-    animate_traj("resampled/motion_list.csv",
-                max_frames=100000,   # full dataset dipakai (1033 baris)
-                trail_window=50,  # panjang ekor
-                interval=50)       # ms antar frame
+import argparse
+import os
 
+if __name__ == "__main__":
+    # -------------------------------
+    # Argument Parser
+    # -------------------------------
+    parser = argparse.ArgumentParser(description="Process and animate PVT motion files.")
+    parser.add_argument(
+        "-j", "--json",
+        type=str,
+        required=True,
+        help="Path ke file JSON motion (contoh: motion_list.json)"
+    )
+    parser.add_argument(
+        "-d", "--dt",
+        type=int,
+        default=50,
+        help="Sampling time per titik (ms)"
+    )
+    parser.add_argument(
+        "-p", "--preview",
+        type=int,
+        default=1,
+        choices=[0, 1],
+        help="Tampilkan animasi trajectory (1=ya, 0=tidak)"
+    )
+    args = parser.parse_args()
+
+    # -------------------------------
+    # Buat nama file otomatis
+    # -------------------------------
+    json_in = args.json
+    basename = os.path.splitext(os.path.basename(json_in))[0]
+
+    json_out = f"resampled_{basename}.json"
+    csv_out = f"{basename}_pvt.csv"
+
+    dt_ms = args.dt
+    preview = bool(args.preview)
+
+    print(f"\n▶️ Input JSON: {json_in}")
+    print(f"📦 Output JSON: {json_out}")
+    print(f"📄 Output CSV: {csv_out}")
+
+    # -------------------------------
+    # Jalankan pipeline
+    # -------------------------------
+    process_motion_file(json_in, output_path=json_out)
+
+    pvt1, pvt2, pvt3, pvt4 = json_to_pvt(
+        json_file=json_out,
+        output_csv=csv_out,
+        dt_ms=dt_ms
+    )
+
+    if os.path.exists(json_out):
+        try:
+            os.remove(json_out)
+            print(f"🗑️ File sementara {json_out} dihapus.")
+        except Exception as e:
+            print(f"⚠️ Gagal menghapus {json_out}: {e}")
+
+    # -------------------------------
+    # Preview animasi (opsional)
+    # -------------------------------
+    if preview:
+        print("🎬 Menampilkan animasi dari", csv_out)
+        animate_traj(
+            csv_out,
+            max_frames=100000,
+            trail_window=50,
+            interval=dt_ms
+        )
+    else:
+        print("🚫 Preview animasi dinonaktifkan (--preview 0).")
+
+    print("\n✅ Selesai.")
