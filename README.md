@@ -1,6 +1,6 @@
 # scara_arm
 
-A 4-DoF SCARA robot arm on a vertical rail, equipped with Integrated Closed-Loop (ICL) stepper motors and a 400-watt industrial servo motor, all controlled via CAN bus communication.
+A 4-DoF SCARA robot arm on a vertical rail, equipped with Integrated Closed-Loop (ICL) stepper motors and a industrial servo motor, all controlled via CAN bus communication.
 
 ![Scara Arm](images/picture_1.png)
 
@@ -59,6 +59,48 @@ Commands are sent through the CAN bus using the CANopen protocol.
 - trapezoidal profile<br>
 - sine profile<br>
 - s-shape profile<br><br>
+
+
+# UIrobot Stepper Motor
+
+we using this model : UIM342AB
+
+
+## Boot/Firmware Configuration (`config.txt`)
+
+```bash
+# Enable audio, I2C, and SPI
+dtparam=audio=on
+dtparam=i2c_arm=on
+dtparam=spi=on
+
+# Enable MCP2515 CAN interface
+dtoverlay=mcp2515-can1,oscillator=16000000,interrupt=25
+dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=23
+dtoverlay=spi-bcm2835-overlay
+```
+## Run this before run the main program
+
+```bash
+sudo ip link set can0 down
+sudo ip link set can0 txqueuelen 1000  # if less then no permission error comes
+sudo ip link set can0 type can bitrate 1000000 loopback off
+sudo ip link set can0 up
+```
+**or run can_begin.sh instead**
+
+
+
+
+**Dependencies**
+```bash
+sudo apt install python3_zmq
+sudo apt install python3-can
+sudo apt install python3-tk
+```
+
+**Note**
+- candump.py used to record all can communication into text file for debugging
 
 Even though it's still an ongoing project,  let [**See it in action**](https://drive.google.com/file/d/1y8DbG6vgjGmnc4_ooR9SQvQAt7R12CfX/view?usp=sharing)
 
