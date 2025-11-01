@@ -117,6 +117,32 @@ sudo apt install can-utils -y
 
 **Note**
 - candump.py used to record all can communication into text file for debugging
+- about datasheet,there are 2 datahseet for servo, When i purcasea the servo, the seller give me the newer datasheet (DCH_CANopen.pdf), however is not completed yet, there are several commands that not explained there yet (in my case, i want to know current index of PVT buffer in servo, but it's didn't explained there), so they give me the older one, (CANopen&EtherCAT.pdf), that's why we have 2 datahseet now.
+
+
+
+**File System**
+```
+src/
+├── gui.py                  # User Interface (Tkinter)
+├── main.py                 # Main entry point
+├── callbacks.py            # Event and callback handlers
+└── robot.py                # Integration vertical and horizontal axis
+    ├── arm.py              # 3 dof scara arm for horizontal axis
+    │   └── stepper.py      # Stepper SDK
+    │       ├── origin.py   # handle origin information 
+    │       └── canbase.py  # SimpleCAn3 & CANOpen protocol
+    │    
+    ├── servo.py            # Servo SDK for vertical axis
+    │   ├── origin.py       # handle origin information
+    │   └── canbase.py      # SimpleCAn3 & CANOpen protocol
+    └── utility.py          # several tools for debugging
+```
+
+
+(If you'd like, I can apply the same change directly to `README.md` or replace the original file.)
+
+
 
 Even though it's still an ongoing project,  let [**See it in action**](https://drive.google.com/file/d/1y8DbG6vgjGmnc4_ooR9SQvQAt7R12CfX/view?usp=sharing)
 
