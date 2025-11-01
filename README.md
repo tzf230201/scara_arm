@@ -61,12 +61,9 @@ Commands are sent through the CAN bus using the CANopen protocol.
 - s-shape profile<br><br>
 
 
-# UIrobot Stepper Motor
+# Installation
 
-we using this model : UIM342AB
-
-
-## Boot/Firmware Configuration (`config.txt`)
+## Boot/Firmware/config.txt
 
 ```bash
 # Enable audio, I2C, and SPI
@@ -79,6 +76,12 @@ dtoverlay=mcp2515-can1,oscillator=16000000,interrupt=25
 dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=23
 dtoverlay=spi-bcm2835-overlay
 ```
+
+after that
+```
+sudo reboot
+```
+
 ## Run this before run the main program
 
 ```bash
@@ -87,8 +90,18 @@ sudo ip link set can0 txqueuelen 1000  # if less then no permission error comes
 sudo ip link set can0 type can bitrate 1000000 loopback off
 sudo ip link set can0 up
 ```
-**or run can_begin.sh instead**
+**or run can_begin.sh instead, you can put this in .bashrc, it will automatically check and run if it wasn't running yet**
 
+```bash
+# === Auto-run CAN setup only once per boot ===
+CAN_MARKER="/tmp/can_initialized"
+
+if [ ! -f "$CAN_MARKER" ]; then
+    echo "[INFO] Initializing CAN0..."
+    bash ~/scara_arm/can_begin.sh && touch "$CAN_MARKER"
+fi
+
+```
 
 
 
@@ -97,6 +110,9 @@ sudo ip link set can0 up
 sudo apt install python3_zmq
 sudo apt install python3-can
 sudo apt install python3-tk
+sudo apt install python3-numpy
+sudo apt install python3-matplotlib
+sudo apt install can-utils -y
 ```
 
 **Note**
