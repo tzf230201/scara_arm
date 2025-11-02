@@ -108,7 +108,7 @@ def dancing(msg, state):
     # misal: robot_load_pvt_csv(csv_path)
     # atau robot_prepare_motion(csv_path)
     # lalu mulai eksekusi seperti biasa:
-    # robot_start_pvt_dancing(csv_path)
+    robot_start_pvt_dancing(csv_path)
 
     # # update state
     state['routine'] = True
