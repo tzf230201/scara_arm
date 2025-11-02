@@ -7,27 +7,27 @@
   {
     "Index": "2",
     "Type": "pvt_coor",
-    "Details": "z=90, x=166.8, y=-168, c=0, t_arm=2000, t_servo=2000"
+    "Details": "z=90, x=166.8, y=-168, c=0, t_arm=4000, t_servo=4000"
   },
   {
     "Index": "3",
     "Type": "pvt_coor",
-    "Details": "z=90, x=107, y=150, c=90, t_arm=2000, t_servo=2000"
+    "Details": "z=90, x=107, y=150, c=90, t_arm=4000, t_servo=4000"
   },
   {
     "Index": "4",
     "Type": "pvt_coor",
-    "Details": "z=90, x=107, y=224, c=90, t_arm=2000, t_servo=2000"
+    "Details": "z=90, x=107, y=224, c=90, t_arm=4000, t_servo=4000"
   },
   {
     "Index": "5",
     "Type": "pvt_coor",
-    "Details": "z=114, x=107, y=224, c=90, t_arm=1000, t_servo=1000"
+    "Details": "z=114, x=107, y=224, c=90, t_arm=2000, t_servo=2000"
   },
   {
     "Index": "6",
     "Type": "pvt_coor",
-    "Details": "z=114, x=107, y=150, c=90, t_arm=2000, t_servo=2000"
+    "Details": "z=114, x=107, y=150, c=90, t_arm=4000, t_servo=4000"
   },
   {
     "Index": "7",
@@ -41,27 +41,17 @@
   },
   {
     "Index": "9",
-    "Type": "repeat",
-    "Details": "from_index=3, to_index=8, how_many_times=1"
+    "Type": "pvt_coor",
+    "Details": "z=121, x=107, y=147.622, c=0, t_arm=4000, t_servo=4000"
   },
   {
     "Index": "10",
-    "Type": "pvt_coor",
-    "Details": "z=31, x=107, y=147.622, c=0, t_arm=4000, t_servo=4000"
+    "Type": "pvt_csv",
+    "Details": "csv=pickup_shelf_20250922.csv, v_max=100, acc_dec=2000, offset_z=90, v_safe=10"
   },
   {
     "Index": "11",
-    "Type": "pvt_csv",
-    "Details": "csv=pickup_shelf_20250922.csv, v_max=100, acc_dec=2000, offset_z=0, v_safe=10"
-  },
-  {
-    "Index": "12",
     "Type": "pvt_angle",
     "Details": "angle_1=0, angle_2=0, angle_3=0, angle_4=0, t_arm=4000, t_servo=4000"
-  },
-  {
-    "Index": "13",
-    "Type": "pvt_csv",
-    "Details": "csv=pickup_shelf_20250922.csv, v_max=100, acc_dec=2000, offset_z=1000, v_safe=10.0"
   }
 ]
