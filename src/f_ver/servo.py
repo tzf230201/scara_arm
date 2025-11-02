@@ -583,10 +583,10 @@ def servo_pvt_coor(tar_z, t_ms, dt=100):
     servo_pvt_angle(tar_angle_1, t_ms, dt)
 
 def servo_pvt_get_queue():
-    queue = req_sdo(ID1, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x04)
+    queue = req_sdo(ID1, OD_SERVO_INTERPOLATION_DATA_CONFIGURATION, 0x04)
     return queue
 
 def servo_pvt_clear_buffer():
-    set_sdo(ID1, SET_1_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x06,  0x00) # clear and disable access to input buffer
-    set_sdo(ID1, SET_1_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x06,  0x01) # enable access to input buffer
+    set_sdo(ID1, SET_1_BYTE, OD_SERVO_INTERPOLATION_DATA_CONFIGURATION, 0x06,  0x00) # clear and disable access to input buffer
+    set_sdo(ID1, SET_1_BYTE, OD_SERVO_INTERPOLATION_DATA_CONFIGURATION, 0x06,  0x01) # enable access to input buffer
     print(f"servo buffer cleared")

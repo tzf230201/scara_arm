@@ -112,7 +112,8 @@ sudo apt install python3-can
 sudo apt install python3-tk
 sudo apt install python3-numpy
 sudo apt install python3-matplotlib
-sudo apt install can-utils -y
+sudo apt install python3-pandas
+sudo apt install can-utils
 ```
 
 **Note**
