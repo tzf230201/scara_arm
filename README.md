@@ -140,7 +140,11 @@ src/
     └── utility.py          # several tools for debugging
 ```
 
-
+** how to design motion**
+```
+cd csv_files
+python3 motion_designer.py
+```
 
 Even though it's still an ongoing project,  let [**See it in action**](https://drive.google.com/file/d/1y8DbG6vgjGmnc4_ooR9SQvQAt7R12CfX/view?usp=sharing)
 

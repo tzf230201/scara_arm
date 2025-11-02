@@ -1,0 +1,32 @@
+[
+  {
+    "Index": "1",
+    "Type": "pvt_angle",
+    "Details": "angle_1=360, angle_2=0, angle_3=0, angle_4=0, t_arm=4000, t_servo=4000"
+  },
+  {
+    "Index": "2",
+    "Type": "pause",
+    "Details": "t_wait=1000"
+  },
+  {
+    "Index": "3",
+    "Type": "pvt_angle",
+    "Details": "angle_1=0, angle_2=0, angle_3=0, angle_4=0, t_arm=4000, t_servo=6000"
+  },
+  {
+    "Index": "4",
+    "Type": "pvt_angle",
+    "Details": "angle_1=360, angle_2=0, angle_3=0, angle_4=0, t_arm=4000, t_servo=4000"
+  },
+  {
+    "Index": "5",
+    "Type": "pause",
+    "Details": "t_wait=1000"
+  },
+  {
+    "Index": "6",
+    "Type": "pvt_angle",
+    "Details": "angle_1=0, angle_2=0, angle_3=0, angle_4=0, t_arm=4000, t_servo=6000"
+  }
+]

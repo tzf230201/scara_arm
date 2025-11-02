@@ -598,6 +598,7 @@ def pvt_routine():
     global motion_cnt, motion_data, motion_size, motion_enable
     if motion_enable:
         depth = stepper_pvt_get_queue(7)
+        # depth_servo = servo_pvt_get_queue()
         if is_pvt_decrease(depth):
             cur_pvt += 1
         if depth != 0:
