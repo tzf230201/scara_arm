@@ -140,9 +140,6 @@ src/
 ```
 
 
-(If you'd like, I can apply the same change directly to `README.md` or replace the original file.)
-
-
 
 Even though it's still an ongoing project,  let [**See it in action**](https://drive.google.com/file/d/1y8DbG6vgjGmnc4_ooR9SQvQAt7R12CfX/view?usp=sharing)
 
