@@ -59,6 +59,8 @@ def read_position(msg, state):
         z = servo_forward_kinematics(cur_angle_1)
         m1_s = f"{cur_angle_1:.2f}°"
         z_s = f"{z:.2f}mm"
+        queue = servo_pvt_get_queue()
+        print(f"Servo PVT index: {queue}")
         
     if None not in (cur_angle_2, cur_angle_3, cur_angle_4):
         x, y, yaw = arm_forward_kinematics(cur_angle_2, cur_angle_3, cur_angle_4)
@@ -106,7 +108,7 @@ def dancing(msg, state):
     # misal: robot_load_pvt_csv(csv_path)
     # atau robot_prepare_motion(csv_path)
     # lalu mulai eksekusi seperti biasa:
-    robot_start_pvt_dancing(csv_path)
+    # robot_start_pvt_dancing(csv_path)
 
     # # update state
     state['routine'] = True

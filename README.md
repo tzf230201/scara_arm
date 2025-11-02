@@ -4,7 +4,7 @@ A 4-DoF SCARA robot arm on a vertical rail, equipped with Integrated Closed-Loop
 
 ![Scara Arm](images/picture_1.png)
 
-The software currently runs on ROS1-Noetic, utilizing a URDF model and MoveIt, with an option to use a custom Tkinter GUI. 
+The software was running on ROS1-Noetic, utilizing a URDF model and MoveIt, with an option to use a custom Tkinter GUI. but for now, we stop using ROS1 and tring to use another messaging library to get realtime system such as ZMQ.
 
 ![MoveIt](images/picture_5.png)
 

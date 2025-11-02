@@ -68,7 +68,11 @@ OD_SERVO_HOMING_ACCELERATION = 0X609A
 # -2 : PVT (Position, Velocity, Time) interpolation
 OD_SERVO_INTERPOLATION_SUB_MODE = 0x60C0
 #sub_index_1 : position, sub_index_2 : time, sub_index_3 : velocity
-OD_SERVO_INTERPOLATION_DATA_RECORD = 0x60C1 
+OD_SERVO_INTERPOLATION_DATA_RECORD = 0x60C1
+#sub_index_1 : max_buffer_size, sub_index_2 : actual_buffer_size, sub_index_3 : buffer organization
+#sub_index_4 : buffer_position_index, sub_index_5 : size_of_data_record, sub_index_6 : clear_buffer
+OD_SERVO_INTERPOLATION_DATA_CONFIGURATION = 0x60C4
+
 OD_SERVO_IP_SEGMENT_MOVE_COMMAND = 0x2010
 OD_SERVO_TRAJECTORY_BUFFER_FREE_COUNT = 0x2011
 OD_SERVO_TRAJECTORY_BUFFER_STATUS = 0x2012
@@ -577,3 +581,12 @@ def servo_pvt_angle(tar_angle_1, t_ms, dt=100):
 def servo_pvt_coor(tar_z, t_ms, dt=100):
     tar_angle_1 = servo_inverse_kinematics(tar_z)
     servo_pvt_angle(tar_angle_1, t_ms, dt)
+
+def servo_pvt_get_queue():
+    queue = req_sdo(ID1, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x04)
+    return queue
+
+def servo_pvt_clear_buffer():
+    set_sdo(ID1, SET_1_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x06,  0x00) # clear and disable access to input buffer
+    set_sdo(ID1, SET_1_BYTE, OD_SERVO_INTERPOLATION_DATA_RECORD, 0x06,  0x01) # enable access to input buffer
+    print(f"servo buffer cleared")
