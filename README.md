@@ -45,22 +45,6 @@ Commands are sent through the CAN bus using the CANopen protocol.
 | **Relay**                | GPIO 2    | Pin 3
 
 
-
-**There are several type of motion**:
-- Linear motion<br>
-- P to P fastest motion<br>
-- Circular motion<br>
-- Horizontal curved Motion<br>
-- Vertical curved motion<br>
-- Interpolated motion<br>
-
-**Profile types:**<br>
-- triangle profile<br>
-- trapezoidal profile<br>
-- sine profile<br>
-- s-shape profile<br><br>
-
-
 # Installation
 
 ## Boot/Firmware/config.txt
