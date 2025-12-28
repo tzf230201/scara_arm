@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import os, json, subprocess
 import pandas as pd
+import math
 
 # === Flag Global ===
 PP_MOTION_ENABLE = False  # kalau False, PP_Coor & PP_Angle tidak muncul
@@ -12,14 +13,131 @@ def read_first_xyz_yaw(csv_path):
     """Baca baris pertama dari file CSV dan ambil X, Y, Z, Yaw (jika ada)."""
     try:
         df = pd.read_csv(csv_path)
-        cols = {c.lower(): c for c in df.columns}
-        x = float(df[cols.get("x", 0)][0]) if "x" in cols else 0
-        y = float(df[cols.get("y", 0)][0]) if "y" in cols else 0
-        z = float(df[cols.get("z", 0)][0]) if "z" in cols else 0
-        yaw = float(df[cols.get("yaw", 0)][0]) if "yaw" in cols else 0
-        return x, y, z, yaw
+        if df.empty:
+            return None
+
+        # map kolom secara case-insensitive
+        cols = {str(c).strip().lower(): c for c in df.columns}
+
+        def get_first(*names, default=0.0):
+            for name in names:
+                key = str(name).strip().lower()
+                if key in cols:
+                    return float(df.at[0, cols[key]])
+            return float(default)
+
+        # dukung X/Y/Z/C atau X/Y/Z/Yaw
+        x = get_first("x")
+        y = get_first("y")
+        z = get_first("z")
+        yaw_or_c = get_first("c", "yaw")
+        return x, y, z, yaw_or_c
     except Exception:
         return None
+
+
+def read_last_xyz_yaw(csv_path):
+    """Baca baris terakhir dari file CSV dan ambil X, Y, Z, Yaw/C (jika ada)."""
+    try:
+        df = pd.read_csv(csv_path)
+        if df.empty:
+            return None
+
+        cols = {str(c).strip().lower(): c for c in df.columns}
+
+        def get_last(*names, default=0.0):
+            for name in names:
+                key = str(name).strip().lower()
+                if key in cols:
+                    return float(df.iloc[-1][cols[key]])
+            return float(default)
+
+        x = get_last("x")
+        y = get_last("y")
+        z = get_last("z")
+        yaw_or_c = get_last("c", "yaw")
+        return x, y, z, yaw_or_c
+    except Exception:
+        return None
+
+
+def parse_details(details_str):
+    """Parse 'a=1, b=2' jadi dict (tahan spasi)."""
+    if not details_str:
+        return {}
+    parts = [p.strip() for p in str(details_str).split(",") if p.strip()]
+    out = {}
+    for p in parts:
+        if "=" in p:
+            k, v = p.split("=", 1)
+            out[k.strip().lower()] = v.strip()
+    return out
+
+
+def servo_forward_kinematics(angle_1):
+    # sama seperti pvt_generator.py
+    return (90.0 / 360.0) * float(angle_1)
+
+
+def arm_forward_kinematics(angle_2, angle_3, angle_4):
+    # sama seperti pvt_generator.py
+    angle_4 = float(angle_4) * -1.0
+    L2 = 137.0
+    L3 = 121.0
+    OFFSET_2 = -96.5
+    OFFSET_3 = 134.0
+    OFFSET_4 = -52.5
+
+    theta2_rad = math.radians((float(angle_2) / 5.0) + OFFSET_2)
+    theta3_rad = math.radians((float(angle_3) / 5.0) + OFFSET_3 - (float(angle_2) / 5.0))
+
+    x2 = L2 * math.cos(theta2_rad)
+    y2 = L2 * math.sin(theta2_rad)
+    x3 = x2 + L3 * math.cos(theta2_rad + theta3_rad)
+    y3 = y2 + L3 * math.sin(theta2_rad + theta3_rad)
+    yaw = (angle_4 / 5.0) + OFFSET_4
+
+    return x3, y3, yaw
+
+
+def estimate_pose_from_row(mtype, details_str, base_dir):
+    """Estimasi pose akhir motion: return (x, y, z, c/yaw) atau None jika tidak bisa."""
+    d = parse_details(details_str)
+    try:
+        if mtype == "pvt_coor":
+            x = float(d.get("x", 0))
+            y = float(d.get("y", 0))
+            z = float(d.get("z", 0))
+            c = float(d.get("c", d.get("yaw", 0)))
+            return x, y, z, c
+
+        if mtype == "pvt_angle":
+            a1 = float(d.get("angle_1", 0))
+            a2 = float(d.get("angle_2", 0))
+            a3 = float(d.get("angle_3", 0))
+            a4 = float(d.get("angle_4", 0))
+            z = servo_forward_kinematics(a1)
+            x, y, c = arm_forward_kinematics(a2, a3, a4)
+            return x, y, z, c
+
+        if mtype == "pvt_csv":
+            csv_name = d.get("csv")
+            if not csv_name:
+                return None
+            csv_path = os.path.join(base_dir, csv_name)
+            last = read_last_xyz_yaw(csv_path)
+            if last is None:
+                return None
+            x, y, z, c = last
+            try:
+                offset_z = float(d.get("offset_z", 0) or 0)
+            except Exception:
+                offset_z = 0.0
+            return x, y, z + offset_z, c
+    except Exception:
+        return None
+
+    return None
 
 
 # --- Popup untuk tambah/edit motion ---
@@ -324,6 +442,9 @@ class MotionDesigner:
         self.root.title("Motion Designer")
         self.loaded_json = None  # track file json yang sedang dibuka
 
+        # gunakan folder script agar path CSV/pvt_generator konsisten walau cwd berubah
+        self.base_dir = os.path.dirname(os.path.abspath(__file__))
+
         self.tree = ttk.Treeview(root, columns=("Index", "Type", "Details"), show="headings")
         for h in ["Index", "Type", "Details"]:
             self.tree.heading(h, text=h)
@@ -361,7 +482,7 @@ class MotionDesigner:
 
         MotionPopup(
             self.root,
-            folder=".",
+            folder=self.base_dir,
             on_submit=self.insert_motion,
             current_count=len(children),
             max_repeat_index=max_repeat_index
@@ -390,7 +511,7 @@ class MotionDesigner:
 
         MotionPopup(
             self.root,
-            folder=".",
+            folder=self.base_dir,
             on_submit=self.insert_motion,
             current_count=len(children),
             max_repeat_index=sel_1based,
@@ -417,9 +538,87 @@ class MotionDesigner:
             # insert setelah row terpilih; kalau tidak ada, append di akhir
             if selected:
                 sel_pos = children.index(selected[0])
-                new_item = self.tree.insert("", sel_pos + 1, values=("", motion_type, details))
+                insert_pos = sel_pos + 1
             else:
-                new_item = self.tree.insert("", "end", values=("", motion_type, details))
+                insert_pos = "end"
+
+            # khusus pvt_csv: tambahkan pvt_coor dulu (target = baris pertama CSV)
+            if motion_type == "pvt_csv":
+                csv_name = normalized.get("csv")
+                pre_item = None
+
+                if csv_name:
+                    csv_path = os.path.join(self.base_dir, csv_name)
+                    first = read_first_xyz_yaw(csv_path)
+                else:
+                    first = None
+
+                if first is None:
+                    messagebox.showwarning(
+                        "Warning",
+                        "Tidak bisa membaca baris pertama CSV untuk membuat pvt_coor.\n"
+                        "Motion pvt_csv akan tetap ditambahkan tanpa pre-motion pvt_coor."
+                    )
+                    new_item = self.tree.insert("", insert_pos, values=("", motion_type, details))
+                else:
+                    x, y, z, c = first
+                    try:
+                        offset_z = float(normalized.get("offset_z", 0) or 0)
+                    except Exception:
+                        offset_z = 0.0
+                    z = z + offset_z
+
+                    # hitung timing berdasarkan jarak dari pose sebelumnya dan v_max (mm/s)
+                    prev_pose = None
+                    if selected:
+                        prev_item = selected[0]
+                    else:
+                        prev_item = children[-1] if len(children) > 0 else None
+
+                    if prev_item is not None:
+                        _pidx, ptype, pdetails = self.tree.item(prev_item, "values")
+                        prev_pose = estimate_pose_from_row(ptype, pdetails, self.base_dir)
+
+                    # fallback jika belum bisa estimasi pose sebelumnya
+                    if prev_pose is None:
+                        prev_pose = (0.0, 0.0, 0.0, 0.0)
+
+                    try:
+                        v_max = float(normalized.get("v_max", 0) or 0)
+                    except Exception:
+                        v_max = 0.0
+
+                    dx = float(x) - float(prev_pose[0])
+                    dy = float(y) - float(prev_pose[1])
+                    dz = float(z) - float(prev_pose[2])
+                    dist_mm = math.sqrt(dx * dx + dy * dy + dz * dz)
+
+                    # t (ms) = dist(mm) / v(mm/s) * 1000
+                    if v_max <= 0:
+                        t_ms = 100
+                    else:
+                        t_ms = int(round((dist_mm / v_max) * 1000.0))
+                        if t_ms < 100:
+                            t_ms = 100
+
+                    pre_details_ordered = [
+                        ("z", z),
+                        ("x", x),
+                        ("y", y),
+                        ("c", c),
+                        ("t_arm", t_ms),
+                        ("t_servo", t_ms),
+                    ]
+                    pre_details = ", ".join(f"{k}={v}" for k, v in pre_details_ordered)
+
+                    pre_item = self.tree.insert("", insert_pos, values=("", "pvt_coor", pre_details))
+                    if isinstance(insert_pos, int):
+                        insert_pos_csv = insert_pos + 1
+                    else:
+                        insert_pos_csv = "end"
+                    new_item = self.tree.insert("", insert_pos_csv, values=("", motion_type, details))
+            else:
+                new_item = self.tree.insert("", insert_pos, values=("", motion_type, details))
 
         # reindex ulang 1..N
         for i, item in enumerate(self.tree.get_children(), start=1):
@@ -490,7 +689,7 @@ class MotionDesigner:
         cmd = ["python3", "pvt_generator.py", "--json", self.loaded_json, "--preview", preview_flag]
 
         try:
-            subprocess.Popen(cmd)
+            subprocess.Popen(cmd, cwd=self.base_dir)
             messagebox.showinfo("Running", f"Executed:\n{' '.join(cmd)}")
         except Exception as e:
             messagebox.showerror("Error", f"Cannot execute:\n{' '.join(cmd)}\n\n{e}")
