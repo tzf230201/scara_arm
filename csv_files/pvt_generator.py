@@ -784,7 +784,7 @@ if __name__ == "__main__":
     basename = os.path.splitext(os.path.basename(json_in))[0]
 
     json_out = f"resampled_{basename}.json"
-    csv_out = f"{basename}_pvt.csv"
+    csv_out = f"{basename}.pvt"
 
     dt_ms = args.dt
     preview = bool(args.preview)

@@ -21,11 +21,11 @@ def generate_launch_description() -> LaunchDescription:
                 name='tester_ui',
                 output='screen',
             ),
-            Node(
-                package='robot_controller',
-                executable='controller',
-                name='robot_controller',
-                output='screen',
-            ),
+            # Node(
+            #     package='robot_controller',
+            #     executable='controller',
+            #     name='robot_controller',
+            #     output='screen',
+            # ),
         ]
     )
