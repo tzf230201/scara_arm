@@ -4,7 +4,7 @@ project(robot_sim)
 
 find_package(ament_cmake REQUIRED)
 
-foreach(dir config launch world)
+foreach(dir config launch rviz world)
   if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${dir}")
     install(
       DIRECTORY ${dir}/
@@ -12,5 +12,13 @@ foreach(dir config launch world)
     )
   endif()
 endforeach()
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
+  install(
+    PROGRAMS
+      scripts/joint_state_mapper
+    DESTINATION lib/${PROJECT_NAME}
+  )
+endif()
 
 ament_package()

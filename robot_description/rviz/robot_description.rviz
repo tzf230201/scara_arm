@@ -1,52 +1,203 @@
 Panels:
   - Class: rviz_common/Displays
+    Help Height: 70
     Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /RobotModel1
+        - /RobotModel1/Description Topic1
+        - /TF1
+        - /TF1/Status1
+      Splitter Ratio: 0.5
+    Tree Height: 199
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
+    Expanded: ~
     Name: Tool Properties
+    Splitter Ratio: 0.5
   - Class: rviz_common/Views
+    Expanded:
+      - /Current View1
     Name: Views
+    Splitter Ratio: 0.5
 Visualization Manager:
   Class: ""
   Displays:
-    - Class: rviz_default_plugins/Grid
+    - Alpha: 0.5
+      Cell Size: 0.10000000149011612
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
       Name: Grid
-      Enabled: true
-      Cell Size: 0.1
-      Plane Cell Count: 20
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
       Plane: XY
-    - Class: rviz_default_plugins/RobotModel
-      Name: RobotModel
-      Enabled: true
-      Robot Description: robot_description
-      Visual Enabled: true
+      Plane Cell Count: 20
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Alpha: 1
+      Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
-    - Class: rviz_default_plugins/TF
-      Name: TF
+      Description File: __URDF_PATH__
+      Description Source: File
+      Description Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: ""
       Enabled: true
+      Links:
+        All Links Enabled: true
+        Arm_Base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        First_Link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        Fixed_Vertical_Rail:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        Gripper:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        Link Tree Style: Links in Alphabetic Order
+        Second_Link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Mass Properties:
+        Inertia: false
+        Mass: false
+      Name: RobotModel
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Class: rviz_default_plugins/TF
+      Enabled: true
+      Filter (blacklist): ""
+      Filter (whitelist): ""
       Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        Arm_Base:
+          Value: true
+        First_Link:
+          Value: true
+        Fixed_Vertical_Rail:
+          Value: true
+        Gripper:
+          Value: true
+        Second_Link:
+          Value: true
+        world:
+          Value: true
+      Marker Scale: 0.5
+      Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: false
+      Tree:
+        world:
+          Fixed_Vertical_Rail:
+            Arm_Base:
+              First_Link:
+                Second_Link:
+                  Gripper:
+                    {}
+      Update Interval: 0
+      Value: true
+  Enabled: true
   Global Options:
+    Background Color: 48; 48; 48
     Fixed Frame: Fixed_Vertical_Rail
     Frame Rate: 30
+  Name: root
   Tools:
     - Class: rviz_default_plugins/Interact
+      Hide Inactive Objects: true
     - Class: rviz_default_plugins/MoveCamera
     - Class: rviz_default_plugins/Select
     - Class: rviz_default_plugins/FocusCamera
     - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
     - Class: rviz_default_plugins/SetInitialPose
+      Covariance x: 0.25
+      Covariance y: 0.25
+      Covariance yaw: 0.06853891909122467
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: initialpose
     - Class: rviz_default_plugins/SetGoal
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: goal_pose
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 3
+      Distance: 1.5248639583587646
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 1
-      Pitch: 0.6
-      Yaw: 0.9
+        X: 0.049690261483192444
+        Y: -0.33259153366088867
+        Z: 0.8723135590553284
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.7500001788139343
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz_default_plugins)
+      Yaw: 4.768184661865234
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: false
+  Height: 999
+  Hide Left Dock: false
+  Hide Right Dock: false
+  QMainWindow State: 000000ff00000000fd00000001000000000000019b00000391fc0200000004fb000000100044006900730070006c006100790073010000003b00000148000000c700fffffffb0000001200530065006c0065006300740069006f006e0100000189000000970000005c00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000226000000980000005c00fffffffb0000000a0056006900650077007301000002c400000108000000a000ffffff000005d30000039100000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Selection:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Views:
+    collapsed: false
+  Width: 1908
+  X: 0
+  Y: 0

@@ -1,0 +1,223 @@
+#!/usr/bin/env python3
+
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import JointState
+
+
+class JointStateMapper(Node):
+    def __init__(self) -> None:
+        super().__init__('joint_state_mapper')
+
+        self.declare_parameter('input_topic', '/joint_states_raw')
+        self.declare_parameter('output_topic', '/joint_states')
+
+        self.declare_parameter('joint1_name', 'joint_1')
+        self.declare_parameter('joint2_name', 'joint_2')
+        self.declare_parameter('joint3_name', 'joint_3')
+        self.declare_parameter('joint4_name', 'joint_4')
+
+        self.declare_parameter('epsilon', 1e-9)
+        self.declare_parameter('publish_sparse', False)
+        self.declare_parameter('publish_full_on_first_msg', True)
+        self.declare_parameter('force_stamp_now_if_zero', True)
+
+        self._input_topic = self.get_parameter('input_topic').get_parameter_value().string_value
+        self._output_topic = self.get_parameter('output_topic').get_parameter_value().string_value
+
+        self._j1 = self.get_parameter('joint1_name').get_parameter_value().string_value
+        self._j2 = self.get_parameter('joint2_name').get_parameter_value().string_value
+        self._j3 = self.get_parameter('joint3_name').get_parameter_value().string_value
+        self._j4 = self.get_parameter('joint4_name').get_parameter_value().string_value
+
+        self._epsilon = float(self.get_parameter('epsilon').value)
+        self._publish_sparse = bool(self.get_parameter('publish_sparse').value)
+        self._publish_full_on_first_msg = bool(self.get_parameter('publish_full_on_first_msg').value)
+        self._force_stamp_now_if_zero = bool(self.get_parameter('force_stamp_now_if_zero').value)
+
+        self._pub = self.create_publisher(JointState, self._output_topic, 10)
+        self._sub = self.create_subscription(JointState, self._input_topic, self._on_joint_state, 10)
+
+        self.get_logger().info(
+            f"Mapping JointState: {self._j1}={self._j1}, {self._j2}={self._j2}, {self._j3}=-{self._j2}+{self._j3}, {self._j4}=-{self._j3}+{self._j4} | "
+            f"{self._input_topic} -> {self._output_topic}"
+        )
+
+        self._warned_missing = False
+        self._warned_incomplete_position = False
+        self._has_published_once = False
+        self._last_out_position_by_name: dict[str, float] = {}
+        self._last_out_velocity_by_name: dict[str, float] = {}
+
+    def _on_joint_state(self, msg: JointState) -> None:
+        name_to_index = {name: i for i, name in enumerate(msg.name)}
+
+        # robot_state_publisher primarily needs positions. If we publish a JointState with names
+        # but an empty/mismatched position array, some consumers may interpret missing values as 0.
+        # That can look like the robot "flickers" back to zero.
+        if len(msg.name) > 0 and len(msg.position) != len(msg.name):
+            if not self._warned_incomplete_position:
+                self.get_logger().warn(
+                    'JointStateMapper: received JointState with msg.name but msg.position length != len(msg.name). '
+                    'Dropping message to avoid zero-flicker. Ensure only one JointState publisher is active and that it publishes full arrays.'
+                )
+                self._warned_incomplete_position = True
+            return
+
+        required = [self._j1, self._j2, self._j3, self._j4]
+        missing = [j for j in required if j not in name_to_index]
+        if missing:
+            if not self._warned_missing:
+                self.get_logger().warn(
+                    "JointStateMapper: missing joints in msg.name: "
+                    + ", ".join(missing)
+                    + ". Passing message through unchanged."
+                )
+                self._warned_missing = True
+            self._pub.publish(msg)
+            return
+
+        # Build full mapped output (same joint ordering as input).
+        full_out = JointState()
+        full_out.header = msg.header
+        full_out.name = list(msg.name)
+
+        if self._force_stamp_now_if_zero:
+            try:
+                if full_out.header.stamp.sec == 0 and full_out.header.stamp.nanosec == 0:
+                    full_out.header.stamp = self.get_clock().now().to_msg()
+            except Exception:
+                pass
+
+        if len(msg.position) == len(msg.name):
+            full_out.position = list(msg.position)
+            i2 = name_to_index[self._j2]
+            i3 = name_to_index[self._j3]
+            i4 = name_to_index[self._j4]
+            full_out.position[i4] = -full_out.position[i3] + full_out.position[i4]
+            full_out.position[i3] = -full_out.position[i2] + full_out.position[i3]
+            
+
+        if len(msg.velocity) == len(msg.name):
+            full_out.velocity = list(msg.velocity)
+            i2 = name_to_index[self._j2]
+            i3 = name_to_index[self._j3]
+            i4 = name_to_index[self._j4]
+            full_out.velocity[i4] = -full_out.velocity[i3] + full_out.velocity[i4]
+            full_out.velocity[i3] = -full_out.velocity[i2] + full_out.velocity[i3]
+            
+
+        if len(msg.effort) == len(msg.name):
+            full_out.effort = list(msg.effort)
+
+        # Most consumers (including robot_state_publisher) are happiest when they receive full JointState
+        # arrays every time. Sparse publishing is optional.
+        if not self._publish_sparse:
+            self._cache_last(full_out)
+            self._has_published_once = True
+            self._pub.publish(full_out)
+            return
+
+        # Publish full state once (helps robot_state_publisher initialize), then publish only changed joints.
+        if self._publish_full_on_first_msg and not self._has_published_once:
+            self._cache_last(full_out)
+            self._has_published_once = True
+            self._pub.publish(full_out)
+            return
+
+        sparse = self._make_sparse(full_out)
+        if sparse is None:
+            return
+
+        if self._force_stamp_now_if_zero:
+            try:
+                if sparse.header.stamp.sec == 0 and sparse.header.stamp.nanosec == 0:
+                    sparse.header.stamp = self.get_clock().now().to_msg()
+            except Exception:
+                pass
+        self._pub.publish(sparse)
+
+    def _cache_last(self, out: JointState) -> None:
+        if len(out.position) == len(out.name):
+            self._last_out_position_by_name = {n: float(out.position[i]) for i, n in enumerate(out.name)}
+        if len(out.velocity) == len(out.name):
+            self._last_out_velocity_by_name = {n: float(out.velocity[i]) for i, n in enumerate(out.name)}
+
+    def _make_sparse(self, out: JointState) -> JointState | None:
+        # Determine which joints changed beyond epsilon.
+        changed_names: list[str] = []
+        changed_pos: list[float] = []
+        changed_vel: list[float] = []
+        changed_eff: list[float] = []
+
+        has_pos = len(out.position) == len(out.name)
+        has_vel = len(out.velocity) == len(out.name)
+        has_eff = len(out.effort) == len(out.name)
+
+        for i, n in enumerate(out.name):
+            changed = False
+
+            if has_pos:
+                new_p = float(out.position[i])
+                old_p = self._last_out_position_by_name.get(n)
+                if old_p is None or abs(new_p - old_p) > self._epsilon:
+                    changed = True
+
+            if has_vel:
+                new_v = float(out.velocity[i])
+                old_v = self._last_out_velocity_by_name.get(n)
+                if old_v is None or abs(new_v - old_v) > self._epsilon:
+                    changed = True
+
+            if changed:
+                changed_names.append(n)
+                if has_pos:
+                    changed_pos.append(float(out.position[i]))
+                if has_vel:
+                    changed_vel.append(float(out.velocity[i]))
+                if has_eff:
+                    changed_eff.append(float(out.effort[i]))
+
+        if not changed_names:
+            return None
+
+        sparse = JointState()
+        sparse.header = out.header
+        sparse.name = changed_names
+        if has_pos:
+            sparse.position = changed_pos
+        if has_vel:
+            sparse.velocity = changed_vel
+        if has_eff:
+            sparse.effort = changed_eff
+
+        # Update cache based on what we just published.
+        if has_pos:
+            for idx, n in enumerate(sparse.name):
+                self._last_out_position_by_name[n] = float(sparse.position[idx])
+        if has_vel:
+            for idx, n in enumerate(sparse.name):
+                self._last_out_velocity_by_name[n] = float(sparse.velocity[idx])
+
+        self._has_published_once = True
+        return sparse
+
+
+def main() -> None:
+    rclpy.init()
+    node = JointStateMapper()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        try:
+            rclpy.try_shutdown()
+        except AttributeError:
+            if rclpy.ok():
+                rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
