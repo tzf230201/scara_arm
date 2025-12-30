@@ -87,39 +87,38 @@ def read_position(msg, state):
 
 def dancing(msg, state):
     selection = msg.get('motor', 'all')
-    csv_path = msg.get('csv_path', None)
+    pvt_path = msg.get('pvt_path', None)
 
     # --- Cek apakah CSV path diberikan atau sudah ada di state
-    if csv_path:
-        state['csv_path'] = csv_path
-        print(f"[cb] Dancing command received with CSV: {csv_path}")
-    elif 'csv_path' in state:
-        csv_path = state['csv_path']
-        print(f"[cb] Dancing using previous CSV: {csv_path}")
+    if pvt_path:
+        state['pvt_path'] = pvt_path
+        print(f"[cb] Dancing command received with PVT: {pvt_path}")
+    elif 'pvt_path' in state:
+        pvt_path = state['pvt_path']
+        print(f"[cb] Dancing using previous PVT: {pvt_path}")
     else:
-        print("[cb] Dancing aborted — no CSV path provided.")
+        print("[cb] Dancing aborted — no PVT path provided.")
         return
 
     # --- Verifikasi keberadaan file
-    if not os.path.exists(csv_path):
-        print(f"[cb] CSV file not found: {csv_path}")
+    if not os.path.exists(pvt_path):
+        print(f"[cb] PVT file not found: {pvt_path}")
         return
 
     # --- (Opsional) tampilkan ringkasan CSV sebelum jalan
     try:
-        with open(csv_path, 'r') as f:
+        with open(pvt_path, 'r') as f:
             preview = ''.join(f.readlines()[:5])
-        print(f"[cb] CSV preview (first 5 lines):\n{preview}")
+        print(f"[cb] PVT preview (first 5 lines):\n{preview}")
     except Exception as e:
-        print(f"[cb] Warning: cannot read CSV preview — {e}")
-
-    # --- Jalankan motion sequence berbasis CSV
-    print(f"[cb] Starting PVT dancing with file: {csv_path}")
-    # kamu bisa ganti bagian ini sesuai pipeline CSV-mu
-    # misal: robot_load_pvt_csv(csv_path)
-    # atau robot_prepare_motion(csv_path)
+        print(f"[cb] Warning: cannot read PVT preview — {e}")
+    # --- Jalankan motion sequence berbasis PVT
+    print(f"[cb] Starting PVT dancing with file: {pvt_path}")
+    # kamu bisa ganti bagian ini sesuai pipeline PVT-mu
+    # misal: robot_load_pvt_csv(pvt_path)
+    # atau robot_prepare_motion(pvt_path)
     # lalu mulai eksekusi seperti biasa:
-    robot_start_pvt_dancing(csv_path)
+    robot_start_pvt_dancing(pvt_path)
 
     # # update state
     state['routine'] = True

@@ -45,7 +45,7 @@ class TesterUiRosPublisher(Node):
         time_ms: int,
         joints: list[float] | None = None,
         coor: list[float] | None = None,
-        csv_path: str = '',
+        pvt_path: str = '',
     ) -> None:
         msg = TesterUICommand()
         msg.stamp = self.get_clock().now().to_msg()
@@ -54,7 +54,7 @@ class TesterUiRosPublisher(Node):
         msg.time_ms = int(time_ms)
         msg.joints = _pad4(joints or [0.0, 0.0, 0.0, 0.0])
         msg.coor = _pad4(coor or [0.0, 0.0, 0.0, 0.0])
-        msg.csv_path = csv_path or ''
+        msg.pvt_path = pvt_path or ''
 
         self._pub.publish(msg)
         self.get_logger().info(f'Published {command} to {self._topic_name}')
@@ -70,7 +70,7 @@ def main() -> None:
     root.title('Motor Control Panel (ROS 2)')
 
     motor_type = tk.StringVar(value='all')
-    selected_csv_path = tk.StringVar(value='')
+    selected_pvt_path = tk.StringVar(value='')
 
     def current_motor() -> str:
         return motor_type.get()
@@ -112,14 +112,14 @@ def main() -> None:
     lbl_last.grid(row=18, column=0, columnspan=2, sticky='w')
 
     # ---- helpers ----
-    def send(cmd: str, *, joints: list[float] | None = None, coor: list[float] | None = None, csv_path: str = '') -> None:
+    def send(cmd: str, *, joints: list[float] | None = None, coor: list[float] | None = None, pvt_path: str = '') -> None:
         node.publish_command(
             command=cmd,
             motor=current_motor(),
             time_ms=_i2(entry_time.get(), 0),
             joints=joints,
             coor=coor,
-            csv_path=csv_path,
+            pvt_path=pvt_path,
         )
         lbl_last.config(text=f'last cmd: {cmd} -> {topic_name}')
 
@@ -140,20 +140,19 @@ def main() -> None:
         coor = [_f2(e.get(), 0) for e in entries_coor]
         send('pvt_coor', coor=coor)
 
-    def choose_csv() -> None:
+    def choose_pvt() -> None:
         file_path = filedialog.askopenfilename(
-            title='Choose CSV file',
-            filetypes=[('CSV files', '*.csv'), ('All files', '*.*')],
+            title='Choose PVT file',
+            filetypes=[('PVT files', '*.pvt'), ('All files', '*.*')],
         )
         if file_path:
-            selected_csv_path.set(file_path)
-            lbl_last.config(text=f'CSV chosen: {os.path.basename(file_path)}')
-
+            selected_pvt_path.set(file_path)
+            lbl_last.config(text=f'PVT chosen: {os.path.basename(file_path)}')
     def request_mode() -> None:
         send('request_mode')
 
     def send_dancing() -> None:
-        send('dancing', csv_path=selected_csv_path.get())
+        send('dancing', pvt_path=selected_pvt_path.get())
 
     # ---- Buttons ----
     tk.Button(root, text='Wake Up', bg='purple', fg='white', command=lambda: send('wake_up')).grid(
@@ -183,7 +182,7 @@ def main() -> None:
     tk.Button(root, text='OUT2 On', command=lambda: send('out2_active')).grid(row=16, column=0, sticky='ew')
     tk.Button(root, text='OUT2 Off', command=lambda: send('out2_nonactive')).grid(row=16, column=1, sticky='ew')
 
-    tk.Button(root, text='Choose CSV', bg='lightblue', command=choose_csv).grid(row=17, column=0, sticky='ew')
+    tk.Button(root, text='Choose PVT', bg='lightblue', command=choose_pvt).grid(row=17, column=0, sticky='ew')
     tk.Button(root, text='Request Mode', bg='lightgreen', command=request_mode).grid(row=17, column=1, sticky='ew')
 
     def _spin_ros_once() -> None:

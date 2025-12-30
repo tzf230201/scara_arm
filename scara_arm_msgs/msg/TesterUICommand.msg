@@ -10,4 +10,4 @@ int32 time_ms
 float64[4] joints        # Joint1..Joint4 (deg). Unused commands can publish zeros.
 float64[4] coor          # X,Y,Z,Yaw (mm,mm,mm,deg). Unused commands can publish zeros.
 
-string csv_path          # Used by "dancing" command (can be empty)
+string pvt_path          # Used by "dancing" command (can be empty)

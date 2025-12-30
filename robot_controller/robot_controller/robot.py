@@ -573,12 +573,12 @@ def is_pvt_decrease(depth):
         
     
     
-def robot_start_pvt_dancing(csv_path):
+def robot_start_pvt_dancing(pvt_path):
     global pvt_sended, max_pvt_index, tar_pvt, cur_pvt
     global motion_enable, motion_cnt, motion_data, motion_size
     global pvts_1, pvts_2, pvts_3, pvts_4
 
-    pvts_1, pvts_2, pvts_3, pvts_4 = load_pvt_csv(csv_path)
+    pvts_1, pvts_2, pvts_3, pvts_4 = load_pvt_csv(pvt_path)
     #qq
     x,y,z,yaw = shuttle_coor
     # arm_pp_coor(x, y, yaw, 2000)

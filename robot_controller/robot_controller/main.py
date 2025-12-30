@@ -28,7 +28,7 @@ def _msg_to_dict(msg: TesterUICommand) -> dict:
         'time': int(msg.time_ms),
         'joints': list(msg.joints),
         'coor': list(msg.coor),
-        'csv_path': msg.csv_path,
+        'pvt_path': msg.pvt_path,
         # keep stamp if needed later
         'stamp': msg.stamp,
     }
