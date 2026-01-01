@@ -41,11 +41,11 @@ def generate_launch_description():
             arguments=["0", "0", "0", "0", "0", "0", "world", "Fixed_Vertical_Rail"],
         ),
 
-        # # GUI publisher: selalu dipakai
+        # GUI publisher: selalu dipakai
         # Node(
-        #     package="joint_state_publisher_gui",
-        #     executable="joint_state_publisher_gui",
-        #     name="joint_state_publisher_gui",
+        #     package="joint_state_publisher",
+        #     executable="joint_state_publisher",
+        #     name="joint_state_publisher",
         #     output="screen",
         #     parameters=[{"robot_description": robot_description}],
         #     remappings=[("/joint_states", LaunchConfiguration("joint_states_raw_topic"))],
