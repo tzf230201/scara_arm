@@ -1,0 +1,5 @@
+# Keep executable ROS scripts on Unix line endings.
+# Prevents runtime errors like: /usr/bin/env: 3
+
+
+robot_description/scripts/* text eol=lf3: No such file or directory
