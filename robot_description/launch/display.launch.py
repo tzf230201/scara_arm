@@ -23,8 +23,8 @@ def generate_launch_description():
             description="Path to an RViz config (.rviz).",
         ),
         DeclareLaunchArgument(
-            "joint_states_raw_topic",
-            default_value="/joint_states_raw",
+            "joint_states_mapper_topic",
+            default_value="/joint_states_mapper",
             description="Topic for raw JointState (from joint_state_publisher_gui).",
         ),
         DeclareLaunchArgument(
@@ -58,7 +58,7 @@ def generate_launch_description():
             name="joint_state_mapper",
             output="screen",
             parameters=[
-                {"input_topic": LaunchConfiguration("joint_states_raw_topic")},
+                {"input_topic": LaunchConfiguration("joint_states_mapper_topic")},
                 {"output_topic": LaunchConfiguration("joint_states_topic")},
                 {"joint1_name": "joint_1"},
                 {"joint2_name": "joint_2"},

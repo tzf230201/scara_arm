@@ -161,6 +161,10 @@ def out2_nonactive(msg, state):
     # servo_get_digital_output_state()
     # # servo_set_digital_output_state(2, 0)
     
+def request_mode(msg, state):
+    selection = msg.get('motor')
+    mode = robot_request_mode(selection)
+    print(f"[cb] Request Mode: motor={selection}, mode={mode}")
     
 
 # === Mapping ===
@@ -179,4 +183,5 @@ HANDLERS = {
     "set_origin": set_origin,
     "out2_active": out2_active,
     "out2_nonactive": out2_nonactive,
+    "request_mode": request_mode,
 }

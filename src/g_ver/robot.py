@@ -615,3 +615,15 @@ def pvt_routine():
     #     stop()
     
     return 0
+
+def robot_request_mode(selection):
+    mode = "unknown"
+    if selection == "servo_only":
+        mode = "servo_only"
+    elif selection == "stepper_only":
+        mode = "stepper_only"
+    elif selection == "all":
+        mode = "all"
+    else:
+        mode = "unknown"
+    return mode
