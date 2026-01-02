@@ -1,0 +1,27 @@
+{
+  "motions_dir": "./motions",
+
+  "z_by_task": {
+    "pickup":  { "z_base_mm": 0.0,  "z_step_mm": 24.0 },
+    "place":   { "z_base_mm": 0.0,  "z_step_mm": 24.0 },
+    "shuttle": { "z_base_mm": 0.0,  "z_step_mm": 0.0  },
+    "park":    { "z_base_mm": 0.0,  "z_step_mm": 0.0  }
+  },
+
+  "pvt": { "dt_ms": 50 },
+
+  "profile": {
+    "step_mm": 2.0,
+    "angle_threshold": 5.0,
+    "acc_dec_ms": 2000.0,
+    "v_max": 100.0,
+    "v_safe": 10.0,
+    "offset_z_global": 0.0
+  },
+
+  "zmq": {
+    "endpoint": "ipc:///tmp/motor_cmd",
+    "mode": "PUB_BIND",
+    "dry_run": false
+  }
+}
