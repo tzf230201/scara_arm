@@ -577,9 +577,17 @@ def robot_start_pvt_dancing(pvt_path):
     #qq
     x,y,z,yaw = shuttle_coor
     # arm_pp_coor(x, y, yaw, 2000)
-    arm_pp_angle(0,0,0,4000)
-    servo_pp_coor(0, 6000)
-    time.sleep(6.5)
+    # arm_pp_angle(0,0,0,4000)
+    # servo_pp_coor(0, 6000)
+    # time.sleep(6.5)
+    ok, angles, bad = home_check(2.0)
+    if not ok:
+        print("Not home. bad joints:", bad, "wrapped angles:", angles)
+        print_yellow("Dancing have to be at home position.")
+        print("moving to home...")
+        arm_pp_angle(0,0,0,4000)
+        servo_pp_coor(0, 6000)
+        time.sleep(6.5)
     
     pvt_sended = 0
     cur_pvt = 0
@@ -624,18 +632,20 @@ def pvt_routine():
     
     return 0
 
-def robot_request_mode(selection):
+def robot_start_request_mode(selection):
     ok, angles, bad = home_check(2.0)
     if not ok:
         print("Not home. bad joints:", bad, "wrapped angles:", angles)
+        print_yellow("Request Mode have to be at home position.")
+        print("moving to home...")
+        arm_pp_angle(0,0,0,4000)
+        servo_pp_coor(0, 6000)
+        time.sleep(6.5)
 
-    mode = "unknown"
-    if selection == "servo_only":
-        mode = "servo_only"
-    elif selection == "stepper_only":
-        mode = "stepper_only"
-    elif selection == "all":
-        mode = "all"
-    else:
-        mode = "unknown"
-    return mode
+    arm_pvt_init()
+    servo_pvt_init()
+
+    return 1
+
+def robot_request_mode_routine(selection):
+    print(f"robot_request_mode_routine({selection}) called")

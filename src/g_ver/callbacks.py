@@ -112,14 +112,6 @@ def dancing(msg, state):
     # # update state
     state['routine'] = True
 
-    
-def routine(state):
-    if state['routine'] == True:
-        # ret = pt_routine()
-        ret = pvt_routine()
-        if ret == 1:
-            state['routine'] = False
-
 def homing(msg, state):
     joints = msg.get("joints", home_angle)
     t_ms = msg.get("time", 4000)
@@ -133,6 +125,7 @@ def stop(msg, state):
     print(f"[cb] STOP (from GUI)")
     state['routine'] = False
     state['running'] = False
+    state['request_mode'] = False
 
 def read_encoder(msg, state):
     selection = msg.get('motor')
@@ -163,8 +156,24 @@ def out2_nonactive(msg, state):
     
 def request_mode(msg, state):
     selection = msg.get('motor')
-    mode = robot_request_mode(selection)
-    print(f"[cb] Request Mode: motor={selection}, mode={mode}")
+    robot_start_request_mode(selection)
+    print(f"[cb] Request Mode: motor={selection}")
+    state['request_mode'] = True
+    state['routine'] = True
+    
+
+def routine(state):
+    if state['routine'] == True:
+        if state['request_mode'] == True:
+            ret = request_mode_routine()
+            if ret == 1:
+                state['routine'] = False
+                state['request_mode'] = False
+        else:
+            # ret = pt_routine()
+            ret = pvt_routine()
+            if ret == 1:
+                state['routine'] = False
     
 
 # === Mapping ===

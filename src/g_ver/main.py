@@ -27,6 +27,7 @@ state = {
     "running": True,
     "motor_on": False,
     "routine": False,
+    "request_mode": False,
     "last_cmd_ts": time.time(),
     # optional cache untuk posisi per-ID
 }
