@@ -557,8 +557,16 @@ def is_pvt_decrease(depth):
         ret = 1
     last_depth = depth
     return ret
-        
-    
+
+def home_check(tol_deg: float = 2.0):
+    def wrap_deg(x: float) -> float:
+        return (x + 180.0) % 360.0 - 180.0
+
+    a1, a2, a3, a4 = robot_get_angle("all")
+    angles = [wrap_deg(a) for a in (a1, a2, a3, a4)]
+    bad = [i+1 for i, a in enumerate(angles) if abs(a) > tol_deg]
+    return (len(bad) == 0), angles, bad
+
     
 def robot_start_pvt_dancing(pvt_path):
     global pvt_sended, max_pvt_index, tar_pvt, cur_pvt
@@ -617,6 +625,10 @@ def pvt_routine():
     return 0
 
 def robot_request_mode(selection):
+    ok, angles, bad = home_check(2.0)
+    if not ok:
+        print("Not home. bad joints:", bad, "wrapped angles:", angles)
+
     mode = "unknown"
     if selection == "servo_only":
         mode = "servo_only"
