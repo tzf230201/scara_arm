@@ -2,8 +2,8 @@
   "motions_dir": "./motions",
 
   "z_by_task": {
-    "pickup":  { "z_base_mm": 0.0,  "z_step_mm": 24.0 },
-    "place":   { "z_base_mm": 0.0,  "z_step_mm": 24.0 },
+    "pickup":  { "z_base_mm": 90.0, "z_step_mm": 24.0 },
+    "place":   { "z_base_mm": 90.0, "z_step_mm": 24.0 },
     "shuttle": { "z_base_mm": 0.0,  "z_step_mm": 0.0  },
     "park":    { "z_base_mm": 0.0,  "z_step_mm": 0.0  }
   },
@@ -17,6 +17,12 @@
     "v_max": 100.0,
     "v_safe": 10.0,
     "offset_z_global": 0.0
+  },
+
+  "straight_pre_motion": {
+    "enable": true,
+    "yaw_arc_radius_mm": 258.0,
+    "min_distance_mm": 0.2
   },
 
   "zmq": {

@@ -1,16 +1,17 @@
+#!/usr/bin/env python3
 import os
 import json
 import time
 import math
 import queue
 import threading
-import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
 from dataclasses import dataclass
-from typing import Optional, List, Tuple, Callable, Dict
+from typing import Optional, List, Callable, Dict, Tuple
 
 import numpy as np
 import pandas as pd
+import tkinter as tk
+from tkinter import ttk, messagebox, filedialog
 
 try:
     import zmq
@@ -23,17 +24,13 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 DEFAULT_CONFIG = {
     "motions_dir": "./motions",
-
-    # Z offset per category
     "z_by_task": {
         "pickup":  {"z_base_mm": 0.0, "z_step_mm": 24.0},
         "place":   {"z_base_mm": 0.0, "z_step_mm": 24.0},
         "shuttle": {"z_base_mm": 0.0, "z_step_mm": 0.0},
         "park":    {"z_base_mm": 0.0, "z_step_mm": 0.0},
     },
-
     "pvt": {"dt_ms": 50},
-
     "profile": {
         "step_mm": 2.0,
         "angle_threshold": 5.0,
@@ -42,8 +39,16 @@ DEFAULT_CONFIG = {
         "v_safe": 10.0,
         "offset_z_global": 0.0
     },
-
-    "zmq": {"endpoint": "ipc:///tmp/motor_cmd", "mode": "PUB_BIND", "dry_run": False},
+    "straight_pre_motion": {
+        "enable": True,
+        "yaw_arc_radius_mm": 258.0,
+        "min_distance_mm": 0.2
+    },
+    "zmq": {
+        "endpoint": "ipc:///tmp/motor_cmd",
+        "mode": "PUB_BIND",     # PUB_BIND / PUB_CONNECT / PUSH_CONNECT
+        "dry_run": False
+    }
 }
 
 
@@ -56,7 +61,7 @@ def deep_update(dst: dict, src: dict) -> dict:
     return dst
 
 
-def load_config(path: str) -> Tuple[dict, str]:
+def load_config(path: str) -> dict:
     cfg = json.loads(json.dumps(DEFAULT_CONFIG))
     config_dir = SCRIPT_DIR
 
@@ -64,13 +69,10 @@ def load_config(path: str) -> Tuple[dict, str]:
         config_dir = os.path.dirname(os.path.abspath(path))
         with open(path, "r", encoding="utf-8") as f:
             txt = f.read()
-
-        # allow empty file -> default config
-        if txt.strip():
+        if txt.strip():  # handle empty file
             user_cfg = json.loads(txt)
             deep_update(cfg, user_cfg)
 
-    # normalize motions_dir relative to config file dir
     if not os.path.isabs(cfg["motions_dir"]):
         cfg["motions_dir"] = os.path.normpath(os.path.join(config_dir, cfg["motions_dir"]))
 
@@ -82,11 +84,11 @@ def load_config(path: str) -> Tuple[dict, str]:
     if mode not in ("PUB_BIND", "PUB_CONNECT", "PUSH_CONNECT"):
         raise ValueError("zmq.mode must be PUB_BIND / PUB_CONNECT / PUSH_CONNECT")
 
-    return cfg, config_dir
+    return cfg
 
 
 # =========================
-# Kinematics
+# Kinematics (IK + FK)
 # =========================
 def servo_check_limit(angle_1):
     if angle_1 > (3510 * 4):
@@ -95,9 +97,12 @@ def servo_check_limit(angle_1):
         angle_1 = -2
     return angle_1
 
-def servo_inverse_kinematics(z):
-    angle_1 = (360.0 / 90.0) * z
-    return servo_check_limit(angle_1)
+def servo_inverse_kinematics(z_mm: float) -> float:
+    angle_1 = (360.0 / 90.0) * float(z_mm)
+    return float(servo_check_limit(angle_1))
+
+def servo_forward_kinematics(angle_1_deg: float) -> float:
+    return (90.0 / 360.0) * float(angle_1_deg)
 
 def arm_check_limit(angle_2, angle_3, angle_4):
     angle_2_upper_limit = 178 * 5
@@ -113,7 +118,7 @@ def arm_check_limit(angle_2, angle_3, angle_4):
     angle_4 = min(max(angle_4, angle_4_lower_limit), angle_4_upper_limit)
 
     angle_4 *= -1
-    return angle_2, angle_3, angle_4
+    return float(angle_2), float(angle_3), float(angle_4)
 
 def arm_inverse_kinematics(x, y, yaw):
     L2 = 137.0
@@ -146,9 +151,82 @@ def arm_inverse_kinematics(x, y, yaw):
 
     return arm_check_limit(joint_2, joint_3, joint_4)
 
+def arm_forward_kinematics(angle_2: float, angle_3: float, angle_4: float):
+    angle_4 = -float(angle_4)
+
+    L2 = 137.0
+    L3 = 121.0
+    OFFSET_2 = -96.5
+    OFFSET_3 = 134.0
+    OFFSET_4 = -52.5
+    RATIO = 5.0
+
+    theta2 = (float(angle_2) / RATIO) + OFFSET_2
+    theta3 = (float(angle_3) / RATIO) + OFFSET_3 - (float(angle_2) / RATIO)
+
+    t2 = math.radians(theta2)
+    t3 = math.radians(theta3)
+
+    x2 = L2 * math.cos(t2)
+    y2 = L2 * math.sin(t2)
+    x3 = x2 + L3 * math.cos(t2 + t3)
+    y3 = y2 + L3 * math.sin(t2 + t3)
+
+    yaw = (angle_4 / RATIO) + OFFSET_4
+    return float(x3), float(y3), float(yaw)
+
 
 # =========================
-# CSV -> PVT (XYZC only) + offset_z
+# Z offset helper
+# =========================
+def z_offset_for(cfg: dict, kind: str, level: Optional[int]) -> float:
+    zmap = cfg.get("z_by_task", {})
+    k = kind.lower().strip()
+    base = float(zmap.get(k, {}).get("z_base_mm", 0.0))
+    step = float(zmap.get(k, {}).get("z_step_mm", 0.0))
+    if level is None:
+        return base
+    return base + (int(level) - 1) * step
+
+
+# =========================
+# Scan motions folder
+# =========================
+def scan_motions(motions_dir: str) -> Dict[str, List[str]]:
+    cats = {"pickup": [], "place": [], "shuttle": [], "park": []}
+    if not os.path.isdir(motions_dir):
+        return cats
+
+    for root, _, files in os.walk(motions_dir):
+        for fn in sorted(files):
+            if not fn.lower().endswith(".csv"):
+                continue
+            p = os.path.join(root, fn)
+            n = fn.lower()
+
+            if n.startswith("pickup"):
+                cats["pickup"].append(p)
+            elif n.startswith("place"):
+                cats["place"].append(p)
+            elif n.startswith("shuttle"):
+                cats["shuttle"].append(p)
+
+            if "park" in n:
+                cats["park"].append(p)
+
+    for k in cats:
+        seen = set()
+        out = []
+        for p in cats[k]:
+            if p not in seen:
+                out.append(p)
+                seen.add(p)
+        cats[k] = out
+    return cats
+
+
+# =========================
+# CSV -> PVT arrays (XYZC only) + offset_z
 # =========================
 def robot_csv_to_pvt_arrays(
     input_csv: str,
@@ -163,7 +241,7 @@ def robot_csv_to_pvt_arrays(
     df = pd.read_csv(input_csv)
     for col in ["X", "Y", "Z", "C"]:
         if col not in df.columns:
-            raise ValueError(f"CSV missing '{col}' (required: X,Y,Z,C)")
+            raise ValueError(f"CSV missing '{col}' (required: X,Y,Z,C): {input_csv}")
 
     pts = df[["X", "Y", "Z"]].values.astype(float)
     dists = np.linalg.norm(np.diff(pts, axis=0), axis=1)
@@ -172,7 +250,6 @@ def robot_csv_to_pvt_arrays(
     n = len(pts)
     flags = np.zeros(n, dtype=int)
 
-    # simple "danger angle" marking (for v_safe sections)
     for i in range(n):
         l = np.searchsorted(cum_dist, cum_dist[i] - step_mm, side="right") - 1
         r = np.searchsorted(cum_dist, cum_dist[i] + step_mm, side="left")
@@ -230,9 +307,9 @@ def robot_csv_to_pvt_arrays(
             v_vals.append(max(float(v), 0.0))
         return times, np.array(v_vals, dtype=float)
 
-    def build_full_profile(points_xyzc, seg_lengths, vmax_, vsafe_, t_acc_ms_, dt_ms_):
-        times_all, v_all, s_all = [], [], []
-        offset_s, v_cur, t_off, i = 0.0, 0.0, 0.0, 0
+    def build_s_profile(points_xyzc, seg_lengths, vmax_, vsafe_, t_acc_ms_, dt_ms_):
+        s_all = []
+        offset_s, v_cur, i = 0.0, 0.0, 0
 
         while i < len(seg_lengths):
             safe_len = 0.0
@@ -241,13 +318,10 @@ def robot_csv_to_pvt_arrays(
                 i += 1
             if safe_len > 0:
                 v_end = vsafe_ if i < len(seg_lengths) else 0.0
-                t, v = trapezoid_profile(safe_len, v_cur, v_end, vmax_, t_acc_ms_, dt_ms_)
+                _, v = trapezoid_profile(safe_len, v_cur, v_end, vmax_, t_acc_ms_, dt_ms_)
                 s = np.cumsum(v) * (dt_ms_ / 1000.0)
-                times_all.extend(list(t_off + t))
-                v_all.extend(list(v))
                 s_all.extend(list(offset_s + s))
                 v_cur = v_end
-                t_off = float(times_all[-1])
                 offset_s = float(s_all[-1])
 
             danger_len = 0.0
@@ -257,17 +331,13 @@ def robot_csv_to_pvt_arrays(
             if danger_len > 0:
                 dt = dt_ms_ / 1000.0
                 steps = int(danger_len / max(vsafe_ * dt, 1e-9)) + 1
-                t = np.linspace(0, steps * dt, steps)
-                v = np.ones_like(t) * vsafe_
+                v = np.ones(steps, dtype=float) * vsafe_
                 s = np.cumsum(v) * dt
-                times_all.extend(list(t_off + t))
-                v_all.extend(list(v))
                 s_all.extend(list(offset_s + s))
                 v_cur = vsafe_
-                t_off = float(times_all[-1])
                 offset_s = float(s_all[-1])
 
-        return np.array(times_all, dtype=float), np.array(s_all, dtype=float)
+        return np.array(s_all, dtype=float)
 
     def interpolate_position(points_xyz, cum_lengths, s):
         idx = int(np.searchsorted(cum_lengths, s) - 1)
@@ -278,7 +348,7 @@ def robot_csv_to_pvt_arrays(
         return pos, idx
 
     seg_lengths, cum_lengths = compute_path_length(points[:, :3])
-    _, s_vals = build_full_profile(points, seg_lengths, vmax, vsafe, t_acc_ms, dt_ms)
+    s_vals = build_s_profile(points, seg_lengths, vmax, vsafe, t_acc_ms, dt_ms)
 
     dt_s = dt_ms / 1000.0
     p1, p2, p3, p4 = [], [], [], []
@@ -303,99 +373,15 @@ def robot_csv_to_pvt_arrays(
 
 
 # =========================
-# Helpers: Z offset by category
-# =========================
-def z_offset_for(cfg: dict, kind: str, level: Optional[int] = None) -> float:
-    zmap = cfg.get("z_by_task", {})
-    k = kind.strip().lower()
-    base = float(zmap.get(k, {}).get("z_base_mm", 0.0))
-    step = float(zmap.get(k, {}).get("z_step_mm", 0.0))
-    if level is None:
-        return base
-    return base + (int(level) - 1) * step
-
-
-# =========================
-# Scan motions dir
-# =========================
-def scan_motions(motions_dir: str) -> Dict[str, List[str]]:
-    cats = {"pickup": [], "place": [], "shuttle": [], "park": []}
-    if not os.path.isdir(motions_dir):
-        return cats
-
-    for root, _, files in os.walk(motions_dir):
-        for fn in sorted(files):
-            if not fn.lower().endswith(".csv"):
-                continue
-            f = os.path.join(root, fn)
-            n = fn.lower()
-
-            if n.startswith("pickup"):
-                cats["pickup"].append(f)
-            elif n.startswith("place"):
-                cats["place"].append(f)
-            elif n.startswith("shuttle"):
-                cats["shuttle"].append(f)
-
-            # park file might be "00-park_..." -> contains
-            if "park" in n:
-                cats["park"].append(f)
-
-    # de-dup preserve order
-    for k in cats:
-        seen = set()
-        out = []
-        for p in cats[k]:
-            if p not in seen:
-                out.append(p)
-                seen.add(p)
-        cats[k] = out
-
-    return cats
-
-
-# =========================
-# Task/Segments
-# =========================
-@dataclass
-class Task:
-    kind: str  # Pickup / Place / Shuttle
-    level: Optional[int] = None
-    def label(self) -> str:
-        if self.kind in ("Pickup", "Place"):
-            return f"{self.kind} L{int(self.level):02d}"
-        return "Shuttle"
-
-@dataclass
-class CsvSegment:
-    path: str
-    offset_z: float = 0.0
-
-
-def task_to_segment(cfg: dict, task: Task, pickup_csv: str, place_csv: str, shuttle_csv: str) -> CsvSegment:
-    if task.kind == "Pickup":
-        return CsvSegment(pickup_csv, offset_z=z_offset_for(cfg, "pickup", int(task.level)))
-    if task.kind == "Place":
-        return CsvSegment(place_csv, offset_z=z_offset_for(cfg, "place", int(task.level)))
-    # Shuttle fixed
-    return CsvSegment(shuttle_csv, offset_z=z_offset_for(cfg, "shuttle", None))
-
-
-def park_segment(cfg: dict, park_csv: str) -> Optional[CsvSegment]:
-    if not park_csv or (not os.path.exists(park_csv)):
-        return None
-    return CsvSegment(park_csv, offset_z=z_offset_for(cfg, "park", None))
-
-
-# =========================
-# ZMQ sender
+# ZMQ Sender (REUSED)
 # =========================
 class CommandSender:
     def __init__(self, cfg: dict, log_fn: Callable[[str], None]):
         self.log = log_fn
-        self.dry_run = bool(cfg["zmq"].get("dry_run", False))
         self.endpoint = cfg["zmq"]["endpoint"]
         self.mode = cfg["zmq"]["mode"]
+        self.dry_run = bool(cfg["zmq"].get("dry_run", False))
+
         self.sock = None
         self.ctx = None
 
@@ -407,6 +393,7 @@ class CommandSender:
             raise RuntimeError("pyzmq not available. Install: pip install pyzmq")
 
         self.ctx = zmq.Context.instance()
+
         if self.mode == "PUB_BIND":
             self.sock = self.ctx.socket(zmq.PUB)
             self.sock.bind(self.endpoint)
@@ -426,13 +413,23 @@ class CommandSender:
 
         self.sock.linger = 0
 
+    def close(self):
+        if self.sock is not None:
+            try:
+                self.sock.close(0)
+            except Exception:
+                pass
+            self.sock = None
+
+    def signature(self) -> Tuple[str, str, bool]:
+        return (self.endpoint, self.mode, self.dry_run)
+
     def send_json(self, obj: dict):
-        s = json.dumps(obj)
         if self.dry_run:
-            self.log(f"[DRY] {s}")
             return
-        assert self.sock is not None
-        self.sock.send_string(s)
+        if self.sock is None:
+            return
+        self.sock.send_string(json.dumps(obj))
 
     def send_pvt_point(self, p1,v1,p2,v2,p3,v3,p4,v4,t_ms: int):
         self.send_json({
@@ -446,15 +443,46 @@ class CommandSender:
 
 
 # =========================
-# Worker (no pause)
+# Tasks and steps
 # =========================
+@dataclass
+class Task:
+    kind: str
+    level: Optional[int] = None
+    def label(self) -> str:
+        if self.kind in ("Pickup", "Place"):
+            return f"{self.kind} L{int(self.level):02d}"
+        return "Shuttle"
+
+@dataclass
+class CsvSegment:
+    path: str
+    offset_z: float = 0.0
+
 @dataclass
 class WorkerStep:
     name: str
     segment: CsvSegment
+    skip_if: Optional[Callable[[], bool]] = None
     on_complete: Optional[Callable[[], None]] = None
 
 
+def task_to_segment(cfg: dict, task: Task, pickup_csv: str, place_csv: str, shuttle_csv: str) -> CsvSegment:
+    if task.kind == "Pickup":
+        return CsvSegment(pickup_csv, offset_z=z_offset_for(cfg, "pickup", int(task.level)))
+    if task.kind == "Place":
+        return CsvSegment(place_csv, offset_z=z_offset_for(cfg, "place", int(task.level)))
+    return CsvSegment(shuttle_csv, offset_z=z_offset_for(cfg, "shuttle", None))
+
+def park_segment(cfg: dict, park_csv: str) -> Optional[CsvSegment]:
+    if not park_csv or (not os.path.exists(park_csv)):
+        return None
+    return CsvSegment(park_csv, offset_z=z_offset_for(cfg, "park", None))
+
+
+# =========================
+# Worker (reused), with pre-straight motion
+# =========================
 class PVTMotionWorker:
     def __init__(self, sender: CommandSender, cfg: dict, log_fn: Callable[[str], None]):
         self.sender = sender
@@ -465,6 +493,13 @@ class PVTMotionWorker:
         self._active = False
         self._thread = threading.Thread(target=self._run, daemon=True)
         self._started = False
+
+        # start from HOME joints=0
+        self.last_joints = [0.0, 0.0, 0.0, 0.0]
+        x, y, yaw = arm_forward_kinematics(0.0, 0.0, 0.0)
+        z = servo_forward_kinematics(0.0)
+        self.last_pose = [x, y, z, yaw]
+
         self.apply_cfg(cfg)
 
     def apply_cfg(self, cfg: dict):
@@ -475,6 +510,12 @@ class PVTMotionWorker:
         self.vsafe = float(cfg["profile"]["v_safe"])
         self.acc_dec_ms = float(cfg["profile"]["acc_dec_ms"])
         self.offset_z_global = float(cfg["profile"].get("offset_z_global", 0.0))
+
+        spm = cfg.get("straight_pre_motion", {})
+        self.enable_pre = bool(spm.get("enable", True))
+        self.yaw_arc_radius = float(spm.get("yaw_arc_radius_mm", 258.0))
+        self.min_dist = float(spm.get("min_distance_mm", 0.2))
+
         self.realtime_sleep = True
 
     def start(self):
@@ -495,6 +536,9 @@ class PVTMotionWorker:
     def stop(self):
         self._stop_evt.set()
 
+    def clear_stop(self):
+        self._stop_evt.clear()
+
     def is_idle(self) -> bool:
         with self._active_lock:
             active = self._active
@@ -504,13 +548,86 @@ class PVTMotionWorker:
         with self._active_lock:
             self._active = v
 
+    def _send_joint_points(self, joints_list: List[List[float]]):
+        dt_s = self.dt_ms / 1000.0
+        for i in range(len(joints_list)):
+            if self._stop_evt.is_set():
+                return
+            cur = np.array(joints_list[i], dtype=float)
+            if i < len(joints_list) - 1:
+                nxt = np.array(joints_list[i + 1], dtype=float)
+                v = (nxt - cur) / dt_s
+            else:
+                v = np.zeros(4, dtype=float)
+
+            self.sender.send_pvt_point(
+                cur[0], v[0],
+                cur[1], v[1],
+                cur[2], v[2],
+                cur[3], v[3],
+                self.dt_ms
+            )
+            if self.realtime_sleep:
+                time.sleep(dt_s)
+
+    def _pre_straight_to_csv_start(self, csv_path: str, offset_z_abs: float):
+        if not self.enable_pre:
+            return
+
+        df0 = pd.read_csv(csv_path)
+        for col in ["X", "Y", "Z", "C"]:
+            if col not in df0.columns:
+                raise ValueError(f"CSV missing '{col}' (required X,Y,Z,C): {csv_path}")
+
+        x_t = float(df0.iloc[0]["X"])
+        y_t = float(df0.iloc[0]["Y"])
+        z_t = float(df0.iloc[0]["Z"]) + float(offset_z_abs)
+        yaw_t = float(df0.iloc[0]["C"])
+
+        x0, y0, z0, yaw0 = self.last_pose
+        dx, dy, dz = (x_t - x0), (y_t - y0), (z_t - z0)
+        dyaw = (yaw_t - yaw0)
+
+        arc = float(self.yaw_arc_radius) * abs(math.radians(dyaw))
+        D = math.sqrt(dx*dx + dy*dy + dz*dz + arc*arc)
+
+        if D < self.min_dist:
+            return
+
+        speed = max(self.vmax, 1e-6)
+        T_s = max(D / speed, self.dt_ms / 1000.0)
+        dt_s = self.dt_ms / 1000.0
+        steps = max(1, int(math.ceil(T_s / dt_s)))
+
+        self.log(f"[PRE] Straight motion | D≈{D:.2f}mm | T≈{T_s:.3f}s | v_max={self.vmax:.1f}mm/s")
+
+        joints_list = []
+        for i in range(1, steps + 1):
+            if self._stop_evt.is_set():
+                return
+            r = i / steps
+            x = x0 + r * dx
+            y = y0 + r * dy
+            z = z0 + r * dz
+            yaw = yaw0 + r * dyaw
+
+            p1 = servo_inverse_kinematics(z)
+            p2, p3, p4 = arm_inverse_kinematics(x, y, yaw)
+            joints_list.append([float(p1), float(p2), float(p3), float(p4)])
+
+        self._send_joint_points(joints_list)
+
+        if joints_list:
+            self.last_joints = joints_list[-1]
+            x, y, yaw = arm_forward_kinematics(self.last_joints[1], self.last_joints[2], self.last_joints[3])
+            z = servo_forward_kinematics(self.last_joints[0])
+            self.last_pose = [x, y, z, yaw]
+
     def _run(self):
         while True:
             step: WorkerStep = self._steps.get()
-            if self._stop_evt.is_set():
-                self.log("[Worker] STOP -> drop queued steps.")
-                self.clear_steps()
-                self._stop_evt.clear()
+
+            if step.skip_if and step.skip_if():
                 continue
 
             self._set_active(True)
@@ -518,27 +635,31 @@ class PVTMotionWorker:
                 self._execute_step(step)
             finally:
                 self._set_active(False)
+                if self._stop_evt.is_set():
+                    self._stop_evt.clear()
 
             if step.on_complete:
                 try:
                     step.on_complete()
-                except Exception as e:
-                    self.log(f"[Worker] on_complete error: {e}")
+                except Exception:
+                    pass
 
     def _execute_step(self, step: WorkerStep):
         seg = step.segment
         path = seg.path
 
-        if self._stop_evt.is_set():
-            return
-
         if not os.path.exists(path):
             self.log(f"[WARN] Missing CSV: {path}")
             return
 
-        offset_z = self.offset_z_global + float(seg.offset_z)
+        offset_z_abs = self.offset_z_global + float(seg.offset_z)
+
         self.log(f"\n=== STEP: {step.name} ===")
-        self.log(f"[CSV] {os.path.basename(path)} (offset_z={offset_z:.3f})")
+        self.log(f"[CSV] {os.path.basename(path)} (offset_z={offset_z_abs:.3f})")
+
+        self._pre_straight_to_csv_start(path, offset_z_abs)
+        if self._stop_evt.is_set():
+            return
 
         p1,v1,p2,v2,p3,v3,p4,v4 = robot_csv_to_pvt_arrays(
             input_csv=path,
@@ -548,10 +669,11 @@ class PVTMotionWorker:
             vsafe=self.vsafe,
             t_acc_ms=self.acc_dec_ms,
             dt_ms=self.dt_ms,
-            offset_z=offset_z
+            offset_z=offset_z_abs
         )
 
         N = min(len(p1), len(p2), len(p3), len(p4))
+        dt_s = self.dt_ms / 1000.0
         for i in range(N):
             if self._stop_evt.is_set():
                 return
@@ -563,7 +685,13 @@ class PVTMotionWorker:
                 self.dt_ms
             )
             if self.realtime_sleep:
-                time.sleep(self.dt_ms / 1000.0)
+                time.sleep(dt_s)
+
+        if N > 0:
+            self.last_joints = [float(p1[N-1]), float(p2[N-1]), float(p3[N-1]), float(p4[N-1])]
+            x, y, yaw = arm_forward_kinematics(self.last_joints[1], self.last_joints[2], self.last_joints[3])
+            z = servo_forward_kinematics(self.last_joints[0])
+            self.last_pose = [x, y, z, yaw]
 
 
 # =========================
@@ -572,41 +700,63 @@ class PVTMotionWorker:
 class TaskSchedulerGUI(tk.Tk):
     def __init__(self, config_path: str):
         super().__init__()
-        self.title("Task GUI (Pickup/Place/Shuttle + Level Z Offset, Auto Park)")
-        self.geometry("1150x720")
+        self.title("Task GUI (Pickup/Place/Shuttle + Level Z Offset, Auto Park, Anti-Teleport)")
+        self.geometry("1150x740")
 
         self.config_path = os.path.abspath(config_path)
-        self.cfg, _ = load_config(self.config_path)
+        self.cfg = load_config(self.config_path)
 
-        # start always HOME internally
-        self.running = False
+        self._queue_lock = threading.Lock()
         self.task_queue: List[Task] = []
-        self.at_park = False  # internal: whether last executed was park
+
+        self.running = False
+        self.at_park = False
 
         self._log_q = queue.Queue()
+
         self.sender: Optional[CommandSender] = None
+        self.sender_sig: Optional[Tuple[str, str, bool]] = None
         self.worker: Optional[PVTMotionWorker] = None
 
-        # scanned lists
         self.scan_results = {"pickup": [], "place": [], "shuttle": [], "park": []}
-
-        # selected csv vars
         self.pickup_csv_var = tk.StringVar()
-        self.place_csv_var  = tk.StringVar()
+        self.place_csv_var = tk.StringVar()
         self.shuttle_csv_var = tk.StringVar()
         self.park_csv_var = tk.StringVar()
 
-        # task selection
         self.first_kind_var = tk.StringVar(value="Pickup")
         self.first_level_var = tk.IntVar(value=1)
         self.second_kind_var = tk.StringVar(value="Place")
         self.second_level_var = tk.IntVar(value=1)
+
+        # ✅ NEW: keep-ready checkbox
+        self.keep_ready_var = tk.BooleanVar(value=True)
 
         self._build_ui()
         self.scan_and_set_defaults()
 
         self.after(100, self._flush_log)
         self.after(200, self._scheduler_tick)
+
+        self.protocol("WM_DELETE_WINDOW", self._on_close)
+
+    def _on_close(self):
+        try:
+            if self.worker:
+                self.worker.stop()
+                self.worker.clear_steps()
+        except Exception:
+            pass
+        try:
+            if self.sender:
+                self.sender.close()
+        except Exception:
+            pass
+        self.destroy()
+
+    def get_queue_len(self) -> int:
+        with self._queue_lock:
+            return len(self.task_queue)
 
     def _build_ui(self):
         self.columnconfigure(0, weight=1)
@@ -656,6 +806,13 @@ class TaskSchedulerGUI(tk.Tk):
         runbtns.columnconfigure(1, weight=1)
         ttk.Button(runbtns, text="START", command=self.start_run).grid(row=0, column=0, sticky="ew", padx=(0,6))
         ttk.Button(runbtns, text="STOP", command=self.stop_run).grid(row=0, column=1, sticky="ew")
+
+        # ✅ NEW checkbox UI
+        ttk.Checkbutton(
+            tasks,
+            text="Keep ready (stay running when queue empty; auto-run when new tasks arrive)",
+            variable=self.keep_ready_var
+        ).grid(row=4, column=0, sticky="w", pady=(10,0))
 
         center = ttk.LabelFrame(main, text="Queue", padding=10)
         center.grid(row=0, column=1, sticky="nsew", padx=8)
@@ -728,7 +885,7 @@ class TaskSchedulerGUI(tk.Tk):
 
     def reload_config(self):
         try:
-            self.cfg, _ = load_config(self.config_path)
+            self.cfg = load_config(self.config_path)
             self.scan_and_set_defaults()
             self._log("[CFG] Reloaded.")
         except Exception as e:
@@ -780,48 +937,61 @@ class TaskSchedulerGUI(tk.Tk):
         if not ok(self.shuttle_csv_var.get()):
             messagebox.showerror("Missing", "Shuttle CSV belum dipilih / file tidak ada.")
             return False
-        # park optional
         return True
 
     def enqueue_pair(self):
         t1 = Task(self.first_kind_var.get(), self.first_level_var.get() if self.first_kind_var.get() != "Shuttle" else None)
         t2 = Task(self.second_kind_var.get(), self.second_level_var.get() if self.second_kind_var.get() != "Shuttle" else None)
-        self.task_queue.extend([t1, t2])
+        with self._queue_lock:
+            self.task_queue.extend([t1, t2])
         self._log(f"[UI] Enqueued: {t1.label()} -> {t2.label()}")
         self._refresh_queue()
 
     def clear_queue(self):
-        self.task_queue.clear()
+        with self._queue_lock:
+            self.task_queue.clear()
         self._log("[UI] Queue cleared.")
         self._refresh_queue()
 
     def start_run(self):
         if self.running:
             return
-        if not self.task_queue:
+        if self.get_queue_len() == 0:
             messagebox.showinfo("Info", "Queue masih kosong.")
             return
         if not self._validate_for_run():
             return
 
         try:
-            self.cfg, _ = load_config(self.config_path)
+            self.cfg = load_config(self.config_path)
         except Exception as e:
             messagebox.showerror("Config Error", str(e))
             return
 
         try:
-            self.sender = CommandSender(self.cfg, self._log)
+            desired_sig = (self.cfg["zmq"]["endpoint"], self.cfg["zmq"]["mode"], bool(self.cfg["zmq"].get("dry_run", False)))
+            if (self.sender is None) or (self.sender_sig != desired_sig):
+                if self.sender is not None:
+                    try:
+                        self.sender.close()
+                    except Exception:
+                        pass
+                self.sender = CommandSender(self.cfg, self._log)
+                self.sender_sig = desired_sig
         except Exception as e:
             messagebox.showerror("Sender Error", str(e))
             return
 
-        self.worker = PVTMotionWorker(self.sender, self.cfg, self._log)
-        self.worker.start()
+        if self.worker is None:
+            self.worker = PVTMotionWorker(self.sender, self.cfg, self._log)
+            self.worker.start()
+        else:
+            self.worker.apply_cfg(self.cfg)
+            self.worker.clear_stop()
 
         self.running = True
         self.at_park = False
-        self._log("[RUN] START (initial=HOME, motors=0deg)")
+        self._log("[RUN] START (reused sender/worker)")
         self._refresh_queue()
 
     def stop_run(self):
@@ -834,23 +1004,26 @@ class TaskSchedulerGUI(tk.Tk):
 
     def _refresh_queue(self):
         self.queue_list.delete(0, tk.END)
-        for i, t in enumerate(self.task_queue):
-            self.queue_list.insert(tk.END, f"{i+1:02d}. {t.label()}")
+        with self._queue_lock:
+            for i, t in enumerate(self.task_queue):
+                self.queue_list.insert(tk.END, f"{i+1:02d}. {t.label()}")
 
     def _scheduler_tick(self):
         try:
             if self.running and self.worker and self.worker.is_idle():
-                # if there are tasks -> execute next (park is skipped automatically)
-                if self.task_queue:
+                if self.get_queue_len() > 0:
                     self._schedule_next_task()
                 else:
-                    # queue empty -> auto park (only if not already at park)
                     self._maybe_auto_park_or_stop()
         finally:
             self.after(200, self._scheduler_tick)
 
     def _schedule_next_task(self):
-        t = self.task_queue.pop(0)
+        with self._queue_lock:
+            if not self.task_queue:
+                return
+            t = self.task_queue.pop(0)
+
         self._refresh_queue()
 
         pickup_csv = self.pickup_csv_var.get()
@@ -860,7 +1033,6 @@ class TaskSchedulerGUI(tk.Tk):
         seg = task_to_segment(self.cfg, t, pickup_csv, place_csv, shuttle_csv)
 
         def done():
-            # when task done, mark not-at-park
             self.at_park = False
             self._log(f"[DONE] {t.label()}")
 
@@ -869,28 +1041,36 @@ class TaskSchedulerGUI(tk.Tk):
             segment=seg,
             on_complete=lambda: self.after(0, done)
         ))
-        self._log(f"[PLAN] {t.label()} (offset_z={seg.offset_z:.3f})")
+        self._log(f"[PLAN] {t.label()}")
 
     def _maybe_auto_park_or_stop(self):
-        # only park if park csv exists and we are not already parked
         park_csv = self.park_csv_var.get()
         seg = park_segment(self.cfg, park_csv)
 
         if (seg is not None) and (not self.at_park):
-            # only enqueue park when queue is empty and worker idle
             def done():
                 self.at_park = True
                 self._log("[DONE] PARK")
 
+            # kalau ada task baru masuk, park di-skip
+            skip_if = lambda: (self.get_queue_len() > 0)
+
             self.worker.enqueue_step(WorkerStep(
                 name="Auto PARK",
                 segment=seg,
+                skip_if=skip_if,
                 on_complete=lambda: self.after(0, done)
             ))
-            self._log(f"[PLAN] PARK (offset_z={seg.offset_z:.3f})")
+            self._log("[PLAN] PARK")
             return
 
-        # otherwise stop run (idle)
+        # ✅ NEW behavior: keep-ready mode
+        if self.keep_ready_var.get():
+            # tetap running, standby
+            self._log("[RUN] READY (queue empty, waiting new tasks)")
+            return
+
+        # default: stop
         self.running = False
         self._log("[RUN] IDLE (queue empty)")
         self._refresh_queue()
