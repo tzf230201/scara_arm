@@ -1,0 +1,327 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import time
+import threading
+from collections import deque
+
+try:
+    import zmq
+except ImportError:
+    raise SystemExit("pyzmq belum terinstall. Install: pip install pyzmq")
+
+import math
+
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import JointState
+
+
+def pvt_deg_to_jointstate_rad(
+    *,
+    p1: float,
+    v1: float,
+    p2: float,
+    v2: float,
+    p3: float,
+    v3: float,
+    p4: float,
+    v4: float,
+) -> tuple[list[float], list[float]]:
+    """Convert incoming PVT (degrees) into JointState (radians).
+
+    The joint_state_mapper will take care of converting cumulative -> relative (joint3/joint4).
+    This node only converts units deg -> rad and publishes full arrays.
+    """
+
+    # Incoming PVT scaling (per your convention):
+    # - joint1 is sent as 4x
+    # - joint2..4 are sent as 5x
+    p1_deg = float(p1) / 100.0
+    p2_deg = float(p2) / 5.0
+    p3_deg = float(p3) / 5.0
+    p4_deg = -float(p4) / 5.0
+
+    v1_deg_s = float(v1) / 100.0
+    v2_deg_s = float(v2) / 5.0
+    v3_deg_s = float(v3) / 5.0
+    v4_deg_s = float(v4) / 5.0
+
+    pos = [math.radians(p1_deg), math.radians(p2_deg), math.radians(p3_deg), math.radians(p4_deg)]
+    vel = [math.radians(v1_deg_s), math.radians(v2_deg_s), math.radians(v3_deg_s), math.radians(v4_deg_s)]
+    return pos, vel
+
+
+# =========================
+# ZMQ parsing
+# =========================
+def parse_pvt(msg: str):
+    try:
+        obj = json.loads(msg)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(obj, dict):
+        return None
+    if obj.get("command") != "pvt_point":
+        return None
+    req = ["p1","v1","p2","v2","p3","v3","p4","v4","t_ms"]
+    for k in req:
+        if k not in obj:
+            return None
+    return obj
+
+
+class RateMeter:
+    def __init__(self, window=200):
+        self.ts = deque(maxlen=window)
+    def tick(self, t):
+        self.ts.append(t)
+    def hz(self):
+        if len(self.ts) < 2:
+            return 0.0
+        dt = self.ts[-1] - self.ts[0]
+        if dt <= 0:
+            return 0.0
+        return (len(self.ts) - 1) / dt
+
+
+# =========================
+# Receiver thread
+# =========================
+class PVTReceiver:
+    def __init__(self, endpoint: str, mode: str, conflate: bool, rate_window: int = 200):
+        self.endpoint = endpoint
+        self.mode = mode
+        self.conflate = conflate
+
+        self.ctx = zmq.Context.instance()
+        if mode == "SUB":
+            self.sock = self.ctx.socket(zmq.SUB)
+            self.sock.setsockopt_string(zmq.SUBSCRIBE, "")
+        else:
+            self.sock = self.ctx.socket(zmq.PULL)
+
+        if conflate:
+            # keep only the latest message (viewer anti-lag)
+            self.sock.setsockopt(zmq.CONFLATE, 1)
+
+        # viewer biasanya connect
+        self.sock.connect(endpoint)
+
+        self._stop = threading.Event()
+        self.lock = threading.Lock()
+
+        self.count_pvt = 0
+        self.count_bad = 0
+        self.rate = RateMeter(window=rate_window)
+
+        self.last = None  # (t_rcv, pvt_dict)
+
+        self.csv_f = None
+        self.log_csv = False
+
+        self.thread = threading.Thread(target=self._run, daemon=True)
+
+    def enable_csv(self, path: str):
+        self.csv_f = open(path, "w", encoding="utf-8")
+        self.csv_f.write("recv_time_s,t_ms,p1,v1,p2,v2,p3,v3,p4,v4\n")
+        self.csv_f.flush()
+        self.log_csv = True
+
+    def start(self):
+        self.thread.start()
+
+    def stop(self):
+        self._stop.set()
+        try:
+            self.sock.close(0)
+        except Exception:
+            pass
+        try:
+            if self.csv_f:
+                self.csv_f.flush()
+                self.csv_f.close()
+        except Exception:
+            pass
+
+    def _run(self):
+        poller = zmq.Poller()
+        poller.register(self.sock, zmq.POLLIN)
+
+        while not self._stop.is_set():
+            events = dict(poller.poll(timeout=200))
+            if self.sock not in events:
+                continue
+
+            raw = self.sock.recv()
+            try:
+                msg = raw.decode("utf-8", errors="replace")
+            except Exception:
+                msg = str(raw)
+
+            pvt = parse_pvt(msg)
+            if pvt is None:
+                with self.lock:
+                    self.count_bad += 1
+                continue
+
+            t_rcv = time.time()
+            self.rate.tick(t_rcv)
+
+            with self.lock:
+                self.count_pvt += 1
+                self.last = (t_rcv, pvt)
+
+                if self.log_csv and self.csv_f:
+                    self.csv_f.write(
+                        f"{t_rcv:.6f},{int(pvt['t_ms'])},"
+                        f"{float(pvt['p1'])},{float(pvt['v1'])},"
+                        f"{float(pvt['p2'])},{float(pvt['v2'])},"
+                        f"{float(pvt['p3'])},{float(pvt['v3'])},"
+                        f"{float(pvt['p4'])},{float(pvt['v4'])}\n"
+                    )
+                    if (self.count_pvt % 50) == 0:
+                        self.csv_f.flush()
+
+
+class ZMQToJointState(Node):
+    def __init__(
+        self,
+        *,
+        endpoint: str,
+        mode: str,
+        conflate: bool,
+        output_topic: str,
+        publish_rate_hz: float,
+        log_csv_path: str,
+    ) -> None:
+        super().__init__('pvt_to_joint')
+
+        self._output_topic = str(output_topic)
+        self._pub = self.create_publisher(JointState, self._output_topic, 10)
+
+        # One-time initialization publish.
+        # Some nodes may not be ready right at startup, so publish zeros after a short delay.
+        # If real data arrives before that, skip the init publish.
+        self._received_any = False
+        self._init_timer_ref = {'t': None}
+
+        def _publish_init_once():
+            try:
+                if self._received_any:
+                    return
+                js0 = JointState()
+                js0.header.stamp = self.get_clock().now().to_msg()
+                js0.name = ['joint_1', 'joint_2', 'joint_3', 'joint_4']
+                js0.position = [0.0, 0.0, 0.0, 0.0]
+                js0.velocity = [0.0, 0.0, 0.0, 0.0]
+                self._pub.publish(js0)
+            finally:
+                t = self._init_timer_ref.get('t')
+                if t is not None:
+                    try:
+                        t.cancel()
+                    except Exception:
+                        pass
+
+        self._init_timer_ref['t'] = self.create_timer(2.0, _publish_init_once)
+
+        self._recv = PVTReceiver(endpoint, mode, conflate, rate_window=200)
+        if log_csv_path:
+            self._recv.enable_csv(log_csv_path)
+            self.get_logger().info(f'logging CSV -> {log_csv_path}')
+
+        self._last_rcv_time: float | None = None
+
+        rate = max(1.0, float(publish_rate_hz))
+        self._timer = self.create_timer(1.0 / rate, self._on_timer)
+
+        self.get_logger().info(f'ZMQ connect {mode} -> {endpoint}')
+        self.get_logger().info(f'Publishing JointState -> {self._output_topic} @ {rate:.1f} Hz')
+        self._recv.start()
+
+    def destroy_node(self):
+        try:
+            self._recv.stop()
+        except Exception:
+            pass
+        return super().destroy_node()
+
+    def _on_timer(self) -> None:
+        with self._recv.lock:
+            last = self._recv.last
+
+        if last is None:
+            return
+
+        self._received_any = True
+
+        t_rcv, pvt = last
+        if self._last_rcv_time is not None and t_rcv <= self._last_rcv_time:
+            return
+        self._last_rcv_time = t_rcv
+
+        try:
+            pos_raw, vel_raw = pvt_deg_to_jointstate_rad(
+                p1=float(pvt['p1']), v1=float(pvt['v1']),
+                p2=float(pvt['p2']), v2=float(pvt['v2']),
+                p3=float(pvt['p3']), v3=float(pvt['v3']),
+                p4=float(pvt['p4']), v4=float(pvt['v4']),
+            )
+        except Exception as e:
+            self.get_logger().warn(f'Failed to convert PVT -> JointState: {e}')
+            return
+
+        js = JointState()
+        js.header.stamp = self.get_clock().now().to_msg()
+        js.name = ['joint_1', 'joint_2', 'joint_3', 'joint_4']
+        js.position = list(pos_raw)
+        js.velocity = list(vel_raw)
+        self._pub.publish(js)
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description='ZMQ PVT -> ROS2 JointState publisher (for RViz via joint_state_mapper)')
+    ap.add_argument('--endpoint', default='ipc:///tmp/motor_cmd', help='ZMQ endpoint (default ipc:///tmp/motor_cmd)')
+    ap.add_argument('--mode', choices=['SUB', 'PULL'], default='SUB', help='SUB untuk PUB/SUB, PULL untuk PUSH/PULL')
+    ap.add_argument('--conflate', action='store_true', help='ambil message terbaru saja (hindari lag)')
+    ap.add_argument('--topic', default='/joint_states_mapper', help='ROS topic to publish raw JointState (input for joint_state_mapper)')
+    ap.add_argument('--rate', type=float, default=50.0, help='Publish rate (Hz) to ROS (default 50)')
+    ap.add_argument(
+        '--save',
+        nargs='?',
+        const='',
+        default='',
+        help='opsional: simpan log CSV, contoh --save pvt_log.csv',
+    )
+    # When launched via `ros2 launch`, extra ROS arguments are appended (e.g. --ros-args ...).
+    # Use parse_known_args so argparse doesn't exit with code 2.
+    args, ros_args = ap.parse_known_args()
+
+    rclpy.init(args=ros_args)
+    node = ZMQToJointState(
+        endpoint=args.endpoint,
+        mode=args.mode,
+        conflate=bool(args.conflate),
+        output_topic=args.topic,
+        publish_rate_hz=float(args.rate),
+        log_csv_path=str(args.save),
+    )
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        try:
+            node.destroy_node()
+        except Exception:
+            pass
+        try:
+            rclpy.try_shutdown()
+        except AttributeError:
+            if rclpy.ok():
+                rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

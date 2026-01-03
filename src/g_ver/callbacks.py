@@ -165,16 +165,30 @@ def request_mode(msg, state):
 def routine(state):
     if state['routine'] == True:
         if state['request_mode'] == True:
-            ret = request_mode_routine()
+            ret = robot_request_mode_routine()
             if ret == 1:
                 state['routine'] = False
                 state['request_mode'] = False
         else:
             # ret = pt_routine()
-            ret = pvt_routine()
+            ret = robot_pvt_routine()
             if ret == 1:
                 state['routine'] = False
-    
+
+def on_pvt_point(msg, state):
+    # ambil data
+    p1 = float(msg["p1"]); v1 = float(msg["v1"])
+    p2 = float(msg["p2"]); v2 = float(msg["v2"])
+    p3 = float(msg["p3"]); v3 = float(msg["v3"])
+    p4 = float(msg["p4"]); v4 = float(msg["v4"])
+    dt_ms = int(msg.get("dt_ms", 50))
+    robot_receive_pvt_point(
+        (p1, v1, dt_ms),
+        (p2, v2, dt_ms),
+        (p3, v3, dt_ms),
+        (p4, v4, dt_ms),
+    )
+
 
 # === Mapping ===
 HANDLERS = {
@@ -193,4 +207,5 @@ HANDLERS = {
     "out2_active": out2_active,
     "out2_nonactive": out2_nonactive,
     "request_mode": request_mode,
+    "pvt_point": on_pvt_point,
 }

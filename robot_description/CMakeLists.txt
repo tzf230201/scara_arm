@@ -8,6 +8,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
 	install(
 		PROGRAMS
 			scripts/joint_state_mapper
+			scripts/pvt_to_joint
 		DESTINATION lib/${PROJECT_NAME}
 	)
 endif()

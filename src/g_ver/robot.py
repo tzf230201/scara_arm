@@ -610,7 +610,7 @@ def robot_start_pvt_dancing(pvt_path):
     servo_pvt_execute()
     arm_pvt_execute()
     
-def pvt_routine():
+def robot_pvt_routine():
     global pvt_sended, max_pvt_index, tar_pvt, cur_pvt
     global motion_cnt, motion_data, motion_size, motion_enable
     if motion_enable:
@@ -632,7 +632,15 @@ def pvt_routine():
     
     return 0
 
+last_pvt_1 = (0,0,PT_TIME_INTERVAL)
+last_pvt_2 = (0,0,PT_TIME_INTERVAL)
+last_pvt_3 = (0,0,PT_TIME_INTERVAL)
+last_pvt_4 = (0,0,PT_TIME_INTERVAL)
+min_request_queue = 10
+
 def robot_start_request_mode(selection):
+    global pvt_sended
+    global last_pvt_1, last_pvt_2, last_pvt_3, last_pvt_4
     ok, angles, bad = home_check(2.0)
     if not ok:
         print("Not home. bad joints:", bad, "wrapped angles:", angles)
@@ -645,7 +653,79 @@ def robot_start_request_mode(selection):
     arm_pvt_init()
     servo_pvt_init()
 
+    
+    pvt_sended = 0
+    cur_pvt = 0
+    min_request_queue = 10
+    max_pvt_index = min_request_queue
+    
+    
+    for i in range(min_request_queue):
+        pvts_1[pvt_sended] = (0,0,PT_TIME_INTERVAL)
+        pvts_2[pvt_sended] = (0,0,PT_TIME_INTERVAL)
+        pvts_3[pvt_sended] = (0,0,PT_TIME_INTERVAL)
+        pvts_4[pvt_sended] = (0,0,PT_TIME_INTERVAL)
+        servo_pvt_set_pvt(pvts_1[pvt_sended])
+        arm_pvt_set_pvt(pvts_2[pvt_sended], pvts_3[pvt_sended], pvts_4[pvt_sended])
+        last_pvt_1 = pvts_1[pvt_sended]
+        last_pvt_2 = pvts_2[pvt_sended]
+        last_pvt_3 = pvts_3[pvt_sended]
+        last_pvt_4 = pvts_4[pvt_sended]
+        pvt_sended += 1
+
+
+    servo_pvt_execute()
+    arm_pvt_execute()
+
     return 1
 
 def robot_request_mode_routine(selection):
     print(f"robot_request_mode_routine({selection}) called")
+    global pvt_sended, motion_enable, min_request_queue, max_pvt_index, cur_pvt
+    global last_pvt_1, last_pvt_2, last_pvt_3, last_pvt_4
+
+    if motion_enable:
+        depth = stepper_pvt_get_queue(7)
+        depth_servo = servo_pvt_get_queue()
+        if is_pvt_decrease(depth):
+            cur_pvt += 1
+        if depth != 0:
+            if (depth < min_request_queue):
+                if pvt_sended < max_pvt_index:
+                    servo_pvt_set_pvt(pvts_1[pvt_sended])
+                    arm_pvt_set_pvt(pvts_2[pvt_sended], pvts_3[pvt_sended], pvts_4[pvt_sended])
+                    last_pvt_1 = pvts_1[pvt_sended]
+                    last_pvt_2 = pvts_2[pvt_sended]
+                    last_pvt_3 = pvts_3[pvt_sended]
+                    last_pvt_4 = pvts_4[pvt_sended]
+                    pvt_sended = (pvt_sended + 1) & 0xFFFFFFFF #wrap 32 bit
+                else:
+                    servo_pvt_set_pvt(last_pvt_1)
+                    arm_pvt_set_pvt(last_pvt_2, last_pvt_3, last_pvt_4)
+        else:
+            print(f"motion selesai")
+            return 1
+    # else:
+    #     stop()
+    
+    return 0
+
+def robot_receive_pvt_point(pvt_1, pvt_2, pvt_3, pvt_4):
+    global pvts_1, pvts_2, pvts_3, pvts_4
+    global max_pvt_index
+
+    pvt_1[0] = servo_degrees_to_pulses(pvt_1[0])
+    pvt_2[0] = stepper_deg_to_pulse(pvt_2[0])
+    pvt_3[0] = stepper_deg_to_pulse(pvt_3[0])
+    pvt_4[0] = stepper_deg_to_pulse(pvt_4[0])
+    pvt_1[1] = servo_degrees_to_pulses(pvt_1[1])
+    pvt_2[1] = stepper_deg_to_pulse(pvt_2[1])
+    pvt_3[1] = stepper_deg_to_pulse(pvt_3[1])
+    pvt_4[1] = stepper_deg_to_pulse(pvt_4[1])
+
+    pvts_1.append(pvt_1)
+    pvts_2.append(pvt_2)
+    pvts_3.append(pvt_3)
+    pvts_4.append(pvt_4)
+
+    max_pvt_index = (max_pvt_index + 1) & 0xFFFFFFFF
