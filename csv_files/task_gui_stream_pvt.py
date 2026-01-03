@@ -810,7 +810,7 @@ class TaskSchedulerGUI(tk.Tk):
         # ✅ NEW checkbox UI
         ttk.Checkbutton(
             tasks,
-            text="Keep ready (stay running when queue empty; auto-run when new tasks arrive)",
+            text="Keep ready (stay running when queue empty)",
             variable=self.keep_ready_var
         ).grid(row=4, column=0, sticky="w", pady=(10,0))
 
@@ -929,13 +929,13 @@ class TaskSchedulerGUI(tk.Tk):
             return bool(p) and os.path.exists(p)
 
         if not ok(self.pickup_csv_var.get()):
-            messagebox.showerror("Missing", "Pickup CSV belum dipilih / file tidak ada.")
+            messagebox.showerror("Missing", "Pickup CSV hasn't selected yet/ file does not exist.")
             return False
         if not ok(self.place_csv_var.get()):
-            messagebox.showerror("Missing", "Place CSV belum dipilih / file tidak ada.")
+            messagebox.showerror("Missing", "Place CSV hasn't selected yet/ file does not exist.")
             return False
         if not ok(self.shuttle_csv_var.get()):
-            messagebox.showerror("Missing", "Shuttle CSV belum dipilih / file tidak ada.")
+            messagebox.showerror("Missing", "Shuttle CSV hasn't selected yet/ file does not exist.")
             return False
         return True
 
@@ -957,7 +957,7 @@ class TaskSchedulerGUI(tk.Tk):
         if self.running:
             return
         if self.get_queue_len() == 0:
-            messagebox.showinfo("Info", "Queue masih kosong.")
+            messagebox.showinfo("Info", "Queue still empty.")
             return
         if not self._validate_for_run():
             return
