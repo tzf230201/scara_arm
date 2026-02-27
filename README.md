@@ -4,7 +4,7 @@ A 4-DoF SCARA robot arm on a vertical rail, equipped with Integrated Closed-Loop
 
 ![Scara Arm](images/picture_1.png)
 
-The software was running on ROS1-Noetic, utilizing a URDF model and MoveIt, with an option to use a custom Tkinter GUI. but for now, we stop using ROS1 and tring to use another messaging library to get realtime system such as ZMQ.
+The software was running on ROS1-Noetic, utilizing a URDF model and MoveIt, with an option to use a custom Tkinter GUI. but for now, we stop using ROS1 and tring to use another messaging library to get realtime system such as ZMQ, we are moving to ROS2 too.
 
 ![MoveIt](images/picture_5.png)
 
@@ -13,6 +13,11 @@ Movelt actually difficult to manage our arm robot, because our robot mechanicall
 ![Mechanical Design](images/picture_2.png)
 
 That's why We are also developing our own motion designer software called [Dancemotion Designer](https://github.com/tzf230201/Dancemotion-Designer), which is also an ongoing project.
+
+another option, we provide request based system, the request system will run a pre-defined motin if requested, usually the request sended by CAN-BUS, but we provided a UI to test the request sytem, you can find it at `csv_files/task_gui_stream_pvt.py`, and run the `ros2 launch robot_description pvt_viewer.launch.py` to see the movement.
+
+![RVIZ](images/picture_7.png)
+
 
 We plan to make the real arm move exact as to the simulation with the same organic smoothness (because our arm is very 
 sturdy and backlash free)
