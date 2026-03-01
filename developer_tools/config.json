@@ -1,5 +1,5 @@
 {
-  "motions_dir": "./motions",
+  "motions_dir": "./Scara_Arm_CSV_files",
 
   "z_by_task": {
     "pickup":  { "z_base_mm": 90.0, "z_step_mm": 24.0 },
