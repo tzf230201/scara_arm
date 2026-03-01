@@ -23,7 +23,7 @@ except Exception:
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 DEFAULT_CONFIG = {
-    "motions_dir": "./Scara_Arm_CSV_files",
+    "motions_dir": "./scara_arm_csv_files",
     "z_by_task": {
         "pickup":  {"z_base_mm": 0.0, "z_step_mm": 24.0},
         "place":   {"z_base_mm": 0.0, "z_step_mm": 24.0},
@@ -885,6 +885,8 @@ class SettingsDialog(tk.Toplevel):
         self._tooltips: List[HoverTooltip] = []
         self._csv_combos: Dict[str, ttk.Combobox] = {}
         self._csv_vars: Dict[str, tk.StringVar] = {}
+        self._csv_display_vars: Dict[str, tk.StringVar] = {}
+        self._csv_value_maps: Dict[str, Dict[str, str]] = {}
 
         # Share CSV selections with main GUI (single source of truth)
         self.pickup_csv_var = parent.pickup_csv_var
@@ -985,11 +987,6 @@ class SettingsDialog(tk.Toplevel):
         sec.columnconfigure(1, weight=1)
 
         rows = [
-            ("Pickup CSV", "pickup", self.pickup_csv_var, "Select Pickup CSV", True),
-            ("Place CSV", "place", self.place_csv_var, "Select Place CSV", True),
-            ("Shuttle CSV", "shuttle", self.shuttle_csv_var, "Select Shuttle CSV", True),
-            ("Home/Park CSV", "home_park", self.park_csv_var, "Select Home/Park CSV", True),
-
             ("park_pickup", "park_pickup", self._csv_vars["park_pickup"], "", False),
             ("pickup_indown_outdown", "pickup_indown_outdown", self._csv_vars["pickup_indown_outdown"], "", False),
             ("pickup_indown_outup", "pickup_indown_outup", self._csv_vars["pickup_indown_outup"], "", False),
@@ -1008,10 +1005,13 @@ class SettingsDialog(tk.Toplevel):
         ]
         for r, (label, key, var, title, can_browse) in enumerate(rows):
             ttk.Label(sec, text=label).grid(row=r, column=0, sticky="w", pady=(0, 6) if r < len(rows)-1 else (0, 0))
-            cb = ttk.Combobox(sec, textvariable=var, state="readonly")
+            dvar = tk.StringVar()
+            self._csv_display_vars[key] = dvar
+            cb = ttk.Combobox(sec, textvariable=dvar, state="readonly")
             cb.grid(row=r, column=1, sticky="ew", padx=6, pady=(0, 6) if r < len(rows)-1 else (0, 0))
+            cb.bind("<<ComboboxSelected>>", lambda _e, k=key: self._on_csv_selected(k))
             if can_browse:
-                ttk.Button(sec, text="Browse", command=lambda v=var, t=title: self._browse_csv(v, t)).grid(
+                ttk.Button(sec, text="Browse", command=lambda v=var, k=key, t=title: self._browse_csv(v, k, t)).grid(
                     row=r, column=2, pady=(0, 6) if r < len(rows)-1 else (0, 0)
                 )
             self._csv_combos[key] = cb
@@ -1114,7 +1114,7 @@ class SettingsDialog(tk.Toplevel):
         if path:
             self.motion_dir_var.set(path)
 
-    def _browse_csv(self, var: tk.StringVar, title: str):
+    def _browse_csv(self, var: tk.StringVar, key: str, title: str):
         md = self.parent.cfg["motions_dir"]
         path = filedialog.askopenfilename(
             title=title,
@@ -1123,11 +1123,58 @@ class SettingsDialog(tk.Toplevel):
             parent=self
         )
         if path:
-            var.set(os.path.abspath(path))
+            full = os.path.abspath(path)
+            var.set(full)
+            # Keep display value compact.
+            disp = self._display_path(full)
+            self._csv_value_maps.setdefault(key, {})[disp] = full
+            if key in self._csv_display_vars:
+                self._csv_display_vars[key].set(disp)
 
     def _scan_csv_now(self):
-        self.parent.scan_and_set_defaults()
+        # Manual scan should use current motions_dir value in Settings,
+        # even before Apply is pressed.
+        md_raw = self.motion_dir_var.get().strip()
+        if not md_raw:
+            md_scan = self.parent.cfg["motions_dir"]
+        elif os.path.isabs(md_raw):
+            md_scan = os.path.normpath(md_raw)
+        else:
+            cfg_base = os.path.dirname(os.path.abspath(self.config_path_var.get().strip() or self.parent.config_path))
+            md_scan = os.path.normpath(os.path.join(cfg_base, md_raw))
+
+        # Manual scan should reflect folder contents directly (clear stale selections).
+        self.parent.scan_and_set_defaults(preserve_custom_csv=False, motions_dir_override=md_scan)
         self.refresh_csv_options()
+
+    def _display_path(self, full_path: str) -> str:
+        """Display path relative to the parent of motions_dir, fallback to basename."""
+        try:
+            md = self.parent.cfg["motions_dir"]
+            parent_dir = os.path.dirname(os.path.normpath(md))
+            rel = os.path.relpath(full_path, parent_dir)
+            if not rel.startswith(".."):
+                return rel
+        except Exception:
+            pass
+        return os.path.basename(full_path)
+
+    def _on_csv_selected(self, key: str):
+        dvar = self._csv_display_vars.get(key)
+        if dvar is None:
+            return
+        disp = dvar.get()
+        full = self._csv_value_maps.get(key, {}).get(disp, disp)
+        if key == "pickup":
+            self.pickup_csv_var.set(full)
+        elif key == "place":
+            self.place_csv_var.set(full)
+        elif key == "shuttle":
+            self.shuttle_csv_var.set(full)
+        elif key == "home_park":
+            self.park_csv_var.set(full)
+        elif key in self._csv_vars:
+            self._csv_vars[key].set(full)
 
     def refresh_csv_options(self):
         if not self._csv_combos:
@@ -1159,12 +1206,54 @@ class SettingsDialog(tk.Toplevel):
         for key, values in mapping.items():
             cb = self._csv_combos.get(key)
             if cb is not None:
-                cb["values"] = values
-                var = cb.cget("textvariable")
-                if isinstance(var, str) and var:
-                    cur = self.getvar(var)
-                    if cur not in values:
-                        self.setvar(var, values[0] if values else "")
+                vals = list(values)
+                if key == "pickup":
+                    cur = self.pickup_csv_var.get().strip()
+                elif key == "place":
+                    cur = self.place_csv_var.get().strip()
+                elif key == "shuttle":
+                    cur = self.shuttle_csv_var.get().strip()
+                elif key == "home_park":
+                    cur = self.park_csv_var.get().strip()
+                else:
+                    cur = self._csv_vars.get(key, tk.StringVar(value="")).get().strip()
+
+                # Preserve current selection in options (for custom/manual paths).
+                if cur and (cur not in vals):
+                    vals = [cur] + vals
+
+                # Build display->full map with collision-safe labels.
+                d2f: Dict[str, str] = {}
+                for full in vals:
+                    base_disp = self._display_path(full)
+                    disp = base_disp
+                    idx = 2
+                    while disp in d2f and d2f[disp] != full:
+                        disp = f"{base_disp} ({idx})"
+                        idx += 1
+                    d2f[disp] = full
+                self._csv_value_maps[key] = d2f
+
+                display_vals = list(d2f.keys())
+                cb["values"] = display_vals
+
+                dvar = self._csv_display_vars.get(key)
+                if dvar is not None:
+                    chosen_disp = next((d for d, f in d2f.items() if f == cur), "")
+                    if not chosen_disp and display_vals:
+                        chosen_disp = display_vals[0]
+                        full = d2f[chosen_disp]
+                        if key == "pickup":
+                            self.pickup_csv_var.set(full)
+                        elif key == "place":
+                            self.place_csv_var.set(full)
+                        elif key == "shuttle":
+                            self.shuttle_csv_var.set(full)
+                        elif key == "home_park":
+                            self.park_csv_var.set(full)
+                        elif key in self._csv_vars:
+                            self._csv_vars[key].set(full)
+                    dvar.set(chosen_disp)
 
     def _f(self, v: tk.StringVar, name: str) -> float:
         try:
@@ -1334,6 +1423,11 @@ class TaskSchedulerGUI(tk.Tk):
 
         self.running = False
         self.at_park = False
+        # Vertical pose state for automatic in/out variant selection.
+        # Convention:
+        #   current=up   -> use in=indown
+        #   current=down -> use in=inup
+        self.vertical_state = "up"
 
         self._log_q = queue.Queue()
 
@@ -1520,19 +1614,22 @@ class TaskSchedulerGUI(tk.Tk):
     def open_settings(self):
         SettingsDialog(self)
 
-    def apply_settings(self, cfg: dict, config_path: str):
+    def apply_settings(self, cfg: dict, config_path: str, preserve_custom_csv: bool = True):
         self.cfg = cfg
         self.config_path = os.path.abspath(config_path)
         if self.worker:
             self.worker.apply_cfg(self.cfg)
-        self.scan_and_set_defaults()
+        self.scan_and_set_defaults(preserve_custom_csv=preserve_custom_csv)
 
-    def scan_and_set_defaults(self):
-        md = self.cfg["motions_dir"]
+    def scan_and_set_defaults(self, preserve_custom_csv: bool = False, motions_dir_override: Optional[str] = None):
+        md = motions_dir_override if motions_dir_override else self.cfg["motions_dir"]
         self.scan_results = scan_motions(md)
 
         def set_values(values: List[str], var: tk.StringVar):
+            cur = var.get().strip()
             if var.get() in values:
+                return
+            if preserve_custom_csv and cur:
                 return
             var.set(values[0] if values else "")
 
@@ -1583,6 +1680,56 @@ class TaskSchedulerGUI(tk.Tk):
             return False
         return True
 
+    def _extract_out_state(self, path: str) -> Optional[str]:
+        n = os.path.basename(path).lower()
+        if "outup" in n:
+            return "up"
+        if "outdown" in n:
+            return "down"
+        return None
+
+    def _pick_pickplace_variant(self, kind: str, next_task: Optional[Task]) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Auto-select pickup/place variant by:
+        - current vertical state -> in token
+        - look-ahead next task    -> out token
+        Returns: (csv_path_or_none, out_state_or_none)
+        """
+        k = kind.lower().strip()  # pickup/place
+        in_token = "indown" if self.vertical_state == "up" else "inup"
+
+        # Candidate keys for current task.
+        key_outdown = f"{k}_{in_token}_outdown"
+        key_outup = f"{k}_{in_token}_outup"
+        cand_outdown = self.scan_results.get(key_outdown, [])
+        cand_outup = self.scan_results.get(key_outup, [])
+
+        # Decide desired out using next motion feasibility.
+        desired_out = "up"
+        if next_task and next_task.kind in ("Pickup", "Place"):
+            nk = next_task.kind.lower()
+            # If current out=up  => next current=up  => next in=indown
+            # If current out=down=> next current=down=> next in=inup
+            next_has_indown = bool(self.scan_results.get(f"{nk}_indown_outdown", [])) or bool(self.scan_results.get(f"{nk}_indown_outup", []))
+            next_has_inup = bool(self.scan_results.get(f"{nk}_inup_outdown", [])) or bool(self.scan_results.get(f"{nk}_inup_outup", []))
+            if next_has_inup and (not next_has_indown):
+                desired_out = "down"
+            elif next_has_indown and (not next_has_inup):
+                desired_out = "up"
+
+        if desired_out == "up":
+            if cand_outup:
+                return cand_outup[0], "up"
+            if cand_outdown:
+                return cand_outdown[0], "down"
+        else:
+            if cand_outdown:
+                return cand_outdown[0], "down"
+            if cand_outup:
+                return cand_outup[0], "up"
+
+        return None, None
+
     def enqueue_pair(self):
         t1 = Task(self.first_kind_var.get(), self.first_level_var.get() if self.first_kind_var.get() != "Shuttle" else None)
         t2 = Task(self.second_kind_var.get(), self.second_level_var.get() if self.second_kind_var.get() != "Shuttle" else None)
@@ -1629,6 +1776,7 @@ class TaskSchedulerGUI(tk.Tk):
 
         self.running = True
         self.at_park = False
+        self.vertical_state = "up"
         self._log("[RUN] START (reused sender/worker)")
         self._refresh_queue()
 
@@ -1661,17 +1809,33 @@ class TaskSchedulerGUI(tk.Tk):
             if not self.task_queue:
                 return
             t = self.task_queue.pop(0)
+            next_task = self.task_queue[0] if self.task_queue else None
 
         self._refresh_queue()
 
-        pickup_csv = self.pickup_csv_var.get()
-        place_csv  = self.place_csv_var.get()
-        shuttle_csv = self.shuttle_csv_var.get()
-
-        seg = task_to_segment(self.cfg, t, pickup_csv, place_csv, shuttle_csv)
+        out_state_after: Optional[str] = None
+        if t.kind in ("Pickup", "Place"):
+            selected, out_state_after = self._pick_pickplace_variant(t.kind, next_task)
+            if selected:
+                seg = CsvSegment(selected, offset_z=z_offset_for(self.cfg, t.kind.lower(), int(t.level)))
+            else:
+                # Fallback to manual/default selector if variant is unavailable.
+                pickup_csv = self.pickup_csv_var.get()
+                place_csv = self.place_csv_var.get()
+                shuttle_csv = self.shuttle_csv_var.get()
+                seg = task_to_segment(self.cfg, t, pickup_csv, place_csv, shuttle_csv)
+                out_state_after = self._extract_out_state(seg.path)
+        else:
+            pickup_csv = self.pickup_csv_var.get()
+            place_csv = self.place_csv_var.get()
+            shuttle_csv = self.shuttle_csv_var.get()
+            seg = task_to_segment(self.cfg, t, pickup_csv, place_csv, shuttle_csv)
+            out_state_after = self._extract_out_state(seg.path)
 
         def done():
             self.at_park = False
+            if out_state_after in ("up", "down"):
+                self.vertical_state = out_state_after
             self._log(f"[DONE] {t.label()}")
 
         self.worker.enqueue_step(WorkerStep(
@@ -1679,7 +1843,10 @@ class TaskSchedulerGUI(tk.Tk):
             segment=seg,
             on_complete=lambda: self.after(0, done)
         ))
-        self._log(f"[PLAN] {t.label()}")
+        self._log(
+            f"[PLAN] {t.label()} | csv={os.path.basename(seg.path)} | "
+            f"state={self.vertical_state} -> {out_state_after if out_state_after else 'unchanged'}"
+        )
 
     def _maybe_auto_park_or_stop(self):
         park_csv = self.park_csv_var.get()
