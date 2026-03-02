@@ -76,6 +76,39 @@ A slightly loose connector causes intermittent encoder reading errors. For days 
 
 ---
 
+## Solution
+
+## Power Loss
+ in case of power loss, the brake must be activated.
+ after re-turn on the power
+ 1. we have to move the arm part away from the shelf, 
+ 2. after that turn the servo on, but keep the breake
+ 3. activated the hold position .
+ 4. move to the home. because pvt mode always start from home.
+
+## Entanglement or Jam
+ I think it's better if the robot can detect if there a failure.
+ maybe we can stream the error msg from can bus or something else.
+ maybe the key is collision detection. can be torque or position detection.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Closing Note
 A safe system is not only about one emergency stop feature.  
 It requires correct sequence logic, reliable communication, controlled restart behavior, correct file selection, and disciplined operation.
+
+
+
+
