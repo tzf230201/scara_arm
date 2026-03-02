@@ -1,0 +1,81 @@
+# Regarding Safety on This Robot
+
+Safety risks on this robot usually appear as a sequence of small issues that combine into one dangerous event.  
+Below is a practical list of possible safety scenarios in story form.
+
+## 1) Communication Error During Sequence Transition
+### Explanation
+This robot depends on ordered communication between axes. If one axis does not receive or execute a command while another axis continues, motion order becomes unsafe.
+
+### Example
+The horizontal arm is expected to move away from the shelf first, then the vertical servo moves up to shuttle height.  
+If stepper communication fails and the arm does not move away, but the servo still moves up, the mechanism can collide with the shelf compartment.
+
+## 2) Wrong Programming Logic
+### Explanation
+A small logic error in trajectory generation, coordinate conversion, or task ordering can produce a valid command format but an unsafe physical movement.
+
+### Example
+A path is generated with the wrong axis sign or wrong reference frame. The robot moves to a mirrored location and enters a restricted area, causing a collision even though no software crash happens.
+
+## 3) Incorrect Motion File Selection
+### Explanation
+Using the wrong CSV variant (for example wrong in/out condition) can make the robot enter or exit from an unsafe direction.
+
+### Example
+The system should use `indown_outup`, but it loads `inup_outdown` instead. The entry path is no longer compatible with the current robot pose, and the arm passes too close to a fixture.
+
+## 4) Load Entanglement or Jam
+### Explanation
+A payload, cable, or nearby object can get caught during movement. The robot may still try to follow commands, increasing force on the mechanism.
+
+### Example
+While leaving the shelf, the load edge catches a divider wall. Motor torque rises suddenly and the end-effector twists, risking product drop or structural damage.
+
+## 5) Power Loss in Motion
+### Explanation
+When power drops during active movement, the robot can stop in an undefined state. Depending on mechanics, it may drift, sag, or lose position reference.
+
+### Example
+Power is lost while carrying a part at height. The robot stops abruptly, then after restart the controller assumes old coordinates are still valid and resumes from an unsafe state.
+
+## 6) Unsafe Restart After Fault
+### Explanation
+After emergency stop, communication fault, or power recovery, continuing motion without re-checking state can be dangerous.
+
+### Example
+The queue is resumed immediately after a fault clear, but actual robot pose is different from expected software pose. The next command creates an unexpected shortcut path into obstacles.
+
+## 7) Parameter Misconfiguration
+### Explanation
+Incorrect limits for speed, acceleration, or timing can turn a normal path into aggressive motion that the mechanics cannot safely handle.
+
+### Example
+`v_max` is configured too high and `dt_ms` too low. The robot follows the same geometry but with excessive dynamic load, causing vibration and positional overshoot near tight clearances.
+
+## 8) Incomplete Pre-Motion Assumption
+### Explanation
+If pre-motion is disabled or skipped at the wrong time, the robot may jump directly to trajectory start conditions that are not physically safe from current pose.
+
+### Example
+Without pre-motion, the robot starts a CSV path intended for a different initial pose. The first segment becomes a sudden pose change and the arm swings near the shelf edge.
+
+## 9) Human Proximity During Test/Recovery
+### Explanation
+Manual testing, tuning, or recovery is often done near the robot. Unexpected restart or delayed command execution can expose operators to motion hazards.
+
+### Example
+An operator adjusts a fixture during test mode, while queued commands are still active. The robot starts moving after a brief delay and enters the operator workspace.
+
+## 10) Silent Degradation Over Time
+### Explanation
+Mechanical wear, connector looseness, and calibration drift may not fail immediately but can gradually reduce safety margin.
+
+### Example
+A slightly loose connector causes intermittent encoder reading errors. For days the system appears normal, then one sequence places the arm a few millimeters off and creates a repeated near-collision.
+
+---
+
+## Closing Note
+A safe system is not only about one emergency stop feature.  
+It requires correct sequence logic, reliable communication, controlled restart behavior, correct file selection, and disciplined operation.
