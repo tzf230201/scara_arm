@@ -1688,14 +1688,14 @@ class TaskSchedulerGUI(tk.Tk):
             return "down"
         return None
 
-    def _pick_pickplace_variant(self, kind: str, next_task: Optional[Task]) -> Tuple[Optional[str], Optional[str]]:
+    def _pick_pickplace_variant(self, task: Task, next_task: Optional[Task]) -> Tuple[Optional[str], Optional[str]]:
         """
         Auto-select pickup/place variant by:
         - current vertical state -> in token
         - look-ahead next task    -> out token
         Returns: (csv_path_or_none, out_state_or_none)
         """
-        k = kind.lower().strip()  # pickup/place
+        k = task.kind.lower().strip()  # pickup/place
         in_token = "indown" if self.vertical_state == "up" else "inup"
 
         # Candidate keys for current task.
@@ -1706,7 +1706,20 @@ class TaskSchedulerGUI(tk.Tk):
 
         # Decide desired out using next motion feasibility.
         desired_out = "up"
-        if next_task and next_task.kind in ("Pickup", "Place"):
+        if (
+            next_task
+            and next_task.kind in ("Pickup", "Place")
+            and (task.level is not None)
+            and (next_task.level is not None)
+        ):
+            # Primary rule: out follows next motion direction by level delta.
+            cur_lvl = int(task.level)
+            nxt_lvl = int(next_task.level)
+            if nxt_lvl > cur_lvl:
+                desired_out = "up"
+            elif nxt_lvl < cur_lvl:
+                desired_out = "down"
+        elif next_task and next_task.kind in ("Pickup", "Place"):
             nk = next_task.kind.lower()
             # If current out=up  => next current=up  => next in=indown
             # If current out=down=> next current=down=> next in=inup
@@ -1815,7 +1828,7 @@ class TaskSchedulerGUI(tk.Tk):
 
         out_state_after: Optional[str] = None
         if t.kind in ("Pickup", "Place"):
-            selected, out_state_after = self._pick_pickplace_variant(t.kind, next_task)
+            selected, out_state_after = self._pick_pickplace_variant(t, next_task)
             if selected:
                 seg = CsvSegment(selected, offset_z=z_offset_for(self.cfg, t.kind.lower(), int(t.level)))
             else:
