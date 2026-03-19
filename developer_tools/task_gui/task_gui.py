@@ -1423,11 +1423,9 @@ class TaskSchedulerGUI(tk.Tk):
 
         self.running = False
         self.at_park = False
-        # Vertical pose state for automatic in/out variant selection.
-        # Convention:
-        #   current=up   -> use in=indown
-        #   current=down -> use in=inup
-        self.vertical_state = "up"
+        # Track the semantic end of the previous pickup/place motion.
+        # This is used to choose the next "in" variant more directly.
+        self.previous_out_state = "outup"
 
         self._log_q = queue.Queue()
 
@@ -1683,20 +1681,28 @@ class TaskSchedulerGUI(tk.Tk):
     def _extract_out_state(self, path: str) -> Optional[str]:
         n = os.path.basename(path).lower()
         if "outup" in n:
-            return "up"
+            return "outup"
         if "outdown" in n:
-            return "down"
+            return "outdown"
         return None
+
+    def _pick_in_token(self) -> str:
+        # Nearest-entry rule:
+        # previous outup   -> current inup
+        # previous outdown -> current indown
+        if self.previous_out_state == "outdown":
+            return "indown"
+        return "inup"
 
     def _pick_pickplace_variant(self, task: Task, next_task: Optional[Task]) -> Tuple[Optional[str], Optional[str]]:
         """
         Auto-select pickup/place variant by:
-        - current vertical state -> in token
+        - previous motion out-state -> in token
         - look-ahead next task    -> out token
         Returns: (csv_path_or_none, out_state_or_none)
         """
         k = task.kind.lower().strip()  # pickup/place
-        in_token = "indown" if self.vertical_state == "up" else "inup"
+        in_token = self._pick_in_token()
 
         # Candidate keys for current task.
         key_outdown = f"{k}_{in_token}_outdown"
@@ -1732,14 +1738,14 @@ class TaskSchedulerGUI(tk.Tk):
 
         if desired_out == "up":
             if cand_outup:
-                return cand_outup[0], "up"
+                return cand_outup[0], "outup"
             if cand_outdown:
-                return cand_outdown[0], "down"
+                return cand_outdown[0], "outdown"
         else:
             if cand_outdown:
-                return cand_outdown[0], "down"
+                return cand_outdown[0], "outdown"
             if cand_outup:
-                return cand_outup[0], "up"
+                return cand_outup[0], "outup"
 
         return None, None
 
@@ -1789,7 +1795,7 @@ class TaskSchedulerGUI(tk.Tk):
 
         self.running = True
         self.at_park = False
-        self.vertical_state = "up"
+        self.previous_out_state = "outup"
         self._log("[RUN] START (reused sender/worker)")
         self._refresh_queue()
 
@@ -1847,8 +1853,8 @@ class TaskSchedulerGUI(tk.Tk):
 
         def done():
             self.at_park = False
-            if out_state_after in ("up", "down"):
-                self.vertical_state = out_state_after
+            if out_state_after in ("outup", "outdown"):
+                self.previous_out_state = out_state_after
             self._log(f"[DONE] {t.label()}")
 
         self.worker.enqueue_step(WorkerStep(
@@ -1858,7 +1864,8 @@ class TaskSchedulerGUI(tk.Tk):
         ))
         self._log(
             f"[PLAN] {t.label()} | csv={os.path.basename(seg.path)} | "
-            f"state={self.vertical_state} -> {out_state_after if out_state_after else 'unchanged'}"
+            f"prev={self.previous_out_state} | in={self._pick_in_token()} | "
+            f"next_out={out_state_after if out_state_after else 'unchanged'}"
         )
 
     def _maybe_auto_park_or_stop(self):
